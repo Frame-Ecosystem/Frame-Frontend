@@ -1,7 +1,3 @@
-BarberLab
-
-Simple appointment booking for barbershops built with Next.js.
-
 Tech: Next.js, React, TypeScript, Tailwind CSS.
 
 Quick start
