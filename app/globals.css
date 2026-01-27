@@ -1,0 +1,380 @@
+@import 'tailwindcss';
+
+@custom-variant dark (&:is(.dark *));
+
+/* =============================================================================
+   TAILWIND THEME CONFIGURATION
+   Maps CSS variables to Tailwind utility classes
+   ============================================================================= */
+@theme {
+  --color-background: hsl(var(--background));
+  --color-foreground: hsl(var(--foreground));
+
+  --color-card: hsl(var(--card));
+  --color-card-foreground: hsl(var(--card-foreground));
+
+  --color-popover: hsl(var(--popover));
+  --color-popover-foreground: hsl(var(--popover-foreground));
+
+  --color-primary: hsl(var(--primary));
+  --color-primary-foreground: hsl(var(--primary-foreground));
+
+  --color-secondary: hsl(var(--secondary));
+  --color-secondary-foreground: hsl(var(--secondary-foreground));
+
+  --color-muted: hsl(var(--muted));
+  --color-muted-foreground: hsl(var(--muted-foreground));
+
+  --color-accent: hsl(var(--accent));
+  --color-accent-foreground: hsl(var(--accent-foreground));
+
+  --color-destructive: hsl(var(--destructive));
+  --color-destructive-foreground: hsl(var(--destructive-foreground));
+
+  --color-border: hsl(var(--border));
+  --color-input: hsl(var(--input));
+  --color-ring: hsl(var(--ring));
+
+  --color-chart-1: hsl(var(--chart-1));
+  --color-chart-2: hsl(var(--chart-2));
+  --color-chart-3: hsl(var(--chart-3));
+  --color-chart-4: hsl(var(--chart-4));
+  --color-chart-5: hsl(var(--chart-5));
+
+  /* Additional utility colors for specific UI elements */
+  --color-gray-400: hsl(var(--gray-400));
+  --color-gray-500: hsl(var(--gray-500));
+  --color-green-500: hsl(var(--green-500));
+
+  --radius-lg: var(--radius);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-sm: calc(var(--radius) - 4px);
+}
+
+/* Persistent emerald color (used for Get Started button across all themes) */
+:root {
+  --emerald-primary: hsl(140 65% 55%);
+  --emerald-primary-foreground: hsl(0 0% 100%);
+}
+
+@layer base {
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    border-color: var(--color-gray-200, currentcolor);
+  }
+}
+
+@layer base {
+  /* =============================================================================
+     MONOCHROME LIGHT THEME (Default)
+     Applied when .monochrome-light class is present
+     ============================================================================= */
+  :root,
+  .monochrome-light {
+    /* Base Colors - Page background and text */
+    --background: 0 0% 100%;        /* Pure white background */
+    --foreground: 225 9% 9%;        /* Dark gray text for contrast */
+
+    /* Component Colors - Cards, dialogs, popovers */
+    --card: 0 0% 100%;              /* White card backgrounds */
+    --card-foreground: 225 9% 9%;   /* Dark text on cards */
+
+    --popover: 0 0% 100%;           /* White popover backgrounds */
+    --popover-foreground: 225 9% 9%; /* Dark text in popovers */
+
+    /* Brand Colors - Primary theme colors */
+    --primary: 0 0% 9%;             /* Black primary color for monochrome design */
+    --primary-foreground: 0 0% 100%; /* White text on primary elements */
+
+    /* Secondary Colors - Supporting elements */
+    --secondary: 0 0% 96%;          /* Very light gray for secondary elements */
+    --secondary-foreground: 0 0% 9%; /* Black text on secondary elements */
+
+    /* Neutral Colors - Subtle backgrounds and muted text */
+    --muted: 0 0% 96%;              /* Very light gray background */
+    --muted-foreground: 0 0% 45%;   /* Medium gray text for muted content */
+
+    /* Accent Colors - Highlights and focus states */
+    --accent: 0 0% 96%;             /* Light gray for accents */
+    --accent-foreground: 0 0% 9%;   /* Black text on accents */
+
+    /* Status Colors - Errors, warnings, success */
+    --destructive: 0 84% 60%;       /* Red for errors/danger (H:0° = red) */
+    --destructive-foreground: 0 0% 100%; /* White text on destructive elements */
+
+    /* Form Elements - Borders, inputs, focus rings */
+    --border: 0 0% 90%;             /* Light gray borders */
+    --input: 0 0% 100%;             /* White input backgrounds */
+    --ring: 0 0% 45%;               /* Medium gray focus rings */
+
+    /* Additional Utility Colors - For specific UI elements */
+    --gray-400: 215 14% 34%;        /* Medium gray for secondary text */
+    --gray-500: 215 14% 46%;        /* Medium-dark gray for descriptions */
+    --green-500: 142 76% 36%;       /* Success green for status indicators */
+
+    /* Border Radius - Component corner rounding */
+    --radius: 0.5rem;               /* 8px border radius for components */
+  }
+
+  /* =============================================================================
+     MONOCHROME DARK THEME
+     Applied when .monochrome-dark class is present on html/body
+     ============================================================================= */
+  .dark,
+  .monochrome-dark {
+    /* Base Colors - Dark theme backgrounds and text */
+    --background: 225 9% 9%;        /* Very dark blue-gray background */
+    --foreground: 210 40% 98%;      /* Light gray text for contrast */
+
+    /* Component Colors - Dark cards and popovers */
+    --card: 228 9% 11%;             /* Slightly lighter dark background for cards */
+    --card-foreground: 210 40% 98%; /* Light text on dark cards */
+
+    --popover: 0 0% 14%;            /* Dark gray background for popovers */
+    --popover-foreground: 0 0% 98%; /* Light gray text in popovers */
+
+    /* Brand Colors - Same primary colors in dark mode */
+    --primary: 0 0% 70%;            /* Clear gray primary for dark mode contrast */
+    --primary-foreground: 0 0% 9%;  /* Black text on primary elements */
+
+    /* Secondary Colors - Adjusted for dark backgrounds */
+    --secondary: 0 0% 15%;          /* Dark gray for secondary elements */
+    --secondary-foreground: 0 0% 98%; /* Light gray text on secondary */
+
+    /* Neutral Colors - Dark theme muted elements */
+    --muted: 0 0% 15%;              /* Dark gray muted backgrounds */
+    --muted-foreground: 0 0% 64%;   /* Medium gray text */
+
+    /* Accent Colors - Dark theme highlights */
+    --accent: 0 0% 15%;             /* Dark gray accents */
+    --accent-foreground: 0 0% 98%;  /* Light gray text on accents */
+
+    /* Status Colors - Same destructive colors */
+    --destructive: 0 84% 60%;       /* Same red for errors (consistent) */
+    --destructive-foreground: 0 0% 98%; /* Light gray text on destructive */
+
+    /* Form Elements - Dark theme borders and inputs */
+    --border: 0 0% 20%;             /* Dark gray borders */
+    --input: 0 0% 15%;              /* Dark gray input backgrounds */
+    --ring: 0 0% 70%;               /* Light gray focus rings for dark mode */
+
+    /* Additional Utility Colors - Dark mode variants */
+    --gray-400: 215 14% 65%;        /* Light gray for secondary text in dark mode */
+    --gray-500: 215 14% 55%;        /* Medium gray for descriptions in dark mode */
+    --green-500: 142 76% 65%;       /* Bright success green for dark mode */
+
+    /* Border Radius - Same as light mode */
+    --radius: 0.5rem;               /* Consistent 8px border radius */
+  }
+
+  /* =============================================================================
+     GOLD LIGHT THEME
+     ============================================================================= */
+  .gold-light {
+    --background: 0 0% 100%;
+    --foreground: 30 10% 10%;
+    --card: 0 0% 100%;
+    --card-foreground: 30 10% 10%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 30 10% 10%;
+    --primary: 45 85% 50%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 45 30% 55%;
+    --secondary-foreground: 0 0% 100%;
+    --muted: 45 15% 90%;
+    --muted-foreground: 45 15% 40%;
+    --accent: 45 15% 90%;
+    --accent-foreground: 45 15% 20%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 45 15% 90%;
+    --input: 0 0% 100%;
+    --ring: 45 60% 45%;
+    --gray-400: 215 14% 34%;
+    --gray-500: 215 14% 46%;
+    --green-500: 142 76% 36%;
+    --radius: 0.5rem;
+  }
+
+  /* =============================================================================
+     GOLD DARK THEME
+     ============================================================================= */
+  .gold-dark {
+    --background: 30 8% 10%;
+    --foreground: 45 30% 95%;
+    --card: 30 8% 12%;
+    --card-foreground: 45 30% 95%;
+    --popover: 45 10% 14%;
+    --popover-foreground: 45 30% 95%;
+    --primary: 45 75% 55%;
+    --primary-foreground: 0 0% 9%;
+    --secondary: 45 15% 25%;
+    --secondary-foreground: 45 30% 95%;
+    --muted: 45 15% 25%;
+    --muted-foreground: 45 20% 70%;
+    --accent: 45 15% 25%;
+    --accent-foreground: 45 30% 95%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 45 30% 95%;
+    --border: 45 15% 20%;
+    --input: 45 15% 20%;
+    --ring: 45 60% 70%;
+    --gray-400: 215 14% 65%;
+    --gray-500: 215 14% 55%;
+    --green-500: 142 76% 65%;
+    --radius: 0.5rem;
+  }
+
+  /* =============================================================================
+     EMERALD LIGHT THEME
+     ============================================================================= */
+  .emerald-light {
+    --background: 0 0% 100%;
+    --foreground: 225 9% 9%;
+    --card: 0 0% 100%;
+    --card-foreground: 225 9% 9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 225 9% 9%;
+    --primary: 140 70% 45%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 140 30% 50%;
+    --secondary-foreground: 0 0% 100%;
+    --muted: 140 15% 90%;
+    --muted-foreground: 140 15% 40%;
+    --accent: 140 15% 90%;
+    --accent-foreground: 140 15% 20%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 140 15% 90%;
+    --input: 0 0% 100%;
+    --ring: 140 60% 45%;
+    --gray-400: 215 14% 34%;
+    --gray-500: 215 14% 46%;
+    --green-500: 142 76% 36%;
+    --radius: 0.5rem;
+  }
+
+  /* =============================================================================
+     EMERALD DARK THEME
+     ============================================================================= */
+  .emerald-dark {
+    --background: 225 9% 9%;
+    --foreground: 210 40% 98%;
+    --card: 228 9% 11%;
+    --card-foreground: 210 40% 98%;
+    --popover: 140 10% 14%;
+    --popover-foreground: 140 30% 95%;
+    --primary: 140 70% 45%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 140 15% 20%;
+    --secondary-foreground: 140 30% 95%;
+    --muted: 140 15% 20%;
+    --muted-foreground: 140 20% 70%;
+    --accent: 140 15% 20%;
+    --accent-foreground: 140 30% 95%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 140 30% 95%;
+    --border: 140 15% 20%;
+    --input: 140 15% 20%;
+    --ring: 140 60% 70%;
+    --gray-400: 215 14% 65%;
+    --gray-500: 215 14% 55%;
+    --green-500: 142 76% 65%;
+    --radius: 0.5rem;
+  }
+
+  /* =============================================================================
+     BLUE LIGHT THEME (Ocean)
+     ============================================================================= */
+  .blue-light {
+    --background: 0 0% 100%;
+    --foreground: 220 10% 10%;
+    --card: 0 0% 100%;
+    --card-foreground: 220 10% 10%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 220 10% 10%;
+    --primary: 214 89% 53%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 214 30% 55%;
+    --secondary-foreground: 0 0% 100%;
+    --muted: 214 15% 90%;
+    --muted-foreground: 214 15% 40%;
+    --accent: 214 15% 90%;
+    --accent-foreground: 214 15% 20%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 214 15% 90%;
+    --input: 0 0% 100%;
+    --ring: 214 89% 53%;
+    --gray-400: 215 14% 34%;
+    --gray-500: 215 14% 46%;
+    --green-500: 142 76% 36%;
+    --radius: 0.5rem;
+  }
+
+  /* =============================================================================
+     BLUE DARK THEME (Ocean Dark)
+     ============================================================================= */
+  .blue-dark {
+    --background: 222 47% 11%;
+    --foreground: 217 30% 95%;
+    --card: 222 47% 13%;
+    --card-foreground: 217 30% 95%;
+    --popover: 217 20% 15%;
+    --popover-foreground: 217 30% 95%;
+    --primary: 214 89% 60%;
+    --primary-foreground: 222 47% 11%;
+    --secondary: 214 20% 20%;
+    --secondary-foreground: 217 30% 95%;
+    --muted: 214 15% 20%;
+    --muted-foreground: 214 20% 65%;
+    --accent: 214 15% 20%;
+    --accent-foreground: 217 30% 95%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 217 30% 95%;
+    --border: 214 15% 25%;
+    --input: 214 15% 20%;
+    --ring: 214 89% 60%;
+    --gray-400: 215 14% 65%;
+    --gray-500: 215 14% 55%;
+    --green-500: 142 76% 65%;
+    --radius: 0.5rem;
+  }
+}
+
+
+/* =============================================================================
+   GLOBAL BASE STYLES
+   Applied to all elements using Tailwind's @layer base
+   ============================================================================= */
+
+@layer base {
+  /* =============================================================================
+     RESET STYLES - Normalize browser defaults
+     ============================================================================= */
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    border-color: var(--color-gray-200, currentcolor);
+  }
+
+  /* =============================================================================
+     GLOBAL ELEMENT STYLES
+     ============================================================================= */
+  * {
+    @apply border-border antialiased;  /* Apply theme border color and smooth fonts */
+  }
+
+  html {
+    @apply h-full;  /* Full height for proper layout */
+  }
+
+  body {
+    @apply h-full bg-background text-foreground;  /* Theme-aware background and text colors */
+  }
+}
