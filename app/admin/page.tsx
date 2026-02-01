@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation"
 import { useEffect } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "../_components/ui/card"
 import { Button } from "../_components/ui/button"
-import { Users, BarChart3, Settings, Shield, Activity } from "lucide-react"
+import { Users, BarChart3, Settings, Shield, Activity, Scissors } from "lucide-react"
 
 export default function AdminDashboard() {
   const { user, isLoading } = useAuth()
@@ -144,6 +144,38 @@ export default function AdminDashboard() {
               </p>
               <Button className="w-full" variant="outline">
                 View Logs
+              </Button>
+            </CardContent>
+          </Card>
+
+          {/* Service Management */}
+          <Card className="hover:shadow-lg transition-shadow">
+            <CardHeader className="flex flex-row items-center space-y-0 pb-2">
+              <CardTitle className="text-lg font-semibold">Service Management</CardTitle>
+              <Scissors className="h-5 w-5 text-muted-foreground ml-auto" />
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-muted-foreground mb-4">
+                Manage available services across the platform
+              </p>
+              <Button className="w-full" variant="outline" onClick={() => router.push('/admin/servicemanagement')}>
+                Manage Services
+              </Button>
+            </CardContent>
+          </Card>
+
+          {/* Service Category Management */}
+          <Card className="hover:shadow-lg transition-shadow">
+            <CardHeader className="flex flex-row items-center space-y-0 pb-2">
+              <CardTitle className="text-lg font-semibold">Service Categories</CardTitle>
+              <Settings className="h-5 w-5 text-muted-foreground ml-auto" />
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-muted-foreground mb-4">
+                Manage service categories for organizing services
+              </p>
+              <Button className="w-full" variant="outline" onClick={() => router.push('/admin/servicecategories')}>
+                Manage Categories
               </Button>
             </CardContent>
           </Card>

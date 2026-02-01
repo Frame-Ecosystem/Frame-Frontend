@@ -1,6 +1,6 @@
 "use client"
 
-import { ChevronRightIcon } from "lucide-react"
+import { ChevronRightIcon, Layers } from "lucide-react"
 import Link from "next/link"
 // import Image from "next/image"
 import { Avatar, AvatarImage, AvatarFallback } from "../_components/ui/avatar"
@@ -81,6 +81,24 @@ export default function SettingsPage() {
 
           {/* === LOCATION SELECTOR === */}
           {user && <LocationSelector />}
+
+          {/* === SERVICE MANAGEMENT LINK (collapsible for lounge users) === */}
+          {user && user.type === 'lounge' && (
+            <details className="rounded-lg border border-border mb-4 p-4">
+              <summary className="cursor-pointer font-medium">
+                <Layers className="h-4 w-4 inline-block mr-2" />
+                Service Management
+              </summary>
+              <div className="mt-3 space-y-2">
+                <Link href="/lounge/servicemanagement">
+                  <div className="rounded-md p-3 border border-dashed hover:bg-card/50 transition-colors cursor-pointer flex items-center gap-2">
+                    <Layers className="h-4 w-4 text-muted-foreground" />
+                    <span>Manage Services</span>
+                  </div>
+                </Link>
+              </div>
+            </details>
+          )}
 
         </div>
       </div>

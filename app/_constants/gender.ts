@@ -12,10 +12,16 @@ export const clientGenderOptions = [
     description: "I want to receive female services",
   },
   {
-    value: "both" as const,
-    label: "Both",
+    value: "unisex" as const,
+    label: "Unisex",
     icon: "👥",
-    description: "I want to receive services from both gender",
+    description: "I want to receive services for all genders",
+  },
+  {
+    value: "kids" as const,
+    label: "Kids",
+    icon: "🧒",
+    description: "I want to receive services for kids",
   },
 ]
 
@@ -33,9 +39,15 @@ export const loungeGenderOptions = [
     description: "Target female clients",
   },
   {
-    value: "both" as const,
-    label: "Both",
+    value: "unisex" as const,
+    label: "Unisex",
     icon: "👥",
-    description: "Target all clients regardless of gender",
+    description: "Target clients of any gender",
+  },
+  {
+    value: "kids" as const,
+    label: "Kids",
+    icon: "🧒",
+    description: "Target kids clients",
   },
 ]

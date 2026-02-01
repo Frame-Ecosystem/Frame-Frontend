@@ -3,7 +3,14 @@
 
   export type UserType = "client" | "lounge" | "admin" | string
 
-  export type Gender = "male" | "female" | "both"
+  export type Gender = "male" | "female" | "unisex" | "kids"
+
+  export enum ServiceLoungeGender {
+    MEN = 'men',
+    WOMEN = 'women',
+    UNISEX = 'unisex',
+    KIDS = 'kids'
+  }
 
   export interface ProfileImage {
     url: string
@@ -120,6 +127,51 @@
   }
 
   export interface TextareaProps extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {}
+
+  export interface ServiceCategory {
+    id: string
+    name: string
+    description?: string
+    createdAt?: string
+    updatedAt?: string
+  }
+
+  export interface Service {
+    id: string
+    name: string
+    slug?: string
+    categoryId: string
+    baseDuration?: number
+    status?: string
+    description?: string
+    createdAt?: string
+    updatedAt?: string
+  }
+
+  // Lounge-specific service mapping (when a lounge adds a global service)
+  export interface LoungeServiceItem {
+    id?: string
+    _id?: string
+    loungeId: string
+    serviceId: string
+    price?: number
+    duration?: number
+    description?: string
+    isActive?: boolean
+    gender?: ServiceLoungeGender | Gender
+    createdAt?: string
+    updatedAt?: string
+  }
+
+  export interface CreateLoungeServicePayload {
+    loungeId: string
+    serviceId: string
+    price?: number
+    duration?: number
+    description?: string
+    isActive?: boolean
+    gender?: ServiceLoungeGender | Gender
+  }
 
   const typesDefault = {}
 

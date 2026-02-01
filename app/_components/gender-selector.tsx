@@ -6,6 +6,7 @@ import { useAuth } from "../_providers/auth"
 import { toast } from "sonner"
 import { clientGenderOptions, loungeGenderOptions } from "../_constants/gender"
 import { useUpdateGender } from "../_hooks/queries"
+import type { Gender } from "../_types"
 
 export function GenderSelector() {
   const [isOpen, setIsOpen] = useState(false)
@@ -15,13 +16,13 @@ export function GenderSelector() {
   const isLounge = user?.type === "lounge"
   const genderOptions = isLounge ? loungeGenderOptions : clientGenderOptions
 
-  const currentGender = user?.gender || "both"
+  const currentGender = (user?.gender as Gender) || "unisex"
   const currentOption = genderOptions.find((option) => option.value === currentGender) || genderOptions[2]
 
   const headerText = isLounge ? "What is your target audience?" : "What gender service do you want to receive?"
   const buttonText = isLounge ? "Target Audience" : "Gender Preference"
 
-  const handleGenderUpdate = async (gender: 'male' | 'female' | 'both') => {
+  const handleGenderUpdate = async (gender: Gender) => {
     if (!user) return
 
     try {

@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { authService } from "../../_services/auth.service"
-import type { User } from "../../_types"
+import type { User, Gender } from "../../_types"
 import { useAuth } from "../../_providers/auth"
 
 /**
@@ -107,8 +107,11 @@ export function useUpdateGender() {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: (gender: "male" | "female" | "both") =>
-      authService.updateGenderPreference(gender),
+    mutationFn: (gender: Gender) => {
+      // Map Gender type to the expected values for the API
+      const mappedGender = gender === 'unisex' ? 'both' as const : gender === 'male' || gender === 'female' ? gender : 'both'
+      return authService.updateGenderPreference(mappedGender)
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["currentUser"] })
     },
