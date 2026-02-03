@@ -21,11 +21,8 @@ const BookingSummary = ({
         <div className="flex items-center justify-between">
           <h2 className="font-bold">{service.name}</h2>
           <p className="text-sm font-bold">
-            {/* Format price as Brazilian Real (R$) currency */}
-            {Intl.NumberFormat("pt-BR", {
-              style: "currency",
-              currency: "BRL",
-            }).format(Number(service.price))}
+            {/* Format price in dinar */}
+            {service.price} dinar
           </p>
         </div>
 

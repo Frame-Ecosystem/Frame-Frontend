@@ -20,6 +20,7 @@ import { AuthProvider } from "./_providers/auth"
 import { QueryProvider } from "./_providers/query"
 import FooterDesktop from "./_components/footerDesktop"
 import AuthGuard from "./_components/AuthGuard"
+import ServiceWorkerRegister from "./_components/serviceWorkerRegister"
 
 const inter = Inter({ subsets: ["latin"] })
 
@@ -47,6 +48,9 @@ export const metadata: Metadata = {
     "Cabeleireiro",
     "barber lab",
   ],
+
+  // PWA manifest
+  manifest: "/manifest.json",
 
   // Open Graph metadata for social media sharing (Facebook, LinkedIn, etc.)
   openGraph: {
@@ -91,6 +95,7 @@ export default function RootLayout({
               <SwipeNavigationProvider>
                 {/* Progress bar for page transition feedback */}
                 <ProgressProvider>
+                  <ServiceWorkerRegister />
                   {/* MAIN LAYOUT STRUCTURE */}
                   {/* Uses flexbox to keep footer at bottom of viewport */}
                   <div className="flex h-full flex-col">
@@ -120,5 +125,3 @@ export default function RootLayout({
     </html>
   )
 }
-
-

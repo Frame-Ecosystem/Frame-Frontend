@@ -4,59 +4,72 @@ import Link from "next/link"
 import React from "react"
 import UserSession from "./user-session"
 import NotificationButton from "./notification-button"
+import PWAInstallButton from "./pwaInstallButton"
 import { Button } from "./ui/button"
 import { useScrollPosition } from "../_hooks/useScrollPosition"
 import { useRouter } from "next/navigation"
 import { useAuth } from "../_providers/auth"
 
 interface TopBarProps {
-	onGetStarted?: () => void
-	className?: string
-	showGetStarted?: boolean
-	isLoading?: boolean
+  onGetStarted?: () => void
+  className?: string
+  showGetStarted?: boolean
+  isLoading?: boolean
 }
 
-const TopBar: React.FC<TopBarProps> = ({ onGetStarted, className = "", showGetStarted, isLoading: externalIsLoading }) => {
-	const isVisible = useScrollPosition()
-	const { user } = useAuth()
-	const router = useRouter()
-	return (
-		<div
-			className={`bg-background fixed top-0 left-0 right-0 z-50 border-b border-border backdrop-blur-sm shadow-[0_2px_12px_0_rgba(0,0,0,0.04)] flex items-center justify-between px-3 pr-6 lg:pr-20 py-3 lg:py-6 gap-2 transition-transform duration-300 ${isVisible ? "translate-y-0" : "-translate-y-full"} ${user ? "lg:hidden" : ""} ${className}`}
-		>
-			{/* LOGO - flex start */}
-			<div className="flex items-center flex-shrink-0">
-				<Link href="/" className="flex items-center gap-2 hover:opacity-75 transition-opacity duration-200 lg:ml-20 pt-2">
-					<Image
-						alt="Barber Lab"
-						src="/images/logo.png"
-						priority
-						height={60}
-						width={60}
-						className="h-10 w-auto scale-100 md:scale-150"
-					/>
-				</Link>
-			</div>
-			{/* Actions - flex end: show notifications only when authenticated, add Get Started */}
-			<div className="flex items-center gap-6 lg:gap-16 ml-auto">
-				{user && <NotificationButton />}
-				{(showGetStarted ?? !user) && !(externalIsLoading ?? false) && (
-					<Button
-						size="sm"
-						className="text-white hover:opacity-95 lg:px-10 lg:py-4 lg:text-sm lg:font-semibold"
-						style={{ backgroundColor: 'var(--emerald-primary)', color: 'var(--emerald-primary-foreground)' }}
-						onClick={() => {
-							if (onGetStarted) return onGetStarted()
-							router.push('/choose-type')
-						}}
-					>
-						Get Started
-					</Button>
-				)}
-				<UserSession compact />
-			</div>
-		</div>
-	)
+const TopBar: React.FC<TopBarProps> = ({
+  onGetStarted,
+  className = "",
+  showGetStarted,
+  isLoading: externalIsLoading,
+}) => {
+  const isVisible = useScrollPosition()
+  const { user } = useAuth()
+  const router = useRouter()
+  return (
+    <div
+      className={`bg-background border-border fixed top-0 right-0 left-0 z-50 flex items-center justify-between gap-2 border-b px-3 py-3 pr-6 shadow-[0_2px_12px_0_rgba(0,0,0,0.04)] backdrop-blur-sm transition-transform duration-300 lg:py-6 lg:pr-20 ${isVisible ? "translate-y-0" : "-translate-y-full"} ${user ? "lg:hidden" : ""} ${className}`}
+    >
+      {/* LOGO - flex start */}
+      <div className="flex flex-shrink-0 items-center">
+        <Link
+          href="/"
+          className="flex items-center gap-2 pt-2 transition-opacity duration-200 hover:opacity-75 lg:ml-20"
+        >
+          <Image
+            alt="Barber Lab"
+            src="/images/logo.png"
+            priority
+            height={60}
+            width={60}
+            className="h-10 w-auto scale-100 md:scale-150"
+          />
+        </Link>
+      </div>
+      {/* Actions - flex end: show notifications only when authenticated, add Get Started */}
+      <div className="ml-auto flex items-center gap-6 lg:gap-16">
+        {user && <NotificationButton />}
+        <PWAInstallButton />
+        {(showGetStarted ?? !user) && !(externalIsLoading ?? false) && (
+          <Button
+            size="sm"
+            className="text-white hover:opacity-95 lg:px-10 lg:py-4 lg:text-sm lg:font-semibold"
+            style={{
+              backgroundColor: "var(--emerald-primary)",
+              color: "var(--emerald-primary-foreground)",
+            }}
+            onClick={() => {
+              if (onGetStarted) return onGetStarted()
+              router.push("/choose-type")
+            }}
+          >
+            Get Started
+          </Button>
+        )}
+        <UserSession compact />
+      </div>
+    </div>
+  )
 }
 
 export default TopBar

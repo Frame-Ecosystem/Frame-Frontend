@@ -21,7 +21,6 @@ import BookingSummary from "./booking-summary"
 import { useRouter } from "next/navigation"
 import { useAuth } from "../_providers/auth"
 
-
 interface ServiceItemProps {
   service: BarbershopService
   barbershop: Pick<Barbershop, "name">
@@ -228,12 +227,9 @@ const ServiceItem = ({ service, barbershop }: ServiceItemProps) => {
 
             {/* PRICE AND BOOKING BUTTON */}
             <div className="flex items-center justify-between">
-              {/* Format price in Brazilian Real currency */}
+              {/* Format price in dinar */}
               <p className="text-primary text-sm font-bold">
-                {Intl.NumberFormat("pt-BR", {
-                  style: "currency",
-                  currency: "BRL",
-                }).format(Number(service.price))}
+                {service.price} dinar
               </p>
               <div className="flex-1" />
 
@@ -272,7 +268,12 @@ const ServiceItem = ({ service, barbershop }: ServiceItemProps) => {
                       className="w-full"
                       formatters={{
                         formatCaption: (date) =>
-                          date.toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric", year: "numeric" }),
+                          date.toLocaleDateString("en-US", {
+                            weekday: "long",
+                            month: "long",
+                            day: "numeric",
+                            year: "numeric",
+                          }),
                       }}
                       styles={{
                         root: {

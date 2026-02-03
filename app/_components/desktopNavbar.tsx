@@ -6,6 +6,7 @@ import { Card, CardContent } from "./ui/card"
 import Image from "next/image"
 import UserSession from "./user-session"
 import NotificationButton from "./notification-button"
+import PWAInstallButton from "./pwaInstallButton"
 import { useAuth } from "../_providers/auth"
 import { NAV_LINKS } from "../_constants/navigation"
 import { getProfilePath } from "../_lib/profile"
@@ -14,10 +15,13 @@ const DesktopNavbar = () => {
   const pathname = usePathname()
   const { user, isLoading } = useAuth()
   return (
-    <Card className="bg-card hidden lg:block sticky top-0 left-0 right-0 z-50 border-b rounded-none border-b-primary shadow-xl transition-all duration-300">
+    <Card className="bg-card border-b-primary sticky top-0 right-0 left-0 z-50 hidden rounded-none border-b shadow-xl transition-all duration-300 lg:block">
       <CardContent className="flex flex-row items-center justify-between p-3 md:p-5 lg:px-10 lg:py-5">
         {/* LOGO */}
-        <Link href="/" className="flex items-center gap-2 hover:opacity-75 transition-opacity duration-200">
+        <Link
+          href="/"
+          className="flex items-center gap-2 transition-opacity duration-200 hover:opacity-75"
+        >
           <Image
             alt="Barber Lab"
             src="/images/logo.png"
@@ -29,12 +33,14 @@ const DesktopNavbar = () => {
         </Link>
         {/* NAVIGATION LINKS */}
         {!isLoading && user && (
-          <nav className="hidden lg:mb-0 lg:flex lg:items-center lg:gap-2 bg-background/50 rounded-full px-6 py-2 backdrop-blur-sm border border-border/30">
+          <nav className="bg-background/50 border-border/30 hidden rounded-full border px-6 py-2 backdrop-blur-sm lg:mb-0 lg:flex lg:items-center lg:gap-2">
             {NAV_LINKS.map((link) => {
               const isProfileLink = link.href === "/profile"
               let isActive = false
               if (isProfileLink) {
-                isActive = pathname.startsWith("/profile") || pathname.startsWith("/admin")
+                isActive =
+                  pathname.startsWith("/profile") ||
+                  pathname.startsWith("/admin")
               } else if (link.href === "/") {
                 isActive = pathname === "/"
               } else {
@@ -48,8 +54,10 @@ const DesktopNavbar = () => {
                 <Link
                   key={link.href}
                   href={href}
-                  className={`group relative px-3 py-2 text-sm font-medium transition-all duration-300 flex items-center gap-2 rounded-lg ${
-                    isActive ? "text-primary bg-primary/10" : "text-foreground hover:text-primary hover:bg-primary/5"
+                  className={`group relative flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium transition-all duration-300 ${
+                    isActive
+                      ? "text-primary bg-primary/10"
+                      : "text-foreground hover:text-primary hover:bg-primary/5"
                   }`}
                 >
                   {isProfileLink && user?.type === "admin" ? (
@@ -69,7 +77,9 @@ const DesktopNavbar = () => {
           </nav>
         )}
         {/* ACTION BUTTONS */}
-        <div className="flex items-center lg:gap-3 gap-2 md:gap-2.5">
+        <div className="flex items-center gap-2 md:gap-2.5 lg:gap-3">
+          {/* PWA Install Button */}
+          <PWAInstallButton />
           {/* Notification Button */}
           <NotificationButton />
           {/* Settings Button (icon only, links to /settings) */}

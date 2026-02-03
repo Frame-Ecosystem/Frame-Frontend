@@ -6,4 +6,15 @@ export { authService } from "./auth.service"
 export { serviceService } from "./service.service"
 export { loungeService } from "./lounge.service"
 export { serviceCategoryService } from "./service-category.service"
-export type { Barbershop, Booking, CreateBookingInput, User, AuthResponse, Service, ServiceCategory } from "../_types"
+export { serviceSuggestionsService } from "./service-suggestions.service"
+export { adminService } from "./admin.service"
+export type {
+  Barbershop,
+  Booking,
+  CreateBookingInput,
+  User,
+  AuthResponse,
+  Service,
+  ServiceCategory,
+  ServiceSuggestion,
+} from "../_types"

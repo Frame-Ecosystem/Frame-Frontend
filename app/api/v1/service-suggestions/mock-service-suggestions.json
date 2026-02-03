@@ -1,0 +1,58 @@
+[
+  {
+    "id": "1738600000000",
+    "name": "Test Haircut Service",
+    "description": "A professional haircut service for men",
+    "category": null,
+    "loungeId": "697d73242f7cb120fe294064",
+    "status": "pending",
+    "estimatedPrice": 50,
+    "estimatedDuration": 60,
+    "targetGender": "men",
+    "adminNotes": null,
+    "createdAt": "2025-02-03T12:00:00.000Z",
+    "updatedAt": "2025-02-03T12:00:00.000Z"
+  },
+  {
+    "id": "1738600000001",
+    "name": "Test Facial Service",
+    "description": "Relaxing facial treatment",
+    "category": null,
+    "loungeId": "697d73242f7cb120fe294064",
+    "status": "approved",
+    "estimatedPrice": 80,
+    "estimatedDuration": 90,
+    "targetGender": "unisex",
+    "adminNotes": "Approved by admin",
+    "createdAt": "2025-02-03T12:00:00.000Z",
+    "updatedAt": "2025-02-03T12:00:00.000Z"
+  },
+  {
+    "id": "1738600000002",
+    "name": "Premium Hair Styling",
+    "description": "Professional hair styling service",
+    "category": null,
+    "loungeId": "user-456",
+    "status": "pending",
+    "estimatedPrice": 70,
+    "estimatedDuration": 45,
+    "targetGender": "women",
+    "adminNotes": null,
+    "createdAt": "2025-02-03T12:00:00.000Z",
+    "updatedAt": "2025-02-03T12:00:00.000Z"
+  },
+  {
+    "id": "1738600000003",
+    "name": "Basic Manicure",
+    "description": "Simple nail care service",
+    "category": null,
+    "loungeId": "user-456",
+    "status": "rejected",
+    "estimatedPrice": 30,
+    "estimatedDuration": 30,
+    "targetGender": "unisex",
+    "adminNotes": "Service already exists",
+    "createdAt": "2025-02-03T12:00:00.000Z",
+    "updatedAt": "2025-02-03T12:00:00.000Z"
+  }
+]

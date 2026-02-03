@@ -2,80 +2,180 @@
 
 import { useAuth } from "../_providers/auth"
 import { useRouter } from "next/navigation"
-import { useEffect } from "react"
-import { Card, CardContent, CardHeader, CardTitle } from "../_components/ui/card"
+import { useEffect, useState } from "react"
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "../_components/ui/card"
 import { Button } from "../_components/ui/button"
-import { Users, BarChart3, Settings, Shield, Activity, Scissors } from "lucide-react"
+import {
+  Users,
+  BarChart3,
+  Settings,
+  Shield,
+  Activity,
+  Layers,
+  Package,
+} from "lucide-react"
+import { adminService } from "../_services"
+
+interface AdminStats {
+  totalUsers: number
+  onlineUsers: number
+  blockedUsers: number
+  adminCount: number
+  clientCount: number
+  loungeCount: number
+}
 
 export default function AdminDashboard() {
   const { user, isLoading } = useAuth()
   const router = useRouter()
+  const [stats, setStats] = useState<AdminStats | null>(null)
+  const [statsLoading, setStatsLoading] = useState(true)
 
   useEffect(() => {
-    if (!isLoading && (!user || user.type !== 'admin')) {
-      router.push('/')
+    if (!isLoading && (!user || user.type !== "admin")) {
+      router.push("/")
     }
   }, [user, isLoading, router])
 
+  useEffect(() => {
+    const fetchStats = async () => {
+      if (user && user.type === "admin") {
+        try {
+          const data = await adminService.getStats()
+          setStats(data)
+        } catch (error) {
+          console.error("Failed to load admin stats:", error)
+        } finally {
+          setStatsLoading(false)
+        }
+      }
+    }
+
+    fetchStats()
+  }, [user])
+
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20 flex items-center justify-center">
+      <div className="from-background via-background to-muted/20 flex min-h-screen items-center justify-center bg-gradient-to-br">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+          <div className="border-primary mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-b-2"></div>
           <p className="text-muted-foreground">Loading admin dashboard...</p>
         </div>
       </div>
     )
   }
 
-  if (!user || user.type !== 'admin') {
+  if (!user || user.type !== "admin") {
     return null
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
+    <div className="from-background via-background to-muted/20 min-h-screen bg-gradient-to-br">
       <div className="mx-auto max-w-7xl p-5 lg:px-8 lg:py-12">
         <div className="mb-8">
-          <h1 className="text-3xl lg:text-4xl font-bold mb-2">Admin Dashboard</h1>
-          <p className="text-muted-foreground">Manage your barber lab platform</p>
+          <h1 className="mb-2 text-3xl font-bold lg:text-4xl">
+            Admin Dashboard
+          </h1>
+          <p className="text-muted-foreground">
+            Manage your barber lab platform
+          </p>
         </div>
 
         {/* Quick Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
+        <div className="mb-4 grid grid-cols-1 gap-4 md:grid-cols-4">
           <Card>
             <CardContent className="p-6">
-              <div className="text-2xl font-bold">1,234</div>
-              <p className="text-sm text-muted-foreground">Total Users</p>
+              <div className="text-2xl font-bold">
+                {statsLoading ? "..." : (stats?.totalUsers ?? 0)}
+              </div>
+              <p className="text-muted-foreground text-sm">Total Users</p>
             </CardContent>
           </Card>
           <Card>
             <CardContent className="p-6">
-              <div className="text-2xl font-bold">567</div>
-              <p className="text-sm text-muted-foreground">Active Barbers</p>
+              <div className="text-2xl font-bold">
+                {statsLoading ? "..." : (stats?.loungeCount ?? 0)}
+              </div>
+              <p className="text-muted-foreground text-sm">Total Lounges</p>
             </CardContent>
           </Card>
           <Card>
             <CardContent className="p-6">
-              <div className="text-2xl font-bold">8,901</div>
-              <p className="text-sm text-muted-foreground">Total Bookings</p>
+              <div className="text-2xl font-bold">
+                {statsLoading ? "..." : (stats?.clientCount ?? 0)}
+              </div>
+              <p className="text-muted-foreground text-sm">Total Clients</p>
             </CardContent>
           </Card>
           <Card>
             <CardContent className="p-6">
-              <div className="text-2xl font-bold">98.5%</div>
-              <p className="text-sm text-muted-foreground">Uptime</p>
+              <div className="text-2xl font-bold">
+                {statsLoading ? "..." : (stats?.onlineUsers ?? 0)}
+              </div>
+              <p className="text-muted-foreground text-sm">Online Users</p>
             </CardContent>
           </Card>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-          {/* User Management */}
-          <Card className="hover:shadow-lg transition-shadow">
+        <div className="mb-8 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+          {/* Service Categories */}
+          <Card className="transition-shadow hover:shadow-lg">
             <CardHeader className="flex flex-row items-center space-y-0 pb-2">
-              <CardTitle className="text-lg font-semibold">User Management</CardTitle>
-              <Users className="h-5 w-5 text-muted-foreground ml-auto" />
+              <CardTitle className="text-lg font-semibold">
+                Service Categories
+              </CardTitle>
+              <Layers className="text-muted-foreground ml-auto h-5 w-5" />
             </CardHeader>
             <CardContent>
-              <p className="text-sm text-muted-foreground mb-4">
+              <p className="text-muted-foreground mb-4 text-sm">
+                Manage service categories for organizing services
+              </p>
+              <Button
+                className="w-full"
+                variant="outline"
+                onClick={() => router.push("/admin/servicecategories")}
+              >
+                Manage Categories
+              </Button>
+            </CardContent>
+          </Card>
+
+          {/* Service Management */}
+          <Card className="transition-shadow hover:shadow-lg">
+            <CardHeader className="flex flex-row items-center space-y-0 pb-2">
+              <CardTitle className="text-lg font-semibold">
+                Service Management
+              </CardTitle>
+              <Package className="text-muted-foreground ml-auto h-5 w-5" />
+            </CardHeader>
+            <CardContent>
+              <p className="text-muted-foreground mb-4 text-sm">
+                Manage available services across the platform
+              </p>
+              <Button
+                className="w-full"
+                variant="outline"
+                onClick={() => router.push("/admin/servicemanagement")}
+              >
+                Manage Services
+              </Button>
+            </CardContent>
+          </Card>
+
+          {/* User Management */}
+          <Card className="transition-shadow hover:shadow-lg">
+            <CardHeader className="flex flex-row items-center space-y-0 pb-2">
+              <CardTitle className="text-lg font-semibold">
+                User Management
+              </CardTitle>
+              <Users className="text-muted-foreground ml-auto h-5 w-5" />
+            </CardHeader>
+            <CardContent>
+              <p className="text-muted-foreground mb-4 text-sm">
                 Manage users, barbers, and clients across the platform
               </p>
               <Button className="w-full" variant="outline">
@@ -85,13 +185,13 @@ export default function AdminDashboard() {
           </Card>
 
           {/* Analytics */}
-          <Card className="hover:shadow-lg transition-shadow">
+          <Card className="transition-shadow hover:shadow-lg">
             <CardHeader className="flex flex-row items-center space-y-0 pb-2">
               <CardTitle className="text-lg font-semibold">Analytics</CardTitle>
-              <BarChart3 className="h-5 w-5 text-muted-foreground ml-auto" />
+              <BarChart3 className="text-muted-foreground ml-auto h-5 w-5" />
             </CardHeader>
             <CardContent>
-              <p className="text-sm text-muted-foreground mb-4">
+              <p className="text-muted-foreground mb-4 text-sm">
                 View platform statistics and performance metrics
               </p>
               <Button className="w-full" variant="outline">
@@ -101,13 +201,15 @@ export default function AdminDashboard() {
           </Card>
 
           {/* System Settings */}
-          <Card className="hover:shadow-lg transition-shadow">
+          <Card className="transition-shadow hover:shadow-lg">
             <CardHeader className="flex flex-row items-center space-y-0 pb-2">
-              <CardTitle className="text-lg font-semibold">System Settings</CardTitle>
-              <Settings className="h-5 w-5 text-muted-foreground ml-auto" />
+              <CardTitle className="text-lg font-semibold">
+                System Settings
+              </CardTitle>
+              <Settings className="text-muted-foreground ml-auto h-5 w-5" />
             </CardHeader>
             <CardContent>
-              <p className="text-sm text-muted-foreground mb-4">
+              <p className="text-muted-foreground mb-4 text-sm">
                 Configure platform-wide settings and preferences
               </p>
               <Button className="w-full" variant="outline">
@@ -117,13 +219,13 @@ export default function AdminDashboard() {
           </Card>
 
           {/* Security */}
-          <Card className="hover:shadow-lg transition-shadow">
+          <Card className="transition-shadow hover:shadow-lg">
             <CardHeader className="flex flex-row items-center space-y-0 pb-2">
               <CardTitle className="text-lg font-semibold">Security</CardTitle>
-              <Shield className="h-5 w-5 text-muted-foreground ml-auto" />
+              <Shield className="text-muted-foreground ml-auto h-5 w-5" />
             </CardHeader>
             <CardContent>
-              <p className="text-sm text-muted-foreground mb-4">
+              <p className="text-muted-foreground mb-4 text-sm">
                 Monitor security events and manage access controls
               </p>
               <Button className="w-full" variant="outline">
@@ -133,13 +235,15 @@ export default function AdminDashboard() {
           </Card>
 
           {/* Activity Logs */}
-          <Card className="hover:shadow-lg transition-shadow">
+          <Card className="transition-shadow hover:shadow-lg">
             <CardHeader className="flex flex-row items-center space-y-0 pb-2">
-              <CardTitle className="text-lg font-semibold">Activity Logs</CardTitle>
-              <Activity className="h-5 w-5 text-muted-foreground ml-auto" />
+              <CardTitle className="text-lg font-semibold">
+                Activity Logs
+              </CardTitle>
+              <Activity className="text-muted-foreground ml-auto h-5 w-5" />
             </CardHeader>
             <CardContent>
-              <p className="text-sm text-muted-foreground mb-4">
+              <p className="text-muted-foreground mb-4 text-sm">
                 Review system activity and audit trails
               </p>
               <Button className="w-full" variant="outline">
@@ -147,40 +251,7 @@ export default function AdminDashboard() {
               </Button>
             </CardContent>
           </Card>
-
-          {/* Service Management */}
-          <Card className="hover:shadow-lg transition-shadow">
-            <CardHeader className="flex flex-row items-center space-y-0 pb-2">
-              <CardTitle className="text-lg font-semibold">Service Management</CardTitle>
-              <Scissors className="h-5 w-5 text-muted-foreground ml-auto" />
-            </CardHeader>
-            <CardContent>
-              <p className="text-sm text-muted-foreground mb-4">
-                Manage available services across the platform
-              </p>
-              <Button className="w-full" variant="outline" onClick={() => router.push('/admin/servicemanagement')}>
-                Manage Services
-              </Button>
-            </CardContent>
-          </Card>
-
-          {/* Service Category Management */}
-          <Card className="hover:shadow-lg transition-shadow">
-            <CardHeader className="flex flex-row items-center space-y-0 pb-2">
-              <CardTitle className="text-lg font-semibold">Service Categories</CardTitle>
-              <Settings className="h-5 w-5 text-muted-foreground ml-auto" />
-            </CardHeader>
-            <CardContent>
-              <p className="text-sm text-muted-foreground mb-4">
-                Manage service categories for organizing services
-              </p>
-              <Button className="w-full" variant="outline" onClick={() => router.push('/admin/servicecategories')}>
-                Manage Categories
-              </Button>
-            </CardContent>
-          </Card>
         </div>
-
       </div>
     </div>
   )

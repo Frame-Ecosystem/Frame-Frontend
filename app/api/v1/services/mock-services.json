@@ -1,0 +1,35 @@
+[
+  {
+    "id": "1",
+    "name": "Classic Haircut",
+    "description": "Traditional haircut with styling",
+    "categoryId": "1",
+    "basePrice": 25,
+    "estimatedDuration": 30,
+    "isActive": true,
+    "createdAt": "2024-01-01T00:00:00.000Z",
+    "updatedAt": "2024-01-01T00:00:00.000Z"
+  },
+  {
+    "id": "2",
+    "name": "Beard Trim",
+    "description": "Professional beard trimming and shaping",
+    "categoryId": "2",
+    "basePrice": 15,
+    "estimatedDuration": 15,
+    "isActive": true,
+    "createdAt": "2024-01-01T00:00:00.000Z",
+    "updatedAt": "2024-01-01T00:00:00.000Z"
+  },
+  {
+    "id": "3",
+    "name": "Hair Coloring",
+    "description": "Full hair coloring service",
+    "categoryId": "3",
+    "basePrice": 80,
+    "estimatedDuration": 120,
+    "isActive": true,
+    "createdAt": "2024-01-01T00:00:00.000Z",
+    "updatedAt": "2024-01-01T00:00:00.000Z"
+  }
+]

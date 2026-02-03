@@ -2,18 +2,32 @@
 
 import { useAuth } from "../../_providers/auth"
 import { useRouter } from "next/navigation"
-import { useEffect, useState } from "react"
-import { Card, CardContent, CardHeader, CardTitle } from "../../_components/ui/card"
+import { useEffect, useState, useCallback } from "react"
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "../../_components/ui/card"
 import { Button } from "../../_components/ui/button"
 import { Input } from "../../_components/ui/input"
 import { Label } from "../../_components/ui/label"
 import { Textarea } from "../../_components/ui/textarea"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "../../_components/ui/dialog"
-import { Badge } from "../../_components/ui/badge"
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "../../_components/ui/dialog"
 import { Plus, Edit, Trash2, ArrowLeft } from "lucide-react"
 import { toast } from "sonner"
 import { serviceService, serviceCategoryService } from "../../_services"
 import type { Service, ServiceCategory } from "../../_types"
+import {
+  INITIAL_SERVICE_FORM_STATE,
+  SERVICE_VALIDATION_RULES,
+} from "../../_constants/service"
 
 export default function ServiceManagementPage() {
   const { user, isLoading } = useAuth()
@@ -23,83 +37,125 @@ export default function ServiceManagementPage() {
   const [loading, setLoading] = useState(true)
   const [dialogOpen, setDialogOpen] = useState(false)
   const [editingService, setEditingService] = useState<Service | null>(null)
-  const [error, setError] = useState<string | null>(null)
-  const [formData, setFormData] = useState({
-    name: '',
-    description: '',
-    categoryId: '',
-    baseDuration: '',
-    gender: '',
-    status: 'active'
-  })
+  const [formData, setFormData] = useState(INITIAL_SERVICE_FORM_STATE)
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
   useEffect(() => {
-    if (!isLoading && (!user || user.type !== 'admin')) {
-      router.push('/')
+    if (!isLoading && (!user || user.type !== "admin")) {
+      router.push("/")
     }
   }, [user, isLoading, router])
 
-  useEffect(() => {
-    loadServices()
-    loadCategories()
-  }, [])
-
-  const loadServices = async () => {
+  const loadServices = useCallback(async () => {
     try {
       const data = await serviceService.getAll()
       setServices(Array.isArray(data) ? data : [])
     } catch (error) {
-      console.error('Failed to load services:', error)
+      console.error("Failed to load services:", error)
+      toast.error("Failed to load services")
       setServices([])
     } finally {
       setLoading(false)
     }
-  }
+  }, [])
 
-  const loadCategories = async () => {
+  const loadCategories = useCallback(async () => {
     try {
       const data = await serviceCategoryService.getAll()
       setCategories(Array.isArray(data) ? data : [])
     } catch (error) {
-      console.error('Failed to load categories:', error)
+      console.error("Failed to load categories:", error)
+      toast.error("Failed to load categories")
       setCategories([])
     }
+  }, [])
+
+  useEffect(() => {
+    loadServices()
+    loadCategories()
+  }, [loadServices, loadCategories])
+
+  const validateField = (field: string, value: string): string | null => {
+    const trimmedValue = value.trim()
+
+    if (field === "name" || field === "description") {
+      if (!trimmedValue) {
+        return `${field.charAt(0).toUpperCase() + field.slice(1)} is required`
+      }
+
+      const rules =
+        SERVICE_VALIDATION_RULES[field as keyof typeof SERVICE_VALIDATION_RULES]
+      if (trimmedValue.length < rules.min) {
+        return `${field.charAt(0).toUpperCase() + field.slice(1)} must be at least ${rules.min} characters`
+      }
+      if (trimmedValue.length > rules.max) {
+        return `${field.charAt(0).toUpperCase() + field.slice(1)} must not exceed ${rules.max} characters`
+      }
+
+      if (/[<>"'&]/.test(trimmedValue)) {
+        return `${field.charAt(0).toUpperCase() + field.slice(1)} contains invalid characters`
+      }
+    }
+
+    if (field === "categoryId" && !value) {
+      return "Please select a category"
+    }
+
+    return null
+  }
+
+  const checkDuplicateName = (name: string): boolean => {
+    return services.some(
+      (service) =>
+        service.name.toLowerCase() === name.toLowerCase() &&
+        (!editingService ||
+          (service as any)._id !== (editingService as any)._id),
+    )
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    setError(null)
 
-    // Check for duplicate names locally (case-insensitive, trim input)
-    const nameToCheck = formData.name ? formData.name.trim() : ''
-    const nameExists = services.some(service => 
-      service.name.toLowerCase() === nameToCheck.toLowerCase() && 
-      (!editingService || service.id !== editingService.id)
-    )
+    if (isSubmitting) return
 
-    if (nameExists) {
-      setError('Service name already exists')
-      toast.error('Service name already exists')
+    // Validate all fields
+    const trimmedName = formData.name.trim()
+    const trimmedDescription = formData.description.trim()
+
+    const nameError = validateField("name", formData.name)
+    if (nameError) {
+      toast.error(nameError)
       return
     }
-    
-    if (!formData.categoryId) {
-      toast.error('Please select a category')
+
+    const categoryError = validateField("categoryId", formData.categoryId)
+    if (categoryError) {
+      toast.error(categoryError)
       return
     }
+
+    const descriptionError = validateField("description", formData.description)
+    if (descriptionError) {
+      toast.error(descriptionError)
+      return
+    }
+
+    if (checkDuplicateName(trimmedName)) {
+      toast.error("Service name already exists")
+      return
+    }
+
+    setIsSubmitting(true)
 
     try {
       const serviceData = {
-        name: formData.name.trim(),
-        description: formData.description || undefined,
+        name: trimmedName,
+        description: trimmedDescription,
         categoryId: formData.categoryId,
-        baseDuration: formData.baseDuration ? parseInt(formData.baseDuration) : undefined,
-        gender: formData.gender || undefined,
-        status: formData.status
       }
 
       if (editingService) {
-        await serviceService.update(editingService.id, serviceData)
+        await serviceService.update((editingService as any)._id, serviceData)
         toast.success("Service updated successfully")
       } else {
         await serviceService.create(serviceData)
@@ -108,103 +164,112 @@ export default function ServiceManagementPage() {
 
       setDialogOpen(false)
       resetForm()
-      loadServices()
+      await loadServices()
     } catch (error) {
-      console.error('Failed to save service:', error)
-      if (error instanceof Error) {
-        toast.error(error.message)
-      } else {
-        toast.error('An unexpected error occurred')
-      }
+      console.error("Failed to save service:", error)
+      const errorMessage =
+        error instanceof Error ? error.message : "Failed to save service"
+      toast.error(errorMessage)
+    } finally {
+      setIsSubmitting(false)
     }
   }
 
-  const handleEdit = (service: Service) => {
-    if (!service.id) {
+  const extractCategoryId = (categoryId: any): string => {
+    if (typeof categoryId === "object") {
+      return categoryId?._id || categoryId?.id || ""
+    }
+    return categoryId || ""
+  }
+
+  const getCategoryName = (categoryId: any): string => {
+    const catId = extractCategoryId(categoryId)
+    const category = categories.find((cat) => (cat as any)._id === catId)
+
+    if (category) return category.name
+    if (typeof categoryId === "object" && categoryId?.name)
+      return categoryId.name
+    return catId || "-"
+  }
+
+  const handleEdit = useCallback((service: Service) => {
+    if (!(service as any)._id) {
       toast.error("Cannot edit service: Invalid ID")
       return
     }
+
     setEditingService(service)
     setFormData({
       name: service.name,
-      description: service.description || '',
-      categoryId: typeof service.categoryId === 'object' ? service.categoryId?._id || service.categoryId?.id || '' : service.categoryId || '',
-      baseDuration: service.baseDuration?.toString() || '',
-      gender: (service as any).gender || '',
-      status: service.status || 'active'
+      description: service.description || "",
+      categoryId: extractCategoryId((service as any).categoryId),
     })
-    setError(null)
     setDialogOpen(true)
-  }
+  }, [])
 
   const handleDelete = async (id: string) => {
     if (!id) {
       toast.error("Cannot delete service: Invalid ID")
       return
     }
-    if (!confirm('Are you sure you want to delete this service?')) return
+
+    if (!confirm("Are you sure you want to delete this service?")) return
 
     try {
       await serviceService.delete(id)
-      loadServices()
       toast.success("Service deleted successfully")
+      await loadServices()
     } catch (error) {
-      console.error('Failed to delete service:', error)
-      if (error instanceof Error) {
-        toast.error(error.message)
-      } else {
-        toast.error('Failed to delete service')
-      }
+      console.error("Failed to delete service:", error)
+      const errorMessage =
+        error instanceof Error ? error.message : "Failed to delete service"
+      toast.error(errorMessage)
     }
   }
 
-  const resetForm = () => {
-    setFormData({
-      name: '',
-      description: '',
-      categoryId: '',
-      baseDuration: '',
-      gender: '',
-      status: 'active'
-    })
+  const resetForm = useCallback(() => {
+    setFormData(INITIAL_SERVICE_FORM_STATE)
     setEditingService(null)
-  }
+  }, [])
 
-  const openCreateDialog = () => {
+  const openCreateDialog = useCallback(() => {
     resetForm()
-    setError(null)
     setDialogOpen(true)
-  }
+  }, [resetForm])
 
   if (isLoading || loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20 flex items-center justify-center">
+      <div className="from-background via-background to-muted/20 flex min-h-screen items-center justify-center bg-gradient-to-br">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+          <div className="border-primary mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-b-2"></div>
           <p className="text-muted-foreground">Loading service management...</p>
         </div>
       </div>
     )
   }
 
-  if (!user || user.type !== 'admin') {
+  if (!user || user.type !== "admin") {
     return null
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
+    <div className="from-background via-background to-muted/20 min-h-screen bg-gradient-to-br">
       <div className="mx-auto max-w-7xl p-5 lg:px-8 lg:py-12">
         <div className="mb-8">
           <Button
             variant="ghost"
-            onClick={() => router.push('/admin')}
+            onClick={() => router.push("/admin")}
             className="mb-4"
           >
-            <ArrowLeft className="h-4 w-4 mr-2" />
+            <ArrowLeft className="mr-2 h-4 w-4" />
             Back to Admin Dashboard
           </Button>
-          <h1 className="text-3xl lg:text-4xl font-bold mb-2">Service Management</h1>
-          <p className="text-muted-foreground">Manage available services across the platform</p>
+          <h1 className="mb-2 text-3xl font-bold lg:text-4xl">
+            Service Management
+          </h1>
+          <p className="text-muted-foreground">
+            Manage available services across the platform
+          </p>
         </div>
 
         <Card>
@@ -213,98 +278,91 @@ export default function ServiceManagementPage() {
             <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
               <DialogTrigger asChild>
                 <Button onClick={openCreateDialog}>
-                  <Plus className="h-4 w-4 mr-2" />
+                  <Plus className="mr-2 h-4 w-4" />
                   Add Service
                 </Button>
               </DialogTrigger>
               <DialogContent>
                 <DialogHeader>
-                  <DialogTitle>{editingService ? 'Edit Service' : 'Add New Service'}</DialogTitle>
+                  <DialogTitle>
+                    {editingService ? "Edit Service" : "Add New Service"}
+                  </DialogTitle>
                 </DialogHeader>
                 <form onSubmit={handleSubmit} className="space-y-4">
-                  {error && (
-                    <div className="p-3 bg-destructive/10 border border-destructive/20 rounded-md">
-                      <p className="text-sm text-destructive">{error}</p>
-                    </div>
-                  )}
                   <div>
                     <Label htmlFor="name">Name *</Label>
                     <Input
                       id="name"
                       value={formData.name}
-                      onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+                      onChange={(e) =>
+                        setFormData((prev) => ({
+                          ...prev,
+                          name: e.target.value,
+                        }))
+                      }
+                      disabled={isSubmitting}
                       required
                     />
                   </div>
-                  <div>
-                    <Label htmlFor="description">Description</Label>
-                    <Textarea
-                      id="description"
-                      value={formData.description}
-                      onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
-                    />
-                  </div>
+
                   <div>
                     <Label htmlFor="categoryId">Category *</Label>
                     <select
                       id="categoryId"
                       value={formData.categoryId}
-                      onChange={(e) => setFormData(prev => ({ ...prev, categoryId: e.target.value }))}
+                      onChange={(e) =>
+                        setFormData((prev) => ({
+                          ...prev,
+                          categoryId: e.target.value,
+                        }))
+                      }
+                      disabled={isSubmitting}
                       required
-                      className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                      className="border-input bg-background ring-offset-background placeholder:text-muted-foreground focus-visible:ring-ring flex h-10 w-full rounded-md border px-3 py-2 text-sm focus-visible:ring-2 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50"
                     >
                       <option value="">Select a category</option>
                       {categories.map((category) => (
-                        <option key={category.id} value={category.id}>
+                        <option
+                          key={(category as any)._id}
+                          value={(category as any)._id}
+                        >
                           {category.name}
                         </option>
                       ))}
                     </select>
                   </div>
+
                   <div>
-                    <Label htmlFor="baseDuration">Base Duration (minutes)</Label>
-                    <Input
-                      id="baseDuration"
-                      type="number"
-                      min="1"
-                      value={formData.baseDuration}
-                      onChange={(e) => setFormData(prev => ({ ...prev, baseDuration: e.target.value }))}
+                    <Label htmlFor="description">Description *</Label>
+                    <Textarea
+                      id="description"
+                      value={formData.description}
+                      onChange={(e) =>
+                        setFormData((prev) => ({
+                          ...prev,
+                          description: e.target.value,
+                        }))
+                      }
+                      disabled={isSubmitting}
+                      required
                     />
                   </div>
-                  <div>
-                    <Label htmlFor="gender">Target Gender</Label>
-                    <select
-                      id="gender"
-                      value={formData.gender}
-                      onChange={(e) => setFormData(prev => ({ ...prev, gender: e.target.value }))}
-                      className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                    >
-                      <option value="">No target</option>
-                      <option value="men">Men</option>
-                      <option value="women">Women</option>
-                      <option value="unisex">Unisex</option>
-                      <option value="kids">Kids</option>
-                    </select>
-                  </div>
-                  <div>
-                    <Label htmlFor="status">Status *</Label>
-                    <select
-                      id="status"
-                      value={formData.status}
-                      onChange={(e) => setFormData(prev => ({ ...prev, status: e.target.value }))}
-                      required
-                      className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                    >
-                      <option value="active">Active</option>
-                      <option value="inactive">Inactive</option>
-                    </select>
-                  </div>
+
                   <div className="flex justify-end space-x-2">
-                    <Button type="button" variant="outline" onClick={() => setDialogOpen(false)}>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => setDialogOpen(false)}
+                      disabled={isSubmitting}
+                    >
                       Cancel
                     </Button>
-                    <Button type="submit">
-                      {editingService ? 'Update' : 'Create'}
+                    <Button type="submit" disabled={isSubmitting}>
+                      {isSubmitting
+                        ? "Saving..."
+                        : editingService
+                          ? "Update"
+                          : "Create"}
                     </Button>
                   </div>
                 </form>
@@ -316,66 +374,76 @@ export default function ServiceManagementPage() {
               <table className="w-full border-collapse">
                 <thead>
                   <tr className="border-b">
-                    <th className="text-left p-4 font-medium">Name</th>
-                    <th className="text-left p-4 font-medium">Category</th>
-                    <th className="text-left p-4 font-medium">Base Duration</th>
-                    <th className="text-left p-4 font-medium">Status</th>
-                    <th className="text-left p-4 font-medium">Actions</th>
+                    <th className="p-4 text-left font-medium">Name</th>
+                    <th className="p-4 text-left font-medium">Category</th>
+                    <th className="p-4 text-left font-medium">Description</th>
+                    <th className="p-4 text-left font-medium">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {Array.isArray(services) && services.map((service) => (
-                    <tr key={`service-${service.id}`} className="border-b hover:bg-muted/50">
-                      <td className="p-4 font-medium">{service.name}</td>
-                      <td className="p-4">
-                        {(() => {
-                          const catId = typeof service.categoryId === 'object' ? service.categoryId?._id || service.categoryId?.id : service.categoryId;
-                          const cat = categories.find(cat => cat.id === catId);
-                          if (cat) return cat.name;
-                          if (typeof service.categoryId === 'object' && service.categoryId?.name) return service.categoryId.name;
-                          return catId || '-';
-                        })()}
-                      </td>
-                      <td className="p-4">{service.baseDuration ? `${service.baseDuration} min` : '-'}</td>
-                      <td className="p-4">
-                        <Badge variant={service.status === 'active' ? "default" : "secondary"}>
-                          {service.status || 'active'}
-                        </Badge>
-                      </td>
-                      <td className="p-4">
-                        <div className="flex space-x-2">
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => handleEdit(service)}
-                          >
-                            <Edit className="h-4 w-4" />
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => handleDelete(service.id)}
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                  {(!Array.isArray(services) || services.length === 0) && (
+                  {services.length === 0 ? (
                     <tr>
-                      <td colSpan={5} className="p-8 text-center text-muted-foreground">
-                        {loading ? 'Loading services...' : 'No services found. Create your first service to get started.'}
+                      <td
+                        colSpan={4}
+                        className="text-muted-foreground p-8 text-center"
+                      >
+                        No services found. Create your first service to get
+                        started.
                       </td>
                     </tr>
+                  ) : (
+                    services.map((service) => (
+                      <tr
+                        key={(service as any)._id}
+                        className="hover:bg-muted/50 border-b"
+                      >
+                        <td className="p-4 font-medium">{service.name}</td>
+                        <td className="p-4">
+                          {getCategoryName((service as any).categoryId)}
+                        </td>
+                        <td
+                          className="max-w-md truncate p-4"
+                          title={service.description || "-"}
+                        >
+                          {service.description || "-"}
+                        </td>
+                        <td className="p-4">
+                          <div className="flex space-x-2">
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => handleEdit(service)}
+                              aria-label="Edit service"
+                            >
+                              <Edit className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => handleDelete((service as any)._id)}
+                              aria-label="Delete service"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))
                   )}
                 </tbody>
               </table>
             </div>
             <div className="mt-6 flex items-center justify-between">
-              <p className="text-sm text-muted-foreground">View submitted service suggestions</p>
+              <p className="text-muted-foreground text-sm">
+                View submitted service suggestions
+              </p>
               <div>
-                <Button variant="outline" onClick={() => router.push('/admin/service-suggestions')}>View Suggestions</Button>
+                <Button
+                  variant="outline"
+                  onClick={() => router.push("/admin/service-suggestions")}
+                >
+                  View Suggestions
+                </Button>
               </div>
             </div>
           </CardContent>

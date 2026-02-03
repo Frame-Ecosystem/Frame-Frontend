@@ -1,51 +1,41 @@
-import { NextRequest, NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from "next/server"
+import { promises as fs } from "fs"
+import path from "path"
 
 // Mock data for development
-let mockServices = [
-  {
-    id: '1',
-    name: 'Classic Haircut',
-    description: 'Traditional haircut with styling',
-    categoryId: '1',
-    basePrice: 25,
-    estimatedDuration: 30,
-    isActive: true,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString()
-  },
-  {
-    id: '2',
-    name: 'Beard Trim',
-    description: 'Professional beard trimming and shaping',
-    categoryId: '2',
-    basePrice: 15,
-    estimatedDuration: 15,
-    isActive: true,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString()
-  },
-  {
-    id: '3',
-    name: 'Hair Coloring',
-    description: 'Full hair coloring service',
-    categoryId: '3',
-    basePrice: 80,
-    estimatedDuration: 120,
-    isActive: true,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString()
+const SERVICES_FILE = path.join(
+  process.cwd(),
+  "app",
+  "api",
+  "v1",
+  "services",
+  "mock-services.json",
+)
+let mockServices: any[] = []
+
+async function loadServices() {
+  try {
+    const data = await fs.readFile(SERVICES_FILE, "utf-8")
+    mockServices = JSON.parse(data)
+  } catch {
+    mockServices = []
   }
-]
+}
+
+async function saveServices() {
+  await fs.writeFile(SERVICES_FILE, JSON.stringify(mockServices, null, 2))
+}
 
 // GET /api/v1/services - Get all services
 export async function GET() {
   try {
+    await loadServices()
     return NextResponse.json(mockServices)
   } catch (error) {
-    console.error('Error fetching services:', error)
+    console.error("Error fetching services:", error)
     return NextResponse.json(
-      { error: 'Failed to fetch services' },
-      { status: 500 }
+      { error: "Failed to fetch services" },
+      { status: 500 },
     )
   }
 }
@@ -53,44 +43,51 @@ export async function GET() {
 // POST /api/v1/services - Create new service
 export async function POST(request: NextRequest) {
   try {
+    await loadServices()
+
     const body = await request.json()
 
-    const name = body.name ? String(body.name).trim() : ''
+    const name = body.name ? String(body.name).trim() : ""
 
     if (!name) {
-      return NextResponse.json(
-        { error: 'Name is required' },
-        { status: 400 }
-      )
+      return NextResponse.json({ error: "Name is required" }, { status: 400 })
     }
 
     // Check uniqueness (case-insensitive)
-    const exists = mockServices.some(s => s.name.toLowerCase() === name.toLowerCase())
+    const exists = mockServices.some(
+      (s) => s.name.toLowerCase() === name.toLowerCase(),
+    )
     if (exists) {
-      return NextResponse.json({ error: 'Service name already exists' }, { status: 409 })
+      return NextResponse.json(
+        { error: "Service name already exists" },
+        { status: 409 },
+      )
     }
 
     // Create new service
     const newService = {
       id: Date.now().toString(),
       name: name,
-      description: body.description || '',
+      description: body.description || "",
       categoryId: body.categoryId || null,
       basePrice: body.basePrice ? parseFloat(body.basePrice) : 0,
-      estimatedDuration: body.estimatedDuration ? parseInt(body.estimatedDuration) : 0,
+      estimatedDuration: body.estimatedDuration
+        ? parseInt(body.estimatedDuration)
+        : 0,
       isActive: body.isActive !== undefined ? body.isActive : true,
       createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString()
+      updatedAt: new Date().toISOString(),
     }
 
     mockServices.push(newService)
+    await saveServices()
 
     return NextResponse.json(newService, { status: 201 })
   } catch (error) {
-    console.error('Error creating service:', error)
+    console.error("Error creating service:", error)
     return NextResponse.json(
-      { error: 'Failed to create service' },
-      { status: 500 }
+      { error: "Failed to create service" },
+      { status: 500 },
     )
   }
 }
