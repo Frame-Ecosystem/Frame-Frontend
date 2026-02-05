@@ -14,6 +14,8 @@ export interface LocationData {
   longitude: number
   address: string
   placeId: string
+  placeName?: string
+  _id?: string
 }
 
 export interface EmailVerification {
@@ -50,13 +52,14 @@ export interface AuthResponse {
   message?: string
 }
 
-export interface Barbershop {
+export interface Center {
   id: string
   name: string
   address?: string
   phones?: string[]
   description?: string
   imageUrl?: string
+  isOpen?: boolean
   // optional fields often returned by backend
   createdAt?: string
   updatedAt?: string
@@ -69,12 +72,12 @@ export interface ServiceItem {
   imageUrl?: string
   price: number
   durationMinutes?: number
-  barbershopId: string
-  barbershop?: Barbershop
+  centerId: string
+  center?: Center
 }
 
-// Backwards-compatibility: some code expects `BarbershopService`
-export type BarbershopService = ServiceItem
+// Backwards-compatibility: some code expects `CenterService`
+export type CenterService = ServiceItem
 
 export type BookingStatus = "pending" | "confirmed" | "cancelled" | string
 
@@ -84,7 +87,7 @@ export interface Booking {
   serviceId?: string
   date: Date
   status?: BookingStatus
-  service?: ServiceItem & { barbershop: Barbershop }
+  service?: ServiceItem & { center: Center }
 }
 
 export interface Paginated<T> {
@@ -103,7 +106,7 @@ export interface ApiResponse<T = any> {
 
 // Booking creation input
 export interface CreateBookingInput {
-  barbershopId: string
+  centerId: string
   service: string
   date: string
   time: string

@@ -3,14 +3,29 @@
 import { useState, useEffect } from "react"
 import { Button } from "../../_components/ui/button"
 import { CameraIcon, Pencil, Star } from "lucide-react"
-import { Avatar, AvatarImage, AvatarFallback } from "../../_components/ui/avatar"
+import {
+  Avatar,
+  AvatarImage,
+  AvatarFallback,
+} from "../../_components/ui/avatar"
 import { ErrorBoundary } from "../../_components/errorBoundary"
 import { useAuth } from "../../_providers/auth"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "../../_components/ui/dialog"
-import { authService, getUserDisplayName, getUserInitials } from "../../_services/auth.service"
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "../../_components/ui/dialog"
+import {
+  authService,
+  getUserDisplayName,
+  getUserInitials,
+} from "../../_services/auth.service"
 import { ImageSelector } from "../../_components/ImageSelector"
 import { AccountSettings } from "../../_components/account-settings"
 import { AccountInformation } from "../../_components/account-information"
+import { OpeningHoursDisplay } from "../../_components/opening-hours-display"
 // Sign-in fallback removed; AuthGuard handles unauthenticated users
 
 // Helper function to format bio text with line breaks
@@ -20,7 +35,7 @@ const formatBioText = (text: string, isMobile: boolean = false) => {
   for (let i = 0; i < text.length; i += breakInterval) {
     lines.push(text.substring(i, i + breakInterval))
   }
-  return lines.join('\n')
+  return lines.join("\n")
 }
 
 export default function LoungeProfilePage() {
@@ -34,15 +49,16 @@ export default function LoungeProfilePage() {
   const [isAccountInfoOpen, setIsAccountInfoOpen] = useState(true)
   const [isBioExpanded, setIsBioExpanded] = useState(false)
   const [isMobile, setIsMobile] = useState(false)
+  const [showFullHours, setShowFullHours] = useState(false)
 
   useEffect(() => {
     const checkMobile = () => {
       setIsMobile(window.innerWidth < 768) // md breakpoint
     }
-    
+
     checkMobile()
-    window.addEventListener('resize', checkMobile)
-    return () => window.removeEventListener('resize', checkMobile)
+    window.addEventListener("resize", checkMobile)
+    return () => window.removeEventListener("resize", checkMobile)
   }, [])
 
   useEffect(() => {
@@ -84,7 +100,7 @@ export default function LoungeProfilePage() {
     }
     setUpdating(true)
     const formData = new FormData()
-    formData.append('image', file)
+    formData.append("image", file)
     try {
       const updatedUser = await authService.updateProfileImage(formData)
       if (updatedUser) {
@@ -103,9 +119,9 @@ export default function LoungeProfilePage() {
       <ErrorBoundary>
         <div className="from-background via-background to-muted/20 min-h-screen bg-linear-to-br">
           <div className="mx-auto max-w-7xl p-5 lg:px-8 lg:py-12">
-            <div className="flex items-center justify-center min-h-[400px]">
+            <div className="flex min-h-[400px] items-center justify-center">
               <div className="text-center">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+                <div className="border-primary mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-b-2"></div>
                 <p className="text-muted-foreground">Loading your profile...</p>
               </div>
             </div>
@@ -121,125 +137,163 @@ export default function LoungeProfilePage() {
     <ErrorBoundary>
       <div className="from-background via-background to-muted/20 min-h-screen bg-linear-to-br pb-24 lg:pb-0">
         <div className="mx-auto max-w-7xl">
-          <div className="p-5 lg:px-8 lg:py-12 space-y-6">
-            <div className="px-5 lg:px-8 py-6 lg:py-8">
-              <div className="flex items-start gap-4 mb-6">
-                  <div className="relative">
-                    <Avatar className="h-32 w-32 lg:h-40 lg:w-40 border-2 border-primary">
-                      {user?.profileImage && (
-                        <AvatarImage src={typeof user.profileImage === 'string' ? user.profileImage : user.profileImage.url} alt={getUserDisplayName(user)} />
-                      )}
-                      <AvatarFallback>
-                        {getUserInitials(user)}
-                      </AvatarFallback>
-                    </Avatar>
-                    <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-                      <DialogTrigger asChild>
-                        <Button size="icon" className="absolute bottom-0 right-0 rounded-full h-9 w-9">
-                          <CameraIcon className="h-4 w-4" />
-                        </Button>
-                      </DialogTrigger>
-                      <DialogContent>
-                        <DialogHeader>
-                          <DialogTitle>Update Profile Image</DialogTitle>
-                        </DialogHeader>
-                        <ImageSelector onUpdate={handleUpdateProfileImage} updating={updating} />
-                      </DialogContent>
-                    </Dialog>
-                  </div>
-
-                  <div className="flex-1 pt-4 lg:pt-8 mt-8">
-                    {user?.loungeTitle ? (
-                      <h1 className="text-2xl lg:text-3xl font-bold">{user.loungeTitle}</h1>
-                    ) : (
-                      <button
-                        onClick={() => {
-                          setOpenNameSection(true)
-                          setOpenSettings(true)
-                        }}
-                        className="flex items-center gap-2 text-lg lg:text-xl font-medium text-primary hover:text-primary/80 transition-colors text-left"
-                      >
-                        Update your title
-                        <Pencil className="h-4 w-4" />
-
-                      </button>
+          <div className="space-y-6 p-5 lg:px-8 lg:py-12">
+            <div className="px-5 py-6 lg:px-8 lg:py-8">
+              <div className="mb-6 flex items-start gap-4">
+                <div className="relative">
+                  <Avatar className="border-primary h-32 w-32 border-2 lg:h-40 lg:w-40">
+                    {user?.profileImage && (
+                      <AvatarImage
+                        src={
+                          typeof user.profileImage === "string"
+                            ? user.profileImage
+                            : user.profileImage.url
+                        }
+                        alt={getUserDisplayName(user)}
+                      />
                     )}
-                  </div>
+                    <AvatarFallback>{getUserInitials(user)}</AvatarFallback>
+                  </Avatar>
+                  <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+                    <DialogTrigger asChild>
+                      <Button
+                        size="icon"
+                        className="absolute right-0 bottom-0 h-9 w-9 rounded-full"
+                      >
+                        <CameraIcon className="h-4 w-4" />
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent>
+                      <DialogHeader>
+                        <DialogTitle>Update Profile Image</DialogTitle>
+                      </DialogHeader>
+                      <ImageSelector
+                        onUpdate={handleUpdateProfileImage}
+                        updating={updating}
+                      />
+                    </DialogContent>
+                  </Dialog>
                 </div>
 
-                {user?.bio ? (
-                  <div className="mt-6">
-                    <p className="text-sm text-muted-foreground leading-relaxed whitespace-pre-line">
-                      {isBioExpanded 
-                        ? formatBioText(user.bio, isMobile) 
-                        : (user.bio.length > (isMobile ? 25 : 55) 
-                          ? `${user.bio.substring(0, isMobile ? 25 : 55)}... ` 
-                          : formatBioText(user.bio, isMobile))
-                      }
-                      {user.bio.length > (isMobile ? 25 : 55) && !isBioExpanded && (
-                        <button 
+                <div className="mt-8 flex-1 pt-4 lg:pt-8">
+                  {user?.loungeTitle ? (
+                    <h1 className="text-2xl font-bold lg:text-3xl">
+                      {user.loungeTitle}
+                    </h1>
+                  ) : (
+                    <button
+                      onClick={() => {
+                        setOpenNameSection(true)
+                        setOpenSettings(true)
+                      }}
+                      className="text-primary hover:text-primary/80 flex items-center gap-2 text-left text-lg font-medium transition-colors lg:text-xl"
+                    >
+                      Update your title
+                      <Pencil className="h-4 w-4" />
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              {user?.bio ? (
+                <div className="mt-6">
+                  <p className="text-muted-foreground text-sm leading-relaxed whitespace-pre-line">
+                    {isBioExpanded
+                      ? formatBioText(user.bio, isMobile)
+                      : user.bio.length > (isMobile ? 25 : 55)
+                        ? `${user.bio.substring(0, isMobile ? 25 : 55)}... `
+                        : formatBioText(user.bio, isMobile)}
+                    {user.bio.length > (isMobile ? 25 : 55) &&
+                      !isBioExpanded && (
+                        <button
                           onClick={() => setIsBioExpanded(true)}
-                          className="text-primary hover:text-primary/80 transition-colors text-sm ml-1"
+                          className="text-primary hover:text-primary/80 ml-1 text-sm transition-colors"
                         >
                           read more
                         </button>
                       )}
-                      {user.bio.length > (isMobile ? 25 : 55) && isBioExpanded && (
-                        <button 
+                    {user.bio.length > (isMobile ? 25 : 55) &&
+                      isBioExpanded && (
+                        <button
                           onClick={() => setIsBioExpanded(false)}
-                          className="text-primary hover:text-primary/80 transition-colors text-sm ml-1"
+                          className="text-primary hover:text-primary/80 ml-1 text-sm transition-colors"
                         >
                           show less
                         </button>
                       )}
-                      <button
-                        onClick={() => {
-                          setOpenBioSection(true)
-                          setOpenSettings(true)
-                        }}
-                        className="text-primary hover:text-primary/80 transition-colors ml-2 inline"
-                      >
-                        <Pencil className="h-4 w-4" />
-                      </button>
-                    </p>
-                  </div>
-                ) : (
-                  <div className="mt-6 flex items-start gap-4">
                     <button
                       onClick={() => {
                         setOpenBioSection(true)
                         setOpenSettings(true)
                       }}
-                      className="flex items-center gap-2 text-sm text-primary hover:text-primary/80 transition-colors"
+                      className="text-primary hover:text-primary/80 ml-2 inline transition-colors"
                     >
-                      Add bio
                       <Pencil className="h-4 w-4" />
                     </button>
-                  </div>
-                )}
+                  </p>
+                </div>
+              ) : (
+                <div className="mt-6 flex items-start gap-4">
+                  <button
+                    onClick={() => {
+                      setOpenBioSection(true)
+                      setOpenSettings(true)
+                    }}
+                    className="text-primary hover:text-primary/80 flex items-center gap-2 text-sm transition-colors"
+                  >
+                    Add bio
+                    <Pencil className="h-4 w-4" />
+                  </button>
+                </div>
+              )}
 
-                {/* Stats Section */}
-                <div className="mt-6 flex flex-col md:flex-row items-start md:items-center justify-between text-sm gap-4 md:gap-0">
-                  <div className="flex items-center gap-2">
-                    <Star className="h-6 w-6 fill-yellow-400 text-yellow-400" />
-                    <span className="text-muted-foreground">Account Rating</span>
-                    <span className="font-semibold text-foreground">4.5</span>
+              {/* Stats Section */}
+              <div className="mt-6 flex flex-col items-start justify-between gap-4 text-sm md:flex-row md:items-center md:gap-0">
+                <div className="flex items-center gap-2">
+                  <Star className="h-6 w-6 fill-yellow-400 text-yellow-400" />
+                  <span className="text-muted-foreground">Account Rating</span>
+                  <span className="text-foreground font-semibold">4.5</span>
+                </div>
+                <div className="flex items-center gap-6">
+                  <div className="flex flex-col items-center">
+                    <span className="text-foreground font-semibold">0</span>
+                    <span className="text-muted-foreground">posts</span>
                   </div>
-                  <div className="flex items-center gap-6">
-                    <div className="flex flex-col items-center">
-                      <span className="font-semibold text-foreground">0</span>
-                      <span className="text-muted-foreground">posts</span>
-                    </div>
-                    <div className="flex flex-col items-center">
-                      <span className="font-semibold text-foreground">14</span>
-                      <span className="text-muted-foreground">followers</span>
-                    </div>
-                    <div className="flex flex-col items-center">
-                      <span className="font-semibold text-foreground">3</span>
-                      <span className="text-muted-foreground">following</span>
-                    </div>
+                  <div className="flex flex-col items-center">
+                    <span className="text-foreground font-semibold">14</span>
+                    <span className="text-muted-foreground">followers</span>
+                  </div>
+                  <div className="flex flex-col items-center">
+                    <span className="text-foreground font-semibold">3</span>
+                    <span className="text-muted-foreground">following</span>
                   </div>
                 </div>
+              </div>
+
+              {/* Opening Hours Toggle */}
+              {(user as any)?.openingHours && (
+                <div className="mt-4 w-full md:w-1/3">
+                  <button
+                    onClick={() => setShowFullHours(!showFullHours)}
+                    className="hover:bg-card/50 w-full rounded-lg p-3 text-left transition-colors"
+                  >
+                    <OpeningHoursDisplay
+                      openingHours={(user as any)?.openingHours}
+                      compact
+                      isExpanded={showFullHours}
+                    />
+                  </button>
+
+                  {/* Opening Hours Full View */}
+                  {showFullHours && (
+                    <div className="mt-2">
+                      <OpeningHoursDisplay
+                        openingHours={(user as any)?.openingHours}
+                      />
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
 
             <AccountInformation
@@ -250,7 +304,12 @@ export default function LoungeProfilePage() {
               setOpenSettings={setOpenSettings}
             />
 
-            <AccountSettings openNameSection={openNameSection} openSettings={openSettings} openPhoneSection={openPhoneSection} openBioSection={openBioSection} />
+            <AccountSettings
+              openNameSection={openNameSection}
+              openSettings={openSettings}
+              openPhoneSection={openPhoneSection}
+              openBioSection={openBioSection}
+            />
           </div>
         </div>
       </div>

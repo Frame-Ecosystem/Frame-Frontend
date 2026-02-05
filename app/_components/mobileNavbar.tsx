@@ -4,7 +4,7 @@ import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { useScrollPosition } from "../_hooks/useScrollPosition"
 import { useAuth } from "../_providers/auth"
-import { getProfilePath, isProfilePath } from "../_lib/profile"
+import { getProfilePath, isProfilePath, getHomePath } from "../_lib/profile"
 import { NAV_LINKS } from "../_constants/navigation"
 
 const MobileNavbar = () => {
@@ -30,10 +30,20 @@ const MobileNavbar = () => {
         <div className="relative flex h-full items-center justify-between gap-1 px-2 py-3">
           {NAV_LINKS.map((link) => {
             const isProfileLink = link.href === "/profile"
-            const href = isProfileLink ? profilePath : link.href
+            const isHomeLink = link.href === "/home"
+            const href = isProfileLink
+              ? profilePath
+              : isHomeLink
+                ? getHomePath(user)
+                : link.href
             let isActive = false
             if (isProfileLink) {
               isActive = isProfileActive
+            } else if (isHomeLink) {
+              isActive =
+                pathname === "/home" ||
+                pathname === "/loungeHome" ||
+                pathname === "/clientHome"
             } else if (link.href === "/") {
               isActive = pathname === "/"
             } else {

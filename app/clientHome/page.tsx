@@ -3,12 +3,14 @@
 import { Button } from "../_components/ui/button"
 import Image from "next/image"
 import CenterItem from "../_components/center-item"
-import { quickSearchOptions } from "../_constants/search"
 import Search from "../_components/search"
 import Link from "next/link"
-import { Center } from "../_types"
-import { useEffect } from "react"
+import { ErrorBoundary } from "../_components/errorBoundary"
+import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
+import { serviceService } from "../_services"
+import type { Service, Center } from "../_types"
+import { useAuth } from "../_providers/auth"
 
 // Date formatting utility
 import { format } from "date-fns"
@@ -20,23 +22,40 @@ import {
   StarIcon,
   TrendingUpIcon,
 } from "lucide-react"
-import { useAuth } from "../_providers/auth"
-import { ErrorBoundary } from "../_components/errorBoundary"
 
-const Home = () => {
+const ClientHome = () => {
   const { user, isLoading } = useAuth()
   const router = useRouter()
+  const [services, setServices] = useState<Service[]>([])
+  const [loadingServices, setLoadingServices] = useState(true)
 
-  // Redirect non-admin users to their respective home pages
+  // Redirect non-client users to their respective home pages
   useEffect(() => {
-    if (!isLoading && user && user.type !== "admin") {
-      if (user.type === "lounge") {
+    if (!isLoading && user && user.type !== "client") {
+      if (user.type === "admin") {
+        router.replace("/home")
+      } else if (user.type === "lounge") {
         router.replace("/loungeHome")
-      } else if (user.type === "client") {
-        router.replace("/clientHome")
       }
     }
   }, [user, isLoading, router])
+
+  // Fetch services
+  useEffect(() => {
+    const fetchServices = async () => {
+      try {
+        setLoadingServices(true)
+        const data = await serviceService.getAll()
+        setServices(data.slice(0, 9)) // Limit to 9 services for display
+      } catch (error) {
+        console.error("Failed to fetch services:", error)
+      } finally {
+        setLoadingServices(false)
+      }
+    }
+
+    fetchServices()
+  }, [])
 
   const centers: Center[] = []
   const popularCenters: Center[] = []
@@ -100,7 +119,7 @@ const Home = () => {
                       </div>
                     </div>
 
-                    {/* Centers Count Card */}
+                    {/* centers Count Card */}
                     <div className="bg-card/50 hover:bg-primary/20 rounded-xl border p-4 backdrop-blur-sm transition-colors">
                       <div className="flex items-center gap-3">
                         <div className="bg-primary/10 rounded-lg p-2">
@@ -145,31 +164,42 @@ const Home = () => {
                   <h3 className="text-muted-foreground mb-4 hidden text-sm font-medium tracking-wider uppercase lg:block">
                     Popular Services
                   </h3>
-                  <div className="flex gap-3 overflow-x-scroll lg:grid lg:grid-cols-3 lg:gap-4 lg:overflow-visible [&::-webkit-scrollbar]:hidden">
-                    {quickSearchOptions.map((option) => (
-                      <Button
-                        className="popular-services-btn shrink-0 gap-2 transition-transform hover:scale-105 lg:h-12 lg:shrink lg:justify-start lg:text-base"
-                        variant="secondary"
-                        key={option.title}
-                        asChild
-                      >
-                        <Link href={`/centers?service=${option.title}`}>
-                          <Image
-                            src={option.imageUrl}
-                            width={16}
-                            height={16}
-                            alt={option.title}
-                            className="lg:h-5 lg:w-5"
-                          />
-                          {option.title}
-                        </Link>
-                      </Button>
-                    ))}
-                  </div>
+                  {loadingServices ? (
+                    <div className="flex gap-3 overflow-x-scroll lg:grid lg:grid-cols-3 lg:gap-4 lg:overflow-visible [&::-webkit-scrollbar]:hidden">
+                      {[...Array(6)].map((_, i) => (
+                        <div
+                          key={i}
+                          className="bg-muted h-12 shrink-0 animate-pulse rounded-lg lg:shrink"
+                          style={{ width: "150px" }}
+                        />
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="flex gap-3 overflow-x-scroll lg:grid lg:grid-cols-3 lg:gap-4 lg:overflow-visible [&::-webkit-scrollbar]:hidden">
+                      {services.length > 0 ? (
+                        services.map((service) => (
+                          <Button
+                            className="popular-services-btn shrink-0 gap-2 transition-transform hover:scale-105 lg:h-12 lg:shrink lg:justify-start lg:text-base"
+                            variant="secondary"
+                            key={service.id}
+                            asChild
+                          >
+                            <Link href={`/centers?service=${service.name}`}>
+                              {service.name}
+                            </Link>
+                          </Button>
+                        ))
+                      ) : (
+                        <p className="text-muted-foreground text-sm">
+                          No services available
+                        </p>
+                      )}
+                    </div>
+                  )}
                 </div>
               </div>
               <div className="lg:mt-0k mt-6 lg:col-span-5">
-                <div className="group relative h-[000px] w-full overflow-hidden rounded-xl lg:h-[550px]">
+                <div className="group relative h-[400px] w-full overflow-hidden rounded-xl lg:h-[550px]">
                   {/* Desktop Hero Image - Hover zoom effect */}
                   <Image
                     alt="Book with the best at Lookisi"
@@ -253,4 +283,4 @@ const Home = () => {
   )
 }
 
-export default Home
+export default ClientHome

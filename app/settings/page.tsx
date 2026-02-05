@@ -13,6 +13,7 @@ import { ErrorBoundary } from "../_components/errorBoundary"
 import { ThemeSelector } from "../_components/theme-selector"
 import { LocationSelector } from "../_components/LocationSelector"
 import { GenderSelector } from "../_components/gender-selector"
+import { OpeningHoursSelector } from "../_components/opening-hours-selector"
 
 export default function SettingsPage() {
   // === AUTH STATE ===
@@ -85,11 +86,14 @@ export default function SettingsPage() {
             {/* === THEME SELECTOR === */}
             <ThemeSelector />
 
-            {/* === GENDER SELECTOR === */}
-            {user && <GenderSelector />}
-
             {/* === LOCATION SELECTOR === */}
             {user && <LocationSelector />}
+
+            {/* === OPENING HOURS SELECTOR (lounge users only) === */}
+            {user && user.type === "lounge" && <OpeningHoursSelector />}
+
+            {/* === GENDER SELECTOR === */}
+            {user && <GenderSelector />}
 
             {/* === SERVICE MANAGEMENT LINK (collapsible for lounge users) === */}
             {user && user.type === "lounge" && (

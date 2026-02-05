@@ -81,9 +81,7 @@ export default function AdminDashboard() {
           <h1 className="mb-2 text-3xl font-bold lg:text-4xl">
             Admin Dashboard
           </h1>
-          <p className="text-muted-foreground">
-            Manage your barber lab platform
-          </p>
+          <p className="text-muted-foreground">Manage your lookisi platform</p>
         </div>
 
         {/* Quick Stats */}
@@ -176,7 +174,7 @@ export default function AdminDashboard() {
             </CardHeader>
             <CardContent>
               <p className="text-muted-foreground mb-4 text-sm">
-                Manage users, barbers, and clients across the platform
+                Manage users, lounges, and clients across the platform
               </p>
               <Button className="w-full" variant="outline">
                 Manage Users

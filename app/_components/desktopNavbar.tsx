@@ -9,11 +9,13 @@ import NotificationButton from "./notification-button"
 import PWAInstallButton from "./pwaInstallButton"
 import { useAuth } from "../_providers/auth"
 import { NAV_LINKS } from "../_constants/navigation"
-import { getProfilePath } from "../_lib/profile"
+import { getProfilePath, getHomePath } from "../_lib/profile"
+import { useTheme } from "next-themes"
 
 const DesktopNavbar = () => {
   const pathname = usePathname()
   const { user, isLoading } = useAuth()
+  const { resolvedTheme } = useTheme()
   return (
     <Card className="bg-card border-b-primary sticky top-0 right-0 left-0 z-50 hidden rounded-none border-b shadow-xl transition-all duration-300 lg:block">
       <CardContent className="flex flex-row items-center justify-between p-3 md:p-5 lg:px-10 lg:py-5">
@@ -23,12 +25,17 @@ const DesktopNavbar = () => {
           className="flex items-center gap-2 transition-opacity duration-200 hover:opacity-75"
         >
           <Image
-            alt="Barber Lab"
-            src="/images/logo.png"
+            alt="Lookisi"
+            src={
+              resolvedTheme === "monochrome-light"
+                ? "/images/lookisiLightPng.png"
+                : "/images/lookisiDarkPng.png"
+            }
             height={50}
             width={50}
             priority
             className="h-7 w-auto scale-100 md:scale-150 lg:h-10 lg:w-auto"
+            suppressHydrationWarning
           />
         </Link>
         {/* NAVIGATION LINKS */}
@@ -36,11 +43,17 @@ const DesktopNavbar = () => {
           <nav className="bg-background/50 border-border/30 hidden rounded-full border px-6 py-2 backdrop-blur-sm lg:mb-0 lg:flex lg:items-center lg:gap-2">
             {NAV_LINKS.map((link) => {
               const isProfileLink = link.href === "/profile"
+              const isHomeLink = link.href === "/home"
               let isActive = false
               if (isProfileLink) {
                 isActive =
                   pathname.startsWith("/profile") ||
                   pathname.startsWith("/admin")
+              } else if (isHomeLink) {
+                isActive =
+                  pathname === "/home" ||
+                  pathname === "/loungeHome" ||
+                  pathname === "/clientHome"
               } else if (link.href === "/") {
                 isActive = pathname === "/"
               } else {
@@ -48,7 +61,11 @@ const DesktopNavbar = () => {
               }
 
               const Icon = link.icon as any
-              const href = isProfileLink ? getProfilePath(user) : link.href
+              const href = isProfileLink
+                ? getProfilePath(user)
+                : isHomeLink
+                  ? getHomePath(user)
+                  : link.href
 
               return (
                 <Link

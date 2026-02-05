@@ -6,9 +6,10 @@ import CenterItem from "../_components/center-item"
 import { quickSearchOptions } from "../_constants/search"
 import Search from "../_components/search"
 import Link from "next/link"
-import { Center } from "../_types"
+import { ErrorBoundary } from "../_components/errorBoundary"
 import { useEffect } from "react"
 import { useRouter } from "next/navigation"
+import { useAuth } from "../_providers/auth"
 
 // Date formatting utility
 import { format } from "date-fns"
@@ -20,18 +21,17 @@ import {
   StarIcon,
   TrendingUpIcon,
 } from "lucide-react"
-import { useAuth } from "../_providers/auth"
-import { ErrorBoundary } from "../_components/errorBoundary"
+import type { Center } from "../_types"
 
-const Home = () => {
+const LoungeHome = () => {
   const { user, isLoading } = useAuth()
   const router = useRouter()
 
-  // Redirect non-admin users to their respective home pages
+  // Redirect non-lounge users to their respective home pages
   useEffect(() => {
-    if (!isLoading && user && user.type !== "admin") {
-      if (user.type === "lounge") {
-        router.replace("/loungeHome")
+    if (!isLoading && user && user.type !== "lounge") {
+      if (user.type === "admin") {
+        router.replace("/home")
       } else if (user.type === "client") {
         router.replace("/clientHome")
       }
@@ -253,4 +253,4 @@ const Home = () => {
   )
 }
 
-export default Home
+export default LoungeHome

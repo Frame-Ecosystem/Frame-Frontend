@@ -1,6 +1,6 @@
 "use client"
 
-import { Barbershop, BarbershopService, Booking } from "../_types"
+import { Center, CenterService, Booking } from "../_types"
 import Image from "next/image"
 import { Button } from "./ui/button"
 import { Card, CardContent } from "./ui/card"
@@ -22,8 +22,8 @@ import { useRouter } from "next/navigation"
 import { useAuth } from "../_providers/auth"
 
 interface ServiceItemProps {
-  service: BarbershopService
-  barbershop: Pick<Barbershop, "name">
+  service: CenterService
+  center: Pick<Center, "name">
 }
 
 interface GetTimeListProps {
@@ -86,7 +86,7 @@ const getTimeList = ({ bookings, selectedDay }: GetTimeListProps) => {
   })
 }
 
-const ServiceItem = ({ service, barbershop }: ServiceItemProps) => {
+const ServiceItem = ({ service, center }: ServiceItemProps) => {
   // ===== HOOKS =====
   const router = useRouter()
   const { user } = useAuth()
@@ -337,7 +337,7 @@ const ServiceItem = ({ service, barbershop }: ServiceItemProps) => {
                   {selectedDate && (
                     <div className="p-5">
                       <BookingSummary
-                        barbershop={barbershop}
+                        center={center}
                         service={service}
                         selectedDate={selectedDate}
                       />

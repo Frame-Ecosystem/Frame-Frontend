@@ -1,17 +1,17 @@
 import { format } from "date-fns"
 import { Card, CardContent } from "./ui/card"
-import { Barbershop, BarbershopService } from "../_types"
+import { Center, CenterService } from "../_types"
 import { ptBR } from "date-fns/locale"
 
 interface BookingSummaryProps {
-  service: Pick<BarbershopService, "name" | "price">
-  barbershop: Pick<Barbershop, "name">
+  service: Pick<CenterService, "name" | "price">
+  center: Pick<Center, "name">
   selectedDate: Date
 }
 
 const BookingSummary = ({
   service,
-  barbershop,
+  center,
   selectedDate,
 }: BookingSummaryProps) => {
   return (
@@ -42,10 +42,10 @@ const BookingSummary = ({
           <p className="text-sm">{format(selectedDate, "HH:mm")}</p>
         </div>
 
-        {/* Barbershop name row */}
+        {/* Center name row */}
         <div className="flex items-center justify-between">
-          <h2 className="text-sm text-gray-400">Barbershop</h2>
-          <p className="text-sm">{barbershop.name}</p>
+          <h2 className="text-sm text-gray-400">Center</h2>
+          <p className="text-sm">{center.name}</p>
         </div>
       </CardContent>
     </Card>

@@ -1,4 +1,4 @@
-const CACHE_NAME = 'barberlab-v1';
+const CACHE_NAME = 'lookisi-v1';
 const urlsToCache = [
   '/',
   '/images/logo.png',

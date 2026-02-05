@@ -24,7 +24,9 @@ export function LocationSelector({ onLocationUpdate }: LocationSelectorProps) {
   const { user, setAuth, accessToken } = useAuth()
   const [isUpdating, setIsUpdating] = useState(false)
   const [searchQuery, setSearchQuery] = useState("")
-  const [selectedLocation, setSelectedLocation] = useState<LocationData | null>(null)
+  const [selectedLocation, setSelectedLocation] = useState<LocationData | null>(
+    null,
+  )
   const isMapInitializedRef = useRef(false)
   const [isScriptLoaded, setIsScriptLoaded] = useState(false)
   const [isOpen, setIsOpen] = useState(false)
@@ -33,7 +35,9 @@ export function LocationSelector({ onLocationUpdate }: LocationSelectorProps) {
 
   const initializeMap = useCallback(() => {
     if (!mapRef.current || !window.google) {
-      console.error('LocationSelector: Map container or Google Maps not available')
+      console.error(
+        "LocationSelector: Map container or Google Maps not available",
+      )
       return
     }
 
@@ -56,10 +60,12 @@ export function LocationSelector({ onLocationUpdate }: LocationSelectorProps) {
       })
 
       // Initialize Places Autocomplete
-      const autocomplete = new window.google.maps.places.Autocomplete(searchInputRef.current!)
-      autocomplete.bindTo('bounds', mapInstance)
+      const autocomplete = new window.google.maps.places.Autocomplete(
+        searchInputRef.current!,
+      )
+      autocomplete.bindTo("bounds", mapInstance)
 
-      autocomplete.addListener('place_changed', () => {
+      autocomplete.addListener("place_changed", () => {
         const place = autocomplete.getPlace()
         if (!place.geometry) return
 
@@ -67,8 +73,9 @@ export function LocationSelector({ onLocationUpdate }: LocationSelectorProps) {
         const newLocation: LocationData = {
           latitude: location.lat(),
           longitude: location.lng(),
-          address: place.formatted_address || place.name || '',
-          placeId: place.place_id || '',
+          address: place.formatted_address || place.name || "",
+          placeId: place.place_id || "",
+          placeName: place.name || place.formatted_address?.split(",")[0] || "",
         }
 
         setSelectedLocation(newLocation)
@@ -78,13 +85,13 @@ export function LocationSelector({ onLocationUpdate }: LocationSelectorProps) {
       })
 
       // Handle map clicks
-      mapInstance.addListener('click', (event: any) => {
+      mapInstance.addListener("click", (event: any) => {
         const location = event.latLng
         const newLocation: LocationData = {
           latitude: location.lat(),
           longitude: location.lng(),
-          address: '',
-          placeId: '',
+          address: "",
+          placeId: "",
         }
 
         setSelectedLocation(newLocation)
@@ -95,27 +102,48 @@ export function LocationSelector({ onLocationUpdate }: LocationSelectorProps) {
         // Reverse geocode to get address and placeId
         const geocoder = new window.google.maps.Geocoder()
         geocoder.geocode({ location }, (results: any, status: any) => {
-          if (status === 'OK' && results[0]) {
+          if (status === "OK" && results[0]) {
             newLocation.address = results[0].formatted_address
             newLocation.placeId = results[0].place_id || `custom_${Date.now()}` // Generate a fallback placeId if not available
+            // Extract place name - look for meaningful components
+            const addressComponents = results[0].address_components
+            let placeName = ""
+            // Try to find a meaningful place name from address components
+            const nameComponent = addressComponents.find((c: any) =>
+              [
+                "point_of_interest",
+                "establishment",
+                "premise",
+                "sublocality",
+                "locality",
+              ].includes(c.types[0]),
+            )
+            if (nameComponent) {
+              placeName = nameComponent.long_name
+            } else {
+              // Fallback to first part of formatted address
+              placeName = results[0].formatted_address.split(",")[0]
+            }
+            newLocation.placeName = placeName
             setSelectedLocation({ ...newLocation })
           } else {
             // If geocoding fails, create a basic address
             newLocation.address = `${location.lat().toFixed(6)}, ${location.lng().toFixed(6)}`
             newLocation.placeId = `custom_${Date.now()}`
+            newLocation.placeName = ""
             setSelectedLocation({ ...newLocation })
           }
         })
       })
 
       // Handle marker drag
-      markerInstance.addListener('dragend', (event: any) => {
+      markerInstance.addListener("dragend", (event: any) => {
         const location = event.latLng
         const newLocation: LocationData = {
           latitude: location.lat(),
           longitude: location.lng(),
-          address: '',
-          placeId: '',
+          address: "",
+          placeId: "",
         }
 
         setSelectedLocation(newLocation)
@@ -123,14 +151,35 @@ export function LocationSelector({ onLocationUpdate }: LocationSelectorProps) {
         // Reverse geocode
         const geocoder = new window.google.maps.Geocoder()
         geocoder.geocode({ location }, (results: any, status: any) => {
-          if (status === 'OK' && results[0]) {
+          if (status === "OK" && results[0]) {
             newLocation.address = results[0].formatted_address
             newLocation.placeId = results[0].place_id || `custom_${Date.now()}` // Generate a fallback placeId if not available
+            // Extract place name - look for meaningful components
+            const addressComponents = results[0].address_components
+            let placeName = ""
+            // Try to find a meaningful place name from address components
+            const nameComponent = addressComponents.find((c: any) =>
+              [
+                "point_of_interest",
+                "establishment",
+                "premise",
+                "sublocality",
+                "locality",
+              ].includes(c.types[0]),
+            )
+            if (nameComponent) {
+              placeName = nameComponent.long_name
+            } else {
+              // Fallback to first part of formatted address
+              placeName = results[0].formatted_address.split(",")[0]
+            }
+            newLocation.placeName = placeName
             setSelectedLocation({ ...newLocation })
           } else {
             // If geocoding fails, create a basic address
             newLocation.address = `${location.lat().toFixed(6)}, ${location.lng().toFixed(6)}`
             newLocation.placeId = `custom_${Date.now()}`
+            newLocation.placeName = ""
             setSelectedLocation({ ...newLocation })
           }
         })
@@ -140,7 +189,7 @@ export function LocationSelector({ onLocationUpdate }: LocationSelectorProps) {
       // setMap(mapInstance)
       // setMarker(markerInstance)
     } catch (error) {
-      console.error('LocationSelector: Error initializing map:', error)
+      console.error("LocationSelector: Error initializing map:", error)
     }
   }, [])
 
@@ -148,14 +197,16 @@ export function LocationSelector({ onLocationUpdate }: LocationSelectorProps) {
     // Load Google Maps API only if not already loaded and not initialized
     if (!window.google && !isMapInitializedRef.current) {
       // Check if script is already being loaded
-      const existingScript = document.querySelector('script[src*="maps.googleapis.com"]')
+      const existingScript = document.querySelector(
+        'script[src*="maps.googleapis.com"]',
+      )
       if (!existingScript) {
         const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY
         if (!apiKey) {
-          console.error('LocationSelector: Google Maps API key not found')
+          console.error("LocationSelector: Google Maps API key not found")
           return
         }
-        const script = document.createElement('script')
+        const script = document.createElement("script")
         script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places`
         script.async = true
         script.defer = true
@@ -166,11 +217,11 @@ export function LocationSelector({ onLocationUpdate }: LocationSelectorProps) {
         }
 
         script.onerror = () => {
-          console.error('LocationSelector: Failed to load Google Maps script')
+          console.error("LocationSelector: Failed to load Google Maps script")
         }
       } else {
         // Script is already loading, wait for it
-        existingScript.addEventListener('load', () => {
+        existingScript.addEventListener("load", () => {
           setIsScriptLoaded(true)
         })
       }
@@ -182,16 +233,23 @@ export function LocationSelector({ onLocationUpdate }: LocationSelectorProps) {
     // Cleanup function
     return () => {
       // Clean up event listeners if component unmounts
-      const existingScript = document.querySelector('script[src*="maps.googleapis.com"]')
+      const existingScript = document.querySelector(
+        'script[src*="maps.googleapis.com"]',
+      )
       if (existingScript) {
-        existingScript.removeEventListener('load', () => {})
+        existingScript.removeEventListener("load", () => {})
       }
     }
   }, [])
 
   // Initialize map when script is loaded and container is available
   useEffect(() => {
-    if (isScriptLoaded && isOpen && !isMapInitializedRef.current && mapRef.current) {
+    if (
+      isScriptLoaded &&
+      isOpen &&
+      !isMapInitializedRef.current &&
+      mapRef.current
+    ) {
       initializeMap()
       isMapInitializedRef.current = true
     }
@@ -208,7 +266,7 @@ export function LocationSelector({ onLocationUpdate }: LocationSelectorProps) {
         if (user) {
           const updatedUser = {
             ...user,
-            location: selectedLocation
+            location: selectedLocation,
           }
           setAuth(updatedUser, accessToken) // Keep the existing token
         }
@@ -218,7 +276,7 @@ export function LocationSelector({ onLocationUpdate }: LocationSelectorProps) {
         setIsOpen(false) // Close the expanded view after successful update
       }
     } catch (error) {
-      console.error('Failed to update location:', error)
+      console.error("Failed to update location:", error)
     } finally {
       setIsUpdating(false)
     }
@@ -228,20 +286,24 @@ export function LocationSelector({ onLocationUpdate }: LocationSelectorProps) {
     <div className="space-y-2">
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="w-full rounded-lg border border-border p-4 text-left hover:bg-card/50 transition-colors"
+        className="border-border hover:bg-card/50 w-full rounded-lg border p-4 text-left transition-colors"
       >
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <MapPinIcon className="h-5 w-5 text-muted-foreground" />
+            <MapPinIcon className="text-muted-foreground h-5 w-5" />
             <div>
-              <p className="text-xs text-muted-foreground uppercase tracking-wide">Location</p>
+              <p className="text-muted-foreground text-xs tracking-wide uppercase">
+                Location
+              </p>
               <p className="font-medium">
-                {user?.location?.address || "No location set"}
+                {user?.location?.placeName ||
+                  user?.location?.address ||
+                  "No location set"}
               </p>
             </div>
           </div>
           <ChevronDown
-            className={`h-5 w-5 text-muted-foreground transition-transform ${
+            className={`text-muted-foreground h-5 w-5 transition-transform ${
               isOpen ? "rotate-180" : ""
             }`}
           />
@@ -249,14 +311,14 @@ export function LocationSelector({ onLocationUpdate }: LocationSelectorProps) {
       </button>
 
       {isOpen && (
-        <div className="rounded-lg border border-border bg-card/50 backdrop-blur-sm p-4">
-          <h3 className="font-semibold mb-4">Update Location</h3>
+        <div className="border-border bg-card/50 rounded-lg border p-4 backdrop-blur-sm">
+          <h3 className="mb-4 font-semibold">Update Location</h3>
 
           <div className="space-y-4">
             <div>
               <Label htmlFor="location-search">Search for a location</Label>
               <div className="relative mt-1">
-                <SearchIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <SearchIcon className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 transform" />
                 <Input
                   ref={searchInputRef}
                   id="location-search"
@@ -269,15 +331,16 @@ export function LocationSelector({ onLocationUpdate }: LocationSelectorProps) {
               </div>
             </div>
 
-            <div className="h-64 rounded-lg overflow-hidden border">
-              <div ref={mapRef} className="w-full h-full" />
+            <div className="h-64 overflow-hidden rounded-lg border">
+              <div ref={mapRef} className="h-full w-full" />
             </div>
 
             {selectedLocation && (
-              <div className="p-3 bg-muted/50 rounded-lg">
-                <h4 className="font-medium mb-2">Selected Location:</h4>
-                <p className="text-sm text-muted-foreground mb-1">
-                  {selectedLocation.address || `${selectedLocation.latitude.toFixed(6)}, ${selectedLocation.longitude.toFixed(6)}`}
+              <div className="bg-muted/50 rounded-lg p-3">
+                <h4 className="mb-2 font-medium">Selected Location:</h4>
+                <p className="text-muted-foreground mb-1 text-sm">
+                  {selectedLocation.address ||
+                    `${selectedLocation.latitude.toFixed(6)}, ${selectedLocation.longitude.toFixed(6)}`}
                 </p>
                 <div className="flex gap-2">
                   <Button
@@ -285,7 +348,7 @@ export function LocationSelector({ onLocationUpdate }: LocationSelectorProps) {
                     disabled={isUpdating}
                     size="sm"
                   >
-                    {isUpdating ? 'Updating...' : 'Update Location'}
+                    {isUpdating ? "Updating..." : "Update Location"}
                   </Button>
                   <Button
                     onClick={() => setSelectedLocation(null)}
@@ -298,8 +361,9 @@ export function LocationSelector({ onLocationUpdate }: LocationSelectorProps) {
               </div>
             )}
 
-            <p className="text-xs text-muted-foreground">
-              Click on the map or search for a location to select it. Drag the marker to adjust the position.
+            <p className="text-muted-foreground text-xs">
+              Click on the map or search for a location to select it. Drag the
+              marker to adjust the position.
             </p>
           </div>
         </div>

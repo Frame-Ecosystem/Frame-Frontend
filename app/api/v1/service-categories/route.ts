@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from "next/server"
+import type { ServiceCategory } from "@/app/_types"
 
 // Mock data for development
-let mockCategories = []
+let mockCategories: ServiceCategory[] = []
 
 // GET /api/v1/service-categories - Get all categories
 export async function GET() {

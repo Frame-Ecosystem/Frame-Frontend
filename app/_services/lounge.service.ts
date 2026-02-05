@@ -214,6 +214,37 @@ class LoungeService {
       }
     }
   }
+
+  async getOpeningHours(loungeId: string): Promise<any> {
+    try {
+      const response = await apiClient.get<any>(
+        `/v1/lounge-services/lounge/${loungeId}/opening-hours`,
+      )
+      return response.openingHours || response.data || response
+    } catch (error) {
+      // 404 is expected if opening hours haven't been set yet
+      const isNotFound =
+        (error as any)?.message?.includes("Not Found") ||
+        (error as any)?.message?.includes("404")
+      if (isNotFound) {
+        return {} // Return empty hours for first-time setup
+      }
+      console.error("Failed to fetch opening hours:", error)
+      throw error
+    }
+  }
+
+  async updateOpeningHours(loungeId: string, openingHours: any): Promise<void> {
+    try {
+      await apiClient.patch(
+        `/v1/lounge-services/lounge/${loungeId}/opening-hours`,
+        openingHours,
+      )
+    } catch (error) {
+      console.error("Failed to update opening hours:", error)
+      throw error
+    }
+  }
 }
 
 export const loungeService = new LoungeService()

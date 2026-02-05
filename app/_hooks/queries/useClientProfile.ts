@@ -108,9 +108,7 @@ export function useUpdateGender() {
 
   return useMutation({
     mutationFn: (gender: Gender) => {
-      // Map Gender type to the expected values for the API
-      const mappedGender = gender === 'unisex' ? 'both' as const : gender === 'male' || gender === 'female' ? gender : 'both'
-      return authService.updateGenderPreference(mappedGender)
+      return authService.updateGenderPreference(gender)
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["currentUser"] })

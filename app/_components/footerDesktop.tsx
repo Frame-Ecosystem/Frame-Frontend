@@ -1,19 +1,40 @@
+"use client"
+
 import { CardContent } from "./ui/card"
 import { MapPinIcon, PhoneIcon, MailIcon } from "lucide-react"
 import Link from "next/link"
+import { useState, useEffect } from "react"
+import { serviceService } from "../_services"
+import type { Service } from "../_types"
 
 const FooterDesktop = () => {
+  const [services, setServices] = useState<Service[]>([])
+
+  useEffect(() => {
+    const fetchServices = async () => {
+      try {
+        const data = await serviceService.getAll()
+        setServices(data.slice(0, 7)) // Limit to 7 services for footer
+      } catch (error) {
+        console.error("Error fetching services for footer:", error)
+        setServices([])
+      }
+    }
+
+    fetchServices()
+  }, [])
+
   return (
-    <footer className="hidden lg:block bg-card/30 border-t backdrop-blur-sm">
+    <footer className="bg-card/30 hidden border-t backdrop-blur-sm lg:block">
       <CardContent className="px-5 py-6 lg:px-8 lg:py-12">
         <div className="mx-auto max-w-7xl">
           <div className="mb-8 grid grid-cols-4 gap-8">
             {/* Brand column */}
             <div className="space-y-4">
-              <h3 className="text-xl font-bold">Barber Lab</h3>
+              <h3 className="text-xl font-bold">Lookisi</h3>
               <p className="text-muted-foreground text-sm leading-relaxed">
-                The best platform to book your appointment with the best
-                barbers in the city.
+                The best platform to book your appointment with the best centers
+                in Tunisia.
               </p>
               <div className="text-muted-foreground flex items-center gap-2 text-sm">
                 <MapPinIcon className="h-4 w-4" />
@@ -23,36 +44,116 @@ const FooterDesktop = () => {
             {/* Services column */}
             <div className="space-y-4">
               <h4 className="font-semibold">Services</h4>
-              <ul className="text-muted-foreground space-y-2 text-sm">
-                <li>
-                  <Link href="/barbershops?service=Hair" className="hover:text-primary transition-colors">Hair Cut</Link>
-                </li>
-                <li>
-                  <Link href="/barbershops?service=Beard" className="hover:text-primary transition-colors">Beard</Link>
-                </li>
-                <li>
-                  <Link href="/barbershops?service=Finishing" className="hover:text-primary transition-colors">Finishing</Link>
-                </li>
-                <li>
-                  <Link href="/barbershops?service=Massage" className="hover:text-primary transition-colors">Massage</Link>
-                </li>
-              </ul>
+              <div className="text-muted-foreground text-sm">
+                {services.length > 0
+                  ? (() => {
+                      const leftServices = services.slice(0, 5)
+                      const rightServices = services.slice(5)
+                      return (
+                        <div className="grid grid-cols-2 gap-4">
+                          <div className="flex flex-col space-y-2">
+                            {leftServices.map((service) => (
+                              <Link
+                                key={service.id}
+                                href={`/centers?service=${service.name}`}
+                                className="hover:text-primary whitespace-nowrap transition-colors"
+                              >
+                                {service.name}
+                              </Link>
+                            ))}
+                          </div>
+                          <div className="flex flex-col space-y-2">
+                            {rightServices.map((service) => (
+                              <Link
+                                key={service.id}
+                                href={`/centers?service=${service.name}`}
+                                className="hover:text-primary whitespace-nowrap transition-colors"
+                              >
+                                {service.name}
+                              </Link>
+                            ))}
+                          </div>
+                        </div>
+                      )
+                    })()
+                  : // Fallback static services if API fails
+                    (() => {
+                      const fallbackServices = [
+                        { name: "Hair Cut", href: "/centers?service=Hair" },
+                        { name: "Beard", href: "/centers?service=Beard" },
+                        {
+                          name: "Finishing",
+                          href: "/centers?service=Finishing",
+                        },
+                        { name: "Massage", href: "/centers?service=Massage" },
+                        { name: "Eyebrows", href: "/centers?service=Eyebrows" },
+                      ]
+                      const leftFallback = fallbackServices.slice(0, 5)
+                      const rightFallback = fallbackServices.slice(5)
+                      return (
+                        <div className="grid grid-cols-2 gap-4">
+                          <div className="flex flex-col space-y-2">
+                            {leftFallback.map((service) => (
+                              <Link
+                                key={service.name}
+                                href={service.href}
+                                className="hover:text-primary whitespace-nowrap transition-colors"
+                              >
+                                {service.name}
+                              </Link>
+                            ))}
+                          </div>
+                          <div className="flex flex-col space-y-2">
+                            {rightFallback.map((service) => (
+                              <Link
+                                key={service.name}
+                                href={service.href}
+                                className="hover:text-primary whitespace-nowrap transition-colors"
+                              >
+                                {service.name}
+                              </Link>
+                            ))}
+                          </div>
+                        </div>
+                      )
+                    })()}
+              </div>
             </div>
             {/* Company column */}
             <div className="space-y-4">
               <h4 className="font-semibold">Company</h4>
               <ul className="text-muted-foreground space-y-2 text-sm">
                 <li>
-                  <Link href="#" className="hover:text-primary transition-colors">About us</Link>
+                  <Link
+                    href="#"
+                    className="hover:text-primary transition-colors"
+                  >
+                    About us
+                  </Link>
                 </li>
                 <li>
-                  <Link href="#" className="hover:text-primary transition-colors">Careers</Link>
+                  <Link
+                    href="#"
+                    className="hover:text-primary transition-colors"
+                  >
+                    Careers
+                  </Link>
                 </li>
                 <li>
-                  <Link href="#" className="hover:text-primary transition-colors">Partners</Link>
+                  <Link
+                    href="#"
+                    className="hover:text-primary transition-colors"
+                  >
+                    Partners
+                  </Link>
                 </li>
                 <li>
-                  <Link href="#" className="hover:text-primary transition-colors">Contact</Link>
+                  <Link
+                    href="#"
+                    className="hover:text-primary transition-colors"
+                  >
+                    Contact
+                  </Link>
                 </li>
               </ul>
             </div>
@@ -74,7 +175,8 @@ const FooterDesktop = () => {
           {/* Bottom section */}
           <div className="flex items-center justify-between border-t pt-8">
             <p className="text-muted-foreground text-sm">
-              © 2026 <span className="font-bold">Barber Lab</span>. All rights reserved.
+              © 2026 <span className="font-bold">Lookisi</span>. All rights
+              reserved.
             </p>
             <p>
               Developed by{" "}
@@ -95,9 +197,15 @@ const FooterDesktop = () => {
               </Link>
             </p>
             <div className="text-muted-foreground flex items-center gap-6 text-sm">
-              <Link href="#" className="hover:text-primary transition-colors">Privacidade</Link>
-              <Link href="#" className="hover:text-primary transition-colors">Termos</Link>
-              <Link href="#" className="hover:text-primary transition-colors">Cookies</Link>
+              <Link href="#" className="hover:text-primary transition-colors">
+                Privacidade
+              </Link>
+              <Link href="#" className="hover:text-primary transition-colors">
+                Termos
+              </Link>
+              <Link href="#" className="hover:text-primary transition-colors">
+                Cookies
+              </Link>
             </div>
           </div>
         </div>

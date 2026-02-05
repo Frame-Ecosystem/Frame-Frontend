@@ -9,6 +9,7 @@ import { Button } from "./ui/button"
 import { useScrollPosition } from "../_hooks/useScrollPosition"
 import { useRouter } from "next/navigation"
 import { useAuth } from "../_providers/auth"
+import { useTheme } from "next-themes"
 
 interface TopBarProps {
   onGetStarted?: () => void
@@ -23,6 +24,7 @@ const TopBar: React.FC<TopBarProps> = ({
   showGetStarted,
   isLoading: externalIsLoading,
 }) => {
+  const { resolvedTheme } = useTheme()
   const isVisible = useScrollPosition()
   const { user } = useAuth()
   const router = useRouter()
@@ -37,12 +39,17 @@ const TopBar: React.FC<TopBarProps> = ({
           className="flex items-center gap-2 pt-2 transition-opacity duration-200 hover:opacity-75 lg:ml-20"
         >
           <Image
-            alt="Barber Lab"
-            src="/images/logo.png"
+            alt="Lookisi"
+            src={
+              resolvedTheme === "monochrome-light"
+                ? "/images/lookisiLightPng.png"
+                : "/images/lookisiDarkPng.png"
+            }
             priority
             height={60}
             width={60}
             className="h-10 w-auto scale-100 md:scale-150"
+            suppressHydrationWarning
           />
         </Link>
       </div>

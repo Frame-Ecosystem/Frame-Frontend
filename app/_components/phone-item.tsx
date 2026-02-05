@@ -19,27 +19,29 @@ const PhoneItem = ({ phone }: PhoneItemProps) => {
   }
 
   return (
-    <div className="flex justify-between" key={phone}>
+    <div className="flex items-center justify-between" key={phone}>
       {/* LEFT */}
       <div className="flex items-center gap-2">
         <SmartphoneIcon />
         <p className="text-sm">{phone}</p>
       </div>
       {/* RIGHT */}
-      <Button
-        variant="outline"
-        size="sm"
-        onClick={() => handleCopyPhoneClick(phone)}
-      >
-        Copiar
-      </Button>
-      <Button
-        size="sm"
-        onClick={() => handleCallClick(phone)}
-        className="bg-primary hover:bg-primary/90"
-      >
-        Ligar
-      </Button>
+      <div className="flex items-center gap-2">
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => handleCopyPhoneClick(phone)}
+        >
+          Copy
+        </Button>
+        <Button
+          size="sm"
+          onClick={() => handleCallClick(phone)}
+          className="bg-primary hover:bg-primary/90 px-4"
+        >
+          Call
+        </Button>
+      </div>
     </div>
   )
 }

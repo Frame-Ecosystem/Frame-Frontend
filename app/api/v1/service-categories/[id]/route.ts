@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from "next/server"
+import type { ServiceCategory } from "@/app/_types"
 
 // Import the mock data from the parent route
 // Note: In a real app, this would be from a database
-let mockCategories = []
+let mockCategories: ServiceCategory[] = []
 
 // GET /api/v1/service-categories/[id] - Get category by ID
 export async function GET(

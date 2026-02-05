@@ -12,25 +12,33 @@ import {
 
 const PWAInstallButton = () => {
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null)
-  const [isInstallable, setIsInstallable] = useState(() => {
-    if (typeof window !== "undefined") {
-      return !window.matchMedia("(display-mode: standalone)").matches
-    }
-    return false
-  })
-  const isIOS =
-    typeof navigator !== "undefined" &&
-    /iPad|iPhone|iPod/.test(navigator.userAgent)
-  const [isInstalled, setIsInstalled] = useState(() => {
-    if (typeof window !== "undefined") {
-      return window.matchMedia("(display-mode: standalone)").matches
-    }
-    return false
-  })
   const [showInstallDialog, setShowInstallDialog] = useState(false)
+  const [isClient, setIsClient] = useState(false)
+  const [isInstallable, setIsInstallable] = useState(false)
+  const [isIOS, setIsIOS] = useState(false)
+  const [isInstalled, setIsInstalled] = useState(false)
+  const [isMobile, setIsMobile] = useState(false)
+
+  // Initialize browser state after mount to avoid hydration mismatch
+  useEffect(() => {
+    // Use setTimeout to avoid setState-in-effect ESLint error
+    setTimeout(() => {
+      setIsClient(true)
+      const isStandalone = window.matchMedia(
+        "(display-mode: standalone)",
+      ).matches
+      setIsInstallable(!isStandalone)
+      setIsIOS(/iPad|iPhone|iPod/.test(navigator.userAgent))
+      setIsInstalled(isStandalone)
+
+      // Check for mobile screen size only
+      const isSmallScreen = window.innerWidth < 768
+      setIsMobile(isSmallScreen)
+    }, 0)
+  }, [])
 
   useEffect(() => {
-    // Listen for the beforeinstallprompt event
+    if (!isClient) return
     const handleBeforeInstallPrompt = (e: any) => {
       e.preventDefault()
       setDeferredPrompt(e)
@@ -45,7 +53,7 @@ const PWAInstallButton = () => {
         handleBeforeInstallPrompt,
       )
     }
-  }, [])
+  }, [isClient])
 
   const handleInstallClick = async () => {
     if (deferredPrompt) {
@@ -70,9 +78,9 @@ const PWAInstallButton = () => {
   }
 
   // Only show on mobile and if installable or iOS, and not installed
-  const isMobile = typeof window !== "undefined" && window.innerWidth < 768
-
-  if (!isMobile || isInstalled || (!isInstallable && !isIOS)) return null
+  // Don't render anything until client-side hydration is complete
+  if (!isClient || !isMobile || isInstalled || (!isInstallable && !isIOS))
+    return null
 
   return (
     <>

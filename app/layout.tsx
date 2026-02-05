@@ -26,18 +26,17 @@ const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
   // Base URL for resolving relative URLs in metadata
-  metadataBase: new URL("https://barber-lab.vercel.app/"),
+  metadataBase: new URL("https://lookisi.vercel.app/"),
 
   // Primary title shown in browser tab and search results
-  title: "Barber Lab - Sistema para Barbearias | Agendamento Online",
+  title: "Lookisi - Sistema para Barbearias | Agendamento Online",
 
   // Description for search engine results
   description:
-    "Barber Lab é o sistema ideal para barbearias. Agende horários online, encontre barbearias próximas e gerencie seus agendamentos facilmente.",
-
+    "Lookisi é o sistema ideal para barbearias. Agende horários online, encontre barbearias próximas e gerencie seus agendamentos facilmente.",
   // Keywords for SEO (helps search engines categorize the site)
   keywords: [
-    "Barber Lab",
+    "Lookisi",
     "sistema para barbearia",
     "agendamento barbearia",
     "barbearia online",
@@ -46,7 +45,7 @@ export const metadata: Metadata = {
     "barbearias próximas",
     "Barbearia",
     "Cabeleireiro",
-    "barber lab",
+    "lookisi",
   ],
 
   // PWA manifest
@@ -54,17 +53,17 @@ export const metadata: Metadata = {
 
   // Open Graph metadata for social media sharing (Facebook, LinkedIn, etc.)
   openGraph: {
-    title: "Barber Lab - Sistema para Barbearia",
+    title: "Lookisi - Sistema para Barbearia",
     description:
-      "Encontre e agende nas melhores barbearias com o Barber Lab. Plataforma completa para clientes e barbeiros.",
-    url: "https://barber-lab.vercel.app/",
-    siteName: "Barber Lab",
+      "Encontre e agende nas melhores barbearias com o Lookisi. Plataforma completa para clientes e barbeiros.",
+    url: "https://lookisi.vercel.app/",
+    siteName: "Lookisi",
     images: [
       {
         url: "/mobile-banner.png",
         width: 1200,
         height: 630,
-        alt: "Barber Lab - Sistema para Barbearia",
+        alt: "Lookisi - Sistema para Barbearia",
       },
     ],
     locale: "en_US",
