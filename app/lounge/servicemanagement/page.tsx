@@ -3,6 +3,7 @@
 import { useAuth } from "../../_providers/auth"
 import { useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
+import Image from "next/image"
 import {
   Card,
   CardContent,
@@ -24,7 +25,7 @@ import { Badge } from "../../_components/ui/badge"
 import { Plus, Edit, Trash2, ArrowLeft } from "lucide-react"
 import { toast } from "sonner"
 import { loungeService, serviceService } from "../../_services"
-import SuggestService from "../../_components/SuggestService"
+import SuggestService from "../../_components/services/SuggestService"
 import type { Service, LoungeServiceItem } from "../../_types"
 
 export default function LoungeServiceManagementPage() {
@@ -46,6 +47,8 @@ export default function LoungeServiceManagementPage() {
     baseDuration: "",
     gender: "unisex",
     status: "active",
+    image: "",
+    imageFile: null as File | null,
   })
 
   useEffect(() => {
@@ -100,6 +103,81 @@ export default function LoungeServiceManagementPage() {
       setServices([])
     } finally {
       setLoading(false)
+    }
+  }
+
+  const compressImage = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const canvas = document.createElement("canvas")
+      const ctx = canvas.getContext("2d")
+      const img = new window.Image()
+
+      img.onload = () => {
+        // Calculate new dimensions (max 800px width/height)
+        const maxSize = 800
+        let { width, height } = img
+
+        if (width > height) {
+          if (width > maxSize) {
+            height = (height * maxSize) / width
+            width = maxSize
+          }
+        } else {
+          if (height > maxSize) {
+            width = (width * maxSize) / height
+            height = maxSize
+          }
+        }
+
+        canvas.width = width
+        canvas.height = height
+
+        // Draw and compress image
+        ctx?.drawImage(img, 0, 0, width, height)
+
+        // Convert to data URL with compression
+        const dataUrl = canvas.toDataURL("image/jpeg", 0.8) // 80% quality
+        resolve(dataUrl)
+      }
+
+      img.onerror = () => reject(new Error("Failed to load image"))
+      img.src = URL.createObjectURL(file)
+    })
+  }
+
+  const handleImageFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (file) {
+      // Validate file type
+      if (!file.type.startsWith("image/")) {
+        toast.error("Please select a valid image file")
+        return
+      }
+
+      // Validate file size (max 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        toast.error("File size must be less than 5MB")
+        return
+      }
+
+      setFormData((prev) => ({
+        ...prev,
+        imageFile: file,
+        image: "", // Clear URL when file is selected
+      }))
+
+      // Compress and convert file to data URL for preview
+      compressImage(file)
+        .then((dataUrl) => {
+          setFormData((prev) => ({
+            ...prev,
+            image: dataUrl,
+          }))
+        })
+        .catch((error) => {
+          console.error("Error compressing image:", error)
+          toast.error("Failed to process image")
+        })
     }
   }
 
@@ -220,6 +298,7 @@ export default function LoungeServiceManagementPage() {
           gender: (formData.gender as any) || undefined,
           description: trimmedDescription || undefined,
           isActive: formData.status === "active",
+          image: formData.image || undefined,
         }
         await loungeService.update((editingService as any)._id, serviceData)
         toast.success("Service updated successfully")
@@ -234,6 +313,7 @@ export default function LoungeServiceManagementPage() {
           description: trimmedDescription || undefined,
           gender: (formData.gender as any) || undefined,
           isActive: formData.status === "active",
+          image: formData.image || undefined,
         }
 
         await loungeService.createLoungeService(payload)
@@ -269,6 +349,8 @@ export default function LoungeServiceManagementPage() {
       baseDuration: service.duration?.toString() || "",
       gender: (service as any).gender || "",
       status: service.isActive ? "active" : "inactive",
+      image: service.image || "",
+      imageFile: null,
     })
     setError(null)
     setDialogOpen(true)
@@ -304,6 +386,8 @@ export default function LoungeServiceManagementPage() {
       baseDuration: "",
       gender: "unisex",
       status: "active",
+      image: "",
+      imageFile: null,
     })
     setEditingService(null)
   }
@@ -440,6 +524,35 @@ export default function LoungeServiceManagementPage() {
                     />
                   </div>
                   <div>
+                    <Label htmlFor="image">Service Image</Label>
+                    <div className="space-y-2">
+                      <Input
+                        id="image"
+                        type="file"
+                        accept="image/jpeg,image/png,image/gif,image/webp"
+                        onChange={handleImageFileChange}
+                        className="cursor-pointer"
+                      />
+                      {formData.image && (
+                        <div className="flex items-center space-x-2">
+                          <Image
+                            src={formData.image}
+                            alt="Service preview"
+                            width={60}
+                            height={60}
+                            className="rounded object-cover"
+                          />
+                          <span className="text-muted-foreground text-sm">
+                            {formData.imageFile?.name || "Selected image"}
+                          </span>
+                        </div>
+                      )}
+                      <p className="text-muted-foreground text-xs">
+                        Select an image file (max 5MB, JPG, PNG, GIF, WebP)
+                      </p>
+                    </div>
+                  </div>
+                  <div>
                     <Label htmlFor="price">Price (dinar) *</Label>
                     <Input
                       id="price"
@@ -540,6 +653,7 @@ export default function LoungeServiceManagementPage() {
               <table className="w-full border-collapse">
                 <thead>
                   <tr className="border-b">
+                    <th className="p-4 text-left font-medium">Image</th>
                     <th className="p-4 text-left font-medium">Service Name</th>
                     <th className="p-4 text-left font-medium">Description</th>
                     <th className="p-4 text-left font-medium">Price</th>
@@ -561,6 +675,23 @@ export default function LoungeServiceManagementPage() {
                           key={`service-${(service as any)._id}`}
                           className="hover:bg-muted/50 border-b"
                         >
+                          <td className="p-4">
+                            {(service as any).image ? (
+                              <Image
+                                src={(service as any).image}
+                                alt={serviceName}
+                                width={40}
+                                height={40}
+                                className="h-10 w-10 rounded object-cover"
+                              />
+                            ) : (
+                              <div className="bg-muted flex h-10 w-10 items-center justify-center rounded">
+                                <span className="text-muted-foreground text-xs">
+                                  No image
+                                </span>
+                              </div>
+                            )}
+                          </td>
                           <td className="p-4 font-medium">{serviceName}</td>
                           <td className="p-4">{service.description || "-"}</td>
                           <td className="p-4">
@@ -615,7 +746,7 @@ export default function LoungeServiceManagementPage() {
                   {(!Array.isArray(services) || services.length === 0) && (
                     <tr>
                       <td
-                        colSpan={5}
+                        colSpan={8}
                         className="text-muted-foreground p-8 text-center"
                       >
                         {loading

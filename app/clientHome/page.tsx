@@ -2,10 +2,10 @@
 
 import { Button } from "../_components/ui/button"
 import Image from "next/image"
-import CenterItem from "../_components/center-item"
-import Search from "../_components/search"
+import CenterItem from "../_components/centers/center-item"
+import Search from "../_components/forms/search"
 import Link from "next/link"
-import { ErrorBoundary } from "../_components/errorBoundary"
+import { ErrorBoundary } from "../_components/common/errorBoundary"
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { serviceService } from "../_services"

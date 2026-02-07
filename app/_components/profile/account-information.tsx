@@ -1,0 +1,112 @@
+"use client"
+
+import { MailIcon, PhoneIcon, ChevronDown, Info } from "lucide-react"
+import { EmailVerification } from "../auth/emailVerification"
+import { formatMemberSinceDate } from "../../_lib/utils"
+import type { User } from "../../_types"
+
+interface AccountInformationProps {
+  user: User | null
+  isAccountInfoOpen: boolean
+  // eslint-disable-next-line no-unused-vars
+  setIsAccountInfoOpen: (open: boolean) => void
+  // eslint-disable-next-line no-unused-vars
+  setOpenPhoneSection: (open: boolean) => void
+  // eslint-disable-next-line no-unused-vars
+  setOpenSettings: (open: boolean) => void
+}
+
+export function AccountInformation({
+  user,
+  isAccountInfoOpen,
+  setIsAccountInfoOpen,
+  setOpenPhoneSection,
+  setOpenSettings,
+}: AccountInformationProps) {
+  return (
+    <div className="space-y-2">
+      <button
+        onClick={() => setIsAccountInfoOpen(!isAccountInfoOpen)}
+        className="border-border hover:bg-card/50 w-full rounded-lg border p-4 text-left transition-colors"
+      >
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <Info className="text-muted-foreground h-5 w-5" />
+            <div className="flex items-center gap-2">
+              <span className="font-medium">Account Information</span>
+            </div>
+          </div>
+          <ChevronDown
+            className={`text-muted-foreground h-5 w-5 transition-transform ${
+              isAccountInfoOpen ? "rotate-180" : ""
+            }`}
+          />
+        </div>
+      </button>
+
+      {isAccountInfoOpen && (
+        <div className="border-border bg-card/50 rounded-lg border p-4 backdrop-blur-sm">
+          <div className="space-y-4">
+            <div className="bg-background/50 flex items-center gap-3 rounded-lg p-3">
+              <div className="bg-primary/10 rounded-lg p-2">
+                <PhoneIcon className="text-primary h-4 w-4" />
+              </div>
+              <div className="flex-1">
+                <p className="text-muted-foreground text-xs tracking-wide uppercase">
+                  Phone Number
+                </p>
+                <button
+                  onClick={() => {
+                    setOpenPhoneSection(true)
+                    setOpenSettings(true)
+                  }}
+                  className="hover:text-primary font-medium transition-colors"
+                >
+                  {user?.phoneNumber
+                    ? user.phoneNumber.startsWith("216")
+                      ? `+${user.phoneNumber}`
+                      : `+216 ${user.phoneNumber}`
+                    : "Update phone number"}
+                </button>
+              </div>
+            </div>
+
+            <div className="bg-background/50 rounded-lg p-3">
+              <div className="flex flex-1 items-center gap-3">
+                <div className="bg-primary/10 rounded-lg p-2">
+                  <MailIcon className="text-primary h-4 w-4" />
+                </div>
+                <div className="flex-1">
+                  <p className="text-muted-foreground text-xs tracking-wide uppercase">
+                    Email
+                  </p>
+                  <p className="font-medium">{user?.email}</p>
+                </div>
+              </div>
+
+              <div className="order-first mt-4 self-end lg:order-last lg:self-auto">
+                <EmailVerification
+                  email={user?.email || ""}
+                  isVerified={user?.emailVerification?.[0]?.isVerified}
+                />
+              </div>
+            </div>
+
+            <div className="space-y-2 text-sm">
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Member Since</span>
+                <span className="font-medium">
+                  {formatMemberSinceDate(user?.createdAt)}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Account Status</span>
+                <span className="font-medium text-green-600">Active</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}

@@ -29,6 +29,7 @@ class LoungeService {
           typeof service.serviceId === "object"
             ? service.serviceId._id
             : service.serviceId,
+        image: service.image,
       })) as LoungeServiceItem[]
 
       return mapped
@@ -109,6 +110,7 @@ class LoungeService {
           description: created.description,
           isActive: created.isActive,
           gender: created.gender,
+          image: created.image,
           createdAt: created.createdAt,
           updatedAt: created.updatedAt,
         } as LoungeServiceItem

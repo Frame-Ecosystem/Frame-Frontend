@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation"
 import { Button } from "./_components/ui/button"
 import Image from "next/image"
 import Link from "next/link"
-import { ErrorBoundary } from "./_components/errorBoundary"
+import { ErrorBoundary } from "./_components/common/errorBoundary"
 import { getHomePath } from "./_lib/profile"
 import { useTheme } from "next-themes"
 import {
@@ -18,14 +18,14 @@ import {
   Sparkles,
 } from "lucide-react"
 import { useState } from "react"
-import SignupFlow from "./_components/signup-flow"
+import SignupFlow from "./_components/auth/signup-flow"
 import { Dialog, DialogContent } from "./_components/ui/dialog"
-import TopBar from "./_components/topBar"
+import TopBar from "./_components/layout/topBar"
 
 const LandingPage = () => {
   const { user, isLoading } = useAuth()
   const router = useRouter()
-  const { resolvedTheme } = useTheme()
+  const { resolvedTheme, theme } = useTheme()
   const [signupOpen, setSignupOpen] = useState(false)
 
   // Redirect authenticated users to their respective home
@@ -203,7 +203,9 @@ const LandingPage = () => {
                 <Image
                   alt="Lookisi"
                   src={
-                    resolvedTheme === "monochrome-light"
+                    (resolvedTheme || theme || "monochrome-dark").includes(
+                      "light",
+                    )
                       ? "/images/lookisiLightPng.png"
                       : "/images/lookisiDarkPng.png"
                   }

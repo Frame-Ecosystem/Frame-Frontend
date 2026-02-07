@@ -10,8 +10,13 @@ export function useSignIn() {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: ({ email, password }: { email: string; password: string }) =>
-      authService.signIn(email, password),
+    mutationFn: ({
+      emailOrPhone,
+      password,
+    }: {
+      emailOrPhone: string
+      password: string
+    }) => authService.signIn(emailOrPhone, password),
     onSuccess: (data) => {
       if (data) {
         setAuth(data.data, data.token)
@@ -29,15 +34,12 @@ export function useSignUp() {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: ({
-      email,
-      password,
-      type,
-    }: {
-      email: string
+    mutationFn: (data: {
+      email?: string
+      phoneNumber?: string
       password: string
       type?: "client" | "lounge"
-    }) => authService.signUp(email, password, type),
+    }) => authService.signUp(data),
     onSuccess: (data) => {
       if (data) {
         setAuth(data.data, data.token)

@@ -91,16 +91,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   // Set authentication state (user + access token in memory)
   const setAuth = useCallback((newUser: User | null, token: string | null) => {
-    console.log(
-      "[AuthProvider] setAuth called with user:",
-      newUser?.email,
-      "token:",
-      token ? "present" : "null",
-    )
     setUser(newUser)
     setAccessToken(token)
     if (token) {
-      console.log("[AuthProvider] Setting session flag to true")
       setSessionFlag(true)
     }
   }, [])
@@ -140,28 +133,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       try {
         // Only try to refresh if we don't already have a token
         if (!accessToken) {
-          console.log("[AuthProvider] Checking for existing session...")
-          console.log("[AuthProvider] Has session flag:", hasSessionFlag())
-
           if (!hasSessionFlag()) {
-            console.log(
-              "[AuthProvider] No session flag found, skipping restore",
-            )
             return
           }
 
-          console.log("[AuthProvider] Attempting to refresh token...")
           // Call /v1/auth/refresh-token to get new access token from refresh token cookie
           const refresh = await authService.refreshToken()
-          console.log("[AuthProvider] Refresh response:", refresh)
 
           if (refresh?.ok && refresh.data) {
             const newToken =
               refresh.data.token || refresh.data.data?.token || null
-            console.log(
-              "[AuthProvider] New token received:",
-              newToken ? "Yes" : "No",
-            )
             if (newToken) {
               // Set the access token in state (will update apiClient via useEffect)
               setAccessToken(newToken)
@@ -169,25 +150,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
               apiClient.setAccessTokenGetter(() => newToken)
 
               // Use the service layer to fetch the current user
-              console.log("[AuthProvider] Fetching user data...")
               const userData = await authService.getCurrentUser()
-              console.log("[AuthProvider] User data:", userData)
               if (userData) {
                 setUser(userData)
-                console.log("[AuthProvider] Session restored successfully")
-              } else {
-                console.log("[AuthProvider] Failed to get user data")
               }
             }
           } else {
-            console.log(
-              "[AuthProvider] Token refresh failed, clearing session flag",
-            )
             setSessionFlag(false)
           }
         }
-      } catch (error) {
-        console.error("[AuthProvider] Error during session restore:", error)
+      } catch {
         setSessionFlag(false)
       } finally {
         setIsLoading(false)

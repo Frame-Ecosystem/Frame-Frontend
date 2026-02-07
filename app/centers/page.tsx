@@ -13,8 +13,8 @@ import {
   Search as SearchIcon,
   TrendingUpIcon,
 } from "lucide-react"
-import CenterItem from "../_components/center-item"
-import { ErrorBoundary } from "../_components/errorBoundary"
+import CenterItem from "../_components/centers/center-item"
+import { ErrorBoundary } from "../_components/common/errorBoundary"
 import Link from "next/link"
 import { quickSearchOptions } from "../_constants/search"
 import type { Service } from "../_types"

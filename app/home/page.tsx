@@ -2,9 +2,9 @@
 
 import { Button } from "../_components/ui/button"
 import Image from "next/image"
-import CenterItem from "../_components/center-item"
+import CenterItem from "../_components/centers/center-item"
 import { quickSearchOptions } from "../_constants/search"
-import Search from "../_components/search"
+import Search from "../_components/forms/search"
 import Link from "next/link"
 import { Center } from "../_types"
 import { useEffect } from "react"
@@ -21,7 +21,7 @@ import {
   TrendingUpIcon,
 } from "lucide-react"
 import { useAuth } from "../_providers/auth"
-import { ErrorBoundary } from "../_components/errorBoundary"
+import { ErrorBoundary } from "../_components/common/errorBoundary"
 
 const Home = () => {
   const { user, isLoading } = useAuth()

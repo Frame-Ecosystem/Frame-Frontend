@@ -1,6 +1,6 @@
 "use client"
 
-import { ChevronRightIcon, Layers } from "lucide-react"
+import { ChevronRightIcon, Layers, Shield } from "lucide-react"
 import Link from "next/link"
 // import Image from "next/image"
 import { Avatar, AvatarImage, AvatarFallback } from "../_components/ui/avatar"
@@ -9,11 +9,11 @@ import { useAuth } from "../_providers/auth"
 import { getProfilePath } from "../_lib/profile"
 // import { authService } from "../_services/auth.service"
 
-import { ErrorBoundary } from "../_components/errorBoundary"
-import { ThemeSelector } from "../_components/theme-selector"
-import { LocationSelector } from "../_components/LocationSelector"
-import { GenderSelector } from "../_components/gender-selector"
-import { OpeningHoursSelector } from "../_components/opening-hours-selector"
+import { ErrorBoundary } from "../_components/common/errorBoundary"
+import { ThemeSelector } from "../_components/forms/theme-selector"
+import { LocationSelector } from "../_components/forms/LocationSelector"
+import { GenderSelector } from "../_components/forms/gender-selector"
+import { OpeningHoursSelector } from "../_components/forms/opening-hours-selector"
 
 export default function SettingsPage() {
   // === AUTH STATE ===
@@ -103,6 +103,16 @@ export default function SettingsPage() {
                     <div className="flex items-center gap-3">
                       <Layers className="text-muted-foreground h-5 w-5" />
                       <span className="font-medium">Service Management</span>
+                    </div>
+                    <ChevronRightIcon className="text-muted-foreground h-5 w-5" />
+                  </div>
+                </Link>
+
+                <Link href="/lounge/agents">
+                  <div className="border-border hover:bg-card/50 mt-6 flex w-full cursor-pointer items-center justify-between rounded-lg border p-4 transition-colors">
+                    <div className="flex items-center gap-3">
+                      <Shield className="text-muted-foreground h-5 w-5" />
+                      <span className="font-medium">Agent Management</span>
                     </div>
                     <ChevronRightIcon className="text-muted-foreground h-5 w-5" />
                   </div>

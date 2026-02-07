@@ -63,35 +63,51 @@ class AuthService {
     }
   }
 
-  async signUp(
-    email: string,
-    password: string,
-    type?: "client" | "lounge",
-  ): Promise<AuthResponse | null> {
+  async signUp(data: {
+    email?: string
+    phoneNumber?: string
+    password: string
+    type?: "client" | "lounge"
+  }): Promise<AuthResponse | null> {
     try {
-      const payload: any = { email, password }
-      // Pass the type directly when provided
-      if (type) {
-        payload.type = type
+      const payload: any = { password: data.password }
+
+      // Add email if provided
+      if (data.email) {
+        payload.email = data.email
       }
+
+      // Add phone number if provided
+      if (data.phoneNumber) {
+        payload.phoneNumber = data.phoneNumber
+      }
+
+      // Pass the type directly when provided
+      if (data.type) {
+        payload.type = data.type
+      }
+
       console.log("Signup payload:", payload)
       console.log("Signup URL:", `${API_BASE_URL}/v1/auth/signup`)
-      const data = await apiClient.post<AuthResponse>(
+      const response = await apiClient.post<AuthResponse>(
         "/v1/auth/signup",
         payload,
       )
-      console.log("Signup success:", data)
-      return data
+      console.log("Signup success:", response)
+      return response
     } catch (err) {
       console.error("Signup failed:", err)
       throw err instanceof Error ? err : new Error("Signup failed")
     }
   }
 
-  async signIn(email: string, password: string): Promise<AuthResponse | null> {
+  async signIn(
+    emailOrPhone: string,
+    password: string,
+  ): Promise<AuthResponse | null> {
     try {
       const data = await apiClient.post<AuthResponse>("/v1/auth/login", {
-        email,
+        emailOrPhone,
         password,
       })
       return data

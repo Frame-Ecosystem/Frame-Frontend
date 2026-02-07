@@ -155,6 +155,7 @@ export interface LoungeServiceItem {
   description?: string
   isActive?: boolean
   gender?: Gender
+  image?: string
   createdAt?: string
   updatedAt?: string
 }
@@ -167,6 +168,7 @@ export interface CreateLoungeServicePayload {
   description?: string
   isActive?: boolean
   gender?: Gender
+  image?: string
 }
 
 export interface ServiceSuggestion {
@@ -204,6 +206,51 @@ export interface AdminApprovalResponse {
   suggestion: ServiceSuggestion
   service?: Service
   loungeService?: LoungeServiceItem
+}
+
+// Agent Management Types
+export interface Lounge {
+  _id: string
+  email: string
+  loungeTitle: string
+}
+
+export interface Agent {
+  _id?: string
+  id?: string
+  agentName: string
+  loungeId: string | Lounge
+  isBlocked: boolean
+  profileImage?: string | { url: string; publicId: string }
+  createdAt: string
+  updatedAt: string
+}
+
+export interface CreateAgentDto {
+  agentName: string
+  password: string
+  loungeId?: string // Required for admins, optional/ignored for lounges
+  isBlocked?: boolean
+  profileImage?: string
+}
+
+export interface UpdateAgentDto {
+  agentName?: string
+  password?: string
+  isBlocked?: boolean
+  profileImage?: string
+}
+
+export interface AgentFilters {
+  search?: string
+  isBlocked?: boolean
+  loungeId?: string
+}
+
+export interface AgentStats {
+  total: number
+  active: number
+  blocked: number
 }
 
 const typesDefault = {}

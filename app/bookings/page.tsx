@@ -12,9 +12,9 @@ import { CalendarIcon } from "lucide-react"
 import { Button } from "../_components/ui/button"
 import Link from "next/link"
 import { Card, CardContent } from "../_components/ui/card"
-import { ErrorBoundary } from "../_components/errorBoundary"
+import { ErrorBoundary } from "../_components/common/errorBoundary"
 import { useAuth } from "../_providers/auth"
-import BookingItem from "../_components/booking-item"
+import BookingItem from "../_components/bookings/booking-item"
 import { Booking } from "../_types"
 
 // === FAKE DATA ===

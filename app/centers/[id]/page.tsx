@@ -1,6 +1,6 @@
 "use client"
 
-import { ErrorBoundary } from "@/app/_components/errorBoundary"
+import { ErrorBoundary } from "@/app/_components/common/errorBoundary"
 import Image from "next/image"
 import {
   StarIcon,
@@ -13,14 +13,14 @@ import {
   CalendarIcon,
 } from "lucide-react"
 import { Card, CardContent, CardHeader } from "@/app/_components/ui/card"
-import RatingDialog from "@/app/_components/rating-dialog"
-import OpeningHours from "@/app/_components/opening-hours"
-import DisplayLocation from "@/app/_components/display-location"
-import Extras from "@/app/_components/extras"
-import ContactInfo from "@/app/_components/contact-info"
-import OurServices from "@/app/_components/our-services"
-import QueueDisplay from "@/app/_components/queue-display"
-import PostsDisplay from "@/app/_components/centersPostsDisplay"
+import RatingDialog from "@/app/_components/forms/rating-dialog"
+import OpeningHours from "@/app/_components/forms/opening-hours"
+import DisplayLocation from "@/app/_components/centers/display-location"
+import Extras from "@/app/_components/common/extras"
+import ContactInfo from "@/app/_components/common/contact-info"
+import OurServices from "@/app/_components/services/our-services"
+import QueueDisplay from "@/app/_components/common/queue-display"
+import PostsDisplay from "@/app/_components/centers/centersPostsDisplay"
 import { Button } from "@/app/_components/ui/button"
 
 import { Center, CenterService } from "@/app/_types"
@@ -117,7 +117,10 @@ export default function CenterPage() {
             id: service._id,
             name: service.serviceId?.name || "Unnamed Service",
             description: service.serviceId?.description || "",
-            imageUrl: service.serviceId?.imageUrl || "/images/placeholder.png",
+            imageUrl:
+              service.image ||
+              service.serviceId?.imageUrl ||
+              "/images/placeholder.png",
             price: service.price || 0,
             durationMinutes: service.duration || 0,
             centerId: service.loungeId,
@@ -172,20 +175,6 @@ export default function CenterPage() {
           email: displayEmail,
           // pass through the raw value of lounge.emailVerification.isVerified (array or object) as computed above
           emailVerified: emailVerificationRaw,
-        }
-
-        // DEV DEBUG: Log email and verification info to help trace missing email issues
-        if (process.env.NODE_ENV === "development") {
-          console.log("lounge email debug:", {
-            rawEmail: (loungeData as any)?.email,
-            emailVerificationRaw: Array.isArray(
-              (loungeData as any).emailVerification,
-            )
-              ? (loungeData as any).emailVerification?.[0]?.isVerified
-              : (loungeData as any).emailVerification?.isVerified,
-            displayEmail,
-            transformedCenter,
-          })
         }
 
         setCenter(transformedCenter)
@@ -361,49 +350,145 @@ export default function CenterPage() {
             <div className="hidden md:block"></div>{" "}
             {/* 1/5 left space on desktop */}
             <div className="md:col-span-3">
-              <Card className="border-0 bg-transparent backdrop-blur-sm">
-                <CardHeader>
-                  {/* Tab Navigation */}
-                  <div className="mt-4 flex justify-center gap-1">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className={`px-4 py-2 ${activeTab === "info" ? "border-primary border-b-2" : ""}`}
-                      onClick={() => setActiveTab("info")}
-                    >
-                      <InfoIcon className="mr-2 h-4 w-4" />
-                      Info
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className={`px-4 py-2 ${activeTab === "posts" ? "border-primary border-b-2" : ""}`}
-                      onClick={() => setActiveTab("posts")}
-                    >
-                      <FileText className="mr-2 h-4 w-4" />
-                      Posts
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className={`px-4 py-2 ${activeTab === "services" ? "border-primary border-b-2" : ""}`}
-                      onClick={() => setActiveTab("services")}
-                    >
-                      <CalendarIcon className="mr-2 h-4 w-4" />
-                      Services
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className={`px-4 py-2 ${activeTab === "queue" ? "border-primary border-b-2" : ""}`}
-                      onClick={() => setActiveTab("queue")}
-                    >
-                      <Users className="mr-2 h-4 w-4" />
-                      Queue
-                    </Button>
-                  </div>
-                </CardHeader>
-                <CardContent>
+              {/* Desktop: Card wrapper */}
+              <div className="hidden md:block">
+                <Card className="border-0 bg-transparent backdrop-blur-sm">
+                  <CardHeader>
+                    {/* Tab Navigation */}
+                    <div className="mt-4 flex justify-center gap-1">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className={`px-4 py-2 ${activeTab === "info" ? "border-primary border-b-2" : ""}`}
+                        onClick={() => setActiveTab("info")}
+                      >
+                        <InfoIcon className="mr-2 h-4 w-4" />
+                        Info
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className={`px-4 py-2 ${activeTab === "posts" ? "border-primary border-b-2" : ""}`}
+                        onClick={() => setActiveTab("posts")}
+                      >
+                        <FileText className="mr-2 h-4 w-4" />
+                        Posts
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className={`px-4 py-2 ${activeTab === "services" ? "border-primary border-b-2" : ""}`}
+                        onClick={() => setActiveTab("services")}
+                      >
+                        <CalendarIcon className="mr-2 h-4 w-4" />
+                        Services
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className={`px-4 py-2 ${activeTab === "queue" ? "border-primary border-b-2" : ""}`}
+                        onClick={() => setActiveTab("queue")}
+                      >
+                        <Users className="mr-2 h-4 w-4" />
+                        Queue
+                      </Button>
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    {activeTab === "info" && (
+                      <>
+                        {/* Contact Information */}
+                        {(center.phones && center.phones.length > 0) ||
+                        center.email ||
+                        center.emailVerified === false ||
+                        center.emailVerified === "false" ? (
+                          <ContactInfo
+                            phones={center.phones}
+                            email={center.email}
+                            emailVerified={center.emailVerified}
+                          />
+                        ) : null}
+                        {/* Location with read more */}
+                        {center.address && (
+                          <DisplayLocation
+                            address={center.address}
+                            latitude={center.latitude}
+                            longitude={center.longitude}
+                            isMobile={isMobile}
+                          />
+                        )}
+                        {/* Opening Hours (extracted) */}
+                        <OpeningHours openingHours={openingHours} />
+                        {/* Extras (extracted) */}
+                        <Extras
+                          amenities={[
+                            "Free Wi-Fi",
+                            "Parking",
+                            "Credit Card",
+                            "Premium Products",
+                            "Air Conditioned",
+                            "Qualified Professionals",
+                          ]}
+                        />
+                      </>
+                    )}
+                    {activeTab === "posts" && (
+                      <PostsDisplay centerName={center.name} />
+                    )}
+                    {activeTab === "services" && (
+                      <OurServices services={center.services} center={center} />
+                    )}
+                    {activeTab === "queue" && (
+                      <QueueDisplay centerName={center.name} mode="client" />
+                    )}
+                  </CardContent>
+                </Card>
+              </div>
+
+              {/* Mobile: Direct content without Card wrapper */}
+              <div className="md:hidden">
+                {/* Tab Navigation */}
+                <div className="mt-4 flex justify-center gap-1">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className={`px-4 py-2 ${activeTab === "info" ? "border-primary border-b-2" : ""}`}
+                    onClick={() => setActiveTab("info")}
+                  >
+                    <InfoIcon className="mr-2 h-4 w-4" />
+                    Info
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className={`px-4 py-2 ${activeTab === "posts" ? "border-primary border-b-2" : ""}`}
+                    onClick={() => setActiveTab("posts")}
+                  >
+                    <FileText className="mr-2 h-4 w-4" />
+                    Posts
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className={`px-4 py-2 ${activeTab === "services" ? "border-primary border-b-2" : ""}`}
+                    onClick={() => setActiveTab("services")}
+                  >
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    Services
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className={`px-4 py-2 ${activeTab === "queue" ? "border-primary border-b-2" : ""}`}
+                    onClick={() => setActiveTab("queue")}
+                  >
+                    <Users className="mr-2 h-4 w-4" />
+                    Queue
+                  </Button>
+                </div>
+
+                {/* Tab Content */}
+                <div className="mx-4 mt-4">
                   {activeTab === "info" && (
                     <>
                       {/* Contact Information */}
@@ -448,10 +533,10 @@ export default function CenterPage() {
                     <OurServices services={center.services} center={center} />
                   )}
                   {activeTab === "queue" && (
-                    <QueueDisplay centerName={center.name} />
+                    <QueueDisplay centerName={center.name} mode="client" />
                   )}
-                </CardContent>
-              </Card>
+                </div>
+              </div>
             </div>
             <div className="hidden md:block"></div>{" "}
             {/* 1/5 right space on desktop */}
@@ -463,7 +548,7 @@ export default function CenterPage() {
       </div>
       {/* Rating Popup Dialog (refactored) */}
       <RatingDialog
-        open={showRatingPopup}
+        isOpen={showRatingPopup}
         onOpenChange={setShowRatingPopup}
         initialRating={userRating}
         centerName={center?.name}

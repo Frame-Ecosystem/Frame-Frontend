@@ -9,18 +9,18 @@ import { Toaster } from "sonner"
 import { SpeedInsights } from "@vercel/speed-insights/next"
 
 // Internal components
-import ProgressProvider from "./_components/progress-bar"
-import Header from "./_components/header"
-import MainContentWrapper from "./_components/mainContentWrapper"
+import ProgressProvider from "./_components/forms/progress-bar"
+import Header from "./_components/layout/header"
+import MainContentWrapper from "./_components/layout/mainContentWrapper"
 
 // Context providers
 import { ThemeProviderComponent } from "./_providers/theme"
 import { SwipeNavigationProvider } from "./_providers/swipe-navigation"
 import { AuthProvider } from "./_providers/auth"
 import { QueryProvider } from "./_providers/query"
-import FooterDesktop from "./_components/footerDesktop"
-import AuthGuard from "./_components/AuthGuard"
-import ServiceWorkerRegister from "./_components/serviceWorkerRegister"
+import FooterDesktop from "./_components/layout/footerDesktop"
+import AuthGuard from "./_components/auth/AuthGuard"
+import ServiceWorkerRegister from "./_components/common/serviceWorkerRegister"
 
 const inter = Inter({ subsets: ["latin"] })
 
@@ -29,33 +29,81 @@ export const metadata: Metadata = {
   metadataBase: new URL("https://lookisi.vercel.app/"),
 
   // Primary title shown in browser tab and search results
-  title: "Lookisi - Sistema para Barbearias | Agendamento Online",
+  title: "Lookisi",
 
   // Description for search engine results
   description:
-    "Lookisi é o sistema ideal para barbearias. Agende horários online, encontre barbearias próximas e gerencie seus agendamentos facilmente.",
+    "Lookisi est le système idéal pour les salons. Réservez des rendez-vous en ligne, trouvez des salons proches et gérez vos réservations facilement.",
   // Keywords for SEO (helps search engines categorize the site)
   keywords: [
     "Lookisi",
-    "sistema para barbearia",
-    "agendamento barbearia",
-    "barbearia online",
-    "software barbearia",
-    "agendar corte de cabelo",
-    "barbearias próximas",
-    "Barbearia",
-    "Cabeleireiro",
-    "lookisi",
+    "système de gestion salon",
+    "réservation salon",
+    "salon en ligne",
+    "logiciel salon",
+    "réserver coupe cheveux",
+    "salons proches",
+    "Salon",
+    "Coiffeur",
+    "styliste",
+    "barbier",
+    "salon beauté",
+    "salon coiffure",
+    "Tunisie",
   ],
+
+  // Favicon configuration
+  icons: {
+    icon: [
+      {
+        url: "/images/lookisiLightPng.png",
+        sizes: "192x192",
+        type: "image/png",
+        media: "(prefers-color-scheme: light)",
+      },
+      {
+        url: "/images/lookisiDarkPng.png",
+        sizes: "192x192",
+        type: "image/png",
+        media: "(prefers-color-scheme: dark)",
+      },
+    ],
+    shortcut: [
+      {
+        url: "/images/lookisiLightPng.png",
+        type: "image/png",
+        media: "(prefers-color-scheme: light)",
+      },
+      {
+        url: "/images/lookisiDarkPng.png",
+        type: "image/png",
+        media: "(prefers-color-scheme: dark)",
+      },
+    ],
+    apple: [
+      {
+        url: "/images/lookisiLightPng.png",
+        sizes: "180x180",
+        type: "image/png",
+        media: "(prefers-color-scheme: light)",
+      },
+      {
+        url: "/images/lookisiDarkPng.png",
+        sizes: "180x180",
+        type: "image/png",
+        media: "(prefers-color-scheme: dark)",
+      },
+    ],
+  },
 
   // PWA manifest
   manifest: "/manifest.json",
 
   // Open Graph metadata for social media sharing (Facebook, LinkedIn, etc.)
   openGraph: {
-    title: "Lookisi - Sistema para Barbearia",
+    title: "Lookisi - Système de Gestion des Centres",
     description:
-      "Encontre e agende nas melhores barbearias com o Lookisi. Plataforma completa para clientes e barbeiros.",
+      "Trouvez et réservez dans les meilleurs centres avec Lookisi. Plateforme complète pour les clients et les coiffeurs.",
     url: "https://lookisi.vercel.app/",
     siteName: "Lookisi",
     images: [
@@ -63,10 +111,10 @@ export const metadata: Metadata = {
         url: "/mobile-banner.png",
         width: 1200,
         height: 630,
-        alt: "Lookisi - Sistema para Barbearia",
+        alt: "Lookisi - Système de Gestion des Centres",
       },
     ],
-    locale: "en_US",
+    locale: "fr_TN",
     type: "website",
   },
 }
@@ -78,11 +126,37 @@ export default function RootLayout({
 }>) {
   return (
     // suppressHydrationWarning prevents hydration mismatch warnings from theme changes
-    <html lang="en" suppressHydrationWarning>
+    <html lang="fr" suppressHydrationWarning>
+      <head>
+        {/* Theme-based favicon */}
+        <link
+          rel="icon"
+          href="/images/lookisiLightPng.png"
+          media="(prefers-color-scheme: light)"
+        />
+        <link
+          rel="icon"
+          href="/images/lookisiDarkPng.png"
+          media="(prefers-color-scheme: dark)"
+        />
+        {/* Fallback for browsers that don't support prefers-color-scheme */}
+        <link rel="icon" href="/images/lookisiLightPng.png" />
+
+        {/* Apple touch icons */}
+        <link
+          rel="apple-touch-icon"
+          href="/images/lookisiLightPng.png"
+          media="(prefers-color-scheme: light)"
+        />
+        <link
+          rel="apple-touch-icon"
+          href="/images/lookisiDarkPng.png"
+          media="(prefers-color-scheme: dark)"
+        />
+        <link rel="apple-touch-icon" href="/images/lookisiLightPng.png" />
+      </head>
       <body className={inter.className}>
-        {/* ================================================================= */}
         {/* PROVIDER HIERARCHY */}
-        {/* ================================================================= */}
 
         {/* Theme provider for dark/light mode support */}
         <ThemeProviderComponent>
