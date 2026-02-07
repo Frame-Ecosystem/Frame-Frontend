@@ -8,18 +8,27 @@ export const getProfilePath = (user?: User | null) => {
   return "/"
 }
 
+export const getHomePath = (user?: User | null) => {
+  const role = user?.type?.toLowerCase()
+  if (role === "admin") return "/home"
+  if (role === "lounge") return "/loungeHome"
+  if (role === "client") return "/clientHome"
+  return "/home"
+}
+
 /**
  * Get the redirect path after login/signup
- * - Admin: /admin
- * - Lounge: /profile/lounge
- * - Client: / (home)
+ * - Admin: /home
+ * - Lounge: /loungeHome
+ * - Client: /clientHome
  */
 export const getLoginRedirectPath = (user?: User | null) => {
   const role = user?.type?.toLowerCase()
-  if (role === "admin") return "/admin"
-  if (role === "lounge") return "/profile/lounge"
-  if (role === "client") return "/home"
-  return "/"
+  if (role === "admin") return "/home"
+  if (role === "lounge") return "/loungeHome"
+  if (role === "client") return "/clientHome"
+  return "/home"
 }
 
-export const isProfilePath = (pathname: string) => pathname.startsWith("/profile")
+export const isProfilePath = (pathname: string) =>
+  pathname.startsWith("/profile")

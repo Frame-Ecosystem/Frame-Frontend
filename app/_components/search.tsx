@@ -28,7 +28,7 @@ const Search = () => {
   const router = useRouter()
 
   const handleSubmit = (data: z.infer<typeof formSchema>) => {
-    router.push(`/barbershops?title=${data.title}`)
+    router.push(`/centers?title=${data.title}`)
   }
 
   return (
@@ -50,8 +50,8 @@ const Search = () => {
                     field.ref(el)
                     searchInputRef.current = el
                   }}
-                  placeholder="Search barbershop by name..."
-                  className="bg-transparent border  shadow-sm backdrop-blur-sm transition-shadow focus:shadow-md lg:h-14 lg:rounded-xl lg:px-6 lg:text-base"
+                  placeholder="Search center by name..."
+                  className="border bg-transparent shadow-sm backdrop-blur-sm transition-shadow focus:shadow-md lg:h-14 lg:rounded-xl lg:px-6 lg:text-base"
                   suppressHydrationWarning={true}
                 />
               </FormControl>
@@ -61,7 +61,7 @@ const Search = () => {
         />
         <Button
           type="submit"
-          className="bg-transparent border text-primary hover:bg-primary/10 shadow-sm transition-all hover:scale-105 hover:shadow-md lg:h-14 lg:rounded-xl lg:px-8"
+          className="text-primary hover:bg-primary/10 border bg-transparent shadow-sm transition-all hover:scale-105 hover:shadow-md lg:h-14 lg:rounded-xl lg:px-8"
         >
           <SearchIcon className="lg:h-5 lg:w-5" />
           <span className="ml-2 hidden lg:inline">Search</span>

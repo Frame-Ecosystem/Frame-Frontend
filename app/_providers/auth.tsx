@@ -7,7 +7,14 @@
 
 "use client"
 
-import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from "react"
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  useCallback,
+  useRef,
+} from "react"
 import { authService } from "../_services/auth.service"
 import type { User } from "../_types"
 import { apiClient } from "../_services/api"
@@ -18,6 +25,7 @@ interface AuthContextType {
   // eslint-disable-next-line no-unused-vars
   setAuth(newUser: User | null, newToken: string | null): void
   clearAuth(): void
+  refreshUser(): Promise<void>
   isLoading: boolean
 }
 
@@ -83,11 +91,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   // Set authentication state (user + access token in memory)
   const setAuth = useCallback((newUser: User | null, token: string | null) => {
-    console.log('[AuthProvider] setAuth called with user:', newUser?.email, 'token:', token ? 'present' : 'null')
+    console.log(
+      "[AuthProvider] setAuth called with user:",
+      newUser?.email,
+      "token:",
+      token ? "present" : "null",
+    )
     setUser(newUser)
     setAccessToken(token)
     if (token) {
-      console.log('[AuthProvider] Setting session flag to true')
+      console.log("[AuthProvider] Setting session flag to true")
       setSessionFlag(true)
     }
   }, [])
@@ -99,6 +112,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setSessionFlag(false)
   }, [])
 
+  // Refresh user data from server
+  const refreshUser = useCallback(async () => {
+    if (!accessToken) return
+    try {
+      const userData = await authService.getCurrentUser()
+      if (userData) {
+        setUser(userData)
+      }
+    } catch (error) {
+      console.error("[AuthProvider] Failed to refresh user data:", error)
+    }
+  }, [accessToken])
+
   // Update API client when access token changes
   useEffect(() => {
     apiClient.setAccessTokenGetter(() => accessToken)
@@ -108,28 +134,34 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     // Setup API client to auto-refresh token on 401
     apiClient.setRefreshTokenCallback(refreshAccessToken)
-    
+
     // Try to restore session using refresh token from HttpOnly cookie
     const checkAuth = async () => {
       try {
         // Only try to refresh if we don't already have a token
         if (!accessToken) {
-          console.log('[AuthProvider] Checking for existing session...')
-          console.log('[AuthProvider] Has session flag:', hasSessionFlag())
-          
+          console.log("[AuthProvider] Checking for existing session...")
+          console.log("[AuthProvider] Has session flag:", hasSessionFlag())
+
           if (!hasSessionFlag()) {
-            console.log('[AuthProvider] No session flag found, skipping restore')
+            console.log(
+              "[AuthProvider] No session flag found, skipping restore",
+            )
             return
           }
-          
-          console.log('[AuthProvider] Attempting to refresh token...')
+
+          console.log("[AuthProvider] Attempting to refresh token...")
           // Call /v1/auth/refresh-token to get new access token from refresh token cookie
           const refresh = await authService.refreshToken()
-          console.log('[AuthProvider] Refresh response:', refresh)
+          console.log("[AuthProvider] Refresh response:", refresh)
 
           if (refresh?.ok && refresh.data) {
-            const newToken = refresh.data.token || refresh.data.data?.token || null
-            console.log('[AuthProvider] New token received:', newToken ? 'Yes' : 'No')
+            const newToken =
+              refresh.data.token || refresh.data.data?.token || null
+            console.log(
+              "[AuthProvider] New token received:",
+              newToken ? "Yes" : "No",
+            )
             if (newToken) {
               // Set the access token in state (will update apiClient via useEffect)
               setAccessToken(newToken)
@@ -137,23 +169,25 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
               apiClient.setAccessTokenGetter(() => newToken)
 
               // Use the service layer to fetch the current user
-              console.log('[AuthProvider] Fetching user data...')
+              console.log("[AuthProvider] Fetching user data...")
               const userData = await authService.getCurrentUser()
-              console.log('[AuthProvider] User data:', userData)
+              console.log("[AuthProvider] User data:", userData)
               if (userData) {
                 setUser(userData)
-                console.log('[AuthProvider] Session restored successfully')
+                console.log("[AuthProvider] Session restored successfully")
               } else {
-                console.log('[AuthProvider] Failed to get user data')
+                console.log("[AuthProvider] Failed to get user data")
               }
             }
           } else {
-            console.log('[AuthProvider] Token refresh failed, clearing session flag')
+            console.log(
+              "[AuthProvider] Token refresh failed, clearing session flag",
+            )
             setSessionFlag(false)
           }
         }
       } catch (error) {
-        console.error('[AuthProvider] Error during session restore:', error)
+        console.error("[AuthProvider] Error during session restore:", error)
         setSessionFlag(false)
       } finally {
         setIsLoading(false)
@@ -165,7 +199,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [])
 
   return (
-    <AuthContext.Provider value={{ user, accessToken, setAuth, clearAuth, isLoading }}>
+    <AuthContext.Provider
+      value={{ user, accessToken, setAuth, clearAuth, refreshUser, isLoading }}
+    >
       {children}
     </AuthContext.Provider>
   )

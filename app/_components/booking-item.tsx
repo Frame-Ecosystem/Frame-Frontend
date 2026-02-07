@@ -41,9 +41,9 @@ const BookingItem = ({ booking }: BookingItemProps) => {
   const [isSheetOpen, setIsSheetOpen] = useState(false)
 
   // ===== DERIVED DATA =====
-  // Extract nested service and barbershop safely
+  // Extract nested service and center safely
   const service = booking.service
-  const barbershop = service?.barbershop ?? {
+  const center = service?.center ?? {
     id: "",
     name: "Unknown",
     address: "",
@@ -86,7 +86,7 @@ const BookingItem = ({ booking }: BookingItemProps) => {
           className="hover:bg-card/20 min-w-[90%] transition-shadow hover:scale-[1.03] hover:cursor-pointer hover:shadow-md"
         >
           <CardContent className="flex justify-between p-0">
-            {/* LEFT SECTION: Status badge, service name, and barbershop info */}
+            {/* LEFT SECTION: Status badge, service name, and centers info */}
             <div className="flex flex-col gap-2 py-5 pl-5">
               <Badge
                 className="w-fit"
@@ -98,9 +98,9 @@ const BookingItem = ({ booking }: BookingItemProps) => {
 
               <div className="flex items-center gap-2">
                 <Avatar className="h-6 w-6">
-                  <AvatarImage src={barbershop.imageUrl} />
+                  <AvatarImage src={center.imageUrl} />
                 </Avatar>
-                <p className="text-sm">{barbershop.name}</p>
+                <p className="text-sm">{center.name}</p>
               </div>
             </div>
 
@@ -127,25 +127,25 @@ const BookingItem = ({ booking }: BookingItemProps) => {
           <SheetTitle className="text-left">Booking Information</SheetTitle>
         </SheetHeader>
 
-        {/* Map section with barbershop info card overlay */}
+        {/* Map section with center info card overlay */}
         <div className="relative mt-6 flex h-[180px] w-full items-end">
           <Image
-            alt={`Map of ${barbershop.name}`}
+            alt={`Map of ${center.name}`}
             src="/map.png"
             fill
             sizes="(max-width: 600px) 100vw, 600px"
             className="rounded-xl object-cover"
           />
 
-          {/* Floating card showing barbershop avatar, name, and address */}
+          {/* Floating card showing center avatar, name, and address */}
           <Card className="z-50 mx-5 mb-3 w-full rounded-xl">
             <CardContent className="flex items-center gap-3 px-5 py-3">
               <Avatar>
-                <AvatarImage src={barbershop.imageUrl} />
+                <AvatarImage src={center.imageUrl} />
               </Avatar>
               <div>
-                <h3 className="font-bold">{barbershop.name}</h3>
-                <p className="text-xs">{barbershop.address}</p>
+                <h3 className="font-bold">{center.name}</h3>
+                <p className="text-xs">{center.address}</p>
               </div>
             </CardContent>
           </Card>
@@ -163,7 +163,7 @@ const BookingItem = ({ booking }: BookingItemProps) => {
           {/* Service and booking summary */}
           <div className="mt-6 mb-3">
             <BookingSummary
-              barbershop={barbershop}
+              center={center}
               service={service ?? { name: "Service", price: 0 }}
               selectedDate={booking.date}
             />
@@ -171,7 +171,7 @@ const BookingItem = ({ booking }: BookingItemProps) => {
 
           {/* Contact phone numbers */}
           <div className="space-y-3">
-            {(barbershop.phones || []).map((phone, index) => (
+            {(center.phones || []).map((phone, index) => (
               <PhoneItem key={index} phone={phone} />
             ))}
           </div>
@@ -198,10 +198,12 @@ const BookingItem = ({ booking }: BookingItemProps) => {
                 {/* ===== CANCELLATION CONFIRMATION DIALOG ===== */}
                 <DialogContent className="w-[90%]">
                   <DialogHeader>
-                    <DialogTitle>Do you want to cancel your booking?</DialogTitle>
+                    <DialogTitle>
+                      Do you want to cancel your booking?
+                    </DialogTitle>
                     <DialogDescription>
-                      By cancelling, you will lose your booking and will not be able
-                      recuperá-la. Essa ação é irreversível.
+                      By cancelling, you will lose your booking and will not be
+                      able recuperá-la. Essa ação é irreversível.
                     </DialogDescription>
                   </DialogHeader>
                   <DialogFooter className="flex flex-row gap-3">

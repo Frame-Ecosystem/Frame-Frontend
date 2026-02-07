@@ -209,7 +209,11 @@ export function AccountSettings({ openNameSection = false, openSettings = false,
       toast.success('Phone number updated successfully')
     } catch (error: any) {
       console.error("Failed to update phone number:", error)
-      toast.error(error.message || "Failed to update phone number")
+      if (error.message && error.message.toLowerCase().includes("already registered")) {
+        toast.error("This phone number is already in use. Please choose a different one.")
+      } else {
+        toast.error(error.message || "Failed to update phone number")
+      }
     }
   }
 

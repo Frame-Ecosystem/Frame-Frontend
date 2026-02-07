@@ -1,6 +1,6 @@
 import { apiClient } from "./api"
 import { API_BASE_URL } from "./api"
-import type { User, AuthResponse } from "../_types"
+import type { User, AuthResponse, Gender } from "../_types"
 
 /**
  * Get the display name for a user based on their type
@@ -24,14 +24,16 @@ export function getUserDisplayName(user: User | null | undefined): string {
 
   // For client users, prefer full name then parts
   if (role === "client") {
-    if (user.firstName && user.lastName) return `${user.firstName} ${user.lastName}`
+    if (user.firstName && user.lastName)
+      return `${user.firstName} ${user.lastName}`
     if (user.firstName) return user.firstName
     if (user.lastName) return user.lastName
     return user.email || "User"
   }
 
   // Default fallback: try name parts then email
-  if (user.firstName && user.lastName) return `${user.firstName} ${user.lastName}`
+  if (user.firstName && user.lastName)
+    return `${user.firstName} ${user.lastName}`
   if (user.firstName) return user.firstName
   if (user.lastName) return user.lastName
   return user.email || "User"
@@ -45,14 +47,14 @@ export function getUserInitials(user: User | null | undefined): string {
   return displayName.slice(0, 2).toUpperCase()
 }
 
-
-
 class AuthService {
   async getCurrentUser(): Promise<User | null> {
     try {
-      const response = await apiClient.get<{ data: User; message?: string } | User>("/v1/me")
+      const response = await apiClient.get<
+        { data: User; message?: string } | User
+      >("/v1/me")
       // Handle both response formats: {data: User} or User directly
-      if (response && typeof response === 'object' && 'data' in response) {
+      if (response && typeof response === "object" && "data" in response) {
         return response.data
       }
       return response as User
@@ -61,20 +63,27 @@ class AuthService {
     }
   }
 
-  async signUp(email: string, password: string, type?: "client" | "lounge"): Promise<AuthResponse | null> {
+  async signUp(
+    email: string,
+    password: string,
+    type?: "client" | "lounge",
+  ): Promise<AuthResponse | null> {
     try {
       const payload: any = { email, password }
       // Pass the type directly when provided
       if (type) {
         payload.type = type
       }
-      console.log('Signup payload:', payload)
-      console.log('Signup URL:', `${API_BASE_URL}/v1/auth/signup`)
-      const data = await apiClient.post<AuthResponse>("/v1/auth/signup", payload)
-      console.log('Signup success:', data)
+      console.log("Signup payload:", payload)
+      console.log("Signup URL:", `${API_BASE_URL}/v1/auth/signup`)
+      const data = await apiClient.post<AuthResponse>(
+        "/v1/auth/signup",
+        payload,
+      )
+      console.log("Signup success:", data)
       return data
     } catch (err) {
-      console.error('Signup failed:', err)
+      console.error("Signup failed:", err)
       throw err instanceof Error ? err : new Error("Signup failed")
     }
   }
@@ -91,9 +100,14 @@ class AuthService {
     }
   }
 
-  async updateProfileImage(updates: Partial<User> | FormData): Promise<User | null> {
+  async updateProfileImage(
+    updates: Partial<User> | FormData,
+  ): Promise<User | null> {
     try {
-      const data = await apiClient.put<{ data: User; message: string }>("/v1/me/image", updates)
+      const data = await apiClient.put<{ data: User; message: string }>(
+        "/v1/me/image",
+        updates,
+      )
       return data.data
     } catch {
       return null
@@ -104,51 +118,82 @@ class AuthService {
     try {
       // Call backend to clear HttpOnly cookie
       await apiClient.post("/v1/auth/logout", {})
-    } catch {
-    }
+    } catch {}
   }
 
-  async sendVerificationCode(email: string): Promise<{ message: string } | null> {
+  async sendVerificationCode(
+    email: string,
+  ): Promise<{ message: string } | null> {
     try {
-      const data = await apiClient.post<{ message: string }>("/v1/me/send-verification-code", { email })
+      const data = await apiClient.post<{ message: string }>(
+        "/v1/me/send-verification-code",
+        { email },
+      )
       return data
     } catch (err) {
-      throw err instanceof Error ? err : new Error("Failed to send verification code")
+      throw err instanceof Error
+        ? err
+        : new Error("Failed to send verification code")
     }
   }
 
-  async verifyEmail(email: string, code: string): Promise<{ message: string } | null> {
+  async verifyEmail(
+    email: string,
+    code: string,
+  ): Promise<{ message: string } | null> {
     try {
-      const data = await apiClient.post<{ message: string }>("/v1/me/verify-email", { email, code })
+      const data = await apiClient.post<{ message: string }>(
+        "/v1/me/verify-email",
+        { email, code },
+      )
       return data
     } catch (err) {
       throw err instanceof Error ? err : new Error("Failed to verify email")
     }
   }
 
-  async updateLocation(locationData: { latitude: number; longitude: number; address: string; placeId: string }): Promise<{ message: string } | null> {
+  async updateLocation(locationData: {
+    latitude: number
+    longitude: number
+    address: string
+    placeId: string
+    placeName?: string
+  }): Promise<{ message: string } | null> {
     try {
-      const data = await apiClient.put<{ message: string }>("/v1/me/location", locationData)
+      const data = await apiClient.put<{ message: string }>(
+        "/v1/me/location",
+        locationData,
+      )
       return data
     } catch (err) {
       throw err instanceof Error ? err : new Error("Failed to update location")
     }
   }
 
-  async updateGenderPreference(gender: 'male' | 'female' | 'both'): Promise<{ message: string } | null> {
+  async updateGenderPreference(
+    gender: Gender,
+  ): Promise<{ message: string } | null> {
     try {
-      const data = await apiClient.put<{ message: string }>('/v1/me', { gender })
+      const data = await apiClient.put<{ message: string }>("/v1/me", {
+        gender,
+      })
       return data
     } catch (err) {
-      throw err instanceof Error ? err : new Error('Failed to update gender preference')
+      throw err instanceof Error
+        ? err
+        : new Error("Failed to update gender preference")
     }
   }
-  async refreshToken(): Promise<{ ok: boolean; status: number; data?: any } | null> {
+  async refreshToken(): Promise<{
+    ok: boolean
+    status: number
+    data?: any
+  } | null> {
     try {
       const res = await fetch(`${API_BASE_URL}/v1/auth/refresh-token`, {
-        method: 'POST',
-        credentials: 'include',
-        headers: { 'Content-Type': 'application/json' },
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
       })
 
       const status = res.status
@@ -165,44 +210,64 @@ class AuthService {
     }
   }
 
-  async updateNameClient(payload: { firstName: string; lastName: string }): Promise<User | null> {
+  async updateNameClient(payload: {
+    firstName: string
+    lastName: string
+  }): Promise<User | null> {
     try {
-      const data = await apiClient.put<{ data: User }>('/v1/me/client', payload)
+      const data = await apiClient.put<{ data: User }>("/v1/me/client", payload)
       return data.data
     } catch (err) {
-      throw err instanceof Error ? err : new Error('Failed to update client name')
+      throw err instanceof Error
+        ? err
+        : new Error("Failed to update client name")
     }
   }
 
-  async updateNameLounge(payload: { loungeTitle: string }): Promise<User | null> {
+  async updateNameLounge(payload: {
+    loungeTitle: string
+  }): Promise<User | null> {
     try {
-      const data = await apiClient.put<{ data: User }>('/v1/me/lounge', payload)
+      const data = await apiClient.put<{ data: User }>("/v1/me", payload)
       return data.data
     } catch (err) {
-      throw err instanceof Error ? err : new Error('Failed to update lounge title')
+      throw err instanceof Error
+        ? err
+        : new Error("Failed to update lounge title")
     }
   }
 
   async updatePhone(phoneNumber: string): Promise<User | null> {
     try {
-      const data = await apiClient.put<{ data: User }>('/v1/me', { phoneNumber })
+      const data = await apiClient.put<{ data: User }>("/v1/me", {
+        phoneNumber,
+      })
       return data.data
     } catch (err) {
-      throw err instanceof Error ? err : new Error('Failed to update phone number')
+      throw err instanceof Error
+        ? err
+        : new Error("Failed to update phone number")
     }
   }
 
   async updateBio(bio: string): Promise<User | null> {
     try {
-      const data = await apiClient.put<{ data: User }>('/v1/me', { bio })
+      const data = await apiClient.put<{ data: User }>("/v1/me", { bio })
       return data.data
     } catch (err) {
-      throw err instanceof Error ? err : new Error('Failed to update bio')
+      throw err instanceof Error ? err : new Error("Failed to update bio")
     }
   }
-  async changePassword(passwordData: { currentPassword: string; newPassword: string; newPasswordConfirm: string }): Promise<{ message: string } | null> {
+  async changePassword(passwordData: {
+    currentPassword: string
+    newPassword: string
+    newPasswordConfirm: string
+  }): Promise<{ message: string } | null> {
     try {
-      const data = await apiClient.post<{ message: string }>("/v1/me/change-password", passwordData)
+      const data = await apiClient.post<{ message: string }>(
+        "/v1/me/change-password",
+        passwordData,
+      )
       return data
     } catch (err) {
       throw err instanceof Error ? err : new Error("Failed to change password")
@@ -213,7 +278,9 @@ class AuthService {
     try {
       await apiClient.post("/v1/auth/logout-all", {})
     } catch (error) {
-      throw error instanceof Error ? error : new Error("Failed to logout from all sessions")
+      throw error instanceof Error
+        ? error
+        : new Error("Failed to logout from all sessions")
     }
   }
 }

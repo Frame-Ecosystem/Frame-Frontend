@@ -3,10 +3,9 @@
 import { useEffect, useRef } from "react"
 import { useRouter, usePathname } from "next/navigation"
 import { useAuth } from "../_providers/auth"
-import { getProfilePath } from "../_lib/profile"
+import { getProfilePath, getHomePath } from "../_lib/profile"
 
 const SWIPE_THRESHOLD = 50
-const NAVIGATION_BASE_ROUTES = ["/", "/barbershops", "/bookings"]
 
 export function useSwipeNavigation() {
   const router = useRouter()
@@ -23,7 +22,7 @@ export function useSwipeNavigation() {
 
     const isScrollableElement = (element: EventTarget | null): boolean => {
       if (!element || !(element instanceof HTMLElement)) return false
-      
+
       // Check if element or any parent is a scrollable container
       let current: HTMLElement | null = element as HTMLElement
       while (current) {
@@ -54,25 +53,41 @@ export function useSwipeNavigation() {
         return
       }
 
-      // Find current route index
+      // Build navigation routes based on user role
+      const homeRoute = getHomePath(user)
       const profileRoute = getProfilePath(user)
-      const navigationRoutes = [...NAVIGATION_BASE_ROUTES, profileRoute]
+      const navigationRoutes = [
+        homeRoute,
+        "/bookings",
+        "/centers",
+        "/store",
+        profileRoute,
+      ]
 
       const currentIndex = navigationRoutes.findIndex((route) => {
-        if (route === "/") {
-          return pathname === "/"
+        // Match home routes exactly (not by prefix)
+        if (
+          route === "/home" ||
+          route === "/loungeHome" ||
+          route === "/clientHome"
+        ) {
+          return pathname === route
         }
         return pathname.startsWith(route)
       })
 
-      // Swipe left - go to next page
-      if (difference > SWIPE_THRESHOLD && currentIndex < navigationRoutes.length - 1) {
-        router.push(navigationRoutes[currentIndex + 1])
+      // Swipe left - go to next page (wrap to first if at end)
+      if (difference > SWIPE_THRESHOLD) {
+        const nextIndex =
+          currentIndex < navigationRoutes.length - 1 ? currentIndex + 1 : 0
+        router.push(navigationRoutes[nextIndex])
       }
 
-      // Swipe right - go to previous page
-      if (difference < -SWIPE_THRESHOLD && currentIndex > 0) {
-        router.push(navigationRoutes[currentIndex - 1])
+      // Swipe right - go to previous page (wrap to last if at start)
+      if (difference < -SWIPE_THRESHOLD) {
+        const prevIndex =
+          currentIndex > 0 ? currentIndex - 1 : navigationRoutes.length - 1
+        router.push(navigationRoutes[prevIndex])
       }
     }
 

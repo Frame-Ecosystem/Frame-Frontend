@@ -1,6 +1,6 @@
 "use client"
 
-import { Barbershop, BarbershopService, Booking } from "../_types"
+import { Center, CenterService, Booking } from "../_types"
 import Image from "next/image"
 import { Button } from "./ui/button"
 import { Card, CardContent } from "./ui/card"
@@ -21,10 +21,9 @@ import BookingSummary from "./booking-summary"
 import { useRouter } from "next/navigation"
 import { useAuth } from "../_providers/auth"
 
-
 interface ServiceItemProps {
-  service: BarbershopService
-  barbershop: Pick<Barbershop, "name">
+  service: CenterService
+  center: Pick<Center, "name">
 }
 
 interface GetTimeListProps {
@@ -87,7 +86,7 @@ const getTimeList = ({ bookings, selectedDay }: GetTimeListProps) => {
   })
 }
 
-const ServiceItem = ({ service, barbershop }: ServiceItemProps) => {
+const ServiceItem = ({ service, center }: ServiceItemProps) => {
   // ===== HOOKS =====
   const router = useRouter()
   const { user } = useAuth()
@@ -228,12 +227,9 @@ const ServiceItem = ({ service, barbershop }: ServiceItemProps) => {
 
             {/* PRICE AND BOOKING BUTTON */}
             <div className="flex items-center justify-between">
-              {/* Format price in Brazilian Real currency */}
+              {/* Format price in dinar */}
               <p className="text-primary text-sm font-bold">
-                {Intl.NumberFormat("pt-BR", {
-                  style: "currency",
-                  currency: "BRL",
-                }).format(Number(service.price))}
+                {service.price} dinar
               </p>
               <div className="flex-1" />
 
@@ -272,7 +268,12 @@ const ServiceItem = ({ service, barbershop }: ServiceItemProps) => {
                       className="w-full"
                       formatters={{
                         formatCaption: (date) =>
-                          date.toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric", year: "numeric" }),
+                          date.toLocaleDateString("en-US", {
+                            weekday: "long",
+                            month: "long",
+                            day: "numeric",
+                            year: "numeric",
+                          }),
                       }}
                       styles={{
                         root: {
@@ -336,7 +337,7 @@ const ServiceItem = ({ service, barbershop }: ServiceItemProps) => {
                   {selectedDate && (
                     <div className="p-5">
                       <BookingSummary
-                        barbershop={barbershop}
+                        center={center}
                         service={service}
                         selectedDate={selectedDate}
                       />

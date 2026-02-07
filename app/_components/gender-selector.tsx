@@ -6,26 +6,32 @@ import { useAuth } from "../_providers/auth"
 import { toast } from "sonner"
 import { clientGenderOptions, loungeGenderOptions } from "../_constants/gender"
 import { useUpdateGender } from "../_hooks/queries"
+import type { Gender } from "../_types"
 
 export function GenderSelector() {
   const [isOpen, setIsOpen] = useState(false)
-  const { user } = useAuth()
+  const { user, refreshUser } = useAuth()
   const updateGenderMutation = useUpdateGender()
 
   const isLounge = user?.type === "lounge"
   const genderOptions = isLounge ? loungeGenderOptions : clientGenderOptions
 
-  const currentGender = user?.gender || "both"
-  const currentOption = genderOptions.find((option) => option.value === currentGender) || genderOptions[2]
+  const currentGender = (user?.gender as Gender) || "unisex"
+  const currentOption =
+    genderOptions.find((option) => option.value === currentGender) ||
+    genderOptions[2]
 
-  const headerText = isLounge ? "What is your target audience?" : "What gender service do you want to receive?"
+  const headerText = isLounge
+    ? "What is your target audience?"
+    : "What gender service do you want to receive?"
   const buttonText = isLounge ? "Target Audience" : "Gender Preference"
 
-  const handleGenderUpdate = async (gender: 'male' | 'female' | 'both') => {
+  const handleGenderUpdate = async (gender: Gender) => {
     if (!user) return
 
     try {
       await updateGenderMutation.mutateAsync(gender)
+      await refreshUser()
       toast.success("Gender preference updated successfully")
       setIsOpen(false)
     } catch (error) {
@@ -38,18 +44,18 @@ export function GenderSelector() {
     <div className="space-y-2">
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="w-full rounded-lg border border-border p-4 text-left hover:bg-card/50 transition-colors"
+        className="border-border hover:bg-card/50 w-full rounded-lg border p-4 text-left transition-colors"
       >
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <Users className="h-5 w-5 text-muted-foreground" />
+            <Users className="text-muted-foreground h-5 w-5" />
             <div className="flex items-center gap-2">
               <span className="text-xl">{currentOption.icon}</span>
               <span className="font-medium">{buttonText}</span>
             </div>
           </div>
           <ChevronDown
-            className={`h-5 w-5 text-muted-foreground transition-transform ${
+            className={`text-muted-foreground h-5 w-5 transition-transform ${
               isOpen ? "rotate-180" : ""
             }`}
           />
@@ -57,8 +63,8 @@ export function GenderSelector() {
       </button>
 
       {isOpen && (
-        <div className="rounded-lg border border-border bg-card/50 backdrop-blur-sm p-4">
-          <h3 className="font-semibold mb-4">{headerText}</h3>
+        <div className="border-border bg-card/50 rounded-lg border p-4 backdrop-blur-sm">
+          <h3 className="mb-4 font-semibold">{headerText}</h3>
 
           <div className="space-y-2">
             {genderOptions.map((option) => {
@@ -68,7 +74,7 @@ export function GenderSelector() {
                   key={option.value}
                   onClick={() => handleGenderUpdate(option.value)}
                   disabled={updateGenderMutation.isPending}
-                  className={`relative w-full rounded-lg border-2 p-3 text-left transition-all hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed ${
+                  className={`relative w-full rounded-lg border-2 p-3 text-left transition-all hover:scale-[1.02] disabled:cursor-not-allowed disabled:opacity-50 ${
                     isActive
                       ? "border-primary bg-primary/10"
                       : "border-border bg-card hover:border-primary/50"
@@ -76,14 +82,18 @@ export function GenderSelector() {
                 >
                   {isActive && (
                     <div className="absolute top-2 right-2">
-                      <Check className="h-4 w-4 text-primary" />
+                      <Check className="text-primary h-4 w-4" />
                     </div>
                   )}
                   <div className="flex items-center gap-3">
                     <span className="text-xl">{option.icon}</span>
                     <div>
-                      <span className="text-sm font-medium">{option.label}</span>
-                      <p className="text-xs text-muted-foreground">{option.description}</p>
+                      <span className="text-sm font-medium">
+                        {option.label}
+                      </span>
+                      <p className="text-muted-foreground text-xs">
+                        {option.description}
+                      </p>
                     </div>
                   </div>
                 </button>
