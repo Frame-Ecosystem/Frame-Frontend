@@ -6,6 +6,7 @@ import { Card, CardContent } from "../ui/card"
 import { Users } from "lucide-react"
 import { DragEndEvent } from "@dnd-kit/core"
 import { arrayMove } from "@dnd-kit/sortable"
+import { useRouter } from "next/navigation"
 
 import { Queue, MOCK_QUEUES } from "../../_constants/mockQueues"
 import { calculateQueueStats } from "./queue-utils"
@@ -18,6 +19,7 @@ import {
   useFullscreenHandlers,
 } from "./queue-hooks"
 import { useLoungeAgents } from "../../queue/queue-agents"
+import { useAuth } from "../../_providers/auth"
 import QueueHeader from "./queue-header"
 import QueueStats from "./queue-stats"
 import QueueDetails from "./queue-details"
@@ -45,6 +47,8 @@ export default function QueueDisplay({
 
   const fullScreenContainerRef = useRef<HTMLDivElement>(null)
   const isFullScreen = useFullscreenState()
+  const { user } = useAuth()
+  const router = useRouter()
 
   // Fetch queues if loungeId is provided
   const { queues: loungeQueues, loading: agentsLoading } = useLoungeAgents(
@@ -239,28 +243,30 @@ export default function QueueDisplay({
                       )
                     })}
 
-                    {/* Add Agent Button */}
-                    <button
-                      onClick={() => {
-                        // TODO: Implement add agent functionality
-                      }}
-                      className="bg-muted text-muted-foreground hover:bg-muted/80 flex shrink-0 items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-colors"
-                    >
-                      <svg
-                        className="h-4 w-4"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
+                    {/* Add Agent Button - Only for lounge users */}
+                    {user?.type === "lounge" && (
+                      <button
+                        onClick={() => {
+                          router.push("/lounge/agents")
+                        }}
+                        className="bg-muted text-muted-foreground hover:bg-muted/80 flex shrink-0 items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-colors"
                       >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M12 6v6m0 0v6m0-6h6m-6 0H6"
-                        />
-                      </svg>
-                      Add Agent
-                    </button>
+                        <svg
+                          className="h-4 w-4"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+                          />
+                        </svg>
+                        Add Agent
+                      </button>
+                    )}
                   </>
                 )}
               </div>
