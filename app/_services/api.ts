@@ -1,11 +1,18 @@
 // API Base Configuration
 import { withCsrfHeader, isStateChanging } from "../_lib/csrf"
-export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000"
+export const API_BASE_URL =
+  process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000"
+
+// Google Auth: force localhost for OAuth redirects to avoid using LAN IP
+// Use GOOGLE_AUTH_LOCAL_API_URL if explicitly provided, otherwise default to localhost.
+export const GOOGLE_AUTH_BASE_URL =
+  process.env.GOOGLE_AUTH_LOCAL_API_URL || "http://localhost:3000"
 
 class ApiClient {
   private baseUrl: string
   private getAccessToken: (() => string | null) | null = null
   private refreshTokenCallback: (() => Promise<string | null>) | null = null
+  private authFailureCallback: (() => void) | null = null
 
   constructor(baseUrl: string = API_BASE_URL) {
     this.baseUrl = baseUrl
@@ -21,9 +28,14 @@ class ApiClient {
     this.refreshTokenCallback = callback
   }
 
+  // Set callback for authentication failure (redirect to root)
+  setAuthFailureCallback(callback: () => void) {
+    this.authFailureCallback = callback
+  }
+
   private async request<T>(
     endpoint: string,
-    options: RequestInit = {}
+    options: RequestInit = {},
   ): Promise<T> {
     const url = `${this.baseUrl}${endpoint}`
 
@@ -31,8 +43,8 @@ class ApiClient {
     let token = this.getAccessToken?.()
 
     let headers: HeadersInit = {
-      "Accept": "application/json",
-      ...(token && { Authorization: `Bearer ${token}` }),
+      Accept: "application/json",
+      ...(token && { Authorization: token }),
       ...options.headers,
     }
 
@@ -47,7 +59,7 @@ class ApiClient {
     // Add CSRF header for state-changing requests (POST/PUT/DELETE/PATCH)
     // Skip CSRF for signup endpoint as it works on Swagger
     const method = (options.method || "GET").toString().toUpperCase()
-    if (isStateChanging(method) && !endpoint.includes('/v1/auth/signup')) {
+    if (isStateChanging(method) && !endpoint.includes("/v1/auth/signup")) {
       headers = withCsrfHeader(headers, method)
     }
 
@@ -60,30 +72,42 @@ class ApiClient {
 
       // If 401 and we have a refresh callback, try to refresh and retry
       if (response.status === 401 && this.refreshTokenCallback) {
-        const hasSessionFlag = typeof window !== "undefined" && localStorage.getItem("hasRefreshToken") === "true"
+        const hasSessionFlag =
+          typeof window !== "undefined" &&
+          localStorage.getItem("hasRefreshToken") === "true"
         if (!hasSessionFlag && !token) {
         } else {
           const newToken = await this.refreshTokenCallback()
-        
+
           if (newToken) {
             // Retry request with new token
             headers = {
               ...headers,
-              Authorization: `Bearer ${newToken}`,
+              Authorization: newToken,
             }
-            
+
             response = await fetch(url, {
               ...options,
               headers,
               credentials: "include",
             })
+          } else {
+            // Token refresh failed - authentication has failed
+            this.authFailureCallback?.()
           }
         }
       }
 
+      // If still 401 after refresh attempt, authentication has failed
+      if (response.status === 401) {
+        this.authFailureCallback?.()
+      }
+
       if (!response.ok) {
         const error = await response.json().catch(() => ({}))
-        const err = new Error(error.message || `API Error: ${response.statusText}`)
+        const err = new Error(
+          error.message || `API Error: ${response.statusText}`,
+        )
         try {
           ;(err as any).code = error.code
         } catch {}

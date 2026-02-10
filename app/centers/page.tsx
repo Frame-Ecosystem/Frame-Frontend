@@ -13,8 +13,8 @@ import {
   Search as SearchIcon,
   TrendingUpIcon,
 } from "lucide-react"
-import CenterItem from "../_components/center-item"
-import { ErrorBoundary } from "../_components/errorBoundary"
+import CenterItem from "../_components/centers/center-item"
+import { ErrorBoundary } from "../_components/common/errorBoundary"
 import Link from "next/link"
 import { quickSearchOptions } from "../_constants/search"
 import type { Service } from "../_types"
@@ -56,6 +56,13 @@ export default function CentersPage() {
   useEffect(() => {
     if (!isLoading && !user) {
       router.push("/")
+    }
+  }, [isLoading, user, router])
+
+  // Redirect lounge users away from centers page
+  useEffect(() => {
+    if (!isLoading && user && user.type === "lounge") {
+      router.push("/home")
     }
   }, [isLoading, user, router])
 
@@ -151,11 +158,8 @@ export default function CentersPage() {
       return
     }
 
-    if (user.type !== "client" && user.type !== "admin") {
-      setError("This page is only accessible to clients.")
-      setLoading(false)
-      return
-    }
+    // Allow both clients and admins to attempt accessing lounges
+    // Backend may restrict admins, but let them try
 
     try {
       setLoading(true)

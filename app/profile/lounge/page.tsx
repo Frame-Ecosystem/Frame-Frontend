@@ -2,13 +2,20 @@
 
 import { useState, useEffect } from "react"
 import { Button } from "../../_components/ui/button"
-import { CameraIcon, Pencil, Star } from "lucide-react"
+import {
+  CameraIcon,
+  Pencil,
+  StarIcon,
+  User,
+  FileText,
+  Users,
+} from "lucide-react"
 import {
   Avatar,
   AvatarImage,
   AvatarFallback,
 } from "../../_components/ui/avatar"
-import { ErrorBoundary } from "../../_components/errorBoundary"
+import { ErrorBoundary } from "../../_components/common/errorBoundary"
 import { useAuth } from "../../_providers/auth"
 import {
   Dialog,
@@ -22,11 +29,13 @@ import {
   getUserDisplayName,
   getUserInitials,
 } from "../../_services/auth.service"
-import { ImageSelector } from "../../_components/ImageSelector"
-import { AccountSettings } from "../../_components/account-settings"
-import { AccountInformation } from "../../_components/account-information"
-import { OpeningHoursDisplay } from "../../_components/opening-hours-display"
-// Sign-in fallback removed; AuthGuard handles unauthenticated users
+import { ImageSelector } from "../../_components/common/ImageSelector"
+import { AccountSettings } from "../../_components/profile/account-settings"
+import { AccountInformation } from "../../_components/profile/account-information"
+import { OpeningHoursDisplay } from "../../_components/forms/opening-hours-display"
+import PostsDisplay from "../../_components/centers/centersPostsDisplay"
+import QueueDisplay from "../../_components/queue/queue-display"
+import { Card, CardContent } from "../../_components/ui/card"
 
 // Helper function to format bio text with line breaks
 const formatBioText = (text: string, isMobile: boolean = false) => {
@@ -48,6 +57,9 @@ export default function LoungeProfilePage() {
   const [openBioSection, setOpenBioSection] = useState(false)
   const [isAccountInfoOpen, setIsAccountInfoOpen] = useState(true)
   const [isBioExpanded, setIsBioExpanded] = useState(false)
+  const [activeTab, setActiveTab] = useState<"account" | "posts" | "queue">(
+    "account",
+  )
   const [isMobile, setIsMobile] = useState(false)
   const [showFullHours, setShowFullHours] = useState(false)
 
@@ -133,183 +145,275 @@ export default function LoungeProfilePage() {
 
   // AuthGuard in layout handles unauthenticated users; render lounge profile when `user` exists
 
+  // Only lounge users should access this page
+  if (user && user.type !== "lounge") {
+    return (
+      <ErrorBoundary>
+        <div className="from-background via-background to-muted/20 min-h-screen bg-linear-to-br">
+          <div className="mx-auto max-w-7xl p-5 lg:px-8 lg:py-12">
+            <div className="flex min-h-[400px] items-center justify-center">
+              <div className="text-center">
+                <p className="text-muted-foreground mb-4">
+                  Access denied. This page is for lounge owners only.
+                </p>
+                <Button onClick={() => window.history.back()}>Go Back</Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </ErrorBoundary>
+    )
+  }
+
   return (
     <ErrorBoundary>
       <div className="from-background via-background to-muted/20 min-h-screen bg-linear-to-br pb-24 lg:pb-0">
-        <div className="mx-auto max-w-7xl">
-          <div className="space-y-6 p-5 lg:px-8 lg:py-12">
-            <div className="px-5 py-6 lg:px-8 lg:py-8">
-              <div className="mb-6 flex items-start gap-4">
-                <div className="relative">
-                  <Avatar className="border-primary h-32 w-32 border-2 lg:h-40 lg:w-40">
-                    {user?.profileImage && (
-                      <AvatarImage
-                        src={
-                          typeof user.profileImage === "string"
-                            ? user.profileImage
-                            : user.profileImage.url
-                        }
-                        alt={getUserDisplayName(user)}
-                      />
-                    )}
-                    <AvatarFallback>{getUserInitials(user)}</AvatarFallback>
-                  </Avatar>
-                  <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-                    <DialogTrigger asChild>
-                      <Button
-                        size="icon"
-                        className="absolute right-0 bottom-0 h-9 w-9 rounded-full"
+        <div className="w-full">
+          <div className="space-y-6 p-0 lg:px-0 lg:py-0">
+            <div className="px-0 py-0 lg:px-0 lg:py-0">
+              <div className="m-4 md:m-6 lg:m-8">
+                <div className="mb-6 flex items-start gap-4">
+                  <div className="relative">
+                    <Avatar className="border-primary h-32 w-32 border-2 lg:h-40 lg:w-40">
+                      {user?.profileImage && (
+                        <AvatarImage
+                          src={
+                            typeof user.profileImage === "string"
+                              ? user.profileImage
+                              : user.profileImage.url
+                          }
+                          alt={getUserDisplayName(user)}
+                        />
+                      )}
+                      <AvatarFallback>{getUserInitials(user)}</AvatarFallback>
+                    </Avatar>
+                    <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+                      <DialogTrigger asChild>
+                        <Button
+                          size="icon"
+                          className="absolute right-0 bottom-0 h-9 w-9 rounded-full"
+                        >
+                          <CameraIcon className="h-4 w-4" />
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent>
+                        <DialogHeader>
+                          <DialogTitle>Update Profile Image</DialogTitle>
+                        </DialogHeader>
+                        <ImageSelector
+                          onUpdate={handleUpdateProfileImage}
+                          updating={updating}
+                        />
+                      </DialogContent>
+                    </Dialog>
+                  </div>
+
+                  <div className="mt-8 flex-1 pt-4 lg:pt-8">
+                    {user?.loungeTitle ? (
+                      <h1 className="mb-2 ml-4 text-2xl font-bold lg:mb-4 lg:ml-6 lg:text-3xl">
+                        {user.loungeTitle}
+                      </h1>
+                    ) : (
+                      <button
+                        onClick={() => {
+                          setOpenNameSection(true)
+                          setOpenSettings(true)
+                        }}
+                        className="text-primary hover:text-primary/80 flex items-center gap-2 text-left text-lg font-medium transition-colors lg:text-xl"
                       >
-                        <CameraIcon className="h-4 w-4" />
-                      </Button>
-                    </DialogTrigger>
-                    <DialogContent>
-                      <DialogHeader>
-                        <DialogTitle>Update Profile Image</DialogTitle>
-                      </DialogHeader>
-                      <ImageSelector
-                        onUpdate={handleUpdateProfileImage}
-                        updating={updating}
-                      />
-                    </DialogContent>
-                  </Dialog>
+                        Update your title
+                        <Pencil className="h-4 w-4" />
+                      </button>
+                    )}
+                  </div>
                 </div>
 
-                <div className="mt-8 flex-1 pt-4 lg:pt-8">
-                  {user?.loungeTitle ? (
-                    <h1 className="text-2xl font-bold lg:text-3xl">
-                      {user.loungeTitle}
-                    </h1>
-                  ) : (
-                    <button
-                      onClick={() => {
-                        setOpenNameSection(true)
-                        setOpenSettings(true)
-                      }}
-                      className="text-primary hover:text-primary/80 flex items-center gap-2 text-left text-lg font-medium transition-colors lg:text-xl"
-                    >
-                      Update your title
-                      <Pencil className="h-4 w-4" />
-                    </button>
-                  )}
-                </div>
-              </div>
-
-              {user?.bio ? (
-                <div className="mt-6">
-                  <p className="text-muted-foreground text-sm leading-relaxed whitespace-pre-line">
-                    {isBioExpanded
-                      ? formatBioText(user.bio, isMobile)
-                      : user.bio.length > (isMobile ? 25 : 55)
-                        ? `${user.bio.substring(0, isMobile ? 25 : 55)}... `
-                        : formatBioText(user.bio, isMobile)}
-                    {user.bio.length > (isMobile ? 25 : 55) &&
-                      !isBioExpanded && (
-                        <button
-                          onClick={() => setIsBioExpanded(true)}
-                          className="text-primary hover:text-primary/80 ml-1 text-sm transition-colors"
-                        >
-                          read more
-                        </button>
-                      )}
-                    {user.bio.length > (isMobile ? 25 : 55) &&
-                      isBioExpanded && (
-                        <button
-                          onClick={() => setIsBioExpanded(false)}
-                          className="text-primary hover:text-primary/80 ml-1 text-sm transition-colors"
-                        >
-                          show less
-                        </button>
-                      )}
+                {user?.bio ? (
+                  <div className="mt-6">
+                    <p className="text-muted-foreground ml-4 text-sm leading-relaxed whitespace-pre-line lg:ml-6">
+                      {isBioExpanded
+                        ? formatBioText(user.bio, isMobile)
+                        : user.bio.length > (isMobile ? 25 : 55)
+                          ? `${user.bio.substring(0, isMobile ? 25 : 55)}... `
+                          : formatBioText(user.bio, isMobile)}
+                      {user.bio.length > (isMobile ? 25 : 55) &&
+                        !isBioExpanded && (
+                          <button
+                            onClick={() => setIsBioExpanded(true)}
+                            className="text-primary hover:text-primary/80 ml-1 text-sm transition-colors"
+                          >
+                            read more
+                          </button>
+                        )}
+                      {user.bio.length > (isMobile ? 25 : 55) &&
+                        isBioExpanded && (
+                          <button
+                            onClick={() => setIsBioExpanded(false)}
+                            className="text-primary hover:text-primary/80 ml-1 text-sm transition-colors"
+                          >
+                            show less
+                          </button>
+                        )}
+                      <button
+                        onClick={() => {
+                          setOpenBioSection(true)
+                          setOpenSettings(true)
+                        }}
+                        className="text-primary hover:text-primary/80 ml-2 inline transition-colors"
+                      >
+                        <Pencil className="h-4 w-4" />
+                      </button>
+                    </p>
+                  </div>
+                ) : (
+                  <div className="mt-6 flex items-start gap-4">
                     <button
                       onClick={() => {
                         setOpenBioSection(true)
                         setOpenSettings(true)
                       }}
-                      className="text-primary hover:text-primary/80 ml-2 inline transition-colors"
+                      className="text-primary hover:text-primary/80 flex items-center gap-2 text-sm transition-colors"
                     >
+                      Add bio
                       <Pencil className="h-4 w-4" />
                     </button>
-                  </p>
-                </div>
-              ) : (
-                <div className="mt-6 flex items-start gap-4">
-                  <button
-                    onClick={() => {
-                      setOpenBioSection(true)
-                      setOpenSettings(true)
-                    }}
-                    className="text-primary hover:text-primary/80 flex items-center gap-2 text-sm transition-colors"
-                  >
-                    Add bio
-                    <Pencil className="h-4 w-4" />
-                  </button>
-                </div>
-              )}
+                  </div>
+                )}
 
-              {/* Stats Section */}
-              <div className="mt-6 flex flex-col items-start justify-between gap-4 text-sm md:flex-row md:items-center md:gap-0">
-                <div className="flex items-center gap-2">
-                  <Star className="h-6 w-6 fill-yellow-400 text-yellow-400" />
-                  <span className="text-muted-foreground">Account Rating</span>
-                  <span className="text-foreground font-semibold">4.5</span>
-                </div>
-                <div className="flex items-center gap-6">
-                  <div className="flex flex-col items-center">
-                    <span className="text-foreground font-semibold">0</span>
-                    <span className="text-muted-foreground">posts</span>
+                {/* Stats Section */}
+                <div className="mt-6 flex flex-col items-start justify-between gap-4 text-sm md:flex-row md:items-center md:gap-0">
+                  <div className="flex items-center gap-2">
+                    <button className="mx-1 mb-0 flex cursor-pointer items-center gap-1.5 rounded-full bg-yellow-500/20 px-2 py-1 backdrop-blur-sm transition-colors hover:bg-yellow-500/30">
+                      <StarIcon
+                        size={14}
+                        className={`fill-yellow-500 text-yellow-500 transition-colors`}
+                      />
+                      <span className="text-sm font-medium text-yellow-500">
+                        4.5
+                      </span>
+                    </button>
                   </div>
-                  <div className="flex flex-col items-center">
-                    <span className="text-foreground font-semibold">14</span>
-                    <span className="text-muted-foreground">followers</span>
-                  </div>
-                  <div className="flex flex-col items-center">
-                    <span className="text-foreground font-semibold">3</span>
-                    <span className="text-muted-foreground">following</span>
+                  <div className="flex items-center gap-6">
+                    <div className="flex flex-col items-center">
+                      <span className="text-foreground font-semibold">0</span>
+                      <span className="text-muted-foreground">posts</span>
+                    </div>
+                    <div className="flex flex-col items-center">
+                      <span className="text-foreground font-semibold">14</span>
+                      <span className="text-muted-foreground">followers</span>
+                    </div>
+                    <div className="flex flex-col items-center">
+                      <span className="text-foreground font-semibold">3</span>
+                      <span className="text-muted-foreground">following</span>
+                    </div>
                   </div>
                 </div>
-              </div>
 
-              {/* Opening Hours Toggle */}
-              {(user as any)?.openingHours && (
-                <div className="mt-4 w-full md:w-1/3">
-                  <button
-                    onClick={() => setShowFullHours(!showFullHours)}
-                    className="hover:bg-card/50 w-full rounded-lg p-3 text-left transition-colors"
-                  >
-                    <OpeningHoursDisplay
-                      openingHours={(user as any)?.openingHours}
-                      compact
-                      isExpanded={showFullHours}
-                    />
-                  </button>
-
-                  {/* Opening Hours Full View */}
-                  {showFullHours && (
-                    <div className="mt-2">
+                {/* Opening Hours Toggle */}
+                {(user as any)?.openingHours && (
+                  <div className="mt-4 w-full md:w-1/3">
+                    <button
+                      onClick={() => setShowFullHours(!showFullHours)}
+                      className="hover:bg-card/50 w-full rounded-lg p-3 text-left transition-colors"
+                    >
                       <OpeningHoursDisplay
                         openingHours={(user as any)?.openingHours}
+                        compact
+                        isExpanded={showFullHours}
                       />
-                    </div>
-                  )}
-                </div>
-              )}
+                    </button>
+
+                    {/* Opening Hours Full View */}
+                    {showFullHours && (
+                      <div className="mt-2">
+                        <OpeningHoursDisplay
+                          openingHours={(user as any)?.openingHours}
+                        />
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
             </div>
+            {/* Tabbed Content (single responsive nav) */}
+            <div className="to-background/95 sticky top-[var(--header-offset)] z-50 bg-gradient-to-b from-transparent shadow-sm backdrop-blur-md lg:top-[var(--header-offset-lg)]">
+              <div className="flex w-full justify-center gap-2 py-4">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className={`rounded-full px-2 py-0.5 pr-2 text-xs transition-all duration-150 md:px-3 md:py-1 ${activeTab === "account" ? "bg-primary/10 text-primary ring-primary ring-1" : "text-muted-foreground hover:bg-muted/5"}`}
+                  onClick={() => setActiveTab("account")}
+                >
+                  <User className="h-4 w-4" />
+                  Account
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className={`rounded-full px-2 py-0.5 pr-2 text-xs transition-all duration-150 md:px-3 md:py-1 ${activeTab === "posts" ? "bg-primary/10 text-primary ring-primary ring-1" : "text-muted-foreground hover:bg-muted/5"}`}
+                  onClick={() => setActiveTab("posts")}
+                >
+                  <FileText className="h-4 w-4" />
+                  Posts
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className={`rounded-full px-2 py-0.5 pr-2 text-xs transition-all duration-150 md:px-3 md:py-1 ${activeTab === "queue" ? "bg-primary/10 text-primary ring-primary ring-1" : "text-muted-foreground hover:bg-muted/5"}`}
+                  onClick={() => setActiveTab("queue")}
+                >
+                  <Users className="h-4 w-4" />
+                  Queue
+                </Button>
+              </div>
+            </div>
+            <div className="md:grid md:grid-cols-5 xl:grid-cols-7 2xl:grid-cols-12">
+              <div className="hidden md:block xl:col-span-1 2xl:col-span-1"></div>
+              {/* 1/5 left space on desktop, 1/7 on xl, 1/12 on 2xl */}
+              <div className="md:col-span-3 xl:col-span-5 2xl:col-span-10">
+                {/* Desktop: Card wrapper */}
+                <Card className="border-0 bg-transparent backdrop-blur-sm">
+                  <CardContent className="mt-4">
+                    {activeTab === "account" && (
+                      <>
+                        <AccountInformation
+                          user={user}
+                          isAccountInfoOpen={isAccountInfoOpen}
+                          setIsAccountInfoOpen={setIsAccountInfoOpen}
+                          setOpenPhoneSection={setOpenPhoneSection}
+                          setOpenSettings={setOpenSettings}
+                        />
 
-            <AccountInformation
-              user={user}
-              isAccountInfoOpen={isAccountInfoOpen}
-              setIsAccountInfoOpen={setIsAccountInfoOpen}
-              setOpenPhoneSection={setOpenPhoneSection}
-              setOpenSettings={setOpenSettings}
-            />
+                        <AccountSettings
+                          openNameSection={openNameSection}
+                          openSettings={openSettings}
+                          openPhoneSection={openPhoneSection}
+                          openBioSection={openBioSection}
+                        />
+                      </>
+                    )}
+                    {activeTab === "posts" && (
+                      <PostsDisplay
+                        centerName={
+                          user?.loungeTitle || getUserDisplayName(user)
+                        }
+                      />
+                    )}
+                    {activeTab === "queue" && (
+                      <QueueDisplay
+                        centerName={
+                          user?.loungeTitle || getUserDisplayName(user)
+                        }
+                        mode="staff"
+                        loungeId={user?._id || user?.id}
+                      />
+                    )}
+                  </CardContent>
+                </Card>
+              </div>
 
-            <AccountSettings
-              openNameSection={openNameSection}
-              openSettings={openSettings}
-              openPhoneSection={openPhoneSection}
-              openBioSection={openBioSection}
-            />
+              {/* Mobile/Tablet: content handled by the single responsive Card above (no duplicate nav) */}
+            </div>
           </div>
         </div>
       </div>

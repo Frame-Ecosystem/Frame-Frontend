@@ -164,6 +164,28 @@ export default function AdminDashboard() {
             </CardContent>
           </Card>
 
+          {/* Agent Management */}
+          <Card className="transition-shadow hover:shadow-lg">
+            <CardHeader className="flex flex-row items-center space-y-0 pb-2">
+              <CardTitle className="text-lg font-semibold">
+                Agent Management
+              </CardTitle>
+              <Shield className="text-muted-foreground ml-auto h-5 w-5" />
+            </CardHeader>
+            <CardContent>
+              <p className="text-muted-foreground mb-4 text-sm">
+                Manage agents across all lounges on the platform
+              </p>
+              <Button
+                className="w-full"
+                variant="outline"
+                onClick={() => router.push("/admin/agents")}
+              >
+                Manage Agents
+              </Button>
+            </CardContent>
+          </Card>
+
           {/* User Management */}
           <Card className="transition-shadow hover:shadow-lg">
             <CardHeader className="flex flex-row items-center space-y-0 pb-2">

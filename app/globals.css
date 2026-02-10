@@ -55,6 +55,9 @@
 :root {
   --emerald-primary: hsl(140 65% 55%);
   --emerald-primary-foreground: hsl(0 0% 100%);
+  /* Header offsets used by sticky tab navs */
+  --header-offset: 73px;       /* mobile / small screens - increased to sit below top bars */
+  --header-offset-lg: 96px;   /* desktop / large screens - increased to sit below desktop nav */
 }
 
 @layer base {

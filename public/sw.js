@@ -1,7 +1,7 @@
 const CACHE_NAME = 'lookisi-v1';
 const urlsToCache = [
   '/',
-  '/images/logo.png',
+  '/images/lookisiDarkPng.png',
   // Add other critical resources
 ];
 
@@ -15,8 +15,14 @@ self.addEventListener('install', (event) => {
   );
 });
 
-// Fetch event - serve from cache when offline
+// Fetch event - serve from cache when offline, but skip API requests
 self.addEventListener('fetch', (event) => {
+  // Skip caching for API requests
+  if (event.request.url.includes('/v1/') ||
+      event.request.url.includes('192.168.100.11:3000')) {
+    return; // Let the request go through normally
+  }
+
   event.respondWith(
     caches.match(event.request)
       .then((response) => {

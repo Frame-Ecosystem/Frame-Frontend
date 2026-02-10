@@ -2,10 +2,10 @@
 
 import { Button } from "../_components/ui/button"
 import Image from "next/image"
-import CenterItem from "../_components/center-item"
-import Search from "../_components/search"
+import CenterItem from "../_components/centers/center-item"
+import Search from "../_components/forms/search"
 import Link from "next/link"
-import { ErrorBoundary } from "../_components/errorBoundary"
+import { ErrorBoundary } from "../_components/common/errorBoundary"
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { serviceService } from "../_services"
@@ -29,14 +29,10 @@ const ClientHome = () => {
   const [services, setServices] = useState<Service[]>([])
   const [loadingServices, setLoadingServices] = useState(true)
 
-  // Redirect non-client users to their respective home pages
+  // Redirect all users to the unified home page
   useEffect(() => {
-    if (!isLoading && user && user.type !== "client") {
-      if (user.type === "admin") {
-        router.replace("/home")
-      } else if (user.type === "lounge") {
-        router.replace("/loungeHome")
-      }
+    if (!isLoading && user) {
+      router.replace("/home")
     }
   }, [user, isLoading, router])
 
@@ -207,6 +203,7 @@ const ClientHome = () => {
                     fill
                     sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                     priority
+                    loading="eager"
                     className="hidden scale-70 object-cover transition-transform duration-700 group-hover:scale-80 lg:block"
                   />
                   {/* Gradient overlay for better text readability */}

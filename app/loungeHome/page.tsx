@@ -2,11 +2,11 @@
 
 import { Button } from "../_components/ui/button"
 import Image from "next/image"
-import CenterItem from "../_components/center-item"
+import CenterItem from "../_components/centers/center-item"
 import { quickSearchOptions } from "../_constants/search"
-import Search from "../_components/search"
+import Search from "../_components/forms/search"
 import Link from "next/link"
-import { ErrorBoundary } from "../_components/errorBoundary"
+import { ErrorBoundary } from "../_components/common/errorBoundary"
 import { useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { useAuth } from "../_providers/auth"
@@ -27,14 +27,10 @@ const LoungeHome = () => {
   const { user, isLoading } = useAuth()
   const router = useRouter()
 
-  // Redirect non-lounge users to their respective home pages
+  // Redirect all users to the unified home page
   useEffect(() => {
-    if (!isLoading && user && user.type !== "lounge") {
-      if (user.type === "admin") {
-        router.replace("/home")
-      } else if (user.type === "client") {
-        router.replace("/clientHome")
-      }
+    if (!isLoading && user) {
+      router.replace("/home")
     }
   }, [user, isLoading, router])
 
@@ -177,6 +173,7 @@ const LoungeHome = () => {
                     fill
                     sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                     priority
+                    loading="eager"
                     className="hidden scale-70 object-cover transition-transform duration-700 group-hover:scale-80 lg:block"
                   />
                   {/* Gradient overlay for better text readability */}

@@ -3,6 +3,7 @@ import type {
   Service,
   CreateLoungeServicePayload,
   LoungeServiceItem,
+  LoungeAgentsResponse,
 } from "../_types"
 
 class LoungeService {
@@ -29,6 +30,7 @@ class LoungeService {
           typeof service.serviceId === "object"
             ? service.serviceId._id
             : service.serviceId,
+        image: service.image,
       })) as LoungeServiceItem[]
 
       return mapped
@@ -109,6 +111,7 @@ class LoungeService {
           description: created.description,
           isActive: created.isActive,
           gender: created.gender,
+          image: created.image,
           createdAt: created.createdAt,
           updatedAt: created.updatedAt,
         } as LoungeServiceItem
@@ -242,6 +245,18 @@ class LoungeService {
       )
     } catch (error) {
       console.error("Failed to update opening hours:", error)
+      throw error
+    }
+  }
+
+  async getAgentsByLoungeId(loungeId: string): Promise<LoungeAgentsResponse> {
+    try {
+      const response = await apiClient.get<any>(
+        `/v1/lounge-services/lounge/${loungeId}/agents`,
+      )
+      return response
+    } catch (error) {
+      console.error("Failed to fetch lounge agents:", error)
       throw error
     }
   }

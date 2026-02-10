@@ -48,6 +48,20 @@ export function getUserInitials(user: User | null | undefined): string {
 }
 
 class AuthService {
+  // Fetch CSRF token from server
+  async fetchCsrfToken(): Promise<void> {
+    try {
+      await apiClient.get("/csrf-token")
+    } catch {
+      // Try alternative endpoint
+      try {
+        await apiClient.get("/api/csrf-token")
+      } catch {
+        // CSRF token might be obtained from other responses
+      }
+    }
+  }
+
   async getCurrentUser(): Promise<User | null> {
     try {
       const response = await apiClient.get<
@@ -63,37 +77,52 @@ class AuthService {
     }
   }
 
-  async signUp(
-    email: string,
-    password: string,
-    type?: "client" | "lounge",
-  ): Promise<AuthResponse | null> {
+  async signUp(data: {
+    email?: string
+    phoneNumber?: string
+    password: string
+    type?: "client" | "lounge"
+  }): Promise<AuthResponse | null> {
     try {
-      const payload: any = { email, password }
-      // Pass the type directly when provided
-      if (type) {
-        payload.type = type
+      const payload: any = { password: data.password }
+
+      // Add email if provided
+      if (data.email) {
+        payload.email = data.email
       }
-      console.log("Signup payload:", payload)
-      console.log("Signup URL:", `${API_BASE_URL}/v1/auth/signup`)
-      const data = await apiClient.post<AuthResponse>(
+
+      // Add phone number if provided
+      if (data.phoneNumber) {
+        payload.phoneNumber = data.phoneNumber
+      }
+
+      // Pass the type directly when provided
+      if (data.type) {
+        payload.type = data.type
+      }
+
+      const response = await apiClient.post<AuthResponse>(
         "/v1/auth/signup",
         payload,
       )
-      console.log("Signup success:", data)
-      return data
+      return response
     } catch (err) {
-      console.error("Signup failed:", err)
       throw err instanceof Error ? err : new Error("Signup failed")
     }
   }
 
-  async signIn(email: string, password: string): Promise<AuthResponse | null> {
+  async signIn(
+    emailOrPhone: string,
+    password: string,
+  ): Promise<AuthResponse | null> {
     try {
       const data = await apiClient.post<AuthResponse>("/v1/auth/login", {
-        email,
+        emailOrPhone,
         password,
       })
+
+      // CSRF token is automatically set by server in cookie during login
+
       return data
     } catch (err) {
       throw err instanceof Error ? err : new Error("Sign-in failed")
@@ -119,37 +148,6 @@ class AuthService {
       // Call backend to clear HttpOnly cookie
       await apiClient.post("/v1/auth/logout", {})
     } catch {}
-  }
-
-  async sendVerificationCode(
-    email: string,
-  ): Promise<{ message: string } | null> {
-    try {
-      const data = await apiClient.post<{ message: string }>(
-        "/v1/me/send-verification-code",
-        { email },
-      )
-      return data
-    } catch (err) {
-      throw err instanceof Error
-        ? err
-        : new Error("Failed to send verification code")
-    }
-  }
-
-  async verifyEmail(
-    email: string,
-    code: string,
-  ): Promise<{ message: string } | null> {
-    try {
-      const data = await apiClient.post<{ message: string }>(
-        "/v1/me/verify-email",
-        { email, code },
-      )
-      return data
-    } catch (err) {
-      throw err instanceof Error ? err : new Error("Failed to verify email")
-    }
   }
 
   async updateLocation(locationData: {
@@ -203,6 +201,8 @@ class AuthService {
       } catch {
         data = null
       }
+
+      // CSRF token is automatically managed by server
 
       return { ok: res.ok, status, data }
     } catch {
@@ -258,6 +258,17 @@ class AuthService {
       throw err instanceof Error ? err : new Error("Failed to update bio")
     }
   }
+
+  async updateTheme(theme: string): Promise<User | null> {
+    try {
+      const data = await apiClient.put<{ data: User }>("/v1/me/theme", {
+        theme,
+      })
+      return data.data
+    } catch (err) {
+      throw err instanceof Error ? err : new Error("Failed to update theme")
+    }
+  }
   async changePassword(passwordData: {
     currentPassword: string
     newPassword: string
@@ -281,6 +292,35 @@ class AuthService {
       throw error instanceof Error
         ? error
         : new Error("Failed to logout from all sessions")
+    }
+  }
+
+  async forgotPassword(email: string): Promise<{ message: string } | null> {
+    try {
+      const data = await apiClient.post<{ message: string }>(
+        "/v1/auth/forgot-password",
+        { email },
+      )
+      return data
+    } catch (err) {
+      throw err instanceof Error
+        ? err
+        : new Error("Failed to send password reset email")
+    }
+  }
+
+  async resetPassword(
+    token: string,
+    newPassword: string,
+  ): Promise<{ message: string } | null> {
+    try {
+      const data = await apiClient.post<{ message: string }>(
+        "/v1/auth/reset-password",
+        { token, newPassword },
+      )
+      return data
+    } catch (err) {
+      throw err instanceof Error ? err : new Error("Failed to reset password")
     }
   }
 }
