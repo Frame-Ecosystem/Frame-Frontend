@@ -3,10 +3,16 @@ import { withCsrfHeader, isStateChanging } from "../_lib/csrf"
 export const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000"
 
+// Google Auth: force localhost for OAuth redirects to avoid using LAN IP
+// Use GOOGLE_AUTH_LOCAL_API_URL if explicitly provided, otherwise default to localhost.
+export const GOOGLE_AUTH_BASE_URL =
+  process.env.GOOGLE_AUTH_LOCAL_API_URL || "http://localhost:3000"
+
 class ApiClient {
   private baseUrl: string
   private getAccessToken: (() => string | null) | null = null
   private refreshTokenCallback: (() => Promise<string | null>) | null = null
+  private authFailureCallback: (() => void) | null = null
 
   constructor(baseUrl: string = API_BASE_URL) {
     this.baseUrl = baseUrl
@@ -20,6 +26,11 @@ class ApiClient {
   // Set callback to refresh access token on 401
   setRefreshTokenCallback(callback: () => Promise<string | null>) {
     this.refreshTokenCallback = callback
+  }
+
+  // Set callback for authentication failure (redirect to root)
+  setAuthFailureCallback(callback: () => void) {
+    this.authFailureCallback = callback
   }
 
   private async request<T>(
@@ -80,8 +91,16 @@ class ApiClient {
               headers,
               credentials: "include",
             })
+          } else {
+            // Token refresh failed - authentication has failed
+            this.authFailureCallback?.()
           }
         }
+      }
+
+      // If still 401 after refresh attempt, authentication has failed
+      if (response.status === 401) {
+        this.authFailureCallback?.()
       }
 
       if (!response.ok) {

@@ -366,7 +366,10 @@ const ServiceItem = ({ service, center }: ServiceItemProps) => {
         open={signInDialogIsOpen}
         onOpenChange={(open) => setSignInDialogIsOpen(open)}
       >
-        <DialogContent className="w-[90%]">
+        <DialogContent
+          className="w-[90%]"
+          onInteractOutside={(e) => e.preventDefault()}
+        >
           <SignInDialog />
         </DialogContent>
       </Dialog>

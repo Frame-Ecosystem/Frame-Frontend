@@ -187,6 +187,80 @@ export default function BookingsPage() {
   }
 
   // === AUTHENTICATED STATE ===
+  // Admin view: Show all bookings grouped by lounge (using mock data for now)
+  if (user.type === "admin") {
+    // Group mock bookings by lounge for admin view
+    const bookingsByLounge = MOCK_BOOKINGS.reduce(
+      (acc, booking) => {
+        if (!booking.service?.center) return acc
+
+        const loungeId = booking.service.center.id
+        const loungeName = booking.service.center.name
+
+        if (!acc[loungeId]) {
+          acc[loungeId] = {
+            loungeName,
+            bookings: [],
+          }
+        }
+        acc[loungeId].bookings.push(booking)
+        return acc
+      },
+      {} as Record<string, { loungeName: string; bookings: Booking[] }>,
+    )
+
+    return (
+      <ErrorBoundary>
+        <div className="from-background via-background to-muted/20 mb-24 min-h-screen bg-linear-to-br lg:mb-0">
+          <div className="mx-auto max-w-7xl p-5 lg:px-8 lg:py-12">
+            {/* Page title */}
+            <h1 className="mb-8 text-2xl font-bold">
+              All Bookings (Admin View)
+            </h1>
+
+            {Object.keys(bookingsByLounge).length === 0 ? (
+              <Card className="from-card/50 to-card/30 overflow-hidden border-0 bg-linear-to-br backdrop-blur-sm">
+                <CardContent className="relative p-8 text-center lg:p-16">
+                  <div className="from-primary/5 absolute inset-0 bg-linear-to-br to-transparent"></div>
+                  <div className="relative z-10">
+                    <div className="from-primary/20 to-primary/10 mx-auto mb-8 flex h-32 w-32 items-center justify-center rounded-full bg-linear-to-br shadow-lg">
+                      <CalendarIcon className="text-primary h-16 w-16" />
+                    </div>
+                    <h3 className="mb-4 text-2xl font-bold lg:text-3xl">
+                      No bookings found
+                    </h3>
+                    <p className="text-muted-foreground mx-auto mb-8 max-w-md lg:text-lg">
+                      There are no bookings in the system yet.
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
+            ) : (
+              <div className="space-y-8">
+                {Object.entries(bookingsByLounge).map(
+                  ([loungeId, { loungeName, bookings }]) => (
+                    <div key={loungeId}>
+                      <h2 className="text-primary mb-4 text-lg font-semibold">
+                        {loungeName} ({bookings.length} booking
+                        {bookings.length !== 1 ? "s" : ""})
+                      </h2>
+                      <div className="space-y-4">
+                        {bookings.map((booking) => (
+                          <BookingItem key={booking.id} booking={booking} />
+                        ))}
+                      </div>
+                    </div>
+                  ),
+                )}
+              </div>
+            )}
+          </div>
+        </div>
+      </ErrorBoundary>
+    )
+  }
+
+  // Regular user view: Show personal bookings
   // Using mock data for demonstration
   const upcomingBookings = MOCK_BOOKINGS.filter(
     (booking) => booking.date > new Date(),

@@ -4,6 +4,7 @@ import type { HttpMethod } from "../_types"
 // Read the CSRF token from the readable cookie `csrf-token`
 export function getCsrfTokenFromCookie(): string | null {
   if (typeof document === "undefined") return null
+
   const match = document.cookie.match(/(?:^|; )csrf-token=([^;]*)/)
   return match ? decodeURIComponent(match[1]) : null
 }
@@ -15,9 +16,12 @@ export function isStateChanging(method: HttpMethod): boolean {
 }
 
 // Attach CSRF header if available and method requires it
-export function withCsrfHeader(headers: HeadersInit = {}, method: HttpMethod): HeadersInit {
+export function withCsrfHeader(
+  headers: HeadersInit = {},
+  method: HttpMethod,
+): HeadersInit {
   if (!isStateChanging(method)) return headers
   const token = getCsrfTokenFromCookie()
   if (!token) return headers
-  return { ...headers, "X-CSRF-Token": token }
+  return { ...headers, "x-csrf-token": token }
 }

@@ -15,9 +15,11 @@ import React, {
   useCallback,
   useRef,
 } from "react"
+import { useRouter } from "next/navigation"
 import { authService } from "../_services/auth.service"
 import type { User } from "../_types"
 import { apiClient } from "../_services/api"
+import { useTheme } from "next-themes"
 
 interface AuthContextType {
   user: User | null
@@ -37,6 +39,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [isLoading, setIsLoading] = useState(true)
   const [isRefreshing, setIsRefreshing] = useState(false)
   const lastRefreshAttemptRef = useRef<number>(0)
+  const { setTheme } = useTheme()
+  const router = useRouter()
+
+  // Apply user's saved theme preference
+  const applyUserTheme = useCallback(
+    (user: User | null) => {
+      if (user?.theme) {
+        setTheme(user.theme)
+      }
+    },
+    [setTheme],
+  )
 
   // Refresh access token using refresh token from HttpOnly cookie
   const refreshAccessToken = useCallback(async (): Promise<string | null> => {
@@ -90,20 +104,57 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }
 
   // Set authentication state (user + access token in memory)
-  const setAuth = useCallback((newUser: User | null, token: string | null) => {
-    setUser(newUser)
-    setAccessToken(token)
-    if (token) {
-      setSessionFlag(true)
-    }
-  }, [])
+  const setAuth = useCallback(
+    (newUser: User | null, token: string | null) => {
+      setUser(newUser)
+      applyUserTheme(newUser)
+      setAccessToken(token)
+      if (token) {
+        // Store token in localStorage for persistence
+        if (typeof window !== "undefined") {
+          try {
+            localStorage.setItem("accessToken", token)
+          } catch {
+            // ignore storage errors
+          }
+        }
+        setSessionFlag(true)
+      } else {
+        // Clear token from localStorage when logging out
+        if (typeof window !== "undefined") {
+          try {
+            localStorage.removeItem("accessToken")
+          } catch {
+            // ignore storage errors
+          }
+        }
+        setSessionFlag(false)
+      }
+    },
+    [applyUserTheme],
+  )
 
   // Clear authentication state
   const clearAuth = useCallback(() => {
     setUser(null)
     setAccessToken(null)
     setSessionFlag(false)
+    // Clear token from localStorage
+    if (typeof window !== "undefined") {
+      try {
+        localStorage.removeItem("accessToken")
+      } catch {
+        // ignore storage errors
+      }
+    }
   }, [])
+
+  // Handle authentication failure - clear auth and redirect to root
+  const handleAuthFailure = useCallback(() => {
+    console.log("[AuthProvider] Authentication failed - redirecting to root")
+    clearAuth()
+    router.push("/")
+  }, [clearAuth, router])
 
   // Refresh user data from server
   const refreshUser = useCallback(async () => {
@@ -112,11 +163,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const userData = await authService.getCurrentUser()
       if (userData) {
         setUser(userData)
+        applyUserTheme(userData)
       }
     } catch (error) {
       console.error("[AuthProvider] Failed to refresh user data:", error)
     }
-  }, [accessToken])
+  }, [accessToken, applyUserTheme])
 
   // Update API client when access token changes
   useEffect(() => {
@@ -125,15 +177,43 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   // Check authentication on mount (only once)
   useEffect(() => {
-    // Setup API client to auto-refresh token on 401
+    // Setup API client callbacks
     apiClient.setRefreshTokenCallback(refreshAccessToken)
+    apiClient.setAuthFailureCallback(handleAuthFailure)
 
     // Try to restore session using refresh token from HttpOnly cookie
     const checkAuth = async () => {
       try {
+        // First, check if we have a stored access token
+        const storedToken = localStorage.getItem("accessToken")
+
+        if (storedToken) {
+          // Set the access token and try to fetch user data
+          setAccessToken(storedToken)
+          apiClient.setAccessTokenGetter(() => storedToken)
+
+          try {
+            const userData = await authService.getCurrentUser()
+            if (userData) {
+              setUser(userData)
+              applyUserTheme(userData)
+              setSessionFlag(true)
+              setIsLoading(false)
+              return
+            } else {
+              localStorage.removeItem("accessToken")
+            }
+          } catch {
+            localStorage.removeItem("accessToken")
+          }
+        }
+
+        // If no stored token or it was invalid, try refresh token approach
+        const hasSession = hasSessionFlag()
+
         // Only try to refresh if we don't already have a token
         if (!accessToken) {
-          if (!hasSessionFlag()) {
+          if (!hasSession) {
             return
           }
 
@@ -143,7 +223,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           if (refresh?.ok && refresh.data) {
             const newToken =
               refresh.data.token || refresh.data.data?.token || null
+
             if (newToken) {
+              // Store the new token
+              localStorage.setItem("accessToken", newToken)
+
               // Set the access token in state (will update apiClient via useEffect)
               setAccessToken(newToken)
               // Manually update apiClient immediately for the next request
@@ -151,9 +235,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
               // Use the service layer to fetch the current user
               const userData = await authService.getCurrentUser()
+
               if (userData) {
                 setUser(userData)
+                applyUserTheme(userData)
+              } else {
+                setSessionFlag(false)
               }
+            } else {
+              setSessionFlag(false)
             }
           } else {
             setSessionFlag(false)
@@ -167,8 +257,66 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
 
     checkAuth()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, [handleAuthFailure, refreshAccessToken])
+
+  // Listen for storage events to sync auth state across tabs
+  useEffect(() => {
+    const handleStorageChange = async (e: StorageEvent) => {
+      // Only react to accessToken changes
+      if (e.key === "accessToken") {
+        if (e.newValue) {
+          // Token was added/updated in another tab
+          setAccessToken(e.newValue)
+          apiClient.setAccessTokenGetter(() => e.newValue)
+
+          // Fetch user data
+          try {
+            const userData = await authService.getCurrentUser()
+            if (userData) {
+              setUser(userData)
+              applyUserTheme(userData)
+              setSessionFlag(true)
+            }
+          } catch (error) {
+            console.error("Failed to sync user data from storage event:", error)
+          }
+        } else {
+          // Token was removed
+          setUser(null)
+          setAccessToken(null)
+          setSessionFlag(false)
+        }
+      }
+    }
+
+    window.addEventListener("storage", handleStorageChange)
+    return () => window.removeEventListener("storage", handleStorageChange)
+  }, [applyUserTheme])
+
+  // Listen for verification completion messages from popup windows
+  useEffect(() => {
+    const handleMessage = (event: MessageEvent) => {
+      try {
+        if (!event?.data) return
+        const { type, token, user } = event.data
+        if (type === "VERIFICATION_COMPLETED" && token) {
+          try {
+            localStorage.setItem("accessToken", token)
+          } catch {}
+          setAccessToken(token)
+          apiClient.setAccessTokenGetter(() => token)
+          setUser(user || null)
+          applyUserTheme(user || null)
+          setSessionFlag(true)
+        }
+      } catch {
+        // ignore
+      }
+    }
+
+    window.addEventListener("message", handleMessage)
+    return () => window.removeEventListener("message", handleMessage)
+  }, [applyUserTheme])
 
   return (
     <AuthContext.Provider

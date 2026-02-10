@@ -17,11 +17,11 @@ const ServiceWorkerRegister = () => {
       window.addEventListener("load", () => {
         navigator.serviceWorker
           .register("/sw.js")
-          .then((registration) => {
-            console.log("SW registered: ", registration)
+          .then(() => {
+            // Service worker registered successfully
           })
-          .catch((registrationError) => {
-            console.log("SW registration failed: ", registrationError)
+          .catch(() => {
+            // Service worker registration failed
           })
       })
     } else {

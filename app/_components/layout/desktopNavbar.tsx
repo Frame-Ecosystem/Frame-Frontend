@@ -8,7 +8,7 @@ import { Card, CardContent } from "../ui/card"
 import Image from "next/image"
 import UserSession from "../profile/user-session"
 import NotificationButton from "../common/notification-button"
-import PWAInstallButton from "../common/pwaInstallButton"
+import { InstallAppButton } from "../ui/install-app-button"
 import { useAuth } from "../../_providers/auth"
 import { NAV_LINKS } from "../../_constants/navigation"
 import { getProfilePath, getHomePath } from "../../_lib/profile"
@@ -30,7 +30,7 @@ const DesktopNavbar = () => {
     }
   }, [resolvedTheme])
   return (
-    <Card className="bg-card border-b-primary sticky top-0 right-0 left-0 z-50 hidden rounded-none border-b shadow-xl transition-all duration-300 lg:block">
+    <Card className="bg-card border-b-primary fixed top-0 right-0 left-0 z-20 hidden rounded-none border-b shadow-xl transition-all duration-300 lg:block">
       <CardContent className="flex flex-row items-center justify-between p-3 md:p-5 lg:px-10 lg:py-5">
         {/* LOGO */}
         <Link
@@ -50,7 +50,13 @@ const DesktopNavbar = () => {
         {/* NAVIGATION LINKS */}
         {!isLoading && user && (
           <nav className="bg-background/50 border-border/30 hidden rounded-full border px-6 py-2 backdrop-blur-sm lg:mb-0 lg:flex lg:items-center lg:gap-2">
-            {NAV_LINKS.map((link) => {
+            {NAV_LINKS.filter((link) => {
+              // Hide centers page for lounge users
+              if (link.href === "/centers" && user.type === "lounge") {
+                return false
+              }
+              return true
+            }).map((link) => {
               const isProfileLink = link.href === "/profile"
               const isHomeLink = link.href === "/home"
               let isActive = false
@@ -59,10 +65,7 @@ const DesktopNavbar = () => {
                   pathname.startsWith("/profile") ||
                   pathname.startsWith("/admin")
               } else if (isHomeLink) {
-                isActive =
-                  pathname === "/home" ||
-                  pathname === "/loungeHome" ||
-                  pathname === "/clientHome"
+                isActive = pathname === "/home"
               } else if (link.href === "/") {
                 isActive = pathname === "/"
               } else {
@@ -73,7 +76,7 @@ const DesktopNavbar = () => {
               const href = isProfileLink
                 ? getProfilePath(user)
                 : isHomeLink
-                  ? getHomePath(user)
+                  ? getHomePath()
                   : link.href
 
               return (
@@ -104,8 +107,8 @@ const DesktopNavbar = () => {
         )}
         {/* ACTION BUTTONS */}
         <div className="flex items-center gap-2 md:gap-2.5 lg:gap-3">
-          {/* PWA Install Button */}
-          <PWAInstallButton />
+          {/* Install App Button */}
+          <InstallAppButton />
           {/* Notification Button */}
           <NotificationButton />
           {/* Settings Button (icon only, links to /settings) */}

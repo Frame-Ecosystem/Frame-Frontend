@@ -3,6 +3,7 @@ import type {
   Service,
   CreateLoungeServicePayload,
   LoungeServiceItem,
+  LoungeAgentsResponse,
 } from "../_types"
 
 class LoungeService {
@@ -244,6 +245,18 @@ class LoungeService {
       )
     } catch (error) {
       console.error("Failed to update opening hours:", error)
+      throw error
+    }
+  }
+
+  async getAgentsByLoungeId(loungeId: string): Promise<LoungeAgentsResponse> {
+    try {
+      const response = await apiClient.get<any>(
+        `/v1/lounge-services/lounge/${loungeId}/agents`,
+      )
+      return response
+    } catch (error) {
+      console.error("Failed to fetch lounge agents:", error)
       throw error
     }
   }

@@ -87,13 +87,13 @@ export default function SettingsPage() {
             <ThemeSelector />
 
             {/* === LOCATION SELECTOR === */}
-            {user && <LocationSelector />}
+            {user && user.type !== "admin" && <LocationSelector />}
 
             {/* === OPENING HOURS SELECTOR (lounge users only) === */}
             {user && user.type === "lounge" && <OpeningHoursSelector />}
 
             {/* === GENDER SELECTOR === */}
-            {user && <GenderSelector />}
+            {user && user.type !== "admin" && <GenderSelector />}
 
             {/* === SERVICE MANAGEMENT LINK (collapsible for lounge users) === */}
             {user && user.type === "lounge" && (

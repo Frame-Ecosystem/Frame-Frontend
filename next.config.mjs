@@ -28,7 +28,7 @@ const nextConfig = {
     return [
       {
         source: '/v1/:path*',
-        destination: 'http://localhost:3000/v1/:path*',
+        destination: 'http://192.168.100.11:3000/v1/:path*',
       },
     ]
   },

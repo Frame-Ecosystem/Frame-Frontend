@@ -2,7 +2,6 @@
 import { Shield } from "lucide-react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { useScrollPosition } from "../../_hooks/useScrollPosition"
 import { useAuth } from "../../_providers/auth"
 import { getProfilePath, isProfilePath, getHomePath } from "../../_lib/profile"
 import { NAV_LINKS } from "../../_constants/navigation"
@@ -10,7 +9,6 @@ import { NAV_LINKS } from "../../_constants/navigation"
 const MobileNavbar = () => {
   const { user, isLoading } = useAuth()
   const pathname = usePathname()
-  const isVisible = useScrollPosition()
   const profilePath = getProfilePath(user)
   const isProfileActive =
     isProfilePath(pathname) ||
@@ -19,31 +17,34 @@ const MobileNavbar = () => {
   // Hide navbar while auth state is loading or user is not authenticated
   if (isLoading || !user) return null
 
+  // Filter navigation links based on user type
+  const filteredNavLinks = NAV_LINKS.filter((link) => {
+    // Hide centers page for lounge users
+    if (link.href === "/centers" && user.type === "lounge") {
+      return false
+    }
+    return true
+  })
+
   return (
     <>
       <nav
-        className={
-          `bg-card/95 border-border fixed right-0 bottom-0 left-0 z-50 h-[72px] border-t shadow-[0_-2px_12px_0_rgba(0,0,0,0.04)] backdrop-blur-sm transition-transform duration-300 lg:hidden` +
-          (isVisible ? " translate-y-0" : " translate-y-22")
-        }
+        className={`bg-card/95 border-border fixed right-0 bottom-0 left-0 z-20 h-[85px] border-t shadow-[0_-2px_12px_0_rgba(0,0,0,0.04)] backdrop-blur-sm lg:hidden`}
       >
-        <div className="relative flex h-full items-center justify-between gap-1 px-2 py-3">
-          {NAV_LINKS.map((link) => {
+        <div className="relative flex h-full items-center justify-between gap-1 px-2 py-3 pb-6">
+          {filteredNavLinks.map((link) => {
             const isProfileLink = link.href === "/profile"
             const isHomeLink = link.href === "/home"
             const href = isProfileLink
               ? profilePath
               : isHomeLink
-                ? getHomePath(user)
+                ? getHomePath()
                 : link.href
             let isActive = false
             if (isProfileLink) {
               isActive = isProfileActive
             } else if (isHomeLink) {
-              isActive =
-                pathname === "/home" ||
-                pathname === "/loungeHome" ||
-                pathname === "/clientHome"
+              isActive = pathname === "/home"
             } else if (link.href === "/") {
               isActive = pathname === "/"
             } else {

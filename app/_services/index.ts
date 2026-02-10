@@ -9,6 +9,7 @@ export { serviceCategoryService } from "./service-category.service"
 export { serviceSuggestionsService } from "./service-suggestions.service"
 export { adminService } from "./admin.service"
 export { agentService } from "./agent.service"
+export { PostService } from "./post.service"
 export { default as clientService } from "./client.service"
 export type {
   Center,
@@ -24,4 +25,10 @@ export type {
   UpdateAgentDto,
   AgentFilters,
   AgentStats,
+  Post,
+  Comment,
+  CreatePostInput,
+  CreateCommentInput,
+  LikePostInput,
+  LikeCommentInput,
 } from "../_types"

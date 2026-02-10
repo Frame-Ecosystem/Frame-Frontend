@@ -1,7 +1,7 @@
 import { format } from "date-fns"
 import { Card, CardContent } from "../ui/card"
 import { Center, CenterService } from "../../_types"
-import { ptBR } from "date-fns/locale"
+import { enUS } from "date-fns/locale"
 
 interface BookingSummaryProps {
   service: Pick<CenterService, "name" | "price">
@@ -26,12 +26,12 @@ const BookingSummary = ({
           </p>
         </div>
 
-        {/* Date row - formatted in Portuguese (e.g., "15 de Janeiro") */}
+        {/* Date row - formatted in English (e.g., "January 15") */}
         <div className="flex items-center justify-between">
           <h2 className="text-sm text-gray-400">Date</h2>
           <p className="text-sm">
-            {format(selectedDate, "d 'de' MMMM", {
-              locale: ptBR,
+            {format(selectedDate, "MMMM d", {
+              locale: enUS,
             })}
           </p>
         </div>

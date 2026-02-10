@@ -1,7 +1,7 @@
 "use client"
 
 import { MailIcon, PhoneIcon, ChevronDown } from "lucide-react"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import PhoneItem from "./phone-item"
 import { Button } from "../ui/button"
 import { toast } from "sonner"
@@ -9,23 +9,32 @@ import { toast } from "sonner"
 interface ContactInfoProps {
   phones?: string[]
   email?: string
-  emailVerified?: boolean | string
 }
 
-export default function ContactInfo({
-  phones = [],
-  email,
-  emailVerified,
-}: ContactInfoProps) {
-  const [isExpanded, setIsExpanded] = useState(true)
+export default function ContactInfo({ phones = [], email }: ContactInfoProps) {
+  const [isExpanded, setIsExpanded] = useState(false)
+  const [isMobile, setIsMobile] = useState(false)
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768)
+    }
+
+    checkMobile()
+    window.addEventListener("resize", checkMobile)
+    return () => window.removeEventListener("resize", checkMobile)
+  }, [])
 
   const handleCopyEmail = (email: string) => {
     navigator.clipboard.writeText(email)
     toast.success("Email copied successfully!")
   }
 
-  // Don't truncate email - let CSS handle responsive truncation
-  const displayEmail = email
+  // Truncate email to 15 characters with ellipsis if longer (mobile only)
+  const displayEmail =
+    email && email.length > 15 && isMobile
+      ? `${email.substring(0, 15)}...`
+      : email
 
   return (
     <div className="mt-4">
@@ -76,11 +85,6 @@ export default function ContactInfo({
                     </Button>
                   </a>
                 </div>
-              </div>
-            ) : emailVerified === false || emailVerified === "false" ? (
-              <div className="text-muted-foreground flex items-center gap-2 text-sm">
-                <MailIcon />
-                <p>Email not verified</p>
               </div>
             ) : null}
           </div>

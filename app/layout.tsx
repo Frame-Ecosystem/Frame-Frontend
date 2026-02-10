@@ -10,7 +10,6 @@ import { SpeedInsights } from "@vercel/speed-insights/next"
 
 // Internal components
 import ProgressProvider from "./_components/forms/progress-bar"
-import Header from "./_components/layout/header"
 import MainContentWrapper from "./_components/layout/mainContentWrapper"
 
 // Context providers
@@ -18,9 +17,12 @@ import { ThemeProviderComponent } from "./_providers/theme"
 import { SwipeNavigationProvider } from "./_providers/swipe-navigation"
 import { AuthProvider } from "./_providers/auth"
 import { QueryProvider } from "./_providers/query"
-import FooterDesktop from "./_components/layout/footerDesktop"
 import AuthGuard from "./_components/auth/AuthGuard"
 import ServiceWorkerRegister from "./_components/common/serviceWorkerRegister"
+
+// Client component to handle pathname-based conditional rendering
+import ConditionalHeader from "./_components/layout/conditional-header"
+import ConditionalFooter from "./_components/layout/conditional-footer"
 
 const inter = Inter({ subsets: ["latin"] })
 
@@ -173,13 +175,13 @@ export default function RootLayout({
                   {/* Uses flexbox to keep footer at bottom of viewport */}
                   <div className="flex h-full flex-col">
                     {/* Header handles top bars and navigation visibility */}
-                    <Header />
+                    <ConditionalHeader />
                     {/* Main content area - auth-guarded (except root) */}
                     <AuthGuard>
                       <MainContentWrapper>{children}</MainContentWrapper>
                     </AuthGuard>
                     {/* Footer - always at the bottom for desktop */}
-                    <FooterDesktop />
+                    <ConditionalFooter />
                   </div>
                 </ProgressProvider>
               </SwipeNavigationProvider>

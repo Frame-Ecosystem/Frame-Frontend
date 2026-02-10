@@ -123,9 +123,6 @@ export function AgentList({
   const handleDelete = async () => {
     if (!agentToDelete) return
 
-    console.log("Attempting to delete agent:", agentToDelete)
-    console.log("Agent ID:", agentToDelete._id, "Agent id:", agentToDelete.id)
-
     // Validate that the agent has a valid ID
     const agentId = agentToDelete._id || agentToDelete.id
     if (!agentId) {

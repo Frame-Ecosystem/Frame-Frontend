@@ -1,7 +1,6 @@
 "use client"
 
-import { MailIcon, PhoneIcon, ChevronDown, Info } from "lucide-react"
-import { EmailVerification } from "../auth/emailVerification"
+import { MailIcon, PhoneIcon, ChevronDown, Info, MapPin } from "lucide-react"
 import { formatMemberSinceDate } from "../../_lib/utils"
 import type { User } from "../../_types"
 
@@ -23,6 +22,12 @@ export function AccountInformation({
   setOpenPhoneSection,
   setOpenSettings,
 }: AccountInformationProps) {
+  const displayName =
+    user?.loungeTitle ||
+    (user?.firstName || user?.lastName
+      ? `${user?.firstName ?? ""} ${user?.lastName ?? ""}`.trim()
+      : user?.email)
+
   return (
     <div className="space-y-2">
       <button
@@ -47,6 +52,71 @@ export function AccountInformation({
       {isAccountInfoOpen && (
         <div className="border-border bg-card/50 rounded-lg border p-4 backdrop-blur-sm">
           <div className="space-y-4">
+            {/* Information (title + location) */}
+            <div className="bg-background/50 rounded-lg p-3">
+              <div className="flex items-start gap-3">
+                <div className="bg-primary/10 rounded-lg p-2">
+                  <Info className="text-primary h-4 w-4" />
+                </div>
+                <div className="flex-1">
+                  <p className="text-muted-foreground text-xs tracking-wide uppercase">
+                    {user?.type === "lounge" ? "TITLE" : "FULL NAME"}
+                  </p>
+                  <h3 className="mt-1 text-lg font-semibold">
+                    {user?.type === "lounge"
+                      ? user?.loungeTitle || displayName
+                      : user?.firstName || user?.lastName
+                        ? `${user?.firstName ?? ""} ${user?.lastName ?? ""}`.trim()
+                        : displayName}
+                  </h3>
+                  {user?.type && (
+                    <p className="text-muted-foreground mt-1 text-sm">
+                      {user.type}
+                    </p>
+                  )}
+
+                  {(user?.location?.placeName || user?.location?.address) && (
+                    <div className="text-muted-foreground mt-3 flex items-start gap-2 text-sm">
+                      <MapPin className="text-primary mt-0.5 h-4 w-4 flex-shrink-0" />
+                      <div className="flex-1">
+                        <p className="whitespace-pre-line">
+                          {user.location?.placeName ?? user.location?.address}
+                        </p>
+                        {user.location?.latitude &&
+                          user.location?.longitude && (
+                            <button
+                              onClick={() => {
+                                const mapsUrl = `https://www.google.com/maps?q=${user.location?.latitude},${user.location?.longitude}`
+                                window.open(mapsUrl, "_blank")
+                              }}
+                              className="text-primary hover:text-primary/80 mt-1 text-sm transition-colors"
+                            >
+                              See in map
+                            </button>
+                          )}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Email */}
+            <div className="bg-background/50 rounded-lg p-3">
+              <div className="flex flex-1 items-center gap-3">
+                <div className="bg-primary/10 rounded-lg p-2">
+                  <MailIcon className="text-primary h-4 w-4" />
+                </div>
+                <div className="flex-1">
+                  <p className="text-muted-foreground text-xs tracking-wide uppercase">
+                    Email
+                  </p>
+                  <p className="font-medium">{user?.email}</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Phone */}
             <div className="bg-background/50 flex items-center gap-3 rounded-lg p-3">
               <div className="bg-primary/10 rounded-lg p-2">
                 <PhoneIcon className="text-primary h-4 w-4" />
@@ -71,26 +141,7 @@ export function AccountInformation({
               </div>
             </div>
 
-            <div className="bg-background/50 rounded-lg p-3">
-              <div className="flex flex-1 items-center gap-3">
-                <div className="bg-primary/10 rounded-lg p-2">
-                  <MailIcon className="text-primary h-4 w-4" />
-                </div>
-                <div className="flex-1">
-                  <p className="text-muted-foreground text-xs tracking-wide uppercase">
-                    Email
-                  </p>
-                  <p className="font-medium">{user?.email}</p>
-                </div>
-              </div>
-
-              <div className="order-first mt-4 self-end lg:order-last lg:self-auto">
-                <EmailVerification
-                  email={user?.email || ""}
-                  isVerified={user?.emailVerification?.[0]?.isVerified}
-                />
-              </div>
-            </div>
+            {/* Location now displayed under Information */}
 
             <div className="space-y-2 text-sm">
               <div className="flex justify-between">

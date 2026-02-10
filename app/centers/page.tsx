@@ -59,6 +59,13 @@ export default function CentersPage() {
     }
   }, [isLoading, user, router])
 
+  // Redirect lounge users away from centers page
+  useEffect(() => {
+    if (!isLoading && user && user.type === "lounge") {
+      router.push("/home")
+    }
+  }, [isLoading, user, router])
+
   // Auto-scroll effect for popular services
   useEffect(() => {
     const container = scrollContainerRef.current
@@ -151,11 +158,8 @@ export default function CentersPage() {
       return
     }
 
-    if (user.type !== "client" && user.type !== "admin") {
-      setError("This page is only accessible to clients.")
-      setLoading(false)
-      return
-    }
+    // Allow both clients and admins to attempt accessing lounges
+    // Backend may restrict admins, but let them try
 
     try {
       setLoading(true)

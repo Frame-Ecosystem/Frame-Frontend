@@ -41,28 +41,34 @@ const UserSession = ({ compact }: { compact?: boolean } = {}) => {
     <Button
       variant="ghost"
       size="icon"
-      className="hover:bg-primary/10 flex items-center gap-2 rounded-full"
+      className="hover:bg-primary/10 relative flex items-center gap-2 rounded-full"
     >
       {isLoggedIn ? (
-        <Avatar
-          className={`${compact ? "h-8 w-8" : "h-12 w-12"} ring-primary/20 ring-1`}
-        >
-          {user?.profileImage && (
-            <AvatarImage
-              src={
-                typeof user.profileImage === "string"
-                  ? user.profileImage
-                  : user.profileImage.url
-              }
-              alt={getUserDisplayName(user)}
-            />
-          )}
-          <AvatarFallback
-            className={`bg-primary/10 text-primary font-medium ${compact ? "text-xs" : "text-sm"}`}
+        <div className="relative">
+          <Avatar
+            className={`${compact ? "h-8 w-8" : "h-12 w-12"} ring-primary/50 ring-2`}
           >
-            {getUserInitials(user)}
-          </AvatarFallback>
-        </Avatar>
+            {user?.profileImage && (
+              <AvatarImage
+                src={
+                  typeof user.profileImage === "string"
+                    ? user.profileImage
+                    : user.profileImage.url
+                }
+                alt={getUserDisplayName(user)}
+              />
+            )}
+            <AvatarFallback
+              className={`bg-primary/10 text-primary font-medium ${compact ? "text-xs" : "text-sm"}`}
+            >
+              {getUserInitials(user)}
+            </AvatarFallback>
+          </Avatar>
+          {/* Online indicator */}
+          <div
+            className={`absolute -right-0.5 -bottom-0.5 ${compact ? "h-2 w-2" : "h-2.5 w-2.5"} ring-background rounded-full bg-green-500 ring-1`}
+          />
+        </div>
       ) : (
         <div
           className={`border-border flex items-center justify-center rounded-full border p-4 ${compact ? "h-10 w-10 p-1" : "h-12 w-12 p-1"}`}
@@ -93,7 +99,10 @@ const UserSession = ({ compact }: { compact?: boolean } = {}) => {
 
         {/* Sign-in dialog for adding another account */}
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-          <DialogContent className="w-[90%]">
+          <DialogContent
+            className="max-h-[90vh] w-[90%] overflow-y-auto"
+            onInteractOutside={(e) => e.preventDefault()}
+          >
             <SignInDialog
               onSuccess={() => {
                 setDialogOpen(false)
@@ -108,7 +117,10 @@ const UserSession = ({ compact }: { compact?: boolean } = {}) => {
         </Dialog>
 
         <Dialog open={signupOpen} onOpenChange={setSignupOpen}>
-          <DialogContent className="w-[90%]">
+          <DialogContent
+            className="w-[90%]"
+            onInteractOutside={(e) => e.preventDefault()}
+          >
             <SignupFlow
               onSuccess={() => {
                 setSignupOpen(false)
@@ -130,7 +142,10 @@ const UserSession = ({ compact }: { compact?: boolean } = {}) => {
     <>
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogTrigger asChild>{userButton}</DialogTrigger>
-        <DialogContent className="w-[90%]">
+        <DialogContent
+          className="max-h-[90vh] w-[90%] overflow-y-auto"
+          onInteractOutside={(e) => e.preventDefault()}
+        >
           <SignInDialog
             onSuccess={() => {
               setDialogOpen(false)
@@ -145,7 +160,10 @@ const UserSession = ({ compact }: { compact?: boolean } = {}) => {
       </Dialog>
 
       <Dialog open={signupOpen} onOpenChange={setSignupOpen}>
-        <DialogContent className="w-[90%]">
+        <DialogContent
+          className="w-[90%]"
+          onInteractOutside={(e) => e.preventDefault()}
+        >
           <SignupFlow
             onSuccess={() => {
               setSignupOpen(false)

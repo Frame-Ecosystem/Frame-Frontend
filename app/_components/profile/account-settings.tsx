@@ -262,7 +262,7 @@ export function AccountSettings({
         return
       }
 
-      const fullPhoneNumber = `216${phoneNumber}`
+      const fullPhoneNumber = phoneNumber
       await updatePhoneMutation.mutateAsync(fullPhoneNumber)
       toast.success("Phone number updated successfully")
     } catch (error: any) {
@@ -381,7 +381,9 @@ export function AccountSettings({
                               e.target.value,
                             )
                           }
-                          placeholder="Enter your lounge title"
+                          placeholder={
+                            user?.loungeTitle || "Enter your lounge title"
+                          }
                           className="mt-1"
                         />
                       </div>
@@ -400,7 +402,9 @@ export function AccountSettings({
                                 e.target.value,
                               )
                             }
-                            placeholder="Enter your first name"
+                            placeholder={
+                              user?.firstName || "Enter your first name"
+                            }
                             className="mt-1"
                           />
                         </div>
@@ -417,7 +421,9 @@ export function AccountSettings({
                                 e.target.value,
                               )
                             }
-                            placeholder="Enter your last name"
+                            placeholder={
+                              user?.lastName || "Enter your last name"
+                            }
                             className="mt-1"
                           />
                         </div>
@@ -457,8 +463,8 @@ export function AccountSettings({
                     <div>
                       <Label htmlFor="phoneNumber">Phone Number</Label>
                       <div className="relative mt-1">
-                        <span className="absolute top-1/2 left-3 -translate-y-1/2 transform text-lg">
-                          🇹🇳
+                        <span className="text-muted-foreground absolute top-1/2 left-3 -translate-y-1/2 transform text-sm font-medium">
+                          TN 216
                         </span>
                         <Input
                           ref={phoneRef}
@@ -477,8 +483,12 @@ export function AccountSettings({
                               e.target.value,
                             )
                           }
-                          placeholder="12345678"
-                          className="pl-10"
+                          placeholder={
+                            user?.phoneNumber
+                              ? user.phoneNumber.replace(/^216/, "")
+                              : "12345678"
+                          }
+                          className="pl-16"
                           maxLength={8}
                         />
                       </div>
@@ -525,9 +535,10 @@ export function AccountSettings({
                           handleProfileInputChange("bio", e.target.value)
                         }
                         placeholder={
-                          user?.type === "client"
+                          user?.bio ||
+                          (user?.type === "client"
                             ? "Tell us about yourself..."
-                            : "Tell us about your services..."
+                            : "Tell us about your services...")
                         }
                         className="mt-1 min-h-[100px]"
                         maxLength={255}

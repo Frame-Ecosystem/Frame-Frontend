@@ -5,7 +5,7 @@ import { Avatar, AvatarImage } from "../ui/avatar"
 import { Badge } from "../ui/badge"
 import { Card, CardContent } from "../ui/card"
 import { format, isFuture } from "date-fns"
-import { ptBR } from "date-fns/locale"
+import { enUS } from "date-fns/locale"
 import {
   Sheet,
   SheetClose,
@@ -107,13 +107,13 @@ const BookingItem = ({ booking }: BookingItemProps) => {
             {/* RIGHT SECTION: Date and time display */}
             <div className="flex flex-col items-center justify-center border-l-2 border-solid px-5">
               <p className="text-sm capitalize">
-                {format(booking.date, "MMMM", { locale: ptBR })}
+                {format(booking.date, "MMMM", { locale: enUS })}
               </p>
               <p className="text-2xl">
-                {format(booking.date, "dd", { locale: ptBR })}
+                {format(booking.date, "dd", { locale: enUS })}
               </p>
               <p className="text-sm">
-                {format(booking.date, "HH:mm", { locale: ptBR })}
+                {format(booking.date, "HH:mm", { locale: enUS })}
               </p>
             </div>
           </CardContent>

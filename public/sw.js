@@ -1,7 +1,7 @@
 const CACHE_NAME = 'lookisi-v1';
 const urlsToCache = [
   '/',
-  '/images/lookisiLightPng.png',
+  '/images/lookisiDarkPng.png',
   // Add other critical resources
 ];
 
@@ -19,7 +19,7 @@ self.addEventListener('install', (event) => {
 self.addEventListener('fetch', (event) => {
   // Skip caching for API requests
   if (event.request.url.includes('/v1/') ||
-      event.request.url.includes('localhost:3000')) {
+      event.request.url.includes('192.168.100.11:3000')) {
     return; // Let the request go through normally
   }
 

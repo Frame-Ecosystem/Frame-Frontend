@@ -11,8 +11,21 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     if (isLoading) return
-    // Allow the root path to remain public
-    if (!user && pathname !== "/") {
+
+    // Allow certain public routes even when not authenticated
+    const publicRoutes = [
+      "/",
+      "/auth/google/callback",
+      "/auth/google/error",
+      "/auth/forgot-password",
+      "/auth/reset-password",
+      "/auth/verify",
+      "/auth/check-email",
+    ]
+    const isPublicRoute = publicRoutes.includes(pathname)
+
+    // Allow the root path and other public routes to remain accessible
+    if (!user && !isPublicRoute) {
       router.replace("/")
     }
   }, [isLoading, user, pathname, router])
@@ -20,7 +33,19 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
   // While loading or redirecting, render nothing to avoid flicker
   if (isLoading) return null
 
-  if (!user && pathname !== "/") return null
+  // Allow certain public routes even when not authenticated
+  const publicRoutes = [
+    "/",
+    "/auth/google/callback",
+    "/auth/google/error",
+    "/auth/forgot-password",
+    "/auth/reset-password",
+    "/auth/verify",
+    "/auth/check-email",
+  ]
+  const isPublicRoute = publicRoutes.includes(pathname)
+
+  if (!user && !isPublicRoute) return null
 
   return <>{children}</>
 }

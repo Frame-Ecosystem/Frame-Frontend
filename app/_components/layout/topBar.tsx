@@ -6,9 +6,8 @@ import Link from "next/link"
 import React, { useEffect, useState } from "react"
 import UserSession from "../profile/user-session"
 import NotificationButton from "../common/notification-button"
-import PWAInstallButton from "../common/pwaInstallButton"
+import { InstallAppButton } from "../ui/install-app-button"
 import { Button } from "../ui/button"
-import { useScrollPosition } from "../../_hooks/useScrollPosition"
 import { useRouter } from "next/navigation"
 import { useAuth } from "../../_providers/auth"
 import { useTheme } from "next-themes"
@@ -28,7 +27,6 @@ const TopBar: React.FC<TopBarProps> = ({
 }) => {
   const { resolvedTheme } = useTheme()
   const [logoSrc, setLogoSrc] = useState("/images/lookisiDarkPng.png")
-  const isVisible = useScrollPosition()
   const { user } = useAuth()
   const router = useRouter()
 
@@ -42,13 +40,13 @@ const TopBar: React.FC<TopBarProps> = ({
   }, [resolvedTheme])
   return (
     <div
-      className={`bg-background border-border fixed top-0 right-0 left-0 z-50 flex items-center justify-between gap-2 border-b px-3 py-3 pr-6 shadow-[0_2px_12px_0_rgba(0,0,0,0.04)] backdrop-blur-sm transition-transform duration-300 lg:py-6 lg:pr-20 ${isVisible ? "translate-y-0" : "-translate-y-full"} ${user ? "lg:hidden" : ""} ${className}`}
+      className={`bg-background border-border border-b-primary fixed top-0 right-0 left-0 z-20 flex items-center justify-between gap-2 border-b px-3 py-3 pr-6 shadow-xl backdrop-blur-sm md:py-5 lg:px-10 lg:py-5 lg:pr-20 ${user ? "lg:hidden" : ""} ${className}`}
     >
       {/* LOGO - flex start */}
       <div className="flex flex-shrink-0 items-center">
         <Link
           href="/"
-          className="flex items-center gap-2 pt-2 transition-opacity duration-200 hover:opacity-75 lg:ml-20"
+          className="flex items-center gap-2 transition-opacity duration-200 hover:opacity-75 lg:ml-20"
         >
           <Image
             alt="Lookisi"
@@ -63,8 +61,6 @@ const TopBar: React.FC<TopBarProps> = ({
       </div>
       {/* Actions - flex end: show notifications only when authenticated, add Get Started */}
       <div className="ml-auto flex items-center gap-6 lg:gap-16">
-        {user && <NotificationButton />}
-        <PWAInstallButton />
         {(showGetStarted ?? !user) && !(externalIsLoading ?? false) && (
           <Button
             size="sm"
@@ -81,6 +77,8 @@ const TopBar: React.FC<TopBarProps> = ({
             Get Started
           </Button>
         )}
+        <InstallAppButton />
+        {user && <NotificationButton />}
         <UserSession compact />
       </div>
     </div>

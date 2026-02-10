@@ -61,7 +61,6 @@ const PWAInstallButton = () => {
       deferredPrompt.prompt()
       const { outcome } = await deferredPrompt.userChoice
       if (outcome === "accepted") {
-        console.log("User accepted the install prompt")
         setIsInstalled(true)
       }
       setDeferredPrompt(null)
@@ -98,7 +97,7 @@ const PWAInstallButton = () => {
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              📱 Install forLook App
+              📱 Install lookisi App
             </DialogTitle>
             <DialogDescription>
               Follow these simple steps to add the app to your home screen:

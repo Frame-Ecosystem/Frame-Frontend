@@ -18,13 +18,6 @@ export interface LocationData {
   _id?: string
 }
 
-export interface EmailVerification {
-  _id: string
-  isVerified: boolean
-  verifCode?: string | null
-  verifCodeExpiresAt?: string | null
-}
-
 export interface User {
   id?: string
   _id?: string
@@ -39,10 +32,10 @@ export interface User {
   gender?: Gender
   createdAt?: string
   location?: LocationData
-  emailVerification?: EmailVerification[]
   emailVerified?: boolean
   verified?: boolean
   email_verified?: boolean
+  theme?: string
 }
 
 export interface AuthResponse {
@@ -251,6 +244,67 @@ export interface AgentStats {
   total: number
   active: number
   blocked: number
+}
+
+// Social Media / Posts Types
+export interface Post {
+  _id: string
+  id: string
+  author: User
+  content: string
+  images?: string[]
+  likes: string[] // Array of user IDs who liked the post
+  comments: Comment[]
+  createdAt: string
+  updatedAt: string
+}
+
+export interface Comment {
+  _id: string
+  id: string
+  author: User
+  content: string
+  likes: string[] // Array of user IDs who liked the comment
+  createdAt: string
+  updatedAt: string
+}
+
+export interface CreatePostInput {
+  content: string
+  images?: File[]
+}
+
+export interface CreateCommentInput {
+  postId: string
+  content: string
+}
+
+export interface LikePostInput {
+  postId: string
+}
+
+export interface LikeCommentInput {
+  commentId: string
+}
+
+export interface LoungeAgent {
+  _id: string
+  agentName: string
+  loungeId: string
+  profileImage: ProfileImage | string
+  isBlocked: boolean
+  createdAt: string
+  updatedAt: string
+}
+
+export interface LoungeAgentsResponse {
+  lounge: {
+    _id: string
+    loungeTitle: string
+    email: string
+  }
+  agents: LoungeAgent[]
+  totalAgents: number
 }
 
 const typesDefault = {}

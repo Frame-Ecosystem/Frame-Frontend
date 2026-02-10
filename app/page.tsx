@@ -5,7 +5,6 @@ import { useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { Button } from "./_components/ui/button"
 import Image from "next/image"
-import Link from "next/link"
 import { ErrorBoundary } from "./_components/common/errorBoundary"
 import { getHomePath } from "./_lib/profile"
 import { useTheme } from "next-themes"
@@ -19,6 +18,7 @@ import {
 } from "lucide-react"
 import { useState } from "react"
 import SignupFlow from "./_components/auth/signup-flow"
+import SignInDialog from "./_components/auth/sign-in-dialog"
 import { Dialog, DialogContent } from "./_components/ui/dialog"
 import TopBar from "./_components/layout/topBar"
 
@@ -27,11 +27,12 @@ const LandingPage = () => {
   const router = useRouter()
   const { resolvedTheme, theme } = useTheme()
   const [signupOpen, setSignupOpen] = useState(false)
+  const [signinOpen, setSigninOpen] = useState(false)
 
   // Redirect authenticated users to their respective home
   useEffect(() => {
     if (!isLoading && user) {
-      router.push(getHomePath(user))
+      router.push(getHomePath())
     }
   }, [user, isLoading, router])
 
@@ -78,20 +79,33 @@ const LandingPage = () => {
                 environments.
               </p>
               <div className="flex flex-col justify-center gap-4 sm:flex-row">
-                <Button size="lg" className="px-8 py-6 text-lg" asChild>
-                  <Link href="/choose-type">
-                    Start Booking Now
-                    <ArrowRight className="ml-2 h-5 w-5" />
-                  </Link>
+                <Button
+                  size="lg"
+                  className="px-8 py-6 text-lg"
+                  onClick={() => setSigninOpen(true)}
+                >
+                  Start Booking Now
+                  <ArrowRight className="ml-2 h-5 w-5" />
                 </Button>
                 <Button
                   size="lg"
                   variant="outline"
                   className="px-8 py-6 text-lg"
-                  asChild
+                  onClick={() => setSigninOpen(true)}
                 >
-                  <Link href="/choose-type">Browse Services</Link>
+                  Browse Services
                 </Button>
+              </div>
+              <div className="mt-4 text-center">
+                <p className="text-muted-foreground">
+                  Already have an account?{" "}
+                  <button
+                    onClick={() => setSigninOpen(true)}
+                    className="text-primary font-medium hover:underline"
+                  >
+                    Sign in here
+                  </button>
+                </p>
               </div>
               <div className="bg-primary/10 text-primary mt-6 inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium">
                 <Sparkles className="h-4 w-4" />
@@ -185,12 +199,10 @@ const LandingPage = () => {
               size="lg"
               variant="secondary"
               className="px-8 py-6 text-lg"
-              asChild
+              onClick={() => setSignupOpen(true)}
             >
-              <Link href="/choose-type">
-                Create Your Account
-                <ArrowRight className="ml-2 h-5 w-5" />
-              </Link>
+              Create Your Account
+              <ArrowRight className="ml-2 h-5 w-5" />
             </Button>
           </div>
         </section>
@@ -198,7 +210,7 @@ const LandingPage = () => {
         {/* Footer */}
         <footer className="border-border border-t px-4 py-8 sm:px-6 lg:px-8">
           <div className="mx-auto max-w-7xl">
-            <div className="flex flex-col items-center justify-between md:flex-row">
+            <div className="flex flex-col items-center justify-between gap-4 md:flex-row">
               <div className="mb-4 flex items-center gap-2 md:mb-0">
                 <Image
                   alt="Lookisi"
@@ -216,8 +228,10 @@ const LandingPage = () => {
                 />
                 <span className="text-lg font-semibold">Lookisi</span>
               </div>
-              <div className="text-muted-foreground text-sm">
-                © 2026 Lookisi. All rights reserved.
+              <div className="flex flex-col items-center gap-2 md:flex-row md:items-center">
+                <div className="text-muted-foreground text-sm">
+                  © 2026 Lookisi. All rights reserved.
+                </div>
               </div>
             </div>
           </div>
@@ -226,12 +240,32 @@ const LandingPage = () => {
 
       {/* Signup Dialog */}
       <Dialog open={signupOpen} onOpenChange={setSignupOpen}>
-        <DialogContent className="w-[90%]">
+        <DialogContent
+          className="max-h-[90vh] w-[90%] overflow-y-auto"
+          onInteractOutside={(e) => e.preventDefault()}
+        >
           <SignupFlow
             onSuccess={() => setSignupOpen(false)}
             onOpenSignInFlow={() => {
               setSignupOpen(false)
-              // could open sign-in dialog here if desired
+              setSigninOpen(true)
+            }}
+          />
+        </DialogContent>
+      </Dialog>
+
+      {/* Sign-in Dialog */}
+      <Dialog open={signinOpen} onOpenChange={setSigninOpen}>
+        <DialogContent
+          className="max-h-[90vh] w-[90%] overflow-y-auto"
+          onInteractOutside={(e) => e.preventDefault()}
+        >
+          <SignInDialog
+            onSuccess={() => setSigninOpen(false)}
+            onClose={() => setSigninOpen(false)}
+            onOpenSignUpFlow={() => {
+              setSigninOpen(false)
+              setSignupOpen(true)
             }}
           />
         </DialogContent>

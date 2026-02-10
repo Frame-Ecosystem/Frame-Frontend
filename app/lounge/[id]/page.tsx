@@ -18,7 +18,7 @@ import DisplayLocation from "@/app/_components/centers/display-location"
 import Extras from "@/app/_components/common/extras"
 import ContactInfo from "@/app/_components/common/contact-info"
 import OurServices from "@/app/_components/services/our-services"
-import QueueDisplay from "@/app/_components/common/queue-display"
+import QueueDisplay from "@/app/_components/queue/queue-display"
 import PostsDisplay from "@/app/_components/centers/centersPostsDisplay"
 import { Button } from "@/app/_components/ui/button"
 
@@ -31,6 +31,7 @@ import { clientService } from "@/app/_services"
 export default function LoungePage() {
   const params = useParams()
   const id = params.id as string
+
   const { user, isLoading: authLoading } = useAuth()
   const router = useRouter()
 
@@ -41,7 +42,6 @@ export default function LoungePage() {
         latitude?: number
         longitude?: number
         email?: string
-        emailVerified?: boolean | string
       })
     | null
   >(null)
@@ -81,25 +81,8 @@ export default function LoungePage() {
           }),
         )
 
-        // Determine lounge email and verification state regardless of API shape (array or object)
-        const emailFromLounge = loungeData?.email ?? undefined
-
-        // Support both shapes:
-        // - emailVerification: { isVerified: boolean | 'true' | 'false' }
-        // - emailVerification: [{ isVerified: boolean | 'true' | 'false' }]
-        const emailVerificationRaw: boolean | string | undefined =
-          Array.isArray((loungeData as any).emailVerification)
-            ? (loungeData as any).emailVerification?.[0]?.isVerified
-            : (loungeData as any).emailVerification?.isVerified
-
-        const emailObjVerified =
-          emailVerificationRaw === true || emailVerificationRaw === "true"
-        // If verification explicitly true, show email. If verification is unknown (undefined), also show email so users can see it.
-        const displayEmail =
-          (emailObjVerified || emailVerificationRaw === undefined) &&
-          emailFromLounge
-            ? emailFromLounge
-            : undefined
+        // Determine lounge email (no verification gating)
+        const displayEmail = loungeData?.email ?? undefined
 
         // Transform lounge data to match Center interface
         const transformedCenter: Center & {
@@ -125,10 +108,7 @@ export default function LoungePage() {
           openingHours: loungeData.openingHours,
           latitude: loungeData.location?.latitude,
           longitude: loungeData.location?.longitude,
-          // only expose lounge.email when explicitly verified in object shape
           email: displayEmail,
-          // pass through the raw value of lounge.emailVerification.isVerified (array or object) as computed above
-          emailVerified: emailVerificationRaw,
         }
 
         setCenter(transformedCenter)
@@ -411,7 +391,7 @@ export default function LoungePage() {
                         <Button
                           variant="ghost"
                           size="sm"
-                          className={`px-4 py-2 ${activeTab === "info" ? "border-primary border-b-2" : ""}`}
+                          className={`px-4 py-2 ${activeTab === "info" ? "border-primary border-b-1" : ""}`}
                           onClick={() => setActiveTab("info")}
                         >
                           <InfoIcon className="mr-2 h-4 w-4" />
@@ -420,7 +400,7 @@ export default function LoungePage() {
                         <Button
                           variant="ghost"
                           size="sm"
-                          className={`px-4 py-2 ${activeTab === "posts" ? "border-primary border-b-2" : ""}`}
+                          className={`px-4 py-2 ${activeTab === "posts" ? "border-primary border-b-1" : ""}`}
                           onClick={() => setActiveTab("posts")}
                         >
                           <FileText className="mr-2 h-4 w-4" />
@@ -429,7 +409,7 @@ export default function LoungePage() {
                         <Button
                           variant="ghost"
                           size="sm"
-                          className={`px-4 py-2 ${activeTab === "services" ? "border-primary border-b-2" : ""}`}
+                          className={`px-4 py-2 ${activeTab === "services" ? "border-primary border-b-1" : ""}`}
                           onClick={() => setActiveTab("services")}
                         >
                           <CalendarIcon className="mr-2 h-4 w-4" />
@@ -438,7 +418,7 @@ export default function LoungePage() {
                         <Button
                           variant="ghost"
                           size="sm"
-                          className={`px-4 py-2 ${activeTab === "queue" ? "border-primary border-b-2" : ""}`}
+                          className={`px-4 py-2 ${activeTab === "queue" ? "border-primary border-b-1" : ""}`}
                           onClick={() => setActiveTab("queue")}
                         >
                           <Users className="mr-2 h-4 w-4" />
@@ -451,13 +431,10 @@ export default function LoungePage() {
                         <>
                           {/* Contact Information */}
                           {(center.phones && center.phones.length > 0) ||
-                          center.email ||
-                          center.emailVerified === false ||
-                          center.emailVerified === "false" ? (
+                          center.email ? (
                             <ContactInfo
                               phones={center.phones}
                               email={center.email}
-                              emailVerified={center.emailVerified}
                             />
                           ) : null}
 
@@ -491,8 +468,13 @@ export default function LoungePage() {
                         <PostsDisplay centerName={center.name} />
                       )}
 
-                      {activeTab === "queue" && (
-                        <QueueDisplay centerName={center.name} mode="client" />
+                      {activeTab === "queue" && id && (
+                        <QueueDisplay
+                          centerName={center.name}
+                          mode="client"
+                          loungeId={id}
+                          key={`queue-${id}`} // Add key to force re-mount when id changes
+                        />
                       )}
                     </CardContent>
                   </Card>
@@ -505,7 +487,7 @@ export default function LoungePage() {
                     <Button
                       variant="ghost"
                       size="sm"
-                      className={`px-4 py-2 ${activeTab === "info" ? "border-primary border-b-2" : ""}`}
+                      className={`px-4 py-2 ${activeTab === "info" ? "border-primary border-b-1" : ""}`}
                       onClick={() => setActiveTab("info")}
                     >
                       <InfoIcon className="mr-2 h-4 w-4" />
@@ -514,7 +496,7 @@ export default function LoungePage() {
                     <Button
                       variant="ghost"
                       size="sm"
-                      className={`px-4 py-2 ${activeTab === "posts" ? "border-primary border-b-2" : ""}`}
+                      className={`px-4 py-2 ${activeTab === "posts" ? "border-primary border-b-1" : ""}`}
                       onClick={() => setActiveTab("posts")}
                     >
                       <FileText className="mr-2 h-4 w-4" />
@@ -523,7 +505,7 @@ export default function LoungePage() {
                     <Button
                       variant="ghost"
                       size="sm"
-                      className={`px-4 py-2 ${activeTab === "services" ? "border-primary border-b-2" : ""}`}
+                      className={`px-4 py-2 ${activeTab === "services" ? "border-primary border-b-1" : ""}`}
                       onClick={() => setActiveTab("services")}
                     >
                       <CalendarIcon className="mr-2 h-4 w-4" />
@@ -532,7 +514,7 @@ export default function LoungePage() {
                     <Button
                       variant="ghost"
                       size="sm"
-                      className={`px-4 py-2 ${activeTab === "queue" ? "border-primary border-b-2" : ""}`}
+                      className={`px-4 py-2 ${activeTab === "queue" ? "border-primary border-b-1" : ""}`}
                       onClick={() => setActiveTab("queue")}
                     >
                       <Users className="mr-2 h-4 w-4" />
@@ -545,13 +527,10 @@ export default function LoungePage() {
                     <div className="space-y-4">
                       {/* Contact Information */}
                       {(center.phones && center.phones.length > 0) ||
-                      center.email ||
-                      center.emailVerified === false ||
-                      center.emailVerified === "false" ? (
+                      center.email ? (
                         <ContactInfo
                           phones={center.phones}
                           email={center.email}
-                          emailVerified={center.emailVerified}
                         />
                       ) : null}
 
@@ -582,8 +561,12 @@ export default function LoungePage() {
                     <PostsDisplay centerName={center.name} />
                   )}
 
-                  {activeTab === "queue" && (
-                    <QueueDisplay centerName={center.name} mode="client" />
+                  {activeTab === "queue" && id && (
+                    <QueueDisplay
+                      centerName={center.name}
+                      mode="client"
+                      loungeId={id}
+                    />
                   )}
                 </div>
               </div>

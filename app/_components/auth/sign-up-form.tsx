@@ -5,10 +5,9 @@ import { Button } from "../ui/button"
 import { Input } from "../ui/input"
 import { Label } from "../ui/label"
 import { authService } from "../../_services/auth.service"
-import { API_BASE_URL, apiClient } from "../../_services/api"
+import { GOOGLE_AUTH_BASE_URL, apiClient } from "../../_services/api"
 import { useAuth } from "../../_providers/auth"
 import { useRouter, useSearchParams } from "next/navigation"
-import Image from "next/image"
 import { getLoginRedirectPath } from "../../_lib/profile"
 import { Eye, EyeOff } from "lucide-react"
 import { useSignUp } from "../../_hooks/queries"
@@ -21,7 +20,7 @@ export default function SignUpForm({
   selectedType: selectedTypeProp,
   onOpenSignInFlow,
 }: {
-  onSuccess?: () => void
+  onSuccess?: (email?: string) => void // eslint-disable-line no-unused-vars
   selectedType?: "client" | "lounge"
   onOpenSignInFlow?: () => void
 }) {
@@ -42,6 +41,7 @@ export default function SignUpForm({
   const [loading, setLoading] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
+  const [emailSending, setEmailSending] = useState(false)
   const { setAuth } = useAuth()
   const router = useRouter()
   const signUpMutation = useSignUp()
@@ -76,26 +76,24 @@ export default function SignUpForm({
         return
       }
 
-      // Validate that at least email or phone number is provided
-      if (!email && !phoneNumber) {
-        setError("Please provide either an email address or phone number")
+      // Validate that both email and phone number are provided
+      if (!email || !phoneNumber) {
+        setError("Please provide both an email address and phone number")
         setLoading(false)
         return
       }
 
-      // Validate phone number format if provided
-      let formattedPhoneNumber: string | undefined
-      if (phoneNumber) {
-        // Remove any non-digit characters
-        const cleanPhone = phoneNumber.replace(/\D/g, "")
-        if (cleanPhone.length !== 8) {
-          setError("Phone number must be exactly 8 digits")
-          setLoading(false)
-          return
-        }
-        // Send just the 8 digits (country code is handled visually)
-        formattedPhoneNumber = cleanPhone
+      // Validate phone number format
+      let formattedPhoneNumber: string
+      // Remove any non-digit characters
+      const cleanPhone = phoneNumber.replace(/\D/g, "")
+      if (cleanPhone.length !== 8) {
+        setError("Phone number must be exactly 8 digits")
+        setLoading(false)
+        return
       }
+      // Send just the 8 digits (country code is handled visually)
+      formattedPhoneNumber = cleanPhone
 
       // Password validation for signup (centralized)
       const validationError = validateSignupPassword(password, confirmPassword)
@@ -105,22 +103,26 @@ export default function SignUpForm({
         return
       }
 
+      setEmailSending(true)
+
       const response = await signUpMutation.mutateAsync({
         email: email || undefined,
         phoneNumber: formattedPhoneNumber,
         password,
         type: selectedType,
       })
+
       if (response) {
-        onSuccess?.()
-        const redirectPath = getLoginRedirectPath(response.data)
-        if (redirectPath) {
-          router.push(redirectPath)
-        }
+        // Keep emailSending true briefly to show success state
+        setTimeout(() => {
+          setEmailSending(false)
+          onSuccess?.(email)
+        }, 1000)
       }
     } catch (err) {
       console.error("Signup error:", err)
       setError(err instanceof Error ? err.message : "Signup failed")
+      setEmailSending(false)
     } finally {
       setLoading(false)
     }
@@ -137,7 +139,7 @@ export default function SignUpForm({
     }
 
     try {
-      const url = `${API_BASE_URL}/v1/auth/google/signup?type=${selectedType}`
+      const url = `${GOOGLE_AUTH_BASE_URL}/v1/auth/google/signup?type=${selectedType}`
       const result = await openGoogleOAuthPopup(url, 60000, 5000, {
         mode: "signup",
       })
@@ -150,7 +152,7 @@ export default function SignUpForm({
         if (popupUser.type) {
           setAuth(popupUser, newToken)
           onSuccess?.()
-          const redirectPath = getLoginRedirectPath(popupUser)
+          const redirectPath = getLoginRedirectPath()
           if (redirectPath) router.push(redirectPath)
         } else {
           throw new Error(
@@ -164,7 +166,7 @@ export default function SignUpForm({
           if (userData.type) {
             setAuth(userData, newToken)
             onSuccess?.()
-            const redirectPath = getLoginRedirectPath(userData)
+            const redirectPath = getLoginRedirectPath()
             if (redirectPath) router.push(redirectPath)
           } else {
             throw new Error(
@@ -196,24 +198,6 @@ export default function SignUpForm({
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
-      {/* Selected Type Banner */}
-      {selectedType && (
-        <div className="mb-2 flex w-full items-center justify-center">
-          <div className="flex items-center gap-3">
-            <Image
-              src={
-                selectedType === "lounge"
-                  ? "/images/loungeType.png"
-                  : "/images/clientType.png"
-              }
-              alt={selectedType === "lounge" ? "Lounge" : "Client"}
-              width={40}
-              height={40}
-              className="rounded-md"
-            />
-          </div>
-        </div>
-      )}
       <div className="space-y-2">
         <Label htmlFor="phoneNumber">Phone Number</Label>
         <div className="relative">
@@ -230,6 +214,7 @@ export default function SignUpForm({
             value={phoneNumber}
             onChange={handlePhoneNumberChange}
             className="pl-20"
+            required
           />
         </div>
         <p className="text-muted-foreground text-xs">
@@ -245,6 +230,7 @@ export default function SignUpForm({
           placeholder="you@example.com"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
+          required
         />
       </div>
 
@@ -304,8 +290,16 @@ export default function SignUpForm({
 
       {error && <p className="text-destructive text-sm">{error}</p>}
 
-      <Button type="submit" className="w-full" disabled={loading}>
-        {loading ? "Loading..." : "Sign Up"}
+      <Button
+        type="submit"
+        className="w-full"
+        disabled={loading || emailSending}
+      >
+        {emailSending
+          ? "Sending verification email..."
+          : loading
+            ? "Creating account..."
+            : "Sign Up"}
       </Button>
 
       <GoogleButton

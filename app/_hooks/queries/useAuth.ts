@@ -6,7 +6,7 @@ import { useAuth } from "../../_providers/auth"
  * Hook for signing in with email/password
  */
 export function useSignIn() {
-  const { setAuth } = useAuth()
+  const { setAuth, clearAuth } = useAuth()
   const queryClient = useQueryClient()
 
   return useMutation({
@@ -19,6 +19,8 @@ export function useSignIn() {
     }) => authService.signIn(emailOrPhone, password),
     onSuccess: (data) => {
       if (data) {
+        // Clear any existing auth before setting new one
+        clearAuth()
         setAuth(data.data, data.token)
         queryClient.invalidateQueries({ queryKey: ["currentUser"] })
       }
@@ -27,12 +29,9 @@ export function useSignIn() {
 }
 
 /**
- * Hook for signing up with email/password
+ * Hook for signing up with email/password (initiates email verification)
  */
 export function useSignUp() {
-  const { setAuth } = useAuth()
-  const queryClient = useQueryClient()
-
   return useMutation({
     mutationFn: (data: {
       email?: string
@@ -40,12 +39,6 @@ export function useSignUp() {
       password: string
       type?: "client" | "lounge"
     }) => authService.signUp(data),
-    onSuccess: (data) => {
-      if (data) {
-        setAuth(data.data, data.token)
-        queryClient.invalidateQueries({ queryKey: ["currentUser"] })
-      }
-    },
   })
 }
 
@@ -97,23 +90,4 @@ export function useChangePassword() {
 /**
  * Hook for sending email verification code
  */
-export function useSendVerificationCode() {
-  return useMutation({
-    mutationFn: (email: string) => authService.sendVerificationCode(email),
-  })
-}
-
-/**
- * Hook for verifying email with code
- */
-export function useVerifyEmail() {
-  const queryClient = useQueryClient()
-
-  return useMutation({
-    mutationFn: ({ email, code }: { email: string; code: string }) =>
-      authService.verifyEmail(email, code),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["currentUser"] })
-    },
-  })
-}
+// Email verification hooks removed — feature deprecated

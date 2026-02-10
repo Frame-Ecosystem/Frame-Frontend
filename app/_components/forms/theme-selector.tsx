@@ -1,18 +1,45 @@
 "use client"
 
-/* eslint-disable react-hooks/set-state-in-effect */
-
 import { Check, Palette, ChevronDown } from "lucide-react"
 import { useTheme } from "next-themes"
 import { useLayoutEffect, useState } from "react"
 import { themes } from "../../_constants/themes"
+import { authService } from "../../_services/auth.service"
+import { useAuth } from "../../_providers/auth"
+import { toast } from "sonner"
 
 // themes are sourced from app/_constants/themes
 
 export function ThemeSelector() {
   const [mounted, setMounted] = useState(false)
   const [isOpen, setIsOpen] = useState(false)
+  const [isUpdating, setIsUpdating] = useState(false)
   const { theme, setTheme } = useTheme()
+  const { user } = useAuth()
+
+  const handleThemeChange = async (newTheme: string) => {
+    const previousTheme = theme
+    try {
+      setIsUpdating(true)
+
+      // Update local theme immediately for better UX
+      setTheme(newTheme)
+      setIsOpen(false)
+
+      // Update theme on backend if user is authenticated
+      if (user) {
+        await authService.updateTheme(newTheme)
+        toast.success("Theme updated successfully")
+      }
+    } catch (error) {
+      console.error("Failed to update theme:", error)
+      toast.error("Failed to save theme preference")
+      // Revert to previous theme on error
+      setTheme(previousTheme || "system")
+    } finally {
+      setIsUpdating(false)
+    }
+  }
 
   useLayoutEffect(() => {
     setMounted(true)
@@ -65,15 +92,13 @@ export function ThemeSelector() {
             return (
               <button
                 key={themeOption.name}
-                onClick={() => {
-                  setTheme(themeOption.name)
-                  setIsOpen(false)
-                }}
+                onClick={() => handleThemeChange(themeOption.name)}
+                disabled={isUpdating}
                 className={`relative rounded-lg border-2 p-3 text-left transition-all hover:scale-[1.02] ${
                   isActive
                     ? "border-primary bg-primary/10"
                     : "border-border bg-card hover:border-primary/50"
-                }`}
+                } ${isUpdating ? "cursor-not-allowed opacity-50" : ""}`}
               >
                 {isActive && (
                   <div className="absolute top-2 right-2">

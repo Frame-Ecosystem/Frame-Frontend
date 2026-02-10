@@ -16,7 +16,7 @@ export default function DisplayLocation({
   longitude,
   isMobile = false,
 }: DisplayLocationProps) {
-  const [isExpanded, setIsExpanded] = useState(false)
+  const [isExpanded, setIsExpanded] = useState(true)
 
   const limit = isMobile ? 25 : 55
   const isLong = address && address.length > limit

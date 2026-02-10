@@ -27,14 +27,10 @@ const LoungeHome = () => {
   const { user, isLoading } = useAuth()
   const router = useRouter()
 
-  // Redirect non-lounge users to their respective home pages
+  // Redirect all users to the unified home page
   useEffect(() => {
-    if (!isLoading && user && user.type !== "lounge") {
-      if (user.type === "admin") {
-        router.replace("/home")
-      } else if (user.type === "client") {
-        router.replace("/clientHome")
-      }
+    if (!isLoading && user) {
+      router.replace("/home")
     }
   }, [user, isLoading, router])
 
@@ -177,6 +173,7 @@ const LoungeHome = () => {
                     fill
                     sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                     priority
+                    loading="eager"
                     className="hidden scale-70 object-cover transition-transform duration-700 group-hover:scale-80 lg:block"
                   />
                   {/* Gradient overlay for better text readability */}
