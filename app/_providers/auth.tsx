@@ -257,7 +257,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
 
     checkAuth()
-  }, [handleAuthFailure, refreshAccessToken])
+  }, [handleAuthFailure, refreshAccessToken, applyUserTheme])
 
   // Listen for storage events to sync auth state across tabs
   useEffect(() => {
@@ -291,7 +291,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     window.addEventListener("storage", handleStorageChange)
     return () => window.removeEventListener("storage", handleStorageChange)
-  }, [applyUserTheme])
+  }) // No dependency array - this effect should only run once on mount
 
   // Listen for verification completion messages from popup windows
   useEffect(() => {

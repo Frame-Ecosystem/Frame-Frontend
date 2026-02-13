@@ -120,7 +120,7 @@ export default function CenterPage() {
             imageUrl:
               service.image ||
               service.serviceId?.imageUrl ||
-              "/images/placeholder.png",
+              "/images/placeholder.svg",
             price: service.price || 0,
             durationMinutes: service.duration || 0,
             centerId: service.loungeId,
@@ -147,7 +147,7 @@ export default function CenterPage() {
             loungeData.location?.placeName ||
             loungeData.location?.address ||
             "No location available",
-          imageUrl: loungeData.profileImage?.url || "/images/placeholder.png",
+          imageUrl: loungeData.profileImage?.url || "/images/placeholder.svg",
           description: loungeData.bio || "No description available",
           phones: loungeData.phoneNumber ? [loungeData.phoneNumber] : [],
           services: transformedServices,
@@ -231,7 +231,7 @@ export default function CenterPage() {
               {/* Background cover image */}
               <Image
                 alt={center.name}
-                src={center.imageUrl || "/images/placeholder.png"}
+                src={center.imageUrl || "/images/placeholder.svg"}
                 fill
                 sizes="100vw"
                 quality={75}

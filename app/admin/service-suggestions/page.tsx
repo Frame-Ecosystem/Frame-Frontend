@@ -225,7 +225,7 @@ export default function AdminServiceSuggestionsPage() {
                       <td className="p-4">{s.description || "-"}</td>
                       <td className="p-4">{s.category || "-"}</td>
                       <td className="p-4">
-                        {s.estimatedPrice ? `${s.estimatedPrice} dinar` : "-"}
+                        {s.estimatedPrice ? `${s.estimatedPrice} dt` : "-"}
                       </td>
                       <td className="p-4">
                         {s.estimatedDuration
@@ -329,7 +329,7 @@ export default function AdminServiceSuggestionsPage() {
             </div>
 
             <div>
-              <Label htmlFor="price">Price (dinar)</Label>
+              <Label htmlFor="price">Price (dt)</Label>
               <Input
                 id="price"
                 type="number"
@@ -406,7 +406,11 @@ export default function AdminServiceSuggestionsPage() {
             </div>
 
             <div className="flex gap-2 pt-4">
-              <Button type="submit" className="flex-1">
+              <Button
+                type="submit"
+                variant="outline"
+                className="flex-1 border-green-500 text-green-600 hover:bg-green-50 hover:text-green-700"
+              >
                 Approve & Create Service
               </Button>
               <Button
@@ -415,6 +419,7 @@ export default function AdminServiceSuggestionsPage() {
                 onClick={() =>
                   setApproveDialog({ open: false, suggestion: null })
                 }
+                className="border-red-500 text-red-600 hover:bg-red-50 hover:text-red-700"
               >
                 Cancel
               </Button>

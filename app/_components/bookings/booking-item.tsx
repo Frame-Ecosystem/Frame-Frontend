@@ -41,8 +41,28 @@ const BookingItem = ({ booking }: BookingItemProps) => {
   const [isSheetOpen, setIsSheetOpen] = useState(false)
 
   // ===== DERIVED DATA =====
-  // Extract nested service and center safely
-  const service = booking.service
+  // Handle both old and new booking structures
+  const service =
+    booking.service ||
+    (booking.loungeService && booking.loungeService.length > 0
+      ? {
+          name:
+            typeof booking.loungeService[0].serviceId === "object"
+              ? booking.loungeService[0].serviceId.name
+              : booking.loungeService[0].serviceId,
+          price: booking.loungeService[0].price,
+          center: {
+            id: booking.loungeId || "",
+            name:
+              (typeof booking.lounge === "object"
+                ? booking.lounge.loungeTitle
+                : undefined) || "Lounge Service",
+            address: "",
+            imageUrl: "/images/placeholder.png",
+            phones: [],
+          },
+        }
+      : undefined)
   const center = service?.center ?? {
     id: "",
     name: "Unknown",
@@ -52,7 +72,10 @@ const BookingItem = ({ booking }: BookingItemProps) => {
   }
 
   // Determine if booking is in the future (confirmed) or past (completed)
-  const isConfirmed = isFuture(booking.date)
+  const bookingDate =
+    booking.date ||
+    (booking.bookingDate ? new Date(booking.bookingDate) : new Date())
+  const isConfirmed = isFuture(bookingDate)
 
   // ===== EVENT HANDLERS =====
   const handleCancelBooking = async () => {
@@ -82,7 +105,7 @@ const BookingItem = ({ booking }: BookingItemProps) => {
       {/* Clickable card that opens the booking details sheet */}
       <SheetTrigger className="w-full min-w-[90%]">
         <Card
-          id={booking.id}
+          id={booking._id}
           className="hover:bg-card/20 min-w-[90%] transition-shadow hover:scale-[1.03] hover:cursor-pointer hover:shadow-md"
         >
           <CardContent className="flex justify-between p-0">
@@ -107,13 +130,13 @@ const BookingItem = ({ booking }: BookingItemProps) => {
             {/* RIGHT SECTION: Date and time display */}
             <div className="flex flex-col items-center justify-center border-l-2 border-solid px-5">
               <p className="text-sm capitalize">
-                {format(booking.date, "MMMM", { locale: enUS })}
+                {format(bookingDate, "MMMM", { locale: enUS })}
               </p>
               <p className="text-2xl">
-                {format(booking.date, "dd", { locale: enUS })}
+                {format(bookingDate, "dd", { locale: enUS })}
               </p>
               <p className="text-sm">
-                {format(booking.date, "HH:mm", { locale: enUS })}
+                {format(bookingDate, "HH:mm", { locale: enUS })}
               </p>
             </div>
           </CardContent>
@@ -165,7 +188,7 @@ const BookingItem = ({ booking }: BookingItemProps) => {
             <BookingSummary
               center={center}
               service={service ?? { name: "Service", price: 0 }}
-              selectedDate={booking.date}
+              selectedDate={bookingDate}
             />
           </div>
 

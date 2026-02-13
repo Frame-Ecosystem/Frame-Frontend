@@ -19,13 +19,12 @@ export interface LocationData {
 }
 
 export interface User {
-  id?: string
   _id?: string
   email: string
   phoneNumber?: string
-  loungeTitle?: string
-  firstName?: string
-  lastName?: string
+  firstName?: string // For clients
+  lastName?: string // For clients
+  loungeTitle?: string // For lounges
   bio?: string
   profileImage?: ProfileImage | string
   type?: UserType
@@ -72,14 +71,64 @@ export interface ServiceItem {
 // Backwards-compatibility: some code expects `CenterService`
 export type CenterService = ServiceItem
 
-export type BookingStatus = "pending" | "confirmed" | "cancelled" | string
+export type BookingStatus =
+  | "pending"
+  | "confirmed"
+  | "inQueue"
+  | "cancelled"
+  | string
+
+export interface BookingService {
+  loungeServiceId: string
+  quantity: number
+  price: number
+  duration?: number
+}
 
 export interface Booking {
-  id: string
-  userId: string
+  _id: string
+  clientId: User | string
+  loungeId: User | string
+  agentId?: string
+  loungeServiceIds: Array<{
+    _id: string
+    loungeId: string
+    serviceId: {
+      _id: string
+      name: string
+    }
+    price: number
+    duration: number
+    gender: string
+    status: string
+    description: string
+    image?: string
+    isActive: boolean
+    createdAt: string
+    updatedAt: string
+    __v: number
+  }>
+  status: BookingStatus
+  bookingDate: string
+  totalPrice?: number
+  totalDuration?: number
+  notes?: string
+  createdAt?: string
+  updatedAt?: string
+  // Populated references
+  client?: User
+  lounge?: User
+  agent?: Agent
+  loungeService?: Array<{
+    serviceId: Service | string
+    price: number
+    duration: number
+  }>
+  // Backwards compatibility
+  loungeServiceId?: string
+  userId?: string
   serviceId?: string
-  date: Date
-  status?: BookingStatus
+  date?: Date
   service?: ServiceItem & { center: Center }
 }
 
@@ -99,10 +148,32 @@ export interface ApiResponse<T = any> {
 
 // Booking creation input
 export interface CreateBookingInput {
-  centerId: string
-  service: string
-  date: string
-  time: string
+  clientId: string
+  loungeId: string
+  agentId?: string
+  loungeServiceIds: string[]
+  bookingDate: string
+  status?: BookingStatus
+  totalPrice?: number
+  totalDuration?: number
+  notes?: string
+}
+
+// Booking update input
+export interface UpdateBookingInput {
+  status?: BookingStatus
+  bookingDate?: string
+  totalPrice?: number
+  totalDuration?: number
+  notes?: string
+}
+
+// Booking statistics
+export interface BookingStats {
+  _id: string // status
+  count: number
+  totalSpent?: number // for client stats
+  totalRevenue?: number // for lounge stats
 }
 
 // HTTP method type used across CSRF utilities
@@ -139,10 +210,9 @@ export interface Service {
 
 // Lounge-specific service mapping (when a lounge adds a global service)
 export interface LoungeServiceItem {
-  id?: string
-  _id?: string
+  _id: string
   loungeId: string
-  serviceId: string
+  serviceId: string | Service
   price?: number
   duration?: number
   description?: string
@@ -209,8 +279,7 @@ export interface Lounge {
 }
 
 export interface Agent {
-  _id?: string
-  id?: string
+  _id: string
   agentName: string
   loungeId: string | Lounge
   isBlocked: boolean

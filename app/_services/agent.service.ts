@@ -32,8 +32,7 @@ class AgentService {
     if (response.data) {
       response.data = response.data.map((agent) => ({
         ...agent,
-        _id: agent._id || agent.id,
-        id: agent._id || agent.id,
+        _id: agent._id,
       }))
     }
     return response
@@ -44,28 +43,32 @@ class AgentService {
     // Ensure _id is properly set
     return {
       ...response,
-      _id: response._id || response.id,
-      id: response._id || response.id,
+      _id: response._id,
     }
   }
 
   async getAgentById(agentId: string): Promise<Agent> {
-    const response = await apiClient.get<Agent>(`/v1/agents/${agentId}`)
+    const response = await apiClient.get<{ data: Agent; message: string }>(
+      `/v1/agents/${agentId}`,
+    )
+    const agent = response.data
     // Ensure _id is properly set
     return {
-      ...response,
-      _id: response._id || response.id,
-      id: response._id || response.id,
+      ...agent,
+      _id: agent._id,
     }
   }
 
   async updateAgent(agentId: string, data: UpdateAgentDto): Promise<Agent> {
-    const response = await apiClient.put<Agent>(`/v1/agents/${agentId}`, data)
+    const response = await apiClient.put<{ data: Agent; message: string }>(
+      `/v1/agents/${agentId}`,
+      data,
+    )
+    const agent = response.data
     // Ensure _id is properly set
     return {
-      ...response,
-      _id: response._id || response.id,
-      id: response._id || response.id,
+      ...agent,
+      _id: agent._id,
     }
   }
 
@@ -91,6 +94,13 @@ class AgentService {
     const response = await apiClient.get<Paginated<Agent>>(
       `/v1/agents/lounge/${loungeId}?${params}`,
     )
+    // Ensure _id is properly set
+    if (response.data) {
+      response.data = response.data.map((agent) => ({
+        ...agent,
+        _id: agent._id,
+      }))
+    }
     return response
   }
 

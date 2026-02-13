@@ -41,7 +41,7 @@ export default function SuggestService() {
 
     setLoadingSuggestions(true)
     try {
-      const loungeId = user._id || user.id
+      const loungeId = user._id
       const suggestions =
         await serviceSuggestionsService.getMySuggestions(loungeId)
       setUserSuggestions(suggestions)
@@ -117,8 +117,8 @@ export default function SuggestService() {
       return
     }
     if (price > 1000000) {
-      // 1 million dinar max
-      toast.error("Estimated price cannot exceed 1,000,000 dinar")
+      // 1 million dt max
+      toast.error("Estimated price cannot exceed 1,000,000 dt")
       return
     }
     // Check for reasonable decimal places (max 2)
@@ -169,7 +169,7 @@ export default function SuggestService() {
         payload.estimatedDuration = Number(form.estimatedDuration)
       if (form.targetGender) payload.targetGender = form.targetGender
       if (user && user.type === "lounge") {
-        payload.loungeId = user._id || user.id
+        payload.loungeId = user._id
       }
 
       await apiClient.post("/v1/service-suggestions", payload)
@@ -221,7 +221,11 @@ export default function SuggestService() {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button type="button" variant="outline">
+        <Button
+          type="button"
+          variant="outline"
+          className="border-blue-500 text-blue-600 hover:bg-blue-50 hover:text-blue-700"
+        >
           Suggest a service
         </Button>
       </DialogTrigger>
@@ -243,7 +247,12 @@ export default function SuggestService() {
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <p className="text-muted-foreground text-sm"></p>
-              <Button onClick={handleBackToForm} variant="outline" size="sm">
+              <Button
+                onClick={handleBackToForm}
+                variant="outline"
+                size="sm"
+                className="border-blue-500 text-blue-600 hover:bg-blue-50 hover:text-blue-700"
+              >
                 Suggest New Service
               </Button>
             </div>
@@ -260,7 +269,11 @@ export default function SuggestService() {
                 <p className="text-muted-foreground">
                   You haven&apos;t submitted any service suggestions yet.
                 </p>
-                <Button onClick={handleBackToForm} className="mt-4">
+                <Button
+                  onClick={handleBackToForm}
+                  className="mt-4 border-green-500 text-green-600 hover:bg-green-50 hover:text-green-700"
+                  variant="outline"
+                >
                   Suggest Your First Service
                 </Button>
               </div>
@@ -290,7 +303,7 @@ export default function SuggestService() {
                     </p>
                     <div className="text-muted-foreground flex gap-4 text-xs">
                       {suggestion.estimatedPrice && (
-                        <span>Price: {suggestion.estimatedPrice} dinar</span>
+                        <span>Price: {suggestion.estimatedPrice} dt</span>
                       )}
                       {suggestion.estimatedDuration && (
                         <span>
@@ -315,7 +328,12 @@ export default function SuggestService() {
         ) : (
           <>
             <div className="mb-4 flex justify-end">
-              <Button onClick={handleViewSuggestions} variant="ghost" size="sm">
+              <Button
+                onClick={handleViewSuggestions}
+                variant="ghost"
+                size="sm"
+                className="border-gray-500 text-gray-600 hover:bg-gray-50 hover:text-gray-700"
+              >
                 View My Suggestions
               </Button>
             </div>
@@ -348,7 +366,7 @@ export default function SuggestService() {
               </div>
               <div className="grid grid-cols-2 gap-2">
                 <div>
-                  <Label htmlFor="s-price">Estimated Price (dinar) *</Label>
+                  <Label htmlFor="s-price">Estimated Price (dt) *</Label>
                   <Input
                     id="s-price"
                     type="number"
@@ -407,10 +425,17 @@ export default function SuggestService() {
                   type="button"
                   variant="outline"
                   onClick={() => setOpen(false)}
+                  className="border-red-500 text-red-600 hover:bg-red-50 hover:text-red-700"
                 >
                   Cancel
                 </Button>
-                <Button type="submit">Submit Suggestion</Button>
+                <Button
+                  type="submit"
+                  variant="outline"
+                  className="border-green-500 text-green-600 hover:bg-green-50 hover:text-green-700"
+                >
+                  Submit Suggestion
+                </Button>
               </div>
             </form>
           </>

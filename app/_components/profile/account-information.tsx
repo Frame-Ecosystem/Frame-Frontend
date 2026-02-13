@@ -22,11 +22,7 @@ export function AccountInformation({
   setOpenPhoneSection,
   setOpenSettings,
 }: AccountInformationProps) {
-  const displayName =
-    user?.loungeTitle ||
-    (user?.firstName || user?.lastName
-      ? `${user?.firstName ?? ""} ${user?.lastName ?? ""}`.trim()
-      : user?.email)
+  const displayName = user?.loungeTitle || user?.firstName || user?.email
 
   return (
     <div className="space-y-2">
@@ -65,9 +61,8 @@ export function AccountInformation({
                   <h3 className="mt-1 text-lg font-semibold">
                     {user?.type === "lounge"
                       ? user?.loungeTitle || displayName
-                      : user?.firstName || user?.lastName
-                        ? `${user?.firstName ?? ""} ${user?.lastName ?? ""}`.trim()
-                        : displayName}
+                      : `${user?.firstName || ""} ${user?.lastName || ""}`.trim() ||
+                        displayName}
                   </h3>
                   {user?.type && (
                     <p className="text-muted-foreground mt-1 text-sm">

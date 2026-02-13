@@ -203,7 +203,12 @@ const SignInDialog = ({
           {error && <p className="text-destructive text-sm">{error}</p>}
 
           {/* Submit button */}
-          <Button type="submit" className="w-full" disabled={loading}>
+          <Button
+            type="submit"
+            variant="outline"
+            className="w-full border-blue-500 text-blue-600 hover:bg-blue-50 hover:text-blue-700"
+            disabled={loading}
+          >
             {loading ? "Loading..." : "Sign In"}
           </Button>
           <GoogleButton onClick={handleGoogleSignIn} />

@@ -405,7 +405,7 @@ export default function LoungeProfilePage() {
                           user?.loungeTitle || getUserDisplayName(user)
                         }
                         mode="staff"
-                        loungeId={user?._id || user?.id}
+                        loungeId={user?._id}
                       />
                     )}
                   </CardContent>

@@ -124,7 +124,7 @@ export function AgentList({
     if (!agentToDelete) return
 
     // Validate that the agent has a valid ID
-    const agentId = agentToDelete._id || agentToDelete.id
+    const agentId = agentToDelete._id
     if (!agentId) {
       console.error("Agent has no valid ID")
       alert("Cannot delete agent: Invalid agent data")
@@ -344,7 +344,7 @@ export function AgentList({
                 </TableRow>
               ) : (
                 agents.map((agent, index) => (
-                  <TableRow key={agent._id || agent.id || `agent-${index}`}>
+                  <TableRow key={agent._id || `agent-${index}`}>
                     {isAdmin && (
                       <TableCell>
                         <Checkbox

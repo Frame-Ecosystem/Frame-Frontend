@@ -73,8 +73,8 @@ export default function LoungePage() {
             description: service.serviceId?.description || "",
             imageUrl:
               service.image ||
-              service.serviceId?.imageUrl ||
-              "/images/placeholder.png",
+              service.serviceId?.image ||
+              "/images/placeholder.svg",
             price: service.price || 0,
             durationMinutes: service.duration || 0,
             centerId: service.loungeId,
@@ -101,7 +101,7 @@ export default function LoungePage() {
             loungeData.location?.placeName ||
             loungeData.location?.address ||
             "No location available",
-          imageUrl: loungeData.profileImage?.url || "/images/placeholder.png",
+          imageUrl: loungeData.profileImage?.url || "/images/placeholder.svg",
           description: loungeData.bio || "No description available",
           phones: loungeData.phoneNumber ? [loungeData.phoneNumber] : [],
           services: transformedServices,
@@ -259,7 +259,7 @@ export default function LoungePage() {
               fill
               sizes="100vw"
               className="object-cover"
-              src={center.imageUrl || "/images/placeholder.png"}
+              src={center.imageUrl || "/images/placeholder.svg"}
               priority
             />
 

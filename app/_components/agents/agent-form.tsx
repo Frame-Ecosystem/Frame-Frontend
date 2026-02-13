@@ -432,10 +432,16 @@ export function AgentForm({
                 variant="outline"
                 onClick={() => onOpenChange(false)}
                 disabled={loading}
+                className="border-red-500 text-red-600 hover:bg-red-50 hover:text-red-700"
               >
                 Cancel
               </Button>
-              <Button type="submit" disabled={loading}>
+              <Button
+                type="submit"
+                disabled={loading}
+                variant="outline"
+                className="border-green-500 text-green-600 hover:bg-green-50 hover:text-green-700"
+              >
                 {loading ? (
                   <>
                     <div className="border-primary mr-2 h-4 w-4 animate-spin rounded-full border-b-2"></div>

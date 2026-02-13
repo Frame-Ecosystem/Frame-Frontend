@@ -1,4 +1,5 @@
 "use client"
+import { useState } from "react"
 import { Badge } from "../ui/badge"
 import { CalendarIcon } from "lucide-react"
 import ServiceItem from "./service-item"
@@ -11,6 +12,23 @@ interface OurServicesProps {
 }
 
 export default function OurServices({ services, center }: OurServicesProps) {
+  const [selectedServices, setSelectedServices] = useState<CenterService[]>([])
+
+  const handleServiceSelect = (service: CenterService) => {
+    setSelectedServices((prev) => {
+      const isSelected = prev.some((s) => s.id === service.id)
+      if (isSelected) {
+        return prev.filter((s) => s.id !== service.id)
+      } else {
+        return [...prev, service]
+      }
+    })
+  }
+
+  const isServiceSelected = (serviceId: string) => {
+    return selectedServices.some((s) => s.id === serviceId)
+  }
+
   return (
     <>
       <div className="mb-4 flex items-center justify-between">
@@ -25,14 +43,19 @@ export default function OurServices({ services, center }: OurServicesProps) {
 
       {/* Ready to book section with green dashed border */}
       <div className="mb-6 pt-6">
-        <BookingCTA />
+        <BookingCTA loungeId={center.id} selectedServices={selectedServices} />
       </div>
 
       <div>
         {services.length > 0 ? (
           <div className="grid gap-3 lg:gap-4">
             {services.map((service) => (
-              <ServiceItem key={service.id} center={center} service={service} />
+              <ServiceItem
+                key={service.id}
+                service={service}
+                isSelected={isServiceSelected(service.id)}
+                onSelect={() => handleServiceSelect(service)}
+              />
             ))}
           </div>
         ) : (

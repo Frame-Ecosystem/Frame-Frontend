@@ -253,10 +253,15 @@ export default function ServiceCategoryManagementPage() {
                       type="button"
                       variant="outline"
                       onClick={() => setDialogOpen(false)}
+                      className="border-red-500 text-red-600 hover:bg-red-50 hover:text-red-700"
                     >
                       Cancel
                     </Button>
-                    <Button type="submit">
+                    <Button
+                      type="submit"
+                      variant="outline"
+                      className="border-green-500 text-green-600 hover:bg-green-50 hover:text-green-700"
+                    >
                       {editingCategory ? "Update" : "Create"}
                     </Button>
                   </div>

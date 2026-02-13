@@ -205,9 +205,9 @@ export default function LoungeServiceManagementPage() {
       return
     }
     if (price > 1000000) {
-      // 1 million dinar max
-      setError("Price cannot exceed 1,000,000 dinar")
-      toast.error("Price cannot exceed 1,000,000 dinar")
+      // 1 million dt max
+      setError("Price cannot exceed 1,000,000 dt")
+      toast.error("Price cannot exceed 1,000,000 dt")
       return
     }
     // Check for reasonable decimal places (max 2)
@@ -304,7 +304,7 @@ export default function LoungeServiceManagementPage() {
         toast.success("Service updated successfully")
       } else {
         const payload = {
-          loungeId: (user as any)?._id || user?.id || "",
+          loungeId: user?._id || "",
           serviceId: formData.selectedServiceId,
           price: formData.price ? parseFloat(formData.price) : undefined,
           duration: formData.baseDuration
@@ -553,7 +553,7 @@ export default function LoungeServiceManagementPage() {
                     </div>
                   </div>
                   <div>
-                    <Label htmlFor="price">Price (dinar) *</Label>
+                    <Label htmlFor="price">Price (dt) *</Label>
                     <Input
                       id="price"
                       type="number"
@@ -628,10 +628,15 @@ export default function LoungeServiceManagementPage() {
                       type="button"
                       variant="outline"
                       onClick={() => setDialogOpen(false)}
+                      className="border-red-500 text-red-600 hover:bg-red-50 hover:text-red-700"
                     >
                       Cancel
                     </Button>
-                    <Button type="submit">
+                    <Button
+                      type="submit"
+                      variant="outline"
+                      className="border-green-500 text-green-600 hover:bg-green-50 hover:text-green-700"
+                    >
                       {editingService ? "Update" : "Create"}
                     </Button>
                   </div>
@@ -696,7 +701,7 @@ export default function LoungeServiceManagementPage() {
                           <td className="p-4">{service.description || "-"}</td>
                           <td className="p-4">
                             {(service as any).price
-                              ? `${(service as any).price} dinar`
+                              ? `${(service as any).price} dt`
                               : "-"}
                           </td>
                           <td className="p-4">

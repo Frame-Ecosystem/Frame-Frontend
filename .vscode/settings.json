@@ -1,5 +1,4 @@
 {
-    "github.copilot.chat.azureAuthType": "apiKey",
     "CodeGPT.apiKey": "OpenAI",
     "amp.experimental.codeReviewSkill": true,
     "amp.experimental.reviewSubagent": true

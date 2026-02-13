@@ -84,10 +84,12 @@ export function CreatePost() {
                     ? user.profileImage
                     : user.profileImage?.url
                 }
-                alt={user.firstName || user.email}
+                alt={user.firstName || user.loungeTitle || user.email}
               />
               <AvatarFallback>
-                {(user.firstName || user.email).charAt(0).toUpperCase()}
+                {(user.firstName || user.loungeTitle || user.email)
+                  .charAt(0)
+                  .toUpperCase()}
               </AvatarFallback>
             </Avatar>
             <div className="flex-1">

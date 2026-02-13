@@ -86,7 +86,7 @@ export function OpeningHoursSelector() {
   const handleSave = async () => {
     try {
       setLoading(true)
-      const loungeId = (user as any)?._id || user?.id
+      const loungeId = user?._id
       if (!loungeId) {
         toast.error("User ID not found")
         return

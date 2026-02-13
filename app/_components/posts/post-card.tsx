@@ -67,14 +67,13 @@ export function PostCard({ post }: PostCardProps) {
   }
 
   const handleDelete = () => {
-    if (user && (user.id === post.author.id || user._id === post.author._id)) {
+    if (user && user._id === post.author._id) {
       deletePostMutation.mutate(post.id)
     }
   }
 
-  const isLiked = user ? post.likes.includes(user.id || user._id || "") : false
-  const canDelete =
-    user && (user.id === post.author.id || user._id === post.author._id)
+  const isLiked = user ? post.likes.includes(user._id || "") : false
+  const canDelete = user && user._id === post.author._id
 
   return (
     <Card className="w-full">
@@ -88,19 +87,27 @@ export function PostCard({ post }: PostCardProps) {
                     ? post.author.profileImage
                     : post.author.profileImage?.url
                 }
-                alt={post.author.firstName || post.author.email}
+                alt={
+                  post.author.firstName ||
+                  post.author.loungeTitle ||
+                  post.author.email
+                }
               />
               <AvatarFallback>
-                {(post.author.firstName || post.author.email)
+                {(
+                  post.author.firstName ||
+                  post.author.loungeTitle ||
+                  post.author.email
+                )
                   .charAt(0)
                   .toUpperCase()}
               </AvatarFallback>
             </Avatar>
             <div>
               <p className="text-sm font-semibold">
-                {post.author.firstName
-                  ? `${post.author.firstName} ${post.author.lastName || ""}`.trim()
-                  : post.author.loungeTitle || post.author.email}
+                {post.author.firstName ||
+                  post.author.loungeTitle ||
+                  post.author.email}
               </p>
               <p className="text-muted-foreground text-xs">
                 {formatDistanceToNow(new Date(post.createdAt), {
@@ -223,10 +230,18 @@ export function PostCard({ post }: PostCardProps) {
                           ? comment.author.profileImage
                           : comment.author.profileImage?.url
                       }
-                      alt={comment.author.firstName || comment.author.email}
+                      alt={
+                        comment.author.firstName ||
+                        comment.author.loungeTitle ||
+                        comment.author.email
+                      }
                     />
                     <AvatarFallback className="text-xs">
-                      {(comment.author.firstName || comment.author.email)
+                      {(
+                        comment.author.firstName ||
+                        comment.author.loungeTitle ||
+                        comment.author.email
+                      )
                         .charAt(0)
                         .toUpperCase()}
                     </AvatarFallback>
@@ -234,9 +249,9 @@ export function PostCard({ post }: PostCardProps) {
                   <div className="flex-1">
                     <div className="bg-muted rounded-lg px-3 py-2">
                       <p className="text-xs font-medium">
-                        {comment.author.firstName
-                          ? `${comment.author.firstName} ${comment.author.lastName || ""}`.trim()
-                          : comment.author.loungeTitle || comment.author.email}
+                        {comment.author.firstName ||
+                          comment.author.loungeTitle ||
+                          comment.author.email}
                       </p>
                       <p className="text-sm">{comment.content}</p>
                     </div>
