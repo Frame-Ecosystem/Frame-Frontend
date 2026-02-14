@@ -53,7 +53,7 @@ const Home = () => {
             {/* HEADER */}
             <div className="mb-8 text-center">
               <h1 className="mb-2 text-3xl font-bold lg:text-4xl">
-                Welcome to Lookisi Community
+                Welcome to Lookeys Community
               </h1>
               <p className="text-muted-foreground text-lg">
                 {user ? `Hello ${user.firstName || user.email}! ` : ""}

@@ -27,6 +27,17 @@ import { toast } from "sonner"
 import { loungeService, serviceService } from "../../_services"
 import SuggestService from "../../_components/services/SuggestService"
 import type { Service, LoungeServiceItem } from "../../_types"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "../../_components/ui/alert-dialog"
 
 export default function LoungeServiceManagementPage() {
   const { user, isLoading } = useAuth()
@@ -49,6 +60,7 @@ export default function LoungeServiceManagementPage() {
     status: "active",
     image: "",
     imageFile: null as File | null,
+    cancelledBy: "",
   })
 
   useEffect(() => {
@@ -282,9 +294,16 @@ export default function LoungeServiceManagementPage() {
     }
 
     // Status validation
-    if (!["active", "inactive"].includes(formData.status)) {
+    if (!["active", "inactive", "cancelled"].includes(formData.status)) {
       setError("Invalid status selected")
       toast.error("Invalid status selected")
+      return
+    }
+
+    // CancelledBy validation if status is cancelled
+    if (formData.status === "cancelled" && !formData.cancelledBy.trim()) {
+      setError("Cancelled By is required when status is cancelled")
+      toast.error("Cancelled By is required when status is cancelled")
       return
     }
 
@@ -299,6 +318,8 @@ export default function LoungeServiceManagementPage() {
           description: trimmedDescription || undefined,
           isActive: formData.status === "active",
           image: formData.image || undefined,
+          status: formData.status || undefined,
+          cancelledBy: formData.cancelledBy || undefined,
         }
         await loungeService.update((editingService as any)._id, serviceData)
         toast.success("Service updated successfully")
@@ -314,6 +335,8 @@ export default function LoungeServiceManagementPage() {
           gender: (formData.gender as any) || undefined,
           isActive: formData.status === "active",
           image: formData.image || undefined,
+          status: formData.status || undefined,
+          cancelledBy: formData.cancelledBy || undefined,
         }
 
         await loungeService.createLoungeService(payload)
@@ -348,9 +371,10 @@ export default function LoungeServiceManagementPage() {
       description: service.description || "",
       baseDuration: service.duration?.toString() || "",
       gender: (service as any).gender || "",
-      status: service.isActive ? "active" : "inactive",
+      status: (service as any).status || "active",
       image: service.image || "",
       imageFile: null,
+      cancelledBy: (service as any).cancelledBy || "",
     })
     setError(null)
     setDialogOpen(true)
@@ -361,7 +385,6 @@ export default function LoungeServiceManagementPage() {
       toast.error("Cannot delete service: Invalid ID")
       return
     }
-    if (!confirm("Are you sure you want to delete this service?")) return
 
     try {
       await loungeService.delete(id)
@@ -388,6 +411,7 @@ export default function LoungeServiceManagementPage() {
       status: "active",
       image: "",
       imageFile: null,
+      cancelledBy: "",
     })
     setEditingService(null)
   }
@@ -416,7 +440,7 @@ export default function LoungeServiceManagementPage() {
   }
 
   return (
-    <div className="from-background via-background to-muted/20 min-h-screen bg-gradient-to-br">
+    <div className="from-background via-background to-muted/20 mb-24 min-h-screen bg-gradient-to-br">
       <div className="mx-auto max-w-7xl p-5 lg:px-8 lg:py-12">
         <div className="mb-8">
           <Button
@@ -445,7 +469,7 @@ export default function LoungeServiceManagementPage() {
                   Add Service
                 </Button>
               </DialogTrigger>
-              <DialogContent>
+              <DialogContent className="max-h-[100vh] overflow-y-auto py-16 md:max-h-[80vh]">
                 <DialogHeader>
                   <DialogTitle>
                     {editingService ? "Edit Service" : "Add New Service"}
@@ -621,8 +645,25 @@ export default function LoungeServiceManagementPage() {
                     >
                       <option value="active">Active</option>
                       <option value="inactive">Inactive</option>
+                      <option value="cancelled">Cancelled</option>
                     </select>
                   </div>
+                  {formData.status === "cancelled" && (
+                    <div>
+                      <Label htmlFor="cancelledBy">Cancelled By</Label>
+                      <Input
+                        id="cancelledBy"
+                        value={formData.cancelledBy}
+                        onChange={(e) =>
+                          setFormData((prev) => ({
+                            ...prev,
+                            cancelledBy: e.target.value,
+                          }))
+                        }
+                        placeholder="Who cancelled this service?"
+                      />
+                    </div>
+                  )}
                   <div className="flex justify-end space-x-2">
                     <Button
                       type="button"
@@ -658,8 +699,7 @@ export default function LoungeServiceManagementPage() {
               <table className="w-full border-collapse">
                 <thead>
                   <tr className="border-b">
-                    <th className="p-4 text-left font-medium">Image</th>
-                    <th className="p-4 text-left font-medium">Service Name</th>
+                    <th className="p-4 text-left font-medium">Service</th>
                     <th className="p-4 text-left font-medium">Description</th>
                     <th className="p-4 text-left font-medium">Price</th>
                     <th className="p-4 text-left font-medium">Duration</th>
@@ -681,23 +721,27 @@ export default function LoungeServiceManagementPage() {
                           className="hover:bg-muted/50 border-b"
                         >
                           <td className="p-4">
-                            {(service as any).image ? (
-                              <Image
-                                src={(service as any).image}
-                                alt={serviceName}
-                                width={40}
-                                height={40}
-                                className="h-10 w-10 rounded object-cover"
-                              />
-                            ) : (
-                              <div className="bg-muted flex h-10 w-10 items-center justify-center rounded">
-                                <span className="text-muted-foreground text-xs">
-                                  No image
-                                </span>
-                              </div>
-                            )}
+                            <div className="flex items-center gap-3">
+                              {(service as any).image ? (
+                                <Image
+                                  src={(service as any).image}
+                                  alt={serviceName}
+                                  width={40}
+                                  height={40}
+                                  className="h-10 w-10 rounded object-cover"
+                                />
+                              ) : (
+                                <div className="bg-muted flex h-10 w-10 items-center justify-center rounded">
+                                  <span className="text-muted-foreground text-xs">
+                                    No image
+                                  </span>
+                                </div>
+                              )}
+                              <span className="text-center font-medium">
+                                {serviceName}
+                              </span>
+                            </div>
                           </td>
-                          <td className="p-4 font-medium">{serviceName}</td>
                           <td className="p-4">{service.description || "-"}</td>
                           <td className="p-4">
                             {(service as any).price
@@ -713,17 +757,30 @@ export default function LoungeServiceManagementPage() {
                             {(service as any).gender || "-"}
                           </td>
                           <td className="p-4">
-                            <Badge
-                              variant={
-                                (service as any).isActive
-                                  ? "default"
-                                  : "secondary"
-                              }
-                            >
-                              {(service as any).isActive
-                                ? "Active"
-                                : "Inactive"}
-                            </Badge>
+                            <div className="flex flex-col items-start space-y-1">
+                              <Badge
+                                variant={
+                                  (service as any).status === "active"
+                                    ? "default"
+                                    : (service as any).status === "cancelled"
+                                      ? "destructive"
+                                      : "secondary"
+                                }
+                              >
+                                {(service as any).status === "active"
+                                  ? "Active"
+                                  : (service as any).status === "cancelled"
+                                    ? "Cancelled"
+                                    : "Inactive"}
+                              </Badge>
+                              {(service as any).status === "cancelled" &&
+                                (service as any).cancelledBy && (
+                                  <div className="text-muted-foreground flex w-full items-center justify-between text-xs">
+                                    <span>Cancelled by:</span>
+                                    <span>{(service as any).cancelledBy}</span>
+                                  </div>
+                                )}
+                            </div>
                           </td>
                           <td className="p-4">
                             <div className="flex space-x-2">
@@ -734,15 +791,42 @@ export default function LoungeServiceManagementPage() {
                               >
                                 <Edit className="h-4 w-4" />
                               </Button>
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                onClick={() =>
-                                  handleDelete((service as any)._id)
-                                }
-                              >
-                                <Trash2 className="h-4 w-4" />
-                              </Button>
+                              <AlertDialog>
+                                <AlertDialogTrigger asChild>
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
+                                    className="border-red-500 text-red-600 hover:bg-red-50 hover:text-red-700"
+                                  >
+                                    <Trash2 className="h-4 w-4" />
+                                  </Button>
+                                </AlertDialogTrigger>
+                                <AlertDialogContent>
+                                  <AlertDialogHeader>
+                                    <AlertDialogTitle>
+                                      Delete Service
+                                    </AlertDialogTitle>
+                                    <AlertDialogDescription>
+                                      Are you sure you want to delete this
+                                      service? This action cannot be undone and
+                                      will remove the service from your lounge.
+                                    </AlertDialogDescription>
+                                  </AlertDialogHeader>
+                                  <AlertDialogFooter>
+                                    <AlertDialogCancel>
+                                      Cancel
+                                    </AlertDialogCancel>
+                                    <AlertDialogAction
+                                      onClick={() =>
+                                        handleDelete((service as any)._id)
+                                      }
+                                      className="bg-red-600 hover:bg-red-700"
+                                    >
+                                      Delete Service
+                                    </AlertDialogAction>
+                                  </AlertDialogFooter>
+                                </AlertDialogContent>
+                              </AlertDialog>
                             </div>
                           </td>
                         </tr>

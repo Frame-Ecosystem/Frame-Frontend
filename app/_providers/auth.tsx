@@ -260,6 +260,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [handleAuthFailure, refreshAccessToken, applyUserTheme])
 
   // Listen for storage events to sync auth state across tabs
+  /* eslint-disable react-hooks/exhaustive-deps */
   useEffect(() => {
     const handleStorageChange = async (e: StorageEvent) => {
       // Only react to accessToken changes
@@ -291,7 +292,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     window.addEventListener("storage", handleStorageChange)
     return () => window.removeEventListener("storage", handleStorageChange)
-  }) // No dependency array - this effect should only run once on mount
+  }, [])
+  /* eslint-enable react-hooks/exhaustive-deps */
 
   // Listen for verification completion messages from popup windows
   useEffect(() => {
@@ -316,7 +318,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     window.addEventListener("message", handleMessage)
     return () => window.removeEventListener("message", handleMessage)
-  }, [applyUserTheme])
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <AuthContext.Provider

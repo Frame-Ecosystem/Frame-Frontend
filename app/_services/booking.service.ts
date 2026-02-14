@@ -41,6 +41,52 @@ class BookingService {
     return undefined
   }
 
+  // Helper: Transform user data (client or lounge)
+  private transformUser(userData: any): any {
+    if (!userData) return undefined
+
+    // Return user data if it has an _id (basic validation)
+    if (userData._id) {
+      return userData
+    }
+
+    return undefined
+  }
+
+  // Helper: Process client data for a booking
+  private processBookingClient(booking: any): any {
+    if (!booking.clientId) return undefined
+
+    try {
+      // If clientId is an object, try to transform it
+      if (typeof booking.clientId === "object") {
+        return this.transformUser(booking.clientId)
+      }
+
+      return undefined
+    } catch (error) {
+      console.error("Failed to process booking client:", error)
+      return undefined
+    }
+  }
+
+  // Helper: Process lounge data for a booking
+  private processBookingLounge(booking: any): any {
+    if (!booking.loungeId) return undefined
+
+    try {
+      // If loungeId is an object, try to transform it
+      if (typeof booking.loungeId === "object") {
+        return this.transformUser(booking.loungeId)
+      }
+
+      return undefined
+    } catch (error) {
+      console.error("Failed to process booking lounge:", error)
+      return undefined
+    }
+  }
+
   // Helper: Process agent data for a booking
   private async processBookingAgent(booking: any): Promise<Agent | undefined> {
     if (!booking.agentId) return undefined
@@ -95,6 +141,8 @@ class BookingService {
           loungeServiceIds: booking.loungeServiceIds || [],
           loungeService: booking.loungeService || [],
           agent: await this.processBookingAgent(booking),
+          client: this.processBookingClient(booking),
+          lounge: this.processBookingLounge(booking),
         })),
       )
 
@@ -119,6 +167,8 @@ class BookingService {
         loungeServiceIds: booking.loungeServiceIds || [],
         loungeService: booking.loungeService || [],
         agent: await this.processBookingAgent(booking),
+        client: this.processBookingClient(booking),
+        lounge: this.processBookingLounge(booking),
       } as Booking
     } catch (error) {
       console.error("Failed to fetch booking:", error)
@@ -207,9 +257,13 @@ class BookingService {
   }
 
   // Cancel booking (for clients)
-  async cancel(id: string): Promise<boolean> {
+  async cancel(id: string, cancelledBy?: string): Promise<boolean> {
     try {
-      await this.update(id, { status: "cancelled" })
+      const updateData: any = { status: "cancelled" }
+      if (cancelledBy) {
+        updateData.cancelledBy = cancelledBy
+      }
+      await this.update(id, updateData)
       return true
     } catch (error) {
       console.error("Failed to cancel booking:", error)

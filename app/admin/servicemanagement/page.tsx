@@ -3,12 +3,7 @@
 import { useAuth } from "../../_providers/auth"
 import { useRouter } from "next/navigation"
 import { useEffect, useState, useCallback } from "react"
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "../../_components/ui/card"
+import { Card, CardContent, CardHeader } from "../../_components/ui/card"
 import { Button } from "../../_components/ui/button"
 import { Input } from "../../_components/ui/input"
 import { Label } from "../../_components/ui/label"
@@ -253,7 +248,7 @@ export default function ServiceManagementPage() {
   }
 
   return (
-    <div className="from-background via-background to-muted/20 min-h-screen bg-gradient-to-br">
+    <div className="from-background via-background to-muted/20 mb-24 min-h-screen bg-gradient-to-br">
       <div className="mx-auto max-w-7xl p-5 lg:px-8 lg:py-12">
         <div className="mb-8">
           <Button
@@ -273,11 +268,14 @@ export default function ServiceManagementPage() {
         </div>
 
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between">
-            <CardTitle>Services</CardTitle>
+          <CardHeader className="flex flex-row items-center justify-end">
             <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
               <DialogTrigger asChild>
-                <Button onClick={openCreateDialog}>
+                <Button
+                  variant="outline"
+                  onClick={openCreateDialog}
+                  className="border-green-500 text-green-600 hover:bg-green-50 hover:text-green-700"
+                >
                   <Plus className="mr-2 h-4 w-4" />
                   Add Service
                 </Button>
@@ -447,6 +445,7 @@ export default function ServiceManagementPage() {
                 <Button
                   variant="outline"
                   onClick={() => router.push("/admin/service-suggestions")}
+                  className="border-blue-500 text-blue-600 hover:bg-blue-50 hover:text-blue-700"
                 >
                   View Suggestions
                 </Button>

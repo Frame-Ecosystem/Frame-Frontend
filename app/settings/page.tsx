@@ -1,6 +1,6 @@
 "use client"
 
-import { ChevronRightIcon, Layers, Shield } from "lucide-react"
+import { ChevronRightIcon, Layers, Users } from "lucide-react"
 import Link from "next/link"
 // import Image from "next/image"
 import { Avatar, AvatarImage, AvatarFallback } from "../_components/ui/avatar"
@@ -111,7 +111,7 @@ export default function SettingsPage() {
                 <Link href="/lounge/agents">
                   <div className="border-border hover:bg-card/50 mt-6 flex w-full cursor-pointer items-center justify-between rounded-lg border p-4 transition-colors">
                     <div className="flex items-center gap-3">
-                      <Shield className="text-muted-foreground h-5 w-5" />
+                      <Users className="text-muted-foreground h-5 w-5" />
                       <span className="font-medium">Agent Management</span>
                     </div>
                     <ChevronRightIcon className="text-muted-foreground h-5 w-5" />

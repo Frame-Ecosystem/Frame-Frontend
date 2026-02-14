@@ -176,7 +176,8 @@ export default function SuggestService() {
       toast.success(
         "Service suggestion submitted successfully! It will be reviewed by an administrator and added to available services once approved.",
       )
-      setOpen(false)
+      setShowSuggestions(true)
+      fetchUserSuggestions()
       setForm({
         name: "",
         description: "",
@@ -229,7 +230,7 @@ export default function SuggestService() {
           Suggest a service
         </Button>
       </DialogTrigger>
-      <DialogContent>
+      <DialogContent className="max-h-[100vh] overflow-y-auto md:max-h-[80vh]">
         <DialogHeader>
           <DialogTitle>
             {showSuggestions
@@ -330,9 +331,9 @@ export default function SuggestService() {
             <div className="mb-4 flex justify-end">
               <Button
                 onClick={handleViewSuggestions}
-                variant="ghost"
+                variant="outline"
                 size="sm"
-                className="border-gray-500 text-gray-600 hover:bg-gray-50 hover:text-gray-700"
+                className="border-primary text-primary hover:bg-primary/10 hover:text-primary"
               >
                 View My Suggestions
               </Button>
@@ -366,7 +367,7 @@ export default function SuggestService() {
               </div>
               <div className="grid grid-cols-2 gap-2">
                 <div>
-                  <Label htmlFor="s-price">Estimated Price (dt) *</Label>
+                  <Label htmlFor="s-price"> Price (dt) *</Label>
                   <Input
                     id="s-price"
                     type="number"
@@ -381,9 +382,7 @@ export default function SuggestService() {
                   />
                 </div>
                 <div>
-                  <Label htmlFor="s-duration">
-                    Estimated Duration (minutes) *
-                  </Label>
+                  <Label htmlFor="s-duration">Duration (minutes) *</Label>
                   <Input
                     id="s-duration"
                     type="number"

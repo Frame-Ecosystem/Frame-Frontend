@@ -81,7 +81,7 @@ export default function AdminDashboard() {
           <h1 className="mb-2 text-3xl font-bold lg:text-4xl">
             Admin Dashboard
           </h1>
-          <p className="text-muted-foreground">Manage your lookisi platform</p>
+          <p className="text-muted-foreground">Manage your lookeys platform</p>
         </div>
 
         {/* Quick Stats */}

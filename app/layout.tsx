@@ -31,14 +31,14 @@ export const metadata: Metadata = {
   metadataBase: new URL("https://lookisi.vercel.app/"),
 
   // Primary title shown in browser tab and search results
-  title: "Lookisi",
+  title: "Lookeys",
 
   // Description for search engine results
   description:
-    "Lookisi est le système idéal pour les salons. Réservez des rendez-vous en ligne, trouvez des salons proches et gérez vos réservations facilement.",
+    "Lookeys est le système idéal pour les salons. Réservez des rendez-vous en ligne, trouvez des salons proches et gérez vos réservations facilement.",
   // Keywords for SEO (helps search engines categorize the site)
   keywords: [
-    "Lookisi",
+    "Lookeys",
     "système de gestion salon",
     "réservation salon",
     "salon en ligne",
@@ -58,13 +58,13 @@ export const metadata: Metadata = {
   icons: {
     icon: [
       {
-        url: "/images/lookisiLightPng.png",
+        url: "/images/lookeysLightPng.png",
         sizes: "192x192",
         type: "image/png",
         media: "(prefers-color-scheme: light)",
       },
       {
-        url: "/images/lookisiDarkPng.png",
+        url: "/images/lookeysDarkPng.png",
         sizes: "192x192",
         type: "image/png",
         media: "(prefers-color-scheme: dark)",
@@ -72,25 +72,25 @@ export const metadata: Metadata = {
     ],
     shortcut: [
       {
-        url: "/images/lookisiLightPng.png",
+        url: "/images/lookeysLightPng.png",
         type: "image/png",
         media: "(prefers-color-scheme: light)",
       },
       {
-        url: "/images/lookisiDarkPng.png",
+        url: "/images/lookeysDarkPng.png",
         type: "image/png",
         media: "(prefers-color-scheme: dark)",
       },
     ],
     apple: [
       {
-        url: "/images/lookisiLightPng.png",
+        url: "/images/lookeysLightPng.png",
         sizes: "180x180",
         type: "image/png",
         media: "(prefers-color-scheme: light)",
       },
       {
-        url: "/images/lookisiDarkPng.png",
+        url: "/images/lookeysDarkPng.png",
         sizes: "180x180",
         type: "image/png",
         media: "(prefers-color-scheme: dark)",
@@ -103,17 +103,17 @@ export const metadata: Metadata = {
 
   // Open Graph metadata for social media sharing (Facebook, LinkedIn, etc.)
   openGraph: {
-    title: "Lookisi - Système de Gestion des Centres",
+    title: "Lookeys - Système de Gestion des Centres",
     description:
-      "Trouvez et réservez dans les meilleurs centres avec Lookisi. Plateforme complète pour les clients et les coiffeurs.",
+      "Trouvez et réservez dans les meilleurs centres avec Lookeys. Plateforme complète pour les clients et les coiffeurs.",
     url: "https://lookisi.vercel.app/",
-    siteName: "Lookisi",
+    siteName: "Lookeys",
     images: [
       {
         url: "/mobile-banner.png",
         width: 1200,
         height: 630,
-        alt: "Lookisi - Système de Gestion des Centres",
+        alt: "Lookeys - Système de Gestion des Centres",
       },
     ],
     locale: "fr_TN",
@@ -133,29 +133,29 @@ export default function RootLayout({
         {/* Theme-based favicon */}
         <link
           rel="icon"
-          href="/images/lookisiLightPng.png"
+          href="/images/lookeysLightPng.png"
           media="(prefers-color-scheme: light)"
         />
         <link
           rel="icon"
-          href="/images/lookisiDarkPng.png"
+          href="/images/lookeysDarkPng.png"
           media="(prefers-color-scheme: dark)"
         />
         {/* Fallback for browsers that don't support prefers-color-scheme */}
-        <link rel="icon" href="/images/lookisiLightPng.png" />
+        <link rel="icon" href="/images/lookeysLightPng.png" />
 
         {/* Apple touch icons */}
         <link
           rel="apple-touch-icon"
-          href="/images/lookisiLightPng.png"
+          href="/images/lookeysLightPng.png"
           media="(prefers-color-scheme: light)"
         />
         <link
           rel="apple-touch-icon"
-          href="/images/lookisiDarkPng.png"
+          href="/images/lookeysDarkPng.png"
           media="(prefers-color-scheme: dark)"
         />
-        <link rel="apple-touch-icon" href="/images/lookisiLightPng.png" />
+        <link rel="apple-touch-icon" href="/images/lookeysLightPng.png" />
       </head>
       <body className={inter.className}>
         {/* PROVIDER HIERARCHY */}

@@ -97,7 +97,7 @@ const PWAInstallButton = () => {
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              📱 Install lookisi App
+              📱 Install lookeys App
             </DialogTitle>
             <DialogDescription>
               Follow these simple steps to add the app to your home screen:

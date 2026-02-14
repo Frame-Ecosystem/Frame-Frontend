@@ -18,6 +18,18 @@ import { useAuth } from "../../_providers/auth"
 import { bookingService } from "../../_services/booking.service"
 import type { Booking, BookingStatus } from "../../_types"
 import Image from "next/image"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "../ui/alert-dialog"
+import { BookingAvatar } from "./booking-avatar"
 
 interface BookingListProps {
   showActions?: boolean
@@ -60,7 +72,18 @@ export function BookingList({
     newStatus: BookingStatus,
   ) => {
     try {
-      await bookingService.update(bookingId, { status: newStatus })
+      const updateData: any = { status: newStatus }
+
+      if (newStatus === "cancelled") {
+        if (user?.type === "client") {
+          updateData.cancelledBy =
+            `${user.firstName || ""} ${user.lastName || ""}`.trim()
+        } else if (user?.type === "lounge") {
+          updateData.cancelledBy = user.loungeTitle || "Lounge"
+        }
+      }
+
+      await bookingService.update(bookingId, updateData)
       toast.success("Booking status updated")
       loadBookings() // Refresh the list
     } catch (error) {
@@ -71,7 +94,14 @@ export function BookingList({
 
   const handleCancel = async (bookingId: string) => {
     try {
-      await bookingService.cancel(bookingId)
+      let cancelledBy: string | undefined
+      if (user?.type === "client") {
+        cancelledBy = `${user.firstName || ""} ${user.lastName || ""}`.trim()
+      } else if (user?.type === "lounge") {
+        cancelledBy = user.loungeTitle || "Lounge"
+      }
+
+      await bookingService.cancel(bookingId, cancelledBy)
       toast.success("Booking cancelled")
       loadBookings() // Refresh the list
     } catch (error) {
@@ -80,18 +110,29 @@ export function BookingList({
     }
   }
 
+  const handleDelete = async (bookingId: string) => {
+    try {
+      await bookingService.delete(bookingId)
+      toast.success("Booking deleted successfully")
+      loadBookings() // Refresh the list
+    } catch (error) {
+      console.error("Failed to delete booking:", error)
+      toast.error("Failed to delete booking")
+    }
+  }
+
   const getStatusColor = (status: BookingStatus) => {
     switch (status) {
       case "pending":
-        return "bg-yellow-100 text-yellow-800"
+        return "bg-yellow-500 text-white hover:bg-yellow-500"
       case "confirmed":
-        return "bg-green-100 text-green-800"
+        return "bg-green-600 text-white hover:bg-green-600"
       case "inQueue":
-        return "bg-blue-100 text-blue-800"
+        return "bg-blue-600 text-white hover:bg-blue-600"
       case "cancelled":
-        return "bg-red-100 text-red-800"
+        return "bg-red-600 text-white hover:bg-red-600"
       default:
-        return "bg-gray-100 text-gray-800"
+        return "bg-gray-600 text-white hover:bg-gray-600"
     }
   }
 
@@ -149,40 +190,92 @@ export function BookingList({
       <div className="space-y-4">
         {filteredBookings.map((booking) => (
           <Card key={booking._id}>
-            <CardContent className="p-4">
-              <div className="mb-3 flex items-start justify-between">
-                <div className="flex-1">
-                  {/* Status */}
-                  <div className="mb-2 flex items-center gap-2">
-                    <span className="text-muted-foreground text-xs tracking-wide uppercase">
-                      Status:
-                    </span>
-                    <Badge
-                      className={getStatusColor(booking.status || "pending")}
-                    >
-                      {booking.status || "pending"}
-                    </Badge>
-                  </div>
+            {/* User Avatar Header */}
+            <div className="bg-muted/30 border-b px-3 py-2">
+              <div className="flex justify-center">
+                <BookingAvatar
+                  userType={user?.type || ""}
+                  client={booking.client}
+                  lounge={booking.lounge}
+                />
+              </div>
+            </div>
 
-                  {/* Date and Time on same row */}
-                  <div className="mb-1 flex items-center gap-4 text-sm">
-                    <div className="flex items-center gap-2">
-                      <Calendar className="h-4 w-4" />
-                      <span>
-                        {format(new Date(booking.bookingDate), "PPP")}
-                      </span>
+            <CardContent className="p-3">
+              <div className="mb-2 flex items-start justify-between">
+                <div className="flex-1">
+                  {/* Date/Time and Status/Cancelled By in 2 columns */}
+                  <div className="grid grid-cols-2 gap-4 text-sm">
+                    {/* Left Column: Date and Time */}
+                    <div className="flex flex-col gap-1">
+                      <div className="flex items-center gap-2">
+                        <Calendar className="h-4 w-4" />
+                        <span>
+                          {format(new Date(booking.bookingDate), "PPP")}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Clock className="h-4 w-4" />
+                        <span>
+                          {format(new Date(booking.bookingDate), "HH:mm")}
+                        </span>
+                      </div>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <Clock className="h-4 w-4" />
-                      <span>
-                        {format(new Date(booking.bookingDate), "HH:mm")}
-                      </span>
+
+                    {/* Right Column: Status Badge and Cancelled By */}
+                    <div className="flex flex-col items-end gap-1">
+                      <Badge
+                        className={`${getStatusColor(booking.status || "pending")} px-6`}
+                      >
+                        {booking.status || "pending"}
+                      </Badge>
+                      {booking.status === "cancelled" &&
+                        booking.cancelledBy && (
+                          <div className="text-muted-foreground px-2 text-xs">
+                            By {booking.cancelledBy}
+                          </div>
+                        )}
                     </div>
                   </div>
 
                   {/* Lounge Location */}
                   {booking.lounge && typeof booking.lounge === "object" && (
-                    <div className="flex items-center gap-2 text-sm">
+                    <div
+                      className="hover:text-primary flex cursor-pointer items-center gap-2 text-sm transition-colors"
+                      onClick={() => {
+                        const destination =
+                          booking.lounge?.location?.placeName ||
+                          booking.lounge?.location?.address ||
+                          booking.lounge?.loungeTitle
+
+                        if (destination && navigator.geolocation) {
+                          navigator.geolocation.getCurrentPosition(
+                            (position) => {
+                              const { latitude, longitude } = position.coords
+                              const origin = `${latitude},${longitude}`
+                              const encodedDestination =
+                                encodeURIComponent(destination)
+                              const mapsUrl = `https://www.google.com/maps/dir/?api=1&origin=${origin}&destination=${encodedDestination}&travelmode=driving`
+                              window.open(mapsUrl, "_blank")
+                            },
+                            (error) => {
+                              console.error("Error getting location:", error)
+                              // Fallback to search if geolocation fails
+                              const encodedDestination =
+                                encodeURIComponent(destination)
+                              const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodedDestination}`
+                              window.open(mapsUrl, "_blank")
+                            },
+                          )
+                        } else if (destination) {
+                          // Fallback if geolocation is not available
+                          const encodedDestination =
+                            encodeURIComponent(destination)
+                          const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodedDestination}`
+                          window.open(mapsUrl, "_blank")
+                        }
+                      }}
+                    >
                       <MapPin className="h-4 w-4" />
                       <span>
                         {booking.lounge.location?.placeName ||
@@ -196,7 +289,7 @@ export function BookingList({
               </div>
 
               {/* Services with Images */}
-              <div className="mb-3">
+              <div className="mb-2">
                 <div className="mb-2 text-sm font-medium">Booked Services:</div>
                 <div className="space-y-2">
                   {booking.loungeServiceIds &&
@@ -208,7 +301,7 @@ export function BookingList({
                       >
                         <div className="flex flex-1 items-center gap-3">
                           {/* Service Image */}
-                          <div className="bg-muted relative flex h-12 w-12 flex-shrink-0 items-center justify-center overflow-hidden rounded-md">
+                          <div className="bg-muted relative flex h-10 w-10 flex-shrink-0 items-center justify-center overflow-hidden rounded-md">
                             {service.image &&
                             service.image !== "/images/placeholder.png" ? (
                               <Image
@@ -252,10 +345,10 @@ export function BookingList({
 
               {/* Agent */}
               {booking.agent && (
-                <div className="mb-3">
+                <div className="mb-2">
                   <div className="mb-1 text-sm font-medium">Handled By:</div>
                   <div className="flex items-center gap-3">
-                    <div className="bg-muted relative h-8 w-8 overflow-hidden rounded-full">
+                    <div className="bg-muted relative h-6 w-6 overflow-hidden rounded-full">
                       {booking.agent.profileImage ? (
                         <Image
                           src={
@@ -284,7 +377,7 @@ export function BookingList({
 
               {/* Notes */}
               {booking.notes && (
-                <div className="mb-3">
+                <div className="mb-2">
                   <div className="flex items-center gap-2">
                     <span className="text-sm font-medium">Notes:</span>
                     <p className="text-muted-foreground text-sm">
@@ -295,7 +388,7 @@ export function BookingList({
               )}
 
               {/* Total Summary */}
-              <div className="mb-3 flex items-center justify-between border-t pt-3">
+              <div className="mb-2 flex items-center justify-between border-t pt-2">
                 <div className="text-sm font-medium">Total:</div>
                 <div className="text-right">
                   <div className="font-semibold">
@@ -315,58 +408,100 @@ export function BookingList({
 
               {/* Actions */}
               {showActions && (
-                <div className="flex gap-2 border-t pt-3">
-                  {allowCancel && booking.status === "pending" && (
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      className="border-red-500 text-red-600 hover:bg-red-50 hover:text-red-700"
-                      onClick={() => handleCancel(booking._id)}
-                    >
-                      Cancel
-                    </Button>
-                  )}
+                <div className="flex items-center justify-between border-t pt-2">
+                  <div className="flex gap-2">
+                    {allowCancel &&
+                      booking.status !== "cancelled" &&
+                      booking.status !== "inQueue" &&
+                      user?.type === "client" && (
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="border-red-500 text-red-600 hover:bg-red-500 hover:text-white"
+                          onClick={() => handleCancel(booking._id)}
+                        >
+                          Cancel
+                        </Button>
+                      )}
 
-                  {allowStatusUpdate && (
-                    <div className="flex gap-2">
-                      {booking.status !== "confirmed" && (
+                    {allowStatusUpdate && (
+                      <div className="flex gap-2">
+                        {booking.status !== "confirmed" &&
+                          booking.status !== "inQueue" &&
+                          booking.status !== "cancelled" && (
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="border-green-500 text-green-600 hover:bg-green-500 hover:text-white"
+                              onClick={() =>
+                                handleStatusUpdate(booking._id, "confirmed")
+                              }
+                            >
+                              Confirm
+                            </Button>
+                          )}
+                        {booking.status !== "inQueue" &&
+                          booking.status !== "cancelled" && (
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="border-primary text-primary hover:bg-primary hover:text-primary-foreground"
+                              onClick={() =>
+                                handleStatusUpdate(booking._id, "inQueue")
+                              }
+                            >
+                              Mark In Queue
+                            </Button>
+                          )}
+                        {booking.status !== "cancelled" &&
+                          booking.status !== "pending" && (
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="border-red-500 text-red-600 hover:bg-red-500 hover:text-white"
+                              onClick={() =>
+                                handleStatusUpdate(booking._id, "cancelled")
+                              }
+                            >
+                              Cancel
+                            </Button>
+                          )}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Admin Delete Button - Right Aligned */}
+                  {user?.type === "admin" && (
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
                         <Button
                           size="sm"
                           variant="outline"
-                          className="border-green-500 text-green-600 hover:bg-green-50 hover:text-green-700"
-                          onClick={() =>
-                            handleStatusUpdate(booking._id, "confirmed")
-                          }
+                          className="border-red-500 text-red-600 hover:bg-red-50 hover:text-red-700"
                         >
-                          Confirm
+                          Delete
                         </Button>
-                      )}
-                      {booking.status !== "inQueue" && (
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          className="border-primary text-primary hover:bg-primary/10"
-                          onClick={() =>
-                            handleStatusUpdate(booking._id, "inQueue")
-                          }
-                        >
-                          Mark In Queue
-                        </Button>
-                      )}
-                      {booking.status !== "cancelled" &&
-                        booking.status !== "pending" && (
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            className="border-red-500 text-red-600 hover:bg-red-50 hover:text-red-700"
-                            onClick={() =>
-                              handleStatusUpdate(booking._id, "cancelled")
-                            }
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>Delete Booking</AlertDialogTitle>
+                          <AlertDialogDescription>
+                            Are you sure you want to permanently delete this
+                            booking? This action cannot be undone and will
+                            remove all booking data.
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Cancel</AlertDialogCancel>
+                          <AlertDialogAction
+                            onClick={() => handleDelete(booking._id)}
+                            className="bg-red-600 hover:bg-red-700"
                           >
-                            Cancel
-                          </Button>
-                        )}
-                    </div>
+                            Delete Booking
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
                   )}
                 </div>
               )}

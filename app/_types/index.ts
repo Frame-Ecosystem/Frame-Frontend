@@ -124,6 +124,7 @@ export interface Booking {
     price: number
     duration: number
   }>
+  cancelledBy?: string
   // Backwards compatibility
   loungeServiceId?: string
   userId?: string
@@ -166,6 +167,7 @@ export interface UpdateBookingInput {
   totalPrice?: number
   totalDuration?: number
   notes?: string
+  cancelledBy?: string
 }
 
 // Booking statistics
@@ -219,6 +221,8 @@ export interface LoungeServiceItem {
   isActive?: boolean
   gender?: Gender
   image?: string
+  status?: string
+  cancelledBy?: string
   createdAt?: string
   updatedAt?: string
 }
@@ -232,6 +236,8 @@ export interface CreateLoungeServicePayload {
   isActive?: boolean
   gender?: Gender
   image?: string
+  status?: string
+  cancelledBy?: string
 }
 
 export interface ServiceSuggestion {

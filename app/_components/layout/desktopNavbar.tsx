@@ -19,13 +19,13 @@ const DesktopNavbar = () => {
   const pathname = usePathname()
   const { user, isLoading } = useAuth()
   const { resolvedTheme } = useTheme()
-  const [logoSrc, setLogoSrc] = useState("/images/lookisiDarkPng.png")
+  const [logoSrc, setLogoSrc] = useState("/images/lookeysDarkPng.png")
 
   useEffect(() => {
     if (resolvedTheme) {
       const newSrc = resolvedTheme.includes("light")
-        ? "/images/lookisiLightPng.png"
-        : "/images/lookisiDarkPng.png"
+        ? "/images/lookeysLightPng.png"
+        : "/images/lookeysDarkPng.png"
       setLogoSrc(newSrc)
     }
   }, [resolvedTheme])
@@ -38,7 +38,7 @@ const DesktopNavbar = () => {
           className="flex items-center gap-2 transition-opacity duration-200 hover:opacity-75"
         >
           <Image
-            alt="Lookisi"
+            alt="Lookeys"
             src={logoSrc}
             height={50}
             width={50}

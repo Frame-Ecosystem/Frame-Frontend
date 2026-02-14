@@ -90,9 +90,8 @@ export default function BookingsPage() {
   }
 
   // === AUTHENTICATED STATE ===
-  const canUpdateStatus = user.type === "lounge" || user.type === "admin"
-  const canCancelBookings =
-    user.type === "client" || user.type === "lounge" || user.type === "admin"
+  const canUpdateStatus = user.type === "lounge" // Only lounges can update status
+  const canCancelBookings = user.type === "client" || user.type === "lounge" // Only clients and lounges can cancel
 
   return (
     <ErrorBoundary>

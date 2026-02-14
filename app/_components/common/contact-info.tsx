@@ -25,9 +25,37 @@ export default function ContactInfo({ phones = [], email }: ContactInfoProps) {
     return () => window.removeEventListener("resize", checkMobile)
   }, [])
 
-  const handleCopyEmail = (email: string) => {
-    navigator.clipboard.writeText(email)
-    toast.success("Email copied successfully!")
+  const handleCopyEmail = async (email: string) => {
+    try {
+      // Modern Clipboard API (requires HTTPS)
+      if (navigator.clipboard && window.isSecureContext) {
+        await navigator.clipboard.writeText(email)
+        toast.success("Email copied successfully!")
+        return
+      }
+
+      // Fallback for older browsers or non-HTTPS contexts
+      const textArea = document.createElement("textarea")
+      textArea.value = email
+      textArea.style.position = "fixed"
+      textArea.style.left = "-999999px"
+      textArea.style.top = "-999999px"
+      document.body.appendChild(textArea)
+      textArea.focus()
+      textArea.select()
+
+      const successful = document.execCommand("copy")
+      document.body.removeChild(textArea)
+
+      if (successful) {
+        toast.success("Email copied successfully!")
+      } else {
+        throw new Error("Copy command failed")
+      }
+    } catch (error) {
+      console.error("Failed to copy email:", error)
+      toast.error("Copy not supported. Email: " + email)
+    }
   }
 
   // Truncate email to 15 characters with ellipsis if longer (mobile only)

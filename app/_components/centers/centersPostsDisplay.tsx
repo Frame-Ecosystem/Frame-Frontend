@@ -59,7 +59,7 @@ const MOCK_POSTS: Post[] = [
     authorRole: "Senior Stylist",
     content:
       "Just finished this amazing transformation! From dark brown to platinum blonde in one session. The client is absolutely thrilled with the results! ✨💇‍♀️",
-    imageUrl: "/images/lookisiLightPng.png",
+    imageUrl: "/images/lookeysLightPng.png",
     timestamp: "5 hours ago",
     likes: 289,
     comments: 45,

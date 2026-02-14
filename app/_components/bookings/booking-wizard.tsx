@@ -14,13 +14,7 @@ import {
 } from "../ui/select"
 import { Calendar } from "../ui/calendar"
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover"
-import {
-  CalendarIcon,
-  ChevronLeft,
-  ChevronRight,
-  User,
-  Check,
-} from "lucide-react"
+import { CalendarIcon, User, Check } from "lucide-react"
 import { format } from "date-fns"
 import { cn } from "@/app/_lib/utils"
 import { toast } from "sonner"
@@ -32,6 +26,8 @@ import type {
   CenterService,
   LoungeAgent,
 } from "../../_types"
+import { BookingProgress } from "./booking-progress"
+import { BookingNavigation } from "./booking-navigation"
 import Image from "next/image"
 
 interface BookingWizardProps {
@@ -219,123 +215,7 @@ export function BookingWizard({
   return (
     <div className="mx-auto mb-20 w-full max-w-sm overflow-x-hidden px-4 sm:max-w-lg sm:px-6 lg:max-w-2xl">
       {/* Progress Indicator - Mobile First */}
-      <div className="mb-4 sm:mb-6">
-        <div className="mb-4 flex flex-col space-y-4 sm:flex-row sm:items-center sm:justify-between sm:space-y-0">
-          {/* Step 1 */}
-          <div className="flex items-center space-x-3 sm:space-x-4">
-            <div
-              className={cn(
-                "flex h-10 w-10 items-center justify-center rounded-full text-sm font-medium transition-all duration-300 sm:h-8 sm:w-8",
-                currentStep === "datetime"
-                  ? "bg-primary text-primary-foreground shadow-lg"
-                  : ["datetime", "agent", "preview"].indexOf(currentStep) > 0
-                    ? "bg-green-500 text-white shadow-md"
-                    : "bg-muted text-muted-foreground",
-              )}
-            >
-              {["datetime", "agent", "preview"].indexOf(currentStep) >= 0 ? (
-                <Check className="h-5 w-5 sm:h-4 sm:w-4" />
-              ) : (
-                "1"
-              )}
-            </div>
-            <div className="flex flex-col sm:flex-row sm:items-center">
-              <span
-                className={cn(
-                  "text-base font-medium sm:text-sm",
-                  currentStep === "datetime"
-                    ? "text-primary"
-                    : "text-muted-foreground",
-                )}
-              >
-                Select Date & Time
-              </span>
-              <span className="text-muted-foreground text-xs sm:hidden">
-                Choose your preferred date and time
-              </span>
-            </div>
-          </div>
-
-          {/* Step 2 */}
-          <div className="flex items-center space-x-3 sm:space-x-4">
-            <div
-              className={cn(
-                "flex h-10 w-10 items-center justify-center rounded-full text-sm font-medium transition-all duration-300 sm:h-8 sm:w-8",
-                currentStep === "agent"
-                  ? "bg-primary text-primary-foreground shadow-lg"
-                  : currentStep === "preview"
-                    ? "bg-green-500 text-white shadow-md"
-                    : "bg-muted text-muted-foreground",
-              )}
-            >
-              {["datetime", "agent", "preview"].indexOf(currentStep) >= 1 ? (
-                <Check className="h-5 w-5 sm:h-4 sm:w-4" />
-              ) : (
-                "2"
-              )}
-            </div>
-            <div className="flex flex-col sm:flex-row sm:items-center">
-              <span
-                className={cn(
-                  "text-base font-medium sm:text-sm",
-                  currentStep === "agent"
-                    ? "text-primary"
-                    : "text-muted-foreground",
-                )}
-              >
-                Choose Agent
-              </span>
-              <span className="text-muted-foreground text-xs sm:hidden">
-                Select your preferred agent
-              </span>
-            </div>
-          </div>
-
-          {/* Step 3 */}
-          <div className="flex items-center space-x-3 sm:space-x-4">
-            <div
-              className={cn(
-                "flex h-10 w-10 items-center justify-center rounded-full text-sm font-medium transition-all duration-300 sm:h-8 sm:w-8",
-                currentStep === "preview"
-                  ? "bg-primary text-primary-foreground shadow-lg"
-                  : "bg-muted text-muted-foreground",
-              )}
-            >
-              3
-            </div>
-            <div className="flex flex-col sm:flex-row sm:items-center">
-              <span
-                className={cn(
-                  "text-base font-medium sm:text-sm",
-                  currentStep === "preview"
-                    ? "text-primary"
-                    : "text-muted-foreground",
-                )}
-              >
-                Confirm Booking
-              </span>
-              <span className="text-muted-foreground text-xs sm:hidden">
-                Review and confirm your booking
-              </span>
-            </div>
-          </div>
-        </div>
-
-        {/* Progress Bar */}
-        <div className="bg-muted h-3 w-full rounded-full shadow-inner">
-          <div
-            className="bg-primary h-3 rounded-full shadow-sm transition-all duration-500 ease-out"
-            style={{
-              width:
-                currentStep === "datetime"
-                  ? "33%"
-                  : currentStep === "agent"
-                    ? "66%"
-                    : "100%",
-            }}
-          />
-        </div>
-      </div>
+      <BookingProgress currentStep={currentStep} />
 
       {/* Step Content */}
       <Card className="w-full max-w-full shadow-lg">
@@ -575,58 +455,14 @@ export function BookingWizard({
           )}
 
           {/* Navigation Buttons */}
-          <div className="flex gap-3 pt-4 sm:justify-between sm:gap-4 sm:pt-3">
-            <Button
-              variant="outline"
-              onClick={currentStep === "datetime" ? onCancel : prevStep}
-              disabled={isLoading}
-              className={cn(
-                "h-12 flex-1 font-medium shadow-sm transition-all hover:shadow-md sm:h-10 sm:w-auto sm:flex-none",
-                currentStep === "datetime"
-                  ? "border-red-500 text-red-600 hover:bg-red-50 hover:text-red-700 active:bg-red-100"
-                  : "border-gray-500 text-gray-600 hover:bg-gray-50 hover:text-gray-700 active:bg-gray-100",
-              )}
-            >
-              {currentStep === "datetime" ? (
-                "Cancel"
-              ) : (
-                <>
-                  <ChevronLeft className="mr-2 h-5 w-5 sm:h-4 sm:w-4" />
-                  Back
-                </>
-              )}
-            </Button>
-
-            {currentStep === "preview" ? (
-              <Button
-                variant="outline"
-                onClick={handleSubmit}
-                disabled={isLoading}
-                className="h-12 flex-1 border-green-500 bg-green-50 font-medium text-green-700 shadow-sm transition-all hover:bg-green-100 hover:text-green-800 hover:shadow-md active:bg-green-200 sm:h-10 sm:w-auto sm:flex-none"
-              >
-                {isLoading ? (
-                  <>
-                    <div className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-green-600 border-t-transparent" />
-                    Creating...
-                  </>
-                ) : (
-                  <>
-                    Confirm Booking
-                    <Check className="mr-2 h-5 w-5 sm:h-4 sm:w-4" />
-                  </>
-                )}
-              </Button>
-            ) : (
-              <Button
-                variant="outline"
-                onClick={nextStep}
-                className="h-12 flex-1 border-blue-500 bg-blue-50 font-medium text-blue-700 shadow-sm transition-all hover:bg-blue-100 hover:text-blue-800 hover:shadow-md active:bg-blue-200 sm:h-10 sm:w-auto sm:flex-none"
-              >
-                Next
-                <ChevronRight className="ml-2 h-5 w-5 sm:h-4 sm:w-4" />
-              </Button>
-            )}
-          </div>
+          <BookingNavigation
+            currentStep={currentStep}
+            isLoading={isLoading}
+            {...(onCancel && { onCancel })}
+            onPrevStep={prevStep}
+            onNextStep={nextStep}
+            onSubmit={handleSubmit}
+          />
         </CardContent>
       </Card>
     </div>

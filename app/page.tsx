@@ -119,7 +119,7 @@ const LandingPage = () => {
         <section className="bg-muted/30 px-4 py-16 sm:px-6 lg:px-8">
           <div className="mx-auto max-w-7xl">
             <div className="mb-12 text-center">
-              <h2 className="mb-4 text-3xl font-bold">Why Choose Lookisi?</h2>
+              <h2 className="mb-4 text-3xl font-bold">Why Choose Lookeys?</h2>
               <p className="text-muted-foreground text-lg">
                 Experience the future of center booking
               </p>
@@ -192,7 +192,7 @@ const LandingPage = () => {
           <div className="mx-auto max-w-4xl text-center">
             <h2 className="mb-4 text-3xl font-bold">Ready to Get Started?</h2>
             <p className="mb-8 text-xl opacity-90">
-              Join thousands of satisfied customers who trust Lookisi for their
+              Join thousands of satisfied customers who trust Lookeys for their
               grooming needs.
             </p>
             <Button
@@ -213,24 +213,24 @@ const LandingPage = () => {
             <div className="flex flex-col items-center justify-between gap-4 md:flex-row">
               <div className="mb-4 flex items-center gap-2 md:mb-0">
                 <Image
-                  alt="Lookisi"
+                  alt="Lookeys"
                   src={
                     (resolvedTheme || theme || "monochrome-dark").includes(
                       "light",
                     )
-                      ? "/images/lookisiLightPng.png"
-                      : "/images/lookisiDarkPng.png"
+                      ? "/images/lookeysLightPng.png"
+                      : "/images/lookeysDarkPng.png"
                   }
                   height={32}
                   width={32}
                   className="h-6 w-auto"
                   suppressHydrationWarning
                 />
-                <span className="text-lg font-semibold">Lookisi</span>
+                <span className="text-lg font-semibold">Lookeys</span>
               </div>
               <div className="flex flex-col items-center gap-2 md:flex-row md:items-center">
                 <div className="text-muted-foreground text-sm">
-                  © 2026 Lookisi. All rights reserved.
+                  © 2026 Lookeys. All rights reserved.
                 </div>
               </div>
             </div>

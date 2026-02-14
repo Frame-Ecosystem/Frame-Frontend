@@ -198,7 +198,7 @@ const ClientHome = () => {
                 <div className="group relative h-[400px] w-full overflow-hidden rounded-xl lg:h-[550px]">
                   {/* Desktop Hero Image - Hover zoom effect */}
                   <Image
-                    alt="Book with the best at Lookisi"
+                    alt="Book with the best at Lookeys"
                     src="/images/bgHome.png"
                     fill
                     sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
