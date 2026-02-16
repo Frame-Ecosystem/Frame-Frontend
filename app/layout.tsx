@@ -58,42 +58,22 @@ export const metadata: Metadata = {
   icons: {
     icon: [
       {
-        url: "/images/frameIconLight.png",
+        url: "/images/favicon.png",
         sizes: "192x192",
         type: "image/png",
-        media: "(prefers-color-scheme: light)",
-      },
-      {
-        url: "/images/frameIconDark.png",
-        sizes: "192x192",
-        type: "image/png",
-        media: "(prefers-color-scheme: dark)",
       },
     ],
     shortcut: [
       {
-        url: "/images/frameIconLight.png",
+        url: "/images/favicon.png",
         type: "image/png",
-        media: "(prefers-color-scheme: light)",
-      },
-      {
-        url: "/images/frameIconDark.png",
-        type: "image/png",
-        media: "(prefers-color-scheme: dark)",
       },
     ],
     apple: [
       {
-        url: "/images/frameIconLight.png",
+        url: "/images/favicon.png",
         sizes: "180x180",
         type: "image/png",
-        media: "(prefers-color-scheme: light)",
-      },
-      {
-        url: "/images/frameIconDark.png",
-        sizes: "180x180",
-        type: "image/png",
-        media: "(prefers-color-scheme: dark)",
       },
     ],
   },
@@ -131,31 +111,10 @@ export default function RootLayout({
     <html lang="fr" suppressHydrationWarning>
       <head>
         {/* Theme-based favicon */}
-        <link
-          rel="icon"
-          href="/images/frameIconLight.png"
-          media="(prefers-color-scheme: light)"
-        />
-        <link
-          rel="icon"
-          href="/images/frameIconDark.png"
-          media="(prefers-color-scheme: dark)"
-        />
-        {/* Fallback for browsers that don't support prefers-color-scheme */}
-        <link rel="icon" href="/images/frameIconLight.png" />
+        <link rel="icon" href="/images/favicon.png" />
 
         {/* Apple touch icons */}
-        <link
-          rel="apple-touch-icon"
-          href="/images/frameIconLight.png"
-          media="(prefers-color-scheme: light)"
-        />
-        <link
-          rel="apple-touch-icon"
-          href="/images/frameIconDark.png"
-          media="(prefers-color-scheme: dark)"
-        />
-        <link rel="apple-touch-icon" href="/images/frameIconLight.png" />
+        <link rel="apple-touch-icon" href="/images/favicon.png" />
       </head>
       <body className={inter.className}>
         {/* PROVIDER HIERARCHY */}

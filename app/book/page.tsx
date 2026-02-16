@@ -92,7 +92,7 @@ function BookPageContent() {
   }
 
   return (
-    <div className="container mx-auto max-w-4xl px-4 py-6">
+    <div className="container mx-auto max-w-4xl px-4 py-6 pt-12">
       <div className="mb-6 text-center">
         <h1 className="text-2xl font-bold text-gray-900 sm:text-3xl">
           Book Your Appointment

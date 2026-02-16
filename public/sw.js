@@ -1,8 +1,9 @@
-const CACHE_NAME = "frame-v2"
+const CACHE_NAME = "frame-v4"
 const urlsToCache = [
   "/",
   "/images/frameIconDark.png",
   "/images/frameIconLight.png",
+  "/images/favicon.png",
   // Add other critical resources
 ]
 
