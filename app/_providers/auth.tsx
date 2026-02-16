@@ -5,6 +5,8 @@
  * Refresh tokens are stored in HttpOnly cookies (handled by backend)
  */
 
+/* eslint-disable react-hooks/exhaustive-deps */
+
 "use client"
 
 import React, {
@@ -149,11 +151,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }, [])
 
-  // Handle authentication failure - clear auth and redirect to root
+  // Handle authentication failure - clear auth and redirect to root with sign-in dialog
   const handleAuthFailure = useCallback(() => {
-    console.log("[AuthProvider] Authentication failed - redirecting to root")
+    console.log(
+      "[AuthProvider] Authentication failed - redirecting to root with sign-in dialog",
+    )
     clearAuth()
-    router.push("/")
+    router.push("/?signin=true")
   }, [clearAuth, router])
 
   // Refresh user data from server
@@ -169,6 +173,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       console.error("[AuthProvider] Failed to refresh user data:", error)
     }
   }, [accessToken, applyUserTheme])
+
+  // Refs to avoid dependency issues in storage event listener
+  const setUserRef = useRef(setUser)
+  const setAccessTokenRef = useRef(setAccessToken)
+  const setSessionFlagRef = useRef(setSessionFlag)
+  const applyUserThemeRef = useRef(applyUserTheme)
+
+  // Update refs when functions change
+  useEffect(() => {
+    setUserRef.current = setUser
+    setAccessTokenRef.current = setAccessToken
+    setSessionFlagRef.current = setSessionFlag
+    applyUserThemeRef.current = applyUserTheme
+  }, [setUser, setAccessToken, setSessionFlag, applyUserTheme])
 
   // Update API client when access token changes
   useEffect(() => {
@@ -260,32 +278,31 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [handleAuthFailure, refreshAccessToken, applyUserTheme])
 
   // Listen for storage events to sync auth state across tabs
-  /* eslint-disable react-hooks/exhaustive-deps */
   useEffect(() => {
     const handleStorageChange = async (e: StorageEvent) => {
       // Only react to accessToken changes
       if (e.key === "accessToken") {
         if (e.newValue) {
           // Token was added/updated in another tab
-          setAccessToken(e.newValue)
+          setAccessTokenRef.current(e.newValue)
           apiClient.setAccessTokenGetter(() => e.newValue)
 
           // Fetch user data
           try {
             const userData = await authService.getCurrentUser()
             if (userData) {
-              setUser(userData)
-              applyUserTheme(userData)
-              setSessionFlag(true)
+              setUserRef.current(userData)
+              applyUserThemeRef.current(userData)
+              setSessionFlagRef.current(true)
             }
           } catch (error) {
             console.error("Failed to sync user data from storage event:", error)
           }
         } else {
           // Token was removed
-          setUser(null)
-          setAccessToken(null)
-          setSessionFlag(false)
+          setUserRef.current(null)
+          setAccessTokenRef.current(null)
+          setSessionFlagRef.current(false)
         }
       }
     }
@@ -293,7 +310,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     window.addEventListener("storage", handleStorageChange)
     return () => window.removeEventListener("storage", handleStorageChange)
   }, [])
-  /* eslint-enable react-hooks/exhaustive-deps */
 
   // Listen for verification completion messages from popup windows
   useEffect(() => {
@@ -318,7 +334,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     window.addEventListener("message", handleMessage)
     return () => window.removeEventListener("message", handleMessage)
-  }, []) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [])
 
   return (
     <AuthContext.Provider

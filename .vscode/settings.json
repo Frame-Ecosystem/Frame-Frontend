@@ -1,5 +1,5 @@
 {
-    "CodeGPT.apiKey": "OpenAI",
-    "amp.experimental.codeReviewSkill": true,
-    "amp.experimental.reviewSubagent": true
+  "CodeGPT.apiKey": "OpenAI",
+  "amp.experimental.codeReviewSkill": true,
+  "amp.experimental.reviewSubagent": true
 }

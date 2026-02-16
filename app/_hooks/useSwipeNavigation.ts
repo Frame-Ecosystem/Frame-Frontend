@@ -61,8 +61,21 @@ export function useSwipeNavigation() {
       if (!element || !(element instanceof HTMLElement)) return false
 
       let current: HTMLElement | null = element as HTMLElement
-      while (current) {
+      let depth = 0
+      const maxDepth = 10 // Increased depth to find scrollable containers
+
+      while (current && depth < maxDepth) {
         const { className, scrollWidth, clientWidth } = current
+        const computedStyle = window.getComputedStyle(current)
+        const overflow = computedStyle.overflow
+        const overflowX = computedStyle.overflowX
+
+        // Check for explicit overflow settings
+        const hasOverflowX =
+          overflowX === "auto" ||
+          overflowX === "scroll" ||
+          overflow === "auto" ||
+          overflow === "scroll"
         const hasScrollClass =
           className &&
           (className.includes("overflow-auto") ||
@@ -70,10 +83,30 @@ export function useSwipeNavigation() {
             className.includes("overflow-scroll") ||
             className.includes("overflow-x-scroll"))
 
-        if (hasScrollClass && scrollWidth > clientWidth) {
+        // Special check for centers page scrollable container
+        const isCentersScrollableContainer =
+          className &&
+          className.includes("flex") &&
+          className.includes("gap-4") &&
+          className.includes("overflow-auto")
+
+        // Check if element actually has horizontal scroll capability
+        const canScrollHorizontally = scrollWidth > clientWidth + 1 // +1 for rounding errors
+
+        if (
+          (hasOverflowX || hasScrollClass || isCentersScrollableContainer) &&
+          canScrollHorizontally
+        ) {
           return true
         }
+
+        // Also return true if we find the centers scrollable container even without overflow
+        if (isCentersScrollableContainer) {
+          return true
+        }
+
         current = current.parentElement
+        depth++
       }
       return false
     },
@@ -86,8 +119,8 @@ export function useSwipeNavigation() {
       const routes = getNavigationRoutes()
       const isOnNavPage = isNavigationPage(routes)
 
-      // Block navigation in scrollable containers when not on nav pages
-      if (!isOnNavPage && hasHorizontalScroll(startElement)) {
+      // Always block navigation in scrollable containers
+      if (hasHorizontalScroll(startElement)) {
         return
       }
 

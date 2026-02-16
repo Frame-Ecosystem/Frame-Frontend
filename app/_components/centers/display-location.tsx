@@ -61,7 +61,10 @@ export default function DisplayLocation({
                 <button
                   onClick={() => {
                     const mapsUrl = `https://www.google.com/maps?q=${latitude},${longitude}`
-                    window.open(mapsUrl, "_blank")
+                    const newWindow = window.open(mapsUrl, "_blank")
+                    if (!newWindow) {
+                      window.location.href = mapsUrl
+                    }
                   }}
                   className="text-primary hover:text-primary/80 mt-2 flex items-center gap-1.5 text-sm transition-colors"
                 >

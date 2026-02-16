@@ -82,7 +82,10 @@ export function AccountInformation({
                             <button
                               onClick={() => {
                                 const mapsUrl = `https://www.google.com/maps?q=${user.location?.latitude},${user.location?.longitude}`
-                                window.open(mapsUrl, "_blank")
+                                const newWindow = window.open(mapsUrl, "_blank")
+                                if (!newWindow) {
+                                  window.location.href = mapsUrl
+                                }
                               }}
                               className="text-primary hover:text-primary/80 mt-1 text-sm transition-colors"
                             >

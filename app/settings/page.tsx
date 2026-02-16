@@ -42,7 +42,7 @@ export default function SettingsPage() {
   return (
     <ErrorBoundary>
       <div className="from-background via-background to-muted/20 min-h-screen bg-linear-to-br pb-24 lg:pb-0">
-        <div className="mx-auto max-w-7xl">
+        <div className="mx-auto mt-6 max-w-7xl">
           <div className="space-y-6 p-5 pb-32 lg:px-8 lg:py-12 lg:pb-6">
             {/* === USER SECTION === */}
             {/* Clickable card that links to profile (if authenticated) or shows sign-in */}

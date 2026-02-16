@@ -8,16 +8,6 @@ import { ErrorBoundary } from "../_components/common/errorBoundary"
 import { useAuth } from "../_providers/auth"
 import { BookingList } from "../_components/bookings/booking-list"
 
-/**
- * BookingsPage Component
- *
- * Displays the user's booking history.
- *
- * Features:
- * - Authentication check with sign-in prompt for unauthenticated users
- * - Booking list with filtering and actions based on user role
- * - Role-based access (clients can cancel, lounges can update status, admins can do everything)
- */
 export default function BookingsPage() {
   const { user, isLoading } = useAuth()
 
@@ -98,23 +88,24 @@ export default function BookingsPage() {
       <div className="from-background via-background to-muted/20 mb-24 min-h-screen bg-linear-to-br lg:mb-0">
         <div className="mx-auto max-w-7xl p-5 lg:px-8 lg:py-12">
           {/* Page Header */}
-          <div className="mb-8 flex items-center justify-between">
-            <div>
-              <h1 className="text-2xl font-bold">
+          <div className="mb-8 lg:mb-12">
+            <div className="mt-6 mb-4 flex items-center gap-3">
+              <CalendarIcon className="text-primary h-8 w-8 lg:h-10 lg:w-10" />
+              <h1 className="text-3xl font-bold lg:text-4xl">
                 {user.type === "lounge"
                   ? "Bookings Management"
                   : user.type === "admin"
                     ? "All Bookings"
                     : "My Bookings"}
               </h1>
-              <p className="text-muted-foreground">
-                {user.type === "lounge"
-                  ? "Manage bookings for your lounge services"
-                  : user.type === "admin"
-                    ? "View and manage all bookings in the system"
-                    : "View and manage your appointments"}
-              </p>
             </div>
+            <p className="text-muted-foreground lg:text-lg">
+              {user.type === "lounge"
+                ? "Manage bookings for your lounge services"
+                : user.type === "admin"
+                  ? "View and manage all bookings in the system"
+                  : "View and manage your appointments"}
+            </p>
           </div>
 
           {/* Bookings List */}

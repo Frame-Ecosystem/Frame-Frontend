@@ -9,6 +9,7 @@ type BookingStep = "datetime" | "agent" | "preview"
 interface BookingNavigationProps {
   currentStep: BookingStep
   isLoading: boolean
+  isStepValid?: boolean
   onCancel?: () => void
   onPrevStep: () => void
   onNextStep: () => void
@@ -18,6 +19,7 @@ interface BookingNavigationProps {
 export function BookingNavigation({
   currentStep,
   isLoading,
+  isStepValid = true,
   onCancel,
   onPrevStep,
   onNextStep,
@@ -71,7 +73,13 @@ export function BookingNavigation({
         <Button
           variant="outline"
           onClick={onNextStep}
-          className="border-primary bg-primary/10 text-primary hover:bg-primary/20 active:bg-primary/30 h-12 flex-1 font-medium shadow-sm transition-all hover:shadow-md sm:h-10 sm:w-auto sm:flex-none"
+          disabled={isLoading || !isStepValid}
+          className={cn(
+            "h-12 flex-1 font-medium shadow-sm transition-all hover:shadow-md sm:h-10 sm:w-auto sm:flex-none",
+            !isStepValid
+              ? "cursor-not-allowed border-gray-300 bg-gray-50 text-gray-400"
+              : "border-primary bg-primary/10 text-primary hover:bg-primary/20 active:bg-primary/30",
+          )}
         >
           <div className="flex w-full items-center justify-between">
             <span className="flex-1 text-center">Next</span>

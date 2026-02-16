@@ -6,6 +6,15 @@ import { BookingWizard } from "../_components/bookings/booking-wizard"
 import { CenterService } from "../_types"
 import { useRouter } from "next/navigation"
 import { loungeService } from "../_services"
+import { serviceService } from "../_services"
+
+// Helper function to get valid image URL
+const getValidImageUrl = (image: any): string => {
+  if (!image) return "/images/placeholder.svg"
+  if (typeof image === "string" && image.trim()) return image
+  if (typeof image === "object" && image.url) return image.url
+  return "/images/placeholder.svg"
+}
 
 function BookPageContent() {
   const searchParams = useSearchParams()
@@ -29,6 +38,9 @@ function BookPageContent() {
         // Fetch all lounge services for this lounge
         const allLoungeServices = await loungeService.getAll()
 
+        // Fetch global services to get service names
+        const globalServices = await serviceService.getAll()
+
         // Filter to only the selected services
         const selectedLoungeServices = allLoungeServices.filter((service) =>
           serviceIds.includes(service._id),
@@ -36,18 +48,22 @@ function BookPageContent() {
 
         // Convert LoungeServiceItem to CenterService format
         const services: CenterService[] = selectedLoungeServices.map(
-          (service) => ({
-            id: service._id,
-            name:
-              typeof service.serviceId === "object"
-                ? service.serviceId.name
-                : "Unknown Service",
-            description: service.description || "",
-            imageUrl: service.image || "",
-            price: service.price || 0,
-            durationMinutes: service.duration || 0,
-            centerId: service.loungeId,
-          }),
+          (service) => {
+            // Find the global service to get the name
+            const globalService = globalServices.find(
+              (gs) => gs.id === service.serviceId,
+            )
+
+            return {
+              id: service._id,
+              name: globalService?.name || "Service",
+              description: service.description || "",
+              imageUrl: getValidImageUrl(service.image),
+              price: service.price || 0,
+              durationMinutes: service.duration || 0,
+              centerId: service.loungeId,
+            }
+          },
         )
 
         setPreSelectedServices(services)

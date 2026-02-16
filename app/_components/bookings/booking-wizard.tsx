@@ -1,22 +1,7 @@
 "use client"
 
-import { useState, useEffect } from "react"
-import { Button } from "../ui/button"
-import { Label } from "../ui/label"
-import { Textarea } from "../ui/textarea"
+import { useState, useEffect, useCallback } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "../ui/select"
-import { Calendar } from "../ui/calendar"
-import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover"
-import { CalendarIcon, User, Check } from "lucide-react"
-import { format } from "date-fns"
-import { cn } from "@/app/_lib/utils"
 import { toast } from "sonner"
 import { useAuth } from "../../_providers/auth"
 import { loungeService } from "../../_services/lounge.service"
@@ -28,7 +13,9 @@ import type {
 } from "../../_types"
 import { BookingProgress } from "./booking-progress"
 import { BookingNavigation } from "./booking-navigation"
-import Image from "next/image"
+import { BookingDateTimeStep } from "./booking-datetime-step"
+import { BookingAgentStep } from "./booking-agent-step"
+import { BookingPreviewStep } from "./booking-preview-step"
 
 interface BookingWizardProps {
   onSuccess?: () => void
@@ -57,6 +44,10 @@ export function BookingWizard({
   // Step 2: Agent Selection
   const [agents, setAgents] = useState<LoungeAgent[]>([])
   const [selectedAgent, setSelectedAgent] = useState<LoungeAgent | null>(null)
+  const [selectedAgents, setSelectedAgents] = useState<{
+    [serviceId: string]: LoungeAgent | undefined
+  }>({})
+  const [useMultipleAgents, setUseMultipleAgents] = useState(false)
 
   // Step 3: Preview & Notes
   const [notes, setNotes] = useState("")
@@ -116,20 +107,86 @@ export function BookingWizard({
     setTotalDuration(duration)
   }, [selectedServices])
 
+  // Helper function to check if agent can perform selected services
+  const canAgentPerformServices = useCallback(
+    (agent: LoungeAgent): boolean => {
+      if (!selectedServices.length) return true // If no services selected, all agents are available
+      if (!agent.idLoungeService || agent.idLoungeService.length === 0)
+        return false // Agent has no assigned services
+
+      // Check if agent can perform ALL selected services
+      return selectedServices.every((service) =>
+        agent.idLoungeService!.includes(service.id),
+      )
+    },
+    [selectedServices],
+  )
+
+  // Determine if multiple agents are needed
+  useEffect(() => {
+    if (agents.length > 0 && selectedServices.length > 0) {
+      const availableAgents = agents.filter((agent) =>
+        canAgentPerformServices(agent),
+      )
+      setUseMultipleAgents(
+        availableAgents.length === 0 && selectedServices.length > 1,
+      )
+    }
+  }, [agents, selectedServices, canAgentPerformServices])
+
+  // Get services that agent cannot perform
+  const getUnavailableServices = (agent: LoungeAgent): CenterService[] => {
+    if (!selectedServices.length || !agent.idLoungeService) return []
+
+    return selectedServices.filter(
+      (service) => !agent.idLoungeService!.includes(service.id),
+    )
+  }
+
+  // Check if an agent can perform a specific service
+  const canAgentPerformService = (
+    agent: LoungeAgent,
+    serviceId: string,
+  ): boolean => {
+    return agent.idLoungeService?.includes(serviceId) || false
+  }
+
+  // Get available agents for a specific service
+  const getAvailableAgentsForService = (serviceId: string): LoungeAgent[] => {
+    return agents.filter((agent) => canAgentPerformService(agent, serviceId))
+  }
+
   const handleSubmit = async () => {
+    // Basic validation
     if (
       !user ||
       !loungeId ||
       !bookingDate ||
       !bookingTime ||
-      !selectedAgent ||
-      !selectedAgent._id ||
       selectedServices.length === 0
     ) {
       toast.error(
         "Please fill in all required fields and select at least one service",
       )
       return
+    }
+
+    // Agent validation based on mode
+    if (useMultipleAgents) {
+      // For multiple agents, check if all services have agents assigned
+      const allServicesAssigned = selectedServices.every(
+        (service) => selectedAgents[service.id],
+      )
+      if (!allServicesAssigned) {
+        toast.error("Please assign an agent to each service")
+        return
+      }
+    } else {
+      // For single agent mode, check if an agent is selected
+      if (!selectedAgent || !selectedAgent._id) {
+        toast.error("Please select an agent")
+        return
+      }
     }
 
     const userId = user._id
@@ -140,10 +197,32 @@ export function BookingWizard({
 
     setIsLoading(true)
     try {
+      // Prepare agent IDs based on selection mode
+      let agentIds: string[] = []
+      if (useMultipleAgents) {
+        // Multiple agents - one per service
+        agentIds = Object.values(selectedAgents)
+          .filter((agent): agent is LoungeAgent => agent !== undefined)
+          .map((agent) => agent._id)
+      } else if (selectedAgent) {
+        // Single agent
+        if (selectedAgent._id) {
+          agentIds = [selectedAgent._id]
+        }
+      }
+
+      if (agentIds.length === 0) {
+        toast.error(
+          "No valid agents selected. Please select agents for your booking.",
+        )
+        setIsLoading(false)
+        return
+      }
+
       const bookingData: CreateBookingInput = {
         clientId: userId,
         loungeId: loungeId,
-        agentId: selectedAgent?._id,
+        agentIds: agentIds.length > 0 ? agentIds : undefined,
         loungeServiceIds: selectedServices.map((service) => service.id),
         bookingDate: new Date(
           bookingDate.getFullYear(),
@@ -171,9 +250,26 @@ export function BookingWizard({
       toast.error("Please select a date and time")
       return
     }
-    if (currentStep === "agent" && agents.length > 0 && !selectedAgent) {
-      toast.error("Please select an agent")
-      return
+    if (currentStep === "agent") {
+      if (useMultipleAgents) {
+        // For multiple agents, check if all services have agents assigned
+        const allServicesAssigned = selectedServices.every(
+          (service) => selectedAgents[service.id],
+        )
+        if (!allServicesAssigned) {
+          toast.error("Please assign an agent to each service")
+          return
+        }
+      } else {
+        // For single agent, check if there are available agents
+        const availableAgents = agents.filter((agent) =>
+          canAgentPerformServices(agent),
+        )
+        if (availableAgents.length > 0 && !selectedAgent) {
+          toast.error("Please select an agent")
+          return
+        }
+      }
     }
 
     if (currentStep === "datetime") setCurrentStep("agent")
@@ -185,32 +281,39 @@ export function BookingWizard({
     else if (currentStep === "preview") setCurrentStep("agent")
   }
 
-  const timeSlots = [
-    "08:00",
-    "08:30",
-    "09:00",
-    "09:30",
-    "10:00",
-    "10:30",
-    "11:00",
-    "11:30",
-    "12:00",
-    "12:30",
-    "13:00",
-    "13:30",
-    "14:00",
-    "14:30",
-    "15:00",
-    "15:30",
-    "16:00",
-    "16:30",
-    "17:00",
-    "17:30",
-    "18:00",
-    "18:30",
-    "19:00",
-    "19:30",
-  ]
+  // Check if current step is valid
+  const isCurrentStepValid = useCallback(() => {
+    switch (currentStep) {
+      case "datetime":
+        return !!(bookingDate && bookingTime)
+      case "agent":
+        if (useMultipleAgents) {
+          // For multiple agents, check if all services have agents assigned
+          return selectedServices.every((service) => selectedAgents[service.id])
+        } else {
+          // For single agent, check if there are available agents and one is selected
+          const availableAgents = agents.filter((agent) =>
+            canAgentPerformServices(agent),
+          )
+          return availableAgents.length === 0 || !!selectedAgent
+        }
+      case "preview":
+        // Preview step is always valid (validation happens on submit)
+        return true
+      default:
+        return false
+    }
+  }, [
+    currentStep,
+    bookingDate,
+    bookingTime,
+    useMultipleAgents,
+    selectedServices,
+    selectedAgents,
+    agents,
+    selectedAgent,
+    canAgentPerformServices,
+  ])
 
   return (
     <div className="mx-auto mb-20 w-full max-w-sm overflow-x-hidden px-4 sm:max-w-lg sm:px-6 lg:max-w-2xl">
@@ -228,236 +331,53 @@ export function BookingWizard({
         <CardContent className="space-y-4 px-4 sm:px-6">
           {/* Step 1: Date & Time Selection */}
           {currentStep === "datetime" && (
-            <div className="space-y-4">
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-6">
-                {/* Date Selection */}
-                <div className="space-y-3">
-                  <Label className="text-sm font-medium">Select Date</Label>
-                  <Popover
-                    open={isDatePopoverOpen}
-                    onOpenChange={setIsDatePopoverOpen}
-                  >
-                    <PopoverTrigger asChild>
-                      <Button
-                        variant="outline"
-                        className={cn(
-                          "h-12 w-full justify-start text-left font-normal shadow-sm transition-all hover:shadow-md",
-                          !bookingDate && "text-muted-foreground",
-                        )}
-                      >
-                        <CalendarIcon className="mr-3 h-5 w-5" />
-                        {bookingDate
-                          ? format(bookingDate, "PPP")
-                          : "Pick a date"}
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0" align="start">
-                      <Calendar
-                        mode="single"
-                        selected={bookingDate}
-                        onSelect={(date) => {
-                          setBookingDate(date)
-                          setIsDatePopoverOpen(false)
-                        }}
-                        disabled={(date) => date < new Date()}
-                        initialFocus
-                        className="rounded-md border shadow-lg"
-                      />
-                    </PopoverContent>
-                  </Popover>
-                </div>
-
-                {/* Time Selection */}
-                <div className="space-y-3">
-                  <Label className="text-sm font-medium">Select Time</Label>
-                  <Select value={bookingTime} onValueChange={setBookingTime}>
-                    <SelectTrigger className="h-12 shadow-sm transition-all hover:shadow-md">
-                      <SelectValue placeholder="Select time" />
-                    </SelectTrigger>
-                    <SelectContent className="max-h-60">
-                      {timeSlots.map((time) => (
-                        <SelectItem key={time} value={time} className="h-10">
-                          {time}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-
-              {bookingDate && bookingTime && (
-                <div className="bg-primary/5 border-primary/20 rounded-xl border p-4 shadow-sm">
-                  <div className="flex items-center gap-3">
-                    <div className="bg-primary/10 rounded-full p-2">
-                      <CalendarIcon className="text-primary h-5 w-5" />
-                    </div>
-                    <div>
-                      <p className="text-primary font-medium">
-                        Selected: {format(bookingDate, "PPP")}
-                      </p>
-                      <p className="text-muted-foreground text-sm">
-                        at {bookingTime}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              )}
-            </div>
+            <BookingDateTimeStep
+              bookingDate={bookingDate}
+              setBookingDate={setBookingDate}
+              bookingTime={bookingTime}
+              setBookingTime={setBookingTime}
+              isDatePopoverOpen={isDatePopoverOpen}
+              setIsDatePopoverOpen={setIsDatePopoverOpen}
+            />
           )}
 
           {/* Step 2: Agent Selection */}
           {currentStep === "agent" && (
-            <div className="space-y-4">
-              <div className="sm:text-left">
-                <p className="text-muted-foreground mt-1 text-sm">
-                  Choose your preferred agent or skip to any available agent
-                </p>
-              </div>
-
-              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4">
-                {agents.map((agent) => (
-                  <div
-                    key={agent._id}
-                    onClick={() => {
-                      setSelectedAgent(agent)
-                    }}
-                    className={cn(
-                      "hover:border-primary cursor-pointer rounded-xl border-2 p-4 transition-all duration-200 hover:shadow-md active:scale-95",
-                      selectedAgent?._id === agent._id
-                        ? "border-primary bg-primary/5 ring-primary/20 shadow-md ring-2"
-                        : "border-border bg-card hover:bg-accent/50",
-                    )}
-                  >
-                    <div className="flex items-center space-x-4">
-                      <div className="bg-muted relative h-14 w-14 overflow-hidden rounded-full shadow-sm">
-                        {agent.profileImage ? (
-                          <Image
-                            src={
-                              typeof agent.profileImage === "string"
-                                ? agent.profileImage
-                                : agent.profileImage.url
-                            }
-                            alt={agent.agentName}
-                            fill
-                            className="object-cover"
-                          />
-                        ) : (
-                          <div className="flex h-full w-full items-center justify-center">
-                            <User className="text-muted-foreground h-7 w-7" />
-                          </div>
-                        )}
-                      </div>
-                      <div className="min-w-0 flex-1">
-                        <h3 className="truncate text-base font-semibold">
-                          {agent.agentName}
-                        </h3>
-                        <p className="text-muted-foreground text-sm">
-                          Professional Agent
-                        </p>
-                        {selectedAgent?._id === agent._id && (
-                          <div className="mt-2 flex items-center gap-1">
-                            <Check className="text-primary h-4 w-4" />
-                            <span className="text-primary text-xs font-medium">
-                              Selected
-                            </span>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-              {agents.length === 0 && (
-                <div className="text-muted-foreground rounded-xl border-2 border-dashed py-12 text-center">
-                  <User className="mx-auto mb-3 h-12 w-12 opacity-50" />
-                  <p className="font-medium">No agents available</p>
-                  <p className="mt-1 text-sm">
-                    You can proceed without selecting an agent.
-                  </p>
-                </div>
-              )}
-            </div>
+            <BookingAgentStep
+              selectedServices={selectedServices}
+              agents={agents}
+              selectedAgent={selectedAgent}
+              setSelectedAgent={setSelectedAgent}
+              selectedAgents={selectedAgents}
+              setSelectedAgents={setSelectedAgents}
+              useMultipleAgents={useMultipleAgents}
+              canAgentPerformServices={canAgentPerformServices}
+              getUnavailableServices={getUnavailableServices}
+              getAvailableAgentsForService={getAvailableAgentsForService}
+            />
           )}
 
           {/* Step 3: Preview & Confirm */}
           {currentStep === "preview" && (
-            <div className="space-y-4">
-              {/* Notes */}
-              <div className="space-y-3">
-                <Label htmlFor="notes" className="text-base font-medium">
-                  Additional Notes (Optional)
-                </Label>
-                <Textarea
-                  id="notes"
-                  placeholder="Any special requests or notes..."
-                  value={notes}
-                  onChange={(e) => setNotes(e.target.value)}
-                  rows={3}
-                  className="border-border resize-none shadow-sm"
-                />
-              </div>
-
-              {/* Booking Summary */}
-              <div className="space-y-3">
-                <div className="border-border bg-card space-y-3 rounded-xl border-2 p-4 shadow-sm">
-                  <div className="flex flex-col space-y-3 sm:flex-row sm:items-center sm:justify-between sm:space-y-0">
-                    <span className="text-muted-foreground font-medium">
-                      Date & Time:
-                    </span>
-                    <div className="text-left">
-                      <p className="font-medium">
-                        {bookingDate && format(bookingDate, "PPP")}
-                      </p>
-                      <p className="text-muted-foreground text-sm">
-                        at {bookingTime}
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="flex flex-col space-y-1 sm:flex-row sm:items-center sm:justify-between sm:space-y-0">
-                    <span className="text-muted-foreground font-medium">
-                      Agent:
-                    </span>
-                    <span className="font-medium">
-                      {selectedAgent?.agentName || "Any available agent"}
-                    </span>
-                  </div>
-
-                  <div className="flex flex-col space-y-1 sm:flex-row sm:items-center sm:justify-between sm:space-y-0">
-                    <span className="text-muted-foreground font-medium">
-                      Services:
-                    </span>
-                    <span className="font-medium">
-                      {selectedServices.length} service
-                      {selectedServices.length !== 1 ? "s" : ""}
-                    </span>
-                  </div>
-
-                  <div className="border-border border-t-2 pt-4">
-                    <div className="flex flex-col space-y-2 sm:flex-row sm:items-center sm:justify-between sm:space-y-0">
-                      <span className="text-primary text-lg font-bold">
-                        Total:
-                      </span>
-                      <div className="text-right sm:text-left">
-                        <span className="text-primary block text-xl font-bold">
-                          {totalPrice} dt
-                        </span>
-                        <span className="text-muted-foreground text-sm">
-                          {totalDuration} minutes
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
+            <BookingPreviewStep
+              bookingDate={bookingDate}
+              bookingTime={bookingTime}
+              selectedServices={selectedServices}
+              selectedAgent={selectedAgent}
+              selectedAgents={selectedAgents}
+              useMultipleAgents={useMultipleAgents}
+              totalPrice={totalPrice}
+              totalDuration={totalDuration}
+              notes={notes}
+              setNotes={setNotes}
+            />
           )}
 
           {/* Navigation Buttons */}
           <BookingNavigation
             currentStep={currentStep}
             isLoading={isLoading}
+            isStepValid={isCurrentStepValid()}
             {...(onCancel && { onCancel })}
             onPrevStep={prevStep}
             onNextStep={nextStep}

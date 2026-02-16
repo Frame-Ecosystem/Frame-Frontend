@@ -81,43 +81,57 @@ export default function AdminDashboard() {
           <h1 className="mb-2 text-3xl font-bold lg:text-4xl">
             Admin Dashboard
           </h1>
-          <p className="text-muted-foreground">Manage your lookeys platform</p>
+          <p className="text-muted-foreground">Manage your frame platform</p>
         </div>
 
         {/* Quick Stats */}
         <div className="mb-4 grid grid-cols-1 gap-4 md:grid-cols-4">
-          <Card>
-            <CardContent className="p-6">
-              <div className="text-2xl font-bold">
-                {statsLoading ? "..." : (stats?.totalUsers ?? 0)}
-              </div>
-              <p className="text-muted-foreground text-sm">Total Users</p>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="p-6">
-              <div className="text-2xl font-bold">
-                {statsLoading ? "..." : (stats?.loungeCount ?? 0)}
-              </div>
-              <p className="text-muted-foreground text-sm">Total Lounges</p>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="p-6">
-              <div className="text-2xl font-bold">
-                {statsLoading ? "..." : (stats?.clientCount ?? 0)}
-              </div>
-              <p className="text-muted-foreground text-sm">Total Clients</p>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="p-6">
-              <div className="text-2xl font-bold">
-                {statsLoading ? "..." : (stats?.onlineUsers ?? 0)}
-              </div>
-              <p className="text-muted-foreground text-sm">Online Users</p>
-            </CardContent>
-          </Card>
+          {statsLoading ? (
+            // Skeleton loading for stats cards
+            [...Array(4)].map((_, i) => (
+              <Card key={i}>
+                <CardContent className="p-6">
+                  <div className="bg-muted-foreground/10 mb-2 h-8 w-16 animate-pulse rounded"></div>
+                  <div className="bg-muted-foreground/10 h-4 w-20 animate-pulse rounded"></div>
+                </CardContent>
+              </Card>
+            ))
+          ) : (
+            <>
+              <Card>
+                <CardContent className="p-6">
+                  <div className="text-2xl font-bold">
+                    {stats?.totalUsers ?? 0}
+                  </div>
+                  <p className="text-muted-foreground text-sm">Total Users</p>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardContent className="p-6">
+                  <div className="text-2xl font-bold">
+                    {stats?.loungeCount ?? 0}
+                  </div>
+                  <p className="text-muted-foreground text-sm">Total Lounges</p>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardContent className="p-6">
+                  <div className="text-2xl font-bold">
+                    {stats?.clientCount ?? 0}
+                  </div>
+                  <p className="text-muted-foreground text-sm">Total Clients</p>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardContent className="p-6">
+                  <div className="text-2xl font-bold">
+                    {stats?.onlineUsers ?? 0}
+                  </div>
+                  <p className="text-muted-foreground text-sm">Online Users</p>
+                </CardContent>
+              </Card>
+            </>
+          )}
         </div>
         <div className="mb-8 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
           {/* Service Categories */}

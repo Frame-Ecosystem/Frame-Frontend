@@ -3,7 +3,13 @@
 import { useState } from "react"
 import Image from "next/image"
 import { formatDistanceToNow } from "date-fns"
-import { Heart, MessageCircle, Trash2 } from "lucide-react"
+import {
+  Heart,
+  MessageCircle,
+  Trash2,
+  ChevronLeft,
+  ChevronRight,
+} from "lucide-react"
 import { Button } from "../ui/button"
 import { Card, CardContent, CardHeader } from "../ui/card"
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar"
@@ -23,6 +29,24 @@ export function PostCard({ post }: PostCardProps) {
   const [showComments, setShowComments] = useState(false)
   const [commentText, setCommentText] = useState("")
   const [showCommentForm, setShowCommentForm] = useState(false)
+  const [currentImageIndex, setCurrentImageIndex] = useState(0)
+
+  // Image navigation functions
+  const nextImage = () => {
+    if (post.images && currentImageIndex < post.images.length - 1) {
+      setCurrentImageIndex(currentImageIndex + 1)
+    }
+  }
+
+  const prevImage = () => {
+    if (currentImageIndex > 0) {
+      setCurrentImageIndex(currentImageIndex - 1)
+    }
+  }
+
+  const goToImage = (index: number) => {
+    setCurrentImageIndex(index)
+  }
 
   // Like post mutation
   const likePostMutation = useMutation({
@@ -136,17 +160,53 @@ export function PostCard({ post }: PostCardProps) {
 
           {/* Post images */}
           {post.images && post.images.length > 0 && (
-            <div className="grid grid-cols-1 gap-2 overflow-hidden rounded-lg">
-              {post.images.map((image, index) => (
-                <div key={index} className="relative aspect-video">
-                  <Image
-                    src={image}
-                    alt={`Post image ${index + 1}`}
-                    fill
-                    className="object-cover"
-                  />
+            <div className="relative overflow-hidden rounded-lg">
+              {/* Main image display */}
+              <div className="relative aspect-video">
+                <Image
+                  src={post.images[currentImageIndex]}
+                  alt={`Post image ${currentImageIndex + 1}`}
+                  fill
+                  className="object-cover"
+                />
+
+                {/* Navigation arrows - only show if more than 1 image */}
+                {post.images.length > 1 && (
+                  <>
+                    <button
+                      onClick={prevImage}
+                      disabled={currentImageIndex === 0}
+                      className="absolute top-1/2 left-2 -translate-y-1/2 rounded-full bg-black/50 p-1 text-white transition-colors hover:bg-black/70 disabled:cursor-not-allowed disabled:opacity-30"
+                    >
+                      <ChevronLeft className="h-4 w-4" />
+                    </button>
+                    <button
+                      onClick={nextImage}
+                      disabled={currentImageIndex === post.images.length - 1}
+                      className="absolute top-1/2 right-2 -translate-y-1/2 rounded-full bg-black/50 p-1 text-white transition-colors hover:bg-black/70 disabled:cursor-not-allowed disabled:opacity-30"
+                    >
+                      <ChevronRight className="h-4 w-4" />
+                    </button>
+                  </>
+                )}
+              </div>
+
+              {/* Image indicators - only show if more than 1 image */}
+              {post.images.length > 1 && (
+                <div className="mt-2 flex justify-center space-x-1">
+                  {post.images.map((_, index) => (
+                    <button
+                      key={index}
+                      onClick={() => goToImage(index)}
+                      className={`h-2 w-2 rounded-full transition-colors ${
+                        index === currentImageIndex
+                          ? "bg-primary"
+                          : "bg-muted-foreground/30 hover:bg-muted-foreground/50"
+                      }`}
+                    />
+                  ))}
                 </div>
-              ))}
+              )}
             </div>
           )}
 

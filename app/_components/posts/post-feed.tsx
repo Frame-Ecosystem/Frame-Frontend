@@ -23,7 +23,6 @@ export function PostFeed() {
     isLoading,
     isError,
     refetch,
-    isRefetching,
   } = useInfiniteQuery({
     queryKey: ["posts"],
     queryFn: ({ pageParam = 1 }) => PostService.getPosts(pageParam, 10),
@@ -49,11 +48,48 @@ export function PostFeed() {
 
   if (isLoading) {
     return (
-      <div className="flex min-h-[400px] items-center justify-center">
-        <div className="text-center">
-          <Loader2 className="text-primary mx-auto mb-4 h-8 w-8 animate-spin" />
-          <p className="text-muted-foreground">Loading posts...</p>
-        </div>
+      <div className="mx-auto max-w-2xl space-y-6">
+        {/* Create Post Skeleton - only show if user is logged in */}
+        {user && (
+          <div className="bg-muted-foreground/10 h-32 w-full animate-pulse rounded-lg"></div>
+        )}
+
+        {/* Post Cards Skeleton */}
+        {[...Array(3)].map((_, i) => (
+          <div key={i} className="w-full">
+            <div className="bg-card rounded-lg border p-4 shadow-sm">
+              {/* Header Skeleton */}
+              <div className="flex items-center justify-between pb-3">
+                <div className="flex items-center space-x-3">
+                  <div className="bg-muted-foreground/10 h-10 w-10 animate-pulse rounded-full"></div>
+                  <div>
+                    <div className="bg-muted-foreground/10 mb-1 h-4 w-24 animate-pulse rounded"></div>
+                    <div className="bg-muted-foreground/10 h-3 w-16 animate-pulse rounded"></div>
+                  </div>
+                </div>
+                <div className="bg-muted-foreground/10 h-8 w-8 animate-pulse rounded"></div>
+              </div>
+
+              {/* Content Skeleton */}
+              <div className="space-y-3 pt-0">
+                <div className="space-y-2">
+                  <div className="bg-muted-foreground/10 h-4 w-full animate-pulse rounded"></div>
+                  <div className="bg-muted-foreground/10 h-4 w-3/4 animate-pulse rounded"></div>
+                  <div className="bg-muted-foreground/10 h-4 w-1/2 animate-pulse rounded"></div>
+                </div>
+
+                {/* Image Skeleton */}
+                <div className="bg-muted-foreground/10 aspect-video w-full animate-pulse rounded-lg"></div>
+
+                {/* Actions Skeleton */}
+                <div className="flex items-center space-x-4 pt-2">
+                  <div className="bg-muted-foreground/10 h-8 w-16 animate-pulse rounded"></div>
+                  <div className="bg-muted-foreground/10 h-8 w-20 animate-pulse rounded"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        ))}
       </div>
     )
   }
@@ -86,22 +122,8 @@ export function PostFeed() {
       {/* Create Post - only show if user is logged in */}
       {user && <CreatePost />}
 
-      {/* Refresh button */}
-      <div className="flex justify-center">
-        <Button
-          variant="outline"
-          onClick={handleRefresh}
-          disabled={isRefetching}
-          className="mb-4"
-        >
-          {isRefetching ? (
-            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-          ) : (
-            <RefreshCw className="mr-2 h-4 w-4" />
-          )}
-          Refresh Feed
-        </Button>
-      </div>
+      {/* Horizontal line separator */}
+      {user && <hr className="border-border" />}
 
       {/* Posts Feed */}
       {allPosts.length === 0 ? (

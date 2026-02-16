@@ -7,6 +7,7 @@ interface GetLoungesParams {
   gender?: string
   sortBy?: string
   sortOrder?: "asc" | "desc"
+  serviceId?: string
 }
 
 interface LoungeUser {
@@ -48,6 +49,14 @@ interface GetLoungesResponse {
   message?: string
 }
 
+interface GetLoungesByServiceParams {
+  page?: number
+  limit?: number
+  userLatitude?: number
+  userLongitude?: number
+  search?: string
+}
+
 const clientService = {
   async getAllLounges(params?: GetLoungesParams): Promise<GetLoungesResponse> {
     try {
@@ -64,6 +73,29 @@ const clientService = {
       return data
     } catch (error) {
       console.error("Error fetching lounges:", error)
+      throw error
+    }
+  },
+
+  async getLoungesByService(
+    serviceId: string,
+    params?: GetLoungesByServiceParams,
+  ): Promise<GetLoungesResponse> {
+    try {
+      const queryParams = new URLSearchParams()
+      if (params?.page) queryParams.append("page", params.page.toString())
+      if (params?.limit) queryParams.append("limit", params.limit.toString())
+      if (params?.search) queryParams.append("search", params.search)
+      if (params?.userLatitude)
+        queryParams.append("userLatitude", params.userLatitude.toString())
+      if (params?.userLongitude)
+        queryParams.append("userLongitude", params.userLongitude.toString())
+
+      const endpoint = `/v1/client/services/${serviceId}/lounges${queryParams.toString() ? `?${queryParams}` : ""}`
+      const data = await apiClient.get<GetLoungesResponse>(endpoint)
+      return data
+    } catch (error) {
+      console.error("Error fetching lounges by service:", error)
       throw error
     }
   },

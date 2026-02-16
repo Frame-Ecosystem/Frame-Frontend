@@ -113,7 +113,7 @@ const InstallAppButton = ({
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              📱 Install lookeys App
+              📱 Install frame App
             </DialogTitle>
             <DialogDescription>
               Follow these simple steps to add the app to your home screen:

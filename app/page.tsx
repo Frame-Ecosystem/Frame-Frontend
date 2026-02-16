@@ -1,13 +1,11 @@
 "use client"
 
 import { useAuth } from "./_providers/auth"
-import { useEffect } from "react"
-import { useRouter } from "next/navigation"
+import { useEffect, useRef } from "react"
+import { useRouter, useSearchParams } from "next/navigation"
 import { Button } from "./_components/ui/button"
-import Image from "next/image"
 import { ErrorBoundary } from "./_components/common/errorBoundary"
 import { getHomePath } from "./_lib/profile"
-import { useTheme } from "next-themes"
 import {
   Scissors,
   Star,
@@ -25,9 +23,24 @@ import TopBar from "./_components/layout/topBar"
 const LandingPage = () => {
   const { user, isLoading } = useAuth()
   const router = useRouter()
-  const { resolvedTheme, theme } = useTheme()
+  const searchParams = useSearchParams()
   const [signupOpen, setSignupOpen] = useState(false)
   const [signinOpen, setSigninOpen] = useState(false)
+  const hasProcessedSigninRef = useRef(false)
+
+  // Check for signin query parameter to open sign-in dialog
+  useEffect(() => {
+    if (
+      !hasProcessedSigninRef.current &&
+      searchParams.get("signin") === "true"
+    ) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setSigninOpen(true)
+      hasProcessedSigninRef.current = true
+      // Clear the query parameter from URL
+      router.replace("/", { scroll: false })
+    }
+  }, [searchParams, router])
 
   // Redirect authenticated users to their respective home
   useEffect(() => {
@@ -119,7 +132,7 @@ const LandingPage = () => {
         <section className="bg-muted/30 px-4 py-16 sm:px-6 lg:px-8">
           <div className="mx-auto max-w-7xl">
             <div className="mb-12 text-center">
-              <h2 className="mb-4 text-3xl font-bold">Why Choose Lookeys?</h2>
+              <h2 className="mb-4 text-3xl font-bold">Why Choose Frame?</h2>
               <p className="text-muted-foreground text-lg">
                 Experience the future of center booking
               </p>
@@ -192,7 +205,7 @@ const LandingPage = () => {
           <div className="mx-auto max-w-4xl text-center">
             <h2 className="mb-4 text-3xl font-bold">Ready to Get Started?</h2>
             <p className="mb-8 text-xl opacity-90">
-              Join thousands of satisfied customers who trust Lookeys for their
+              Join thousands of satisfied customers who trust Frame for their
               grooming needs.
             </p>
             <Button
@@ -206,36 +219,6 @@ const LandingPage = () => {
             </Button>
           </div>
         </section>
-
-        {/* Footer */}
-        <footer className="border-border border-t px-4 py-8 sm:px-6 lg:px-8">
-          <div className="mx-auto max-w-7xl">
-            <div className="flex flex-col items-center justify-between gap-4 md:flex-row">
-              <div className="mb-4 flex items-center gap-2 md:mb-0">
-                <Image
-                  alt="Lookeys"
-                  src={
-                    (resolvedTheme || theme || "monochrome-dark").includes(
-                      "light",
-                    )
-                      ? "/images/lookeysLightPng.png"
-                      : "/images/lookeysDarkPng.png"
-                  }
-                  height={32}
-                  width={32}
-                  className="h-6 w-auto"
-                  suppressHydrationWarning
-                />
-                <span className="text-lg font-semibold">Lookeys</span>
-              </div>
-              <div className="flex flex-col items-center gap-2 md:flex-row md:items-center">
-                <div className="text-muted-foreground text-sm">
-                  © 2026 Lookeys. All rights reserved.
-                </div>
-              </div>
-            </div>
-          </div>
-        </footer>
       </div>
 
       {/* Signup Dialog */}

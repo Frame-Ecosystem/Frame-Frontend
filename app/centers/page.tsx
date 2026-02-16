@@ -1,23 +1,16 @@
 "use client"
 
-import { useState, useEffect, useRef } from "react"
+import { useState, useEffect, useCallback, useRef } from "react"
 import { useAuth } from "../_providers/auth"
 import { useRouter, useSearchParams } from "next/navigation"
 import clientService from "../_services/client.service"
-import { serviceService } from "../_services"
 import { Button } from "../_components/ui/button"
 import { Input } from "../_components/ui/input"
-import {
-  FilterIcon,
-  SortAscIcon,
-  Search as SearchIcon,
-  TrendingUpIcon,
-} from "lucide-react"
+import { Search as SearchIcon, TrendingUpIcon, Globe, X } from "lucide-react"
 import CenterItem from "../_components/centers/center-item"
+import ServiceCategoriesSection from "../_components/centers/service-categories-section"
+import PopularServicesSection from "../_components/centers/popular-services-section"
 import { ErrorBoundary } from "../_components/common/errorBoundary"
-import Link from "next/link"
-import { quickSearchOptions } from "../_constants/search"
-import type { Service } from "../_types"
 
 interface LoungeUser {
   _id: string
@@ -35,6 +28,7 @@ interface LoungeUser {
   createdAt?: string
   type?: string
   openingHours?: any
+  distance?: number // in kilometers, returned when location-based sorting is used
 }
 
 export default function CentersPage() {
@@ -49,9 +43,19 @@ export default function CentersPage() {
   const [totalPages, setTotalPages] = useState(1)
   const [viewMode] = useState<"grid" | "list">("grid")
   const [error, setError] = useState<string | null>(null)
-  const [services, setServices] = useState<Service[]>([])
-  const [loadingServices, setLoadingServices] = useState(true)
-  const scrollContainerRef = useRef<HTMLDivElement>(null)
+  const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(
+    null,
+  )
+  const [selectedServiceId, setSelectedServiceId] = useState<string | null>(
+    null,
+  )
+  const [selectedServiceName, setSelectedServiceName] = useState<string | null>(
+    null,
+  )
+  const [userLocation, setUserLocation] = useState<{
+    latitude: number
+    longitude: number
+  } | null>(null)
 
   useEffect(() => {
     if (!isLoading && !user) {
@@ -66,92 +70,39 @@ export default function CentersPage() {
     }
   }, [isLoading, user, router])
 
-  // Auto-scroll effect for popular services
+  // Get user location on component mount
   useEffect(() => {
-    const container = scrollContainerRef.current
-    if (
-      !container ||
-      loadingServices ||
-      (services.length === 0 && quickSearchOptions.length === 0)
-    )
-      return
-
-    let scrollInterval: NodeJS.Timeout
-    let isPaused = false
-
-    const startAutoScroll = () => {
-      scrollInterval = setInterval(() => {
-        if (!isPaused && container) {
-          container.scrollLeft += 1
-
-          // When we've scrolled halfway (past original items), reset to start
-          const maxScroll = container.scrollWidth / 2
-          if (container.scrollLeft >= maxScroll) {
-            container.scrollLeft = 0
-          }
-        }
-      }, 40) // Slower speed: 40ms interval
+    // First, check if user has stored location data
+    if (user?.location) {
+      setUserLocation({
+        latitude: user.location.latitude,
+        longitude: user.location.longitude,
+      })
+      return // Don't fetch browser location if user has stored location
     }
 
-    startAutoScroll()
+    // Fallback to browser geolocation if no stored location
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          setUserLocation({
+            latitude: position.coords.latitude,
+            longitude: position.coords.longitude,
+          })
+        },
+        (_error) => {
+          console.warn("Geolocation error:", _error?.message || _error)
+        },
+        {
+          enableHighAccuracy: true,
+          timeout: 10000,
+          maximumAge: 300000, // 5 minutes
+        },
+      )
+    }
+  }, [user])
 
-    // Pause on hover, mousedown (hold), and touch
-    const handleMouseEnter = () => {
-      isPaused = true
-    }
-    const handleMouseLeave = () => {
-      isPaused = false
-    }
-    const handleMouseDown = () => {
-      isPaused = true
-    }
-    const handleMouseUp = () => {
-      isPaused = false
-    }
-    const handleTouchStart = () => {
-      isPaused = true
-    }
-    const handleTouchEnd = () => {
-      isPaused = false
-    }
-
-    container.addEventListener("mouseenter", handleMouseEnter)
-    container.addEventListener("mouseleave", handleMouseLeave)
-    container.addEventListener("mousedown", handleMouseDown)
-    container.addEventListener("mouseup", handleMouseUp)
-    container.addEventListener("touchstart", handleTouchStart)
-    container.addEventListener("touchend", handleTouchEnd)
-
-    return () => {
-      clearInterval(scrollInterval)
-      container.removeEventListener("mouseenter", handleMouseEnter)
-      container.removeEventListener("mouseleave", handleMouseLeave)
-      container.removeEventListener("mousedown", handleMouseDown)
-      container.removeEventListener("mouseup", handleMouseUp)
-      container.removeEventListener("touchstart", handleTouchStart)
-      container.removeEventListener("touchend", handleTouchEnd)
-    }
-  }, [loadingServices, services.length])
-
-  // Fetch services
-  useEffect(() => {
-    const fetchServices = async () => {
-      try {
-        setLoadingServices(true)
-        const data = await serviceService.getAll()
-        setServices(data.slice(0, 6)) // Limit to 6 services for display
-      } catch (error) {
-        console.error("Error fetching services:", error)
-        setServices([])
-      } finally {
-        setLoadingServices(false)
-      }
-    }
-
-    fetchServices()
-  }, [])
-
-  const fetchLounges = async () => {
+  const fetchLounges = useCallback(async () => {
     if (!user?.type) {
       setError("Please complete your profile setup to access this page.")
       setLoading(false)
@@ -164,21 +115,37 @@ export default function CentersPage() {
     try {
       setLoading(true)
       setError(null)
-      const response = await clientService.getAllLounges({
-        page,
-        limit: 20,
-        search: searchTerm || undefined,
-      })
+
+      let response
+      if (selectedServiceId) {
+        // Use the service-specific endpoint when a service is selected
+        response = await clientService.getLoungesByService(selectedServiceId, {
+          page,
+          limit: 20,
+          search: searchTerm || undefined,
+          userLatitude: userLocation?.latitude,
+          userLongitude: userLocation?.longitude,
+        })
+      } else {
+        // Use the general lounges endpoint when no service is selected
+        response = await clientService.getAllLounges({
+          page,
+          limit: 20,
+          search: searchTerm || undefined,
+        })
+      }
+
       setLounges(response.data || [])
       setTotalPages(response.pagination?.totalPages || 1)
-    } catch (error: any) {
-      console.error("Error fetching lounges:", error)
+    } catch (_error: any) {
       setLounges([])
       setTotalPages(1)
 
+      // Handle specific error cases
+      const errorMessage = _error?.message || ""
       if (
-        error?.message?.includes("Client access required") ||
-        error?.message?.includes("access")
+        errorMessage.includes("Client access required") ||
+        errorMessage.includes("access")
       ) {
         setError(
           "You need to be a client to access this page. Please complete your profile.",
@@ -189,19 +156,60 @@ export default function CentersPage() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [user, selectedServiceId, page, searchTerm, userLocation])
+
+  // Debounced search effect
+  const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null)
+  const fetchLoungesRef = useRef(fetchLounges)
+
+  // Keep the ref updated with the latest fetchLounges function
+  useEffect(() => {
+    fetchLoungesRef.current = fetchLounges
+  }, [fetchLounges])
+
+  useEffect(() => {
+    if (searchTimeoutRef.current) {
+      clearTimeout(searchTimeoutRef.current)
+    }
+
+    searchTimeoutRef.current = setTimeout(() => {
+      if (user) {
+        setPage(1) // Reset to first page when searching
+        fetchLoungesRef.current()
+      }
+    }, 500) // 500ms debounce
+
+    return () => {
+      if (searchTimeoutRef.current) {
+        clearTimeout(searchTimeoutRef.current)
+      }
+    }
+  }, [searchTerm, user])
 
   useEffect(() => {
     if (user) {
       fetchLounges()
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user, page, searchTerm])
+  }, [user, page, selectedServiceId, userLocation])
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault()
+    // Search is now automatic via debounced effect, but this handles form submission
+    if (searchTimeoutRef.current) {
+      clearTimeout(searchTimeoutRef.current)
+    }
     setPage(1)
-    fetchLounges()
+    fetchLoungesRef.current()
+  }
+
+  const handleServiceSelect = (
+    serviceId: string | null,
+    serviceName?: string,
+  ) => {
+    setSelectedServiceId(serviceId)
+    setSelectedServiceName(serviceName || null)
+    setPage(1) // Reset to first page when filtering
   }
 
   if (isLoading) {
@@ -289,14 +297,15 @@ export default function CentersPage() {
     <ErrorBoundary>
       <div className="from-background via-background to-muted/20 min-h-screen bg-linear-to-br pb-24 lg:pb-0">
         <div className="mx-auto max-w-7xl lg:pt-0">
-          <div className="p-5 lg:px-8 lg:py-12">
+          <div className="px-5 py-3 lg:px-8 lg:py-12">
             {/* HERO SECTION */}
-            <div className="mb-12 lg:mb-16">
-              <div className="space-y-6">
-                <div className="space-y-2">
-                  <h1 className="text-3xl font-bold lg:text-4xl">
-                    Find Your Perfect Center
-                  </h1>
+            <div className="mb-6 lg:mb-8">
+              <div className="space-y-2">
+                <div className="space-y-1">
+                  <div className="mt-6 mb-3 flex items-center gap-3">
+                    <Globe className="text-primary h-8 w-8 lg:h-10 lg:w-10" />
+                    <h1 className="text-3xl font-bold lg:text-4xl">Centers</h1>
+                  </div>
                   <p className="text-muted-foreground lg:text-lg">
                     Browse and discover amazing center services
                   </p>
@@ -312,111 +321,59 @@ export default function CentersPage() {
                         placeholder="Search centers..."
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
-                        className="pl-10"
+                        className="pr-10 pl-10"
                       />
+                      {searchTerm && (
+                        <button
+                          type="button"
+                          onClick={() => setSearchTerm("")}
+                          className="text-muted-foreground hover:text-foreground absolute top-1/2 right-3 h-5 w-5 -translate-y-1/2 transform transition-colors"
+                        >
+                          <X className="h-4 w-4" />
+                        </button>
+                      )}
                     </div>
                   </form>
-
-                  <Button variant="outline" size="icon">
-                    <FilterIcon className="h-4 w-4" />
-                  </Button>
-                  <Button variant="outline" size="icon">
-                    <SortAscIcon className="h-4 w-4" />
-                  </Button>
                 </div>
               </div>
             </div>
 
-            {/* POPULAR SERVICES SECTION */}
-            <div className="mt-12 lg:mt-16">
-              <div className="mb-6 flex items-center justify-between lg:mb-8">
-                <h2 className="text-muted-foreground lg:text-foreground text-xs font-bold uppercase lg:text-lg lg:font-semibold lg:normal-case">
-                  Popular Services
-                </h2>
-              </div>
+            {/* SERVICE CATEGORIES SECTION */}
+            <ServiceCategoriesSection
+              className="mt-6 lg:mt-8"
+              onCategorySelect={setSelectedCategoryId}
+              selectedCategoryId={selectedCategoryId}
+            />
 
-              <div
-                ref={scrollContainerRef}
-                className="flex gap-3 overflow-x-scroll [&::-webkit-scrollbar]:hidden"
-              >
-                {loadingServices ? (
-                  // Loading skeleton
-                  Array.from({ length: 6 }).map((_, i) => (
-                    <div
-                      key={i}
-                      className="popular-services-btn bg-muted h-10 w-24 shrink-0 animate-pulse rounded-lg lg:h-12 lg:w-auto lg:shrink"
-                    />
-                  ))
-                ) : services.length > 0 ? (
-                  <>
-                    {/* Original services */}
-                    {services.map((service) => (
-                      <Button
-                        className="popular-services-btn shrink-0 transition-transform hover:scale-105 lg:h-12 lg:shrink lg:justify-center lg:text-base"
-                        variant="secondary"
-                        key={service.id}
-                        asChild
-                      >
-                        <Link href={`/centers?service=${service.name}`}>
-                          {service.name}
-                        </Link>
-                      </Button>
-                    ))}
-                    {/* Duplicated services for seamless loop */}
-                    {services.map((service) => (
-                      <Button
-                        className="popular-services-btn shrink-0 transition-transform hover:scale-105 lg:h-12 lg:shrink lg:justify-center lg:text-base"
-                        variant="secondary"
-                        key={`duplicate-${service.id}`}
-                        asChild
-                      >
-                        <Link href={`/centers?service=${service.name}`}>
-                          {service.name}
-                        </Link>
-                      </Button>
-                    ))}
-                  </>
-                ) : (
-                  <>
-                    {/* Original options */}
-                    {quickSearchOptions.map((option) => (
-                      <Button
-                        className="popular-services-btn shrink-0 transition-transform hover:scale-105 lg:h-12 lg:shrink lg:justify-center lg:text-base"
-                        variant="secondary"
-                        key={option.title}
-                        asChild
-                      >
-                        <Link href={`/centers?service=${option.title}`}>
-                          {option.title}
-                        </Link>
-                      </Button>
-                    ))}
-                    {/* Duplicated options for seamless loop */}
-                    {quickSearchOptions.map((option) => (
-                      <Button
-                        className="popular-services-btn shrink-0 transition-transform hover:scale-105 lg:h-12 lg:shrink lg:justify-center lg:text-base"
-                        variant="secondary"
-                        key={`duplicate-${option.title}`}
-                        asChild
-                      >
-                        <Link href={`/centers?service=${option.title}`}>
-                          {option.title}
-                        </Link>
-                      </Button>
-                    ))}
-                  </>
-                )}
-              </div>
-            </div>
+            {/* POPULAR SERVICES SECTION */}
+            <PopularServicesSection
+              className="mt-6 lg:mt-8"
+              selectedCategoryId={selectedCategoryId}
+              onServiceSelect={handleServiceSelect}
+              selectedServiceId={selectedServiceId}
+            />
 
             {/* ALL CENTERS SECTION */}
-            <div className="mt-12 lg:mt-20 lg:mb-12">
+            <div className="mt-6 lg:mt-20 lg:mb-12">
               <div className="mb-6 flex items-center justify-between lg:mb-8">
                 <div className="flex items-center gap-3">
                   <TrendingUpIcon className="text-primary h-5 w-5 lg:h-6 lg:w-6" />
-                  <h2 className="text-muted-foreground lg:text-foreground text-xs font-bold uppercase lg:text-lg lg:font-semibold lg:normal-case">
-                    All Centers
-                  </h2>
+                  <div className="flex flex-col">
+                    <h2 className="text-muted-foreground lg:text-foreground text-xs font-bold uppercase lg:text-lg lg:font-semibold lg:normal-case">
+                      {selectedServiceName
+                        ? `Centers offering ${selectedServiceName}`
+                        : "All Centers"}
+                    </h2>
+                    {userLocation ? (
+                      <p className="text-muted-foreground text-xs lg:text-sm">
+                        Sorted by distance from your location
+                      </p>
+                    ) : (
+                      <p className="text-muted-foreground text-xs lg:text-sm">
+                        Update your location for better results
+                      </p>
+                    )}
+                  </div>
                 </div>
               </div>
 
@@ -432,7 +389,10 @@ export default function CentersPage() {
               ) : error ? (
                 <div className="py-12 text-center">
                   <p className="text-destructive mb-4">{error}</p>
-                  <Button onClick={() => fetchLounges()} variant="outline">
+                  <Button
+                    onClick={() => fetchLoungesRef.current()}
+                    variant="outline"
+                  >
                     Try Again
                   </Button>
                 </div>

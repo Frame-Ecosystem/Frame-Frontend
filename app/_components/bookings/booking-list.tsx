@@ -143,8 +143,89 @@ export function BookingList({
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center py-8">
-        <div className="border-primary h-8 w-8 animate-spin rounded-full border-b-2"></div>
+      <div className="space-y-4">
+        {/* Header Skeleton */}
+        <div className="flex items-center justify-between">
+          <div />
+          <div className="bg-muted-foreground/10 h-10 w-40 animate-pulse rounded-md"></div>
+        </div>
+
+        {/* Booking Cards Skeleton */}
+        {[...Array(3)].map((_, i) => (
+          <Card key={i}>
+            {/* Avatar Header Skeleton */}
+            <div className="bg-muted/30 border-b px-3 py-2">
+              <div className="flex justify-center">
+                <div className="bg-muted-foreground/10 h-12 w-12 animate-pulse rounded-full"></div>
+              </div>
+            </div>
+
+            <CardContent className="p-3">
+              <div className="mb-2 flex items-start justify-between">
+                <div className="flex-1">
+                  {/* Date/Time and Status Skeleton */}
+                  <div className="grid grid-cols-2 gap-4 text-sm">
+                    <div className="flex flex-col gap-1">
+                      <div className="bg-muted-foreground/10 h-4 w-24 animate-pulse rounded"></div>
+                      <div className="bg-muted-foreground/10 h-4 w-16 animate-pulse rounded"></div>
+                    </div>
+                    <div className="flex flex-col items-end gap-1">
+                      <div className="bg-muted-foreground/10 h-6 w-20 animate-pulse rounded-full"></div>
+                    </div>
+                  </div>
+
+                  {/* Location Skeleton */}
+                  <div className="bg-muted-foreground/10 mt-2 h-4 w-32 animate-pulse rounded"></div>
+                </div>
+              </div>
+
+              {/* Services Skeleton */}
+              <div className="mb-2">
+                <div className="bg-muted-foreground/10 mb-2 h-4 w-32 animate-pulse rounded"></div>
+                <div className="space-y-2">
+                  {[...Array(2)].map((_, j) => (
+                    <div key={j} className="flex items-center gap-3">
+                      <div className="bg-muted-foreground/10 h-10 w-10 animate-pulse rounded-md"></div>
+                      <div className="flex-1">
+                        <div className="bg-muted-foreground/10 mb-1 h-4 w-3/4 animate-pulse rounded"></div>
+                        <div className="bg-muted-foreground/10 mb-1 h-3 w-1/2 animate-pulse rounded"></div>
+                        <div className="bg-muted-foreground/10 h-3 w-1/4 animate-pulse rounded"></div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Agent Skeleton */}
+              <div className="mb-2">
+                <div className="bg-muted-foreground/10 mb-1 h-4 w-24 animate-pulse rounded"></div>
+                <div className="flex items-center gap-3">
+                  <div className="bg-muted-foreground/10 h-6 w-6 animate-pulse rounded-full"></div>
+                  <div className="bg-muted-foreground/10 h-4 w-20 animate-pulse rounded"></div>
+                </div>
+              </div>
+
+              {/* Total Summary Skeleton */}
+              <div className="mb-2 flex items-center justify-between border-t pt-2">
+                <div className="bg-muted-foreground/10 h-4 w-12 animate-pulse rounded"></div>
+                <div className="text-right">
+                  <div className="bg-muted-foreground/10 mb-1 h-4 w-16 animate-pulse rounded"></div>
+                  <div className="bg-muted-foreground/10 mb-1 h-3 w-12 animate-pulse rounded"></div>
+                  <div className="bg-muted-foreground/10 h-3 w-10 animate-pulse rounded"></div>
+                </div>
+              </div>
+
+              {/* Actions Skeleton */}
+              <div className="flex items-center justify-between border-t pt-2">
+                <div className="flex gap-2">
+                  <div className="bg-muted-foreground/10 h-8 w-20 animate-pulse rounded"></div>
+                  <div className="bg-muted-foreground/10 h-8 w-24 animate-pulse rounded"></div>
+                </div>
+                <div className="bg-muted-foreground/10 h-8 w-16 animate-pulse rounded"></div>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
       </div>
     )
   }
@@ -240,8 +321,8 @@ export function BookingList({
 
                   {/* Lounge Location */}
                   {booking.lounge && typeof booking.lounge === "object" && (
-                    <div
-                      className="hover:text-primary flex cursor-pointer items-center gap-2 text-sm transition-colors"
+                    <button
+                      className="hover:text-primary flex items-center gap-2 text-sm transition-colors"
                       onClick={() => {
                         const destination =
                           booking.lounge?.location?.placeName ||
@@ -256,15 +337,41 @@ export function BookingList({
                               const encodedDestination =
                                 encodeURIComponent(destination)
                               const mapsUrl = `https://www.google.com/maps/dir/?api=1&origin=${origin}&destination=${encodedDestination}&travelmode=driving`
-                              window.open(mapsUrl, "_blank")
+                              // For PWA compatibility, try window.open first, fallback to location.href
+                              const newWindow = window.open(mapsUrl, "_blank")
+                              if (!newWindow) {
+                                window.location.href = mapsUrl
+                              }
                             },
                             (error) => {
-                              console.error("Error getting location:", error)
+                              // Handle different geolocation errors more gracefully
+                              let errorMessage = "Unknown geolocation error"
+                              switch (error.code) {
+                                case error.PERMISSION_DENIED:
+                                  errorMessage = "Location permission denied"
+                                  break
+                                case error.POSITION_UNAVAILABLE:
+                                  errorMessage =
+                                    "Location information unavailable"
+                                  break
+                                case error.TIMEOUT:
+                                  errorMessage = "Location request timeout"
+                                  break
+                              }
+                              console.warn("Geolocation failed:", errorMessage)
                               // Fallback to search if geolocation fails
                               const encodedDestination =
                                 encodeURIComponent(destination)
                               const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodedDestination}`
-                              window.open(mapsUrl, "_blank")
+                              const newWindow = window.open(mapsUrl, "_blank")
+                              if (!newWindow) {
+                                window.location.href = mapsUrl
+                              }
+                            },
+                            {
+                              enableHighAccuracy: false,
+                              timeout: 10000,
+                              maximumAge: 300000, // 5 minutes
                             },
                           )
                         } else if (destination) {
@@ -272,9 +379,13 @@ export function BookingList({
                           const encodedDestination =
                             encodeURIComponent(destination)
                           const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodedDestination}`
-                          window.open(mapsUrl, "_blank")
+                          const newWindow = window.open(mapsUrl, "_blank")
+                          if (!newWindow) {
+                            window.location.href = mapsUrl
+                          }
                         }
                       }}
+                      type="button"
                     >
                       <MapPin className="h-4 w-4" />
                       <span>
@@ -283,7 +394,7 @@ export function BookingList({
                           booking.lounge.loungeTitle ||
                           "Location not available"}
                       </span>
-                    </div>
+                    </button>
                   )}
                 </div>
               </div>
@@ -343,35 +454,78 @@ export function BookingList({
                 </div>
               </div>
 
-              {/* Agent */}
-              {booking.agent && (
+              {/* Agent(s) */}
+              {(booking.agent ||
+                (booking.agents && booking.agents.length > 0)) && (
                 <div className="mb-2">
-                  <div className="mb-1 text-sm font-medium">Handled By:</div>
-                  <div className="flex items-center gap-3">
-                    <div className="bg-muted relative h-6 w-6 overflow-hidden rounded-full">
-                      {booking.agent.profileImage ? (
-                        <Image
-                          src={
-                            typeof booking.agent.profileImage === "string"
-                              ? booking.agent.profileImage
-                              : booking.agent.profileImage.url
-                          }
-                          alt={booking.agent.agentName || "Agent"}
-                          fill
-                          className="object-cover"
-                        />
-                      ) : (
-                        <div className="flex h-full w-full items-center justify-center">
-                          <User className="text-muted-foreground h-4 w-4" />
-                        </div>
-                      )}
-                    </div>
-                    <div>
-                      <p className="text-sm font-medium">
-                        {booking.agent.agentName}
-                      </p>
-                    </div>
+                  <div className="mb-1 text-sm font-medium">
+                    Handled By:
+                    {booking.agents && booking.agents.length > 1
+                      ? ` (${booking.agents.length} agents)`
+                      : ""}
                   </div>
+                  {booking.agents && booking.agents.length > 0 ? (
+                    // Multiple agents
+                    <div className="space-y-2">
+                      {booking.agents.map((agent, index) => (
+                        <div
+                          key={agent._id || index}
+                          className="flex items-center gap-3"
+                        >
+                          <div className="bg-muted relative h-6 w-6 overflow-hidden rounded-full">
+                            {agent.profileImage ? (
+                              <Image
+                                src={
+                                  typeof agent.profileImage === "string"
+                                    ? agent.profileImage
+                                    : agent.profileImage.url
+                                }
+                                alt={agent.agentName || "Agent"}
+                                fill
+                                className="object-cover"
+                              />
+                            ) : (
+                              <div className="flex h-full w-full items-center justify-center">
+                                <User className="text-muted-foreground h-4 w-4" />
+                              </div>
+                            )}
+                          </div>
+                          <div>
+                            <p className="text-sm font-medium">
+                              {agent.agentName}
+                            </p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : booking.agent ? (
+                    // Single agent (backwards compatibility)
+                    <div className="flex items-center gap-3">
+                      <div className="bg-muted relative h-6 w-6 overflow-hidden rounded-full">
+                        {booking.agent.profileImage ? (
+                          <Image
+                            src={
+                              typeof booking.agent.profileImage === "string"
+                                ? booking.agent.profileImage
+                                : booking.agent.profileImage.url
+                            }
+                            alt={booking.agent.agentName || "Agent"}
+                            fill
+                            className="object-cover"
+                          />
+                        ) : (
+                          <div className="flex h-full w-full items-center justify-center">
+                            <User className="text-muted-foreground h-4 w-4" />
+                          </div>
+                        )}
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium">
+                          {booking.agent.agentName}
+                        </p>
+                      </div>
+                    </div>
+                  ) : null}
                 </div>
               )}
 

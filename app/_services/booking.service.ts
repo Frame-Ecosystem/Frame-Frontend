@@ -87,30 +87,62 @@ class BookingService {
     }
   }
 
-  // Helper: Process agent data for a booking
-  private async processBookingAgent(booking: any): Promise<Agent | undefined> {
-    if (!booking.agentId) return undefined
+  // Helper: Process agent data for a booking (supports both single and multiple agents)
+  private async processBookingAgents(booking: any): Promise<Agent[]> {
+    const agents: Agent[] = []
 
     try {
-      // If agentId is an object, try to transform it
-      if (typeof booking.agentId === "object") {
-        const agent = this.transformAgent(booking.agentId)
-        if (agent) return agent
-
-        // Extract ID if transformation failed
-        const agentId = booking.agentId._id || booking.agentId.id
-        if (agentId) return await agentService.getAgentById(agentId)
+      // Handle new agentIds array format
+      if (booking.agentIds && Array.isArray(booking.agentIds)) {
+        for (const agentData of booking.agentIds) {
+          if (typeof agentData === "object" && agentData._id) {
+            // Already populated agent object
+            const agent = this.transformAgent(agentData)
+            if (agent) agents.push(agent)
+          } else if (typeof agentData === "string") {
+            // Agent ID string, fetch the agent
+            try {
+              const agent = await agentService.getAgentById(agentData)
+              if (agent) agents.push(agent)
+            } catch (error) {
+              console.warn(`Failed to fetch agent ${agentData}:`, error)
+            }
+          }
+        }
+        return agents
       }
 
-      // If agentId is a string, fetch the agent
-      if (typeof booking.agentId === "string") {
-        return await agentService.getAgentById(booking.agentId)
+      // Handle legacy agentId format (backwards compatibility)
+      if (booking.agentId) {
+        if (typeof booking.agentId === "object") {
+          const agent = this.transformAgent(booking.agentId)
+          if (agent) agents.push(agent)
+          else {
+            // Extract ID if transformation failed
+            const agentId = booking.agentId._id || booking.agentId.id
+            if (agentId) {
+              try {
+                const agent = await agentService.getAgentById(agentId)
+                if (agent) agents.push(agent)
+              } catch (error) {
+                console.warn(`Failed to fetch agent ${agentId}:`, error)
+              }
+            }
+          }
+        } else if (typeof booking.agentId === "string") {
+          try {
+            const agent = await agentService.getAgentById(booking.agentId)
+            if (agent) agents.push(agent)
+          } catch (error) {
+            console.warn(`Failed to fetch agent ${booking.agentId}:`, error)
+          }
+        }
       }
     } catch (error) {
-      console.warn(`Failed to fetch agent for booking:`, error)
+      console.warn(`Failed to process agents for booking:`, error)
     }
 
-    return undefined
+    return agents
   }
 
   // Create a new booking
@@ -140,7 +172,7 @@ class BookingService {
           _id: booking._id,
           loungeServiceIds: booking.loungeServiceIds || [],
           loungeService: booking.loungeService || [],
-          agent: await this.processBookingAgent(booking),
+          agents: await this.processBookingAgents(booking),
           client: this.processBookingClient(booking),
           lounge: this.processBookingLounge(booking),
         })),
@@ -166,7 +198,7 @@ class BookingService {
         _id: booking._id,
         loungeServiceIds: booking.loungeServiceIds || [],
         loungeService: booking.loungeService || [],
-        agent: await this.processBookingAgent(booking),
+        agents: await this.processBookingAgents(booking),
         client: this.processBookingClient(booking),
         lounge: this.processBookingLounge(booking),
       } as Booking

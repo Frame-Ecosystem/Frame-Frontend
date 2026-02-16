@@ -89,7 +89,8 @@ export interface Booking {
   _id: string
   clientId: User | string
   loungeId: User | string
-  agentId?: string
+  agentId?: string // Backwards compatibility
+  agentIds?: Agent[] // New field for multiple agents
   loungeServiceIds: Array<{
     _id: string
     loungeId: string
@@ -118,7 +119,8 @@ export interface Booking {
   // Populated references
   client?: User
   lounge?: User
-  agent?: Agent
+  agent?: Agent // Backwards compatibility
+  agents?: Agent[] // New field for multiple agents
   loungeService?: Array<{
     serviceId: Service | string
     price: number
@@ -152,6 +154,7 @@ export interface CreateBookingInput {
   clientId: string
   loungeId: string
   agentId?: string
+  agentIds?: string[]
   loungeServiceIds: string[]
   bookingDate: string
   status?: BookingStatus
@@ -220,7 +223,7 @@ export interface LoungeServiceItem {
   description?: string
   isActive?: boolean
   gender?: Gender
-  image?: string
+  image?: string | { url: string; publicId: string }
   status?: string
   cancelledBy?: string
   createdAt?: string
@@ -235,7 +238,7 @@ export interface CreateLoungeServicePayload {
   description?: string
   isActive?: boolean
   gender?: Gender
-  image?: string
+  image?: string | { url: string; publicId: string }
   status?: string
   cancelledBy?: string
 }
@@ -298,6 +301,7 @@ export interface CreateAgentDto {
   agentName: string
   password: string
   loungeId?: string // Required for admins, optional/ignored for lounges
+  idLoungeService?: string[] // Array of lounge service IDs
   isBlocked?: boolean
   profileImage?: string
 }
@@ -368,6 +372,7 @@ export interface LoungeAgent {
   loungeId: string
   profileImage: ProfileImage | string
   isBlocked: boolean
+  idLoungeService?: string[] // Array of lounge service IDs this agent can perform
   createdAt: string
   updatedAt: string
 }

@@ -1,7 +1,8 @@
-const CACHE_NAME = "lookeys-v1"
+const CACHE_NAME = "frame-v2"
 const urlsToCache = [
   "/",
-  "/images/lookeysDarkPng.png",
+  "/images/frameIconDark.png",
+  "/images/frameIconLight.png",
   // Add other critical resources
 ]
 

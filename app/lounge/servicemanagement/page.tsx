@@ -39,6 +39,16 @@ import {
   AlertDialogTrigger,
 } from "../../_components/ui/alert-dialog"
 
+// Helper function to get image URL from different formats
+const getImageUrl = (
+  image: string | { url: string; publicId: string } | undefined,
+): string | null => {
+  if (!image) return null
+  if (typeof image === "string") return image
+  if (typeof image === "object" && image.url) return image.url
+  return null
+}
+
 export default function LoungeServiceManagementPage() {
   const { user, isLoading } = useAuth()
   const router = useRouter()
@@ -58,7 +68,7 @@ export default function LoungeServiceManagementPage() {
     baseDuration: "",
     gender: "unisex",
     status: "active",
-    image: "",
+    image: undefined as string | undefined,
     imageFile: null as File | null,
     cancelledBy: "",
   })
@@ -309,7 +319,7 @@ export default function LoungeServiceManagementPage() {
 
     try {
       if (editingService) {
-        const serviceData = {
+        const serviceData: any = {
           price: formData.price ? parseFloat(formData.price) : undefined,
           duration: formData.baseDuration
             ? parseInt(formData.baseDuration)
@@ -317,26 +327,43 @@ export default function LoungeServiceManagementPage() {
           gender: (formData.gender as any) || undefined,
           description: trimmedDescription || undefined,
           isActive: formData.status === "active",
-          image: formData.image || undefined,
           status: formData.status || undefined,
           cancelledBy: formData.cancelledBy || undefined,
         }
+
+        // Only include image if user selected a new one (data URL)
+        if (
+          formData.image &&
+          typeof formData.image === "string" &&
+          formData.image.startsWith("data:image/")
+        ) {
+          serviceData.image = formData.image
+        }
+
         await loungeService.update((editingService as any)._id, serviceData)
         toast.success("Service updated successfully")
       } else {
-        const payload = {
+        const payload: any = {
           loungeId: user?._id || "",
           serviceId: formData.selectedServiceId,
           price: formData.price ? parseFloat(formData.price) : undefined,
           duration: formData.baseDuration
             ? parseInt(formData.baseDuration)
             : undefined,
-          description: trimmedDescription || undefined,
           gender: (formData.gender as any) || undefined,
+          description: trimmedDescription || undefined,
           isActive: formData.status === "active",
-          image: formData.image || undefined,
           status: formData.status || undefined,
           cancelledBy: formData.cancelledBy || undefined,
+        }
+
+        // Only include image if user selected one (data URL)
+        if (
+          formData.image &&
+          typeof formData.image === "string" &&
+          formData.image.startsWith("data:image/")
+        ) {
+          payload.image = formData.image
         }
 
         await loungeService.createLoungeService(payload)
@@ -372,7 +399,7 @@ export default function LoungeServiceManagementPage() {
       baseDuration: service.duration?.toString() || "",
       gender: (service as any).gender || "",
       status: (service as any).status || "active",
-      image: service.image || "",
+      image: undefined, // Don't pre-populate - only send when user selects new image
       imageFile: null,
       cancelledBy: (service as any).cancelledBy || "",
     })
@@ -409,7 +436,7 @@ export default function LoungeServiceManagementPage() {
       baseDuration: "",
       gender: "unisex",
       status: "active",
-      image: "",
+      image: undefined,
       imageFile: null,
       cancelledBy: "",
     })
@@ -557,20 +584,23 @@ export default function LoungeServiceManagementPage() {
                         onChange={handleImageFileChange}
                         className="cursor-pointer"
                       />
-                      {formData.image && (
-                        <div className="flex items-center space-x-2">
-                          <Image
-                            src={formData.image}
-                            alt="Service preview"
-                            width={60}
-                            height={60}
-                            className="rounded object-cover"
-                          />
-                          <span className="text-muted-foreground text-sm">
-                            {formData.imageFile?.name || "Selected image"}
-                          </span>
-                        </div>
-                      )}
+                      {formData.image &&
+                        typeof formData.image === "string" &&
+                        formData.image.trim() !== "" &&
+                        formData.image.startsWith("data:image/") && (
+                          <div className="flex items-center space-x-2">
+                            <Image
+                              src={formData.image}
+                              alt="Service preview"
+                              width={60}
+                              height={60}
+                              className="rounded object-cover"
+                            />
+                            <span className="text-muted-foreground text-sm">
+                              {formData.imageFile?.name || "Selected image"}
+                            </span>
+                          </div>
+                        )}
                       <p className="text-muted-foreground text-xs">
                         Select an image file (max 5MB, JPG, PNG, GIF, WebP)
                       </p>
@@ -722,9 +752,9 @@ export default function LoungeServiceManagementPage() {
                         >
                           <td className="p-4">
                             <div className="flex items-center gap-3">
-                              {(service as any).image ? (
+                              {getImageUrl((service as any).image) ? (
                                 <Image
-                                  src={(service as any).image}
+                                  src={getImageUrl((service as any).image)!}
                                   alt={serviceName}
                                   width={40}
                                   height={40}
@@ -733,7 +763,7 @@ export default function LoungeServiceManagementPage() {
                               ) : (
                                 <div className="bg-muted flex h-10 w-10 items-center justify-center rounded">
                                   <span className="text-muted-foreground text-xs">
-                                    No image
+                                    {serviceName.charAt(0).toUpperCase()}
                                   </span>
                                 </div>
                               )}

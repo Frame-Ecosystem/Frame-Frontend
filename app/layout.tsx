@@ -31,14 +31,14 @@ export const metadata: Metadata = {
   metadataBase: new URL("https://lookisi.vercel.app/"),
 
   // Primary title shown in browser tab and search results
-  title: "Lookeys",
+  title: "Frame",
 
   // Description for search engine results
   description:
-    "Lookeys est le système idéal pour les salons. Réservez des rendez-vous en ligne, trouvez des salons proches et gérez vos réservations facilement.",
+    "Frame est le système idéal pour les salons. Réservez des rendez-vous en ligne, trouvez des salons proches et gérez vos réservations facilement.",
   // Keywords for SEO (helps search engines categorize the site)
   keywords: [
-    "Lookeys",
+    "Frame",
     "système de gestion salon",
     "réservation salon",
     "salon en ligne",
@@ -58,13 +58,13 @@ export const metadata: Metadata = {
   icons: {
     icon: [
       {
-        url: "/images/lookeysLightPng.png",
+        url: "/images/frameIconLight.png",
         sizes: "192x192",
         type: "image/png",
         media: "(prefers-color-scheme: light)",
       },
       {
-        url: "/images/lookeysDarkPng.png",
+        url: "/images/frameIconDark.png",
         sizes: "192x192",
         type: "image/png",
         media: "(prefers-color-scheme: dark)",
@@ -72,25 +72,25 @@ export const metadata: Metadata = {
     ],
     shortcut: [
       {
-        url: "/images/lookeysLightPng.png",
+        url: "/images/frameIconLight.png",
         type: "image/png",
         media: "(prefers-color-scheme: light)",
       },
       {
-        url: "/images/lookeysDarkPng.png",
+        url: "/images/frameIconDark.png",
         type: "image/png",
         media: "(prefers-color-scheme: dark)",
       },
     ],
     apple: [
       {
-        url: "/images/lookeysLightPng.png",
+        url: "/images/frameIconLight.png",
         sizes: "180x180",
         type: "image/png",
         media: "(prefers-color-scheme: light)",
       },
       {
-        url: "/images/lookeysDarkPng.png",
+        url: "/images/frameIconDark.png",
         sizes: "180x180",
         type: "image/png",
         media: "(prefers-color-scheme: dark)",
@@ -103,17 +103,17 @@ export const metadata: Metadata = {
 
   // Open Graph metadata for social media sharing (Facebook, LinkedIn, etc.)
   openGraph: {
-    title: "Lookeys - Système de Gestion des Centres",
+    title: "Frame - Système de Gestion des Centres",
     description:
-      "Trouvez et réservez dans les meilleurs centres avec Lookeys. Plateforme complète pour les clients et les coiffeurs.",
+      "Trouvez et réservez dans les meilleurs centres avec Frame. Plateforme complète pour les clients et les coiffeurs.",
     url: "https://lookisi.vercel.app/",
-    siteName: "Lookeys",
+    siteName: "Frame",
     images: [
       {
         url: "/mobile-banner.png",
         width: 1200,
         height: 630,
-        alt: "Lookeys - Système de Gestion des Centres",
+        alt: "Frame - Système de Gestion des Centres",
       },
     ],
     locale: "fr_TN",
@@ -133,29 +133,29 @@ export default function RootLayout({
         {/* Theme-based favicon */}
         <link
           rel="icon"
-          href="/images/lookeysLightPng.png"
+          href="/images/frameIconLight.png"
           media="(prefers-color-scheme: light)"
         />
         <link
           rel="icon"
-          href="/images/lookeysDarkPng.png"
+          href="/images/frameIconDark.png"
           media="(prefers-color-scheme: dark)"
         />
         {/* Fallback for browsers that don't support prefers-color-scheme */}
-        <link rel="icon" href="/images/lookeysLightPng.png" />
+        <link rel="icon" href="/images/frameIconLight.png" />
 
         {/* Apple touch icons */}
         <link
           rel="apple-touch-icon"
-          href="/images/lookeysLightPng.png"
+          href="/images/frameIconLight.png"
           media="(prefers-color-scheme: light)"
         />
         <link
           rel="apple-touch-icon"
-          href="/images/lookeysDarkPng.png"
+          href="/images/frameIconDark.png"
           media="(prefers-color-scheme: dark)"
         />
-        <link rel="apple-touch-icon" href="/images/lookeysLightPng.png" />
+        <link rel="apple-touch-icon" href="/images/frameIconLight.png" />
       </head>
       <body className={inter.className}>
         {/* PROVIDER HIERARCHY */}

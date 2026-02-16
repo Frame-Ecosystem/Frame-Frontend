@@ -1,15 +1,15 @@
-import nextPlugin from "eslint-config-next";
+import nextPlugin from "eslint-config-next"
 
 const config = [
-    {
-        ignores: [".next/**", "node_modules/**"],
+  {
+    ignores: [".next/**", "node_modules/**"],
+  },
+  ...nextPlugin,
+  {
+    rules: {
+      "no-unused-vars": "error",
     },
-    ...nextPlugin,
-    {
-        rules: {
-            "no-unused-vars": "error",
-        },
-    }
-];
+  },
+]
 
-export default config;
+export default config

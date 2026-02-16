@@ -48,7 +48,13 @@ const ServiceItem = ({
           <div className="relative max-h-[80px] min-h-[80px] max-w-[80px] min-w-[80px]">
             <Image
               alt={service.name || "Service"}
-              src={service.imageUrl || "/images/placeholder.svg"}
+              src={
+                service.imageUrl &&
+                typeof service.imageUrl === "string" &&
+                service.imageUrl.trim()
+                  ? service.imageUrl
+                  : "/images/placeholder.svg"
+              }
               fill
               sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
               className="rounded-lg object-cover"

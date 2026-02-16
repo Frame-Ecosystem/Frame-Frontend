@@ -12,7 +12,7 @@ const FooterDesktop = () => {
           <div className="mb-8 grid grid-cols-3 gap-8">
             {/* Brand column */}
             <div className="space-y-4">
-              <h3 className="text-xl font-bold">Lookeys</h3>
+              <h3 className="text-xl font-bold">Frame</h3>
               <p className="text-muted-foreground text-sm leading-relaxed">
                 The best platform to book your appointment with the best centers
                 in Tunisia.
@@ -78,7 +78,7 @@ const FooterDesktop = () => {
           {/* Bottom section */}
           <div className="flex items-center justify-between border-t pt-8">
             <p className="text-muted-foreground text-sm">
-              © 2026 <span className="font-bold">Lookeys</span>. All rights
+              © 2026 <span className="font-bold">Frame</span>. All rights
               reserved.
             </p>
             <p>

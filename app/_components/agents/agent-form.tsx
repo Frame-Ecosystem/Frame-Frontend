@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react"
 import { ImageSelector } from "./ImageSelector"
 import { useAgent } from "../../_providers/agent"
+import { useAuth } from "../../_providers/auth"
 import { Agent, CreateAgentDto, UpdateAgentDto } from "../../_types"
 import { Button } from "../ui/button"
 import { Input } from "../ui/input"
@@ -22,7 +23,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../ui/select"
+import { Checkbox } from "../ui/checkbox"
 import { useToast } from "../ui/use-toast"
+import { clientService } from "../../_services"
 
 interface AgentFormProps {
   isOpen: boolean
@@ -46,10 +49,12 @@ export function AgentForm({
     lounges,
     fetchLounges,
   } = useAgent()
+  const { user } = useAuth()
   const { toast } = useToast()
 
   const [formData, setFormData] = useState<
-    CreateAgentDto | (UpdateAgentDto & { loungeId?: string })
+    | CreateAgentDto
+    | (UpdateAgentDto & { loungeId?: string; idLoungeService?: string[] })
   >(() => {
     if (agent) {
       // Edit mode - don't pre-populate profileImage to avoid sending object data
@@ -67,12 +72,15 @@ export function AgentForm({
         isBlocked: false,
         profileImage: "",
         loungeId: "",
+        idLoungeService: [],
       }
     }
   })
 
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [imageSelected, setImageSelected] = useState(false)
+  const [loungeServices, setLoungeServices] = useState<any[]>([])
+  const [loadingServices, setLoadingServices] = useState(false)
 
   // Fetch lounges when form opens for admin users
   useEffect(() => {
@@ -80,6 +88,47 @@ export function AgentForm({
       fetchLounges()
     }
   }, [isOpen, isAdmin, lounges.length, fetchLounges])
+
+  // Fetch lounge services when form opens (for lounges) or when lounge is selected (for admins)
+  useEffect(() => {
+    const fetchLoungeServices = async () => {
+      const shouldFetchServices =
+        (!agent && isAdmin && formData.loungeId) || (!agent && !isAdmin)
+
+      if (shouldFetchServices) {
+        setLoadingServices(true)
+        try {
+          // For lounges, use their own lounge ID. For admins, use selected lounge ID
+          const loungeId = !isAdmin ? user?._id : formData.loungeId
+          if (loungeId) {
+            const services = await clientService.getLoungeServicesById(loungeId)
+            setLoungeServices(
+              services.filter((service) => service.isActive !== false),
+            )
+            // Clear selected services when lounge changes (only for admins)
+            if (isAdmin) {
+              setFormData((prev) => ({ ...prev, idLoungeService: [] }))
+            }
+          }
+        } catch (error) {
+          console.error("Failed to fetch lounge services:", error)
+          setLoungeServices([])
+          if (isAdmin) {
+            setFormData((prev) => ({ ...prev, idLoungeService: [] }))
+          }
+        } finally {
+          setLoadingServices(false)
+        }
+      } else {
+        setLoungeServices([])
+        if (isAdmin) {
+          setFormData((prev) => ({ ...prev, idLoungeService: [] }))
+        }
+      }
+    }
+
+    fetchLoungeServices()
+  }, [formData.loungeId, isAdmin, agent, user, isOpen])
 
   const validateForm = (): boolean => {
     const newErrors: Record<string, string> = {}
@@ -136,6 +185,15 @@ export function AgentForm({
       }
     }
 
+    // Lounge Services validation (create mode for both admins and lounges)
+    if (!agent) {
+      const selectedServices = formData.idLoungeService || []
+      if (!selectedServices || selectedServices.length === 0) {
+        newErrors.idLoungeService =
+          "At least one lounge service must be selected"
+      }
+    }
+
     setErrors(newErrors)
     return Object.keys(newErrors).length === 0
   }
@@ -172,7 +230,10 @@ export function AgentForm({
         const createData: CreateAgentDto = {
           agentName: formData.agentName!,
           password: formData.password!,
-          ...(isAdmin && { loungeId: formData.loungeId }),
+          loungeId: isAdmin ? formData.loungeId : user?._id, // Use selected lounge for admin, current user for lounge
+          ...(formData.idLoungeService && {
+            idLoungeService: formData.idLoungeService,
+          }),
           isBlocked: formData.isBlocked || false,
           ...(formData.profileImage &&
             formData.profileImage.trim() && {
@@ -405,6 +466,75 @@ export function AgentForm({
                 </Select>
                 {errors.loungeId && (
                   <p className="text-destructive text-sm">{errors.loungeId}</p>
+                )}
+              </div>
+            )}
+
+            {/* Lounge Services Selection */}
+            {!agent && (
+              <div className="space-y-2">
+                <Label>Select Lounge Services *</Label>
+                {loadingServices ? (
+                  <div className="text-muted-foreground flex items-center space-x-2">
+                    <div className="border-primary h-4 w-4 animate-spin rounded-full border-b-2"></div>
+                    <span>Loading services...</span>
+                  </div>
+                ) : loungeServices.length === 0 ? (
+                  <p className="text-muted-foreground text-sm">
+                    No active services found{" "}
+                    {isAdmin ? "for this lounge" : "for your lounge"}
+                  </p>
+                ) : (
+                  <div className="max-h-40 space-y-2 overflow-y-auto rounded-md border p-3">
+                    {loungeServices.map((service) => (
+                      <div
+                        key={service._id}
+                        className="flex items-center space-x-2"
+                      >
+                        <Checkbox
+                          id={`service-${service._id}`}
+                          checked={(formData.idLoungeService || []).includes(
+                            service._id,
+                          )}
+                          onCheckedChange={(checked) => {
+                            const currentServices =
+                              formData.idLoungeService || []
+                            if (checked) {
+                              handleInputChange("idLoungeService", [
+                                ...currentServices,
+                                service._id,
+                              ])
+                            } else {
+                              handleInputChange(
+                                "idLoungeService",
+                                currentServices.filter(
+                                  (id) => id !== service._id,
+                                ),
+                              )
+                            }
+                          }}
+                        />
+                        <Label
+                          htmlFor={`service-${service._id}`}
+                          className="flex-1 cursor-pointer text-sm"
+                        >
+                          {service.serviceId?.name ||
+                            service.name ||
+                            "Unnamed Service"}
+                          {service.price && (
+                            <span className="text-muted-foreground ml-2">
+                              (${service.price})
+                            </span>
+                          )}
+                        </Label>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                {errors.idLoungeService && (
+                  <p className="text-destructive text-sm">
+                    {errors.idLoungeService}
+                  </p>
                 )}
               </div>
             )}

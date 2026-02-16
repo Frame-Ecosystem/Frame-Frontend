@@ -113,18 +113,28 @@ export default function CenterPage() {
 
         // Transform services data to match ServiceItem interface
         const transformedServices: CenterService[] = servicesData.map(
-          (service: any) => ({
-            id: service._id,
-            name: service.serviceId?.name || "Unnamed Service",
-            description: service.serviceId?.description || "",
-            imageUrl:
-              service.image ||
-              service.serviceId?.imageUrl ||
-              "/images/placeholder.svg",
-            price: service.price || 0,
-            durationMinutes: service.duration || 0,
-            centerId: service.loungeId,
-          }),
+          (service: any) => {
+            // Helper function to get valid image URL
+            const getValidImageUrl = (image: any): string => {
+              if (!image) return "/images/placeholder.svg"
+              if (typeof image === "string" && image.trim()) return image
+              if (typeof image === "object" && image.url) return image.url
+              return "/images/placeholder.svg"
+            }
+
+            return {
+              id: service._id,
+              name: service.serviceId?.name || "Unnamed Service",
+              description: service.serviceId?.description || "",
+              imageUrl:
+                getValidImageUrl(service.image) ||
+                service.serviceId?.imageUrl ||
+                "/images/placeholder.svg",
+              price: service.price || 0,
+              durationMinutes: service.duration || 0,
+              centerId: service.loungeId,
+            }
+          },
         )
 
         // Determine lounge email (no verification gating)

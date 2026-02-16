@@ -29,16 +29,30 @@ export default function BookingCTA({
   }
 
   return (
-    <Card className="border-2 border-dashed border-green-500 bg-green-50/50 backdrop-blur-sm">
+    <Card
+      className={`border-2 border-dashed backdrop-blur-sm ${
+        hasSelectedServices
+          ? "border-green-500 bg-green-50/50"
+          : "border-gray-300 bg-gray-50/50"
+      }`}
+    >
       <CardContent className="p-4 text-center">
-        <h3 className="mb-1 flex items-center justify-center gap-2 text-base font-semibold text-green-700">
+        <h3
+          className={`mb-1 flex items-center justify-center gap-2 text-base font-semibold ${
+            hasSelectedServices ? "text-green-700" : "text-gray-600"
+          }`}
+        >
           <CalendarIcon aria-hidden="true" />
           Ready to book?
         </h3>
-        <p className="text-muted-foreground mb-3 text-xs">
+        <p
+          className={`mb-3 text-xs ${
+            hasSelectedServices ? "text-green-600" : "text-gray-500"
+          }`}
+        >
           {hasSelectedServices
             ? `${selectedServices.length} service${selectedServices.length > 1 ? "s" : ""} selected - Choose date and time`
-            : "Choose multiple services and schedule your appointment"}
+            : "Select services to continue"}
         </p>
         <Button
           onClick={handleBookNow}
@@ -46,8 +60,8 @@ export default function BookingCTA({
           variant="outline"
           className={`${
             hasSelectedServices
-              ? "border-green-500 text-green-600 hover:bg-green-50 hover:text-green-700"
-              : "cursor-not-allowed border-gray-400 text-gray-400"
+              ? "border-green-500 bg-green-500 text-white hover:border-green-600 hover:bg-green-600"
+              : "cursor-not-allowed border-gray-400 bg-gray-400 text-white"
           }`}
           size="sm"
         >

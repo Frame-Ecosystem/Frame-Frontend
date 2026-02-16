@@ -131,10 +131,79 @@ export default function ClientProfilePage() {
       <ErrorBoundary>
         <div className="from-background via-background to-muted/20 min-h-screen bg-linear-to-br">
           <div className="mx-auto max-w-7xl p-5 lg:px-8 lg:py-12">
-            <div className="flex min-h-[400px] items-center justify-center">
-              <div className="text-center">
-                <div className="border-primary mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-b-2"></div>
-                <p className="text-muted-foreground">Loading your profile...</p>
+            <div className="w-full">
+              <div className="p-0 lg:px-0">
+                <div className="px-0 py-2 lg:px-0 lg:py-4">
+                  <div className="m-4 md:m-6 lg:m-8">
+                    {/* Header Skeleton */}
+                    <div className="mb-6 flex items-start gap-4">
+                      <div className="relative">
+                        <div className="bg-muted-foreground/10 border-primary h-32 w-32 animate-pulse rounded-full border-2 lg:h-40 lg:w-40"></div>
+                        <div className="bg-muted-foreground/10 absolute right-0 bottom-0 h-9 w-9 animate-pulse rounded-full"></div>
+                      </div>
+
+                      <div className="mt-8 flex-1 pt-4 lg:pt-8">
+                        <div className="bg-muted-foreground/10 mb-2 ml-4 h-8 w-48 animate-pulse rounded lg:mb-4 lg:ml-6"></div>
+                      </div>
+                    </div>
+
+                    {/* Bio Skeleton */}
+                    <div className="mt-6 ml-4 lg:ml-6">
+                      <div className="bg-muted-foreground/10 mb-1 h-4 w-full animate-pulse rounded"></div>
+                      <div className="bg-muted-foreground/10 mb-1 h-4 w-3/4 animate-pulse rounded"></div>
+                      <div className="bg-muted-foreground/10 h-4 w-1/2 animate-pulse rounded"></div>
+                    </div>
+
+                    {/* Tabs Skeleton */}
+                    <div className="mt-8 flex gap-2 border-b">
+                      <div className="bg-muted-foreground/10 h-10 w-20 animate-pulse rounded"></div>
+                      <div className="bg-muted-foreground/10 h-10 w-16 animate-pulse rounded"></div>
+                    </div>
+
+                    {/* Content Skeleton */}
+                    <div className="mt-6 space-y-6">
+                      {/* Account Info Card Skeleton */}
+                      <div className="bg-card rounded-lg border p-6 shadow-sm">
+                        <div className="bg-muted-foreground/10 mb-4 h-6 w-32 animate-pulse rounded"></div>
+                        <div className="space-y-3">
+                          <div className="bg-muted-foreground/10 h-4 w-full animate-pulse rounded"></div>
+                          <div className="bg-muted-foreground/10 h-4 w-3/4 animate-pulse rounded"></div>
+                          <div className="bg-muted-foreground/10 h-4 w-1/2 animate-pulse rounded"></div>
+                        </div>
+                      </div>
+
+                      {/* Posts Section Skeleton */}
+                      <div className="space-y-4">
+                        <div className="bg-muted-foreground/10 h-6 w-24 animate-pulse rounded"></div>
+                        <div className="space-y-4">
+                          {[...Array(2)].map((_, i) => (
+                            <div
+                              key={i}
+                              className="bg-card rounded-lg border p-4 shadow-sm"
+                            >
+                              <div className="mb-3 flex items-center gap-3">
+                                <div className="bg-muted-foreground/10 h-8 w-8 animate-pulse rounded-full"></div>
+                                <div>
+                                  <div className="bg-muted-foreground/10 mb-1 h-4 w-24 animate-pulse rounded"></div>
+                                  <div className="bg-muted-foreground/10 h-3 w-16 animate-pulse rounded"></div>
+                                </div>
+                              </div>
+                              <div className="mb-3 space-y-2">
+                                <div className="bg-muted-foreground/10 h-4 w-full animate-pulse rounded"></div>
+                                <div className="bg-muted-foreground/10 h-4 w-3/4 animate-pulse rounded"></div>
+                              </div>
+                              <div className="bg-muted-foreground/10 aspect-video w-full animate-pulse rounded-lg"></div>
+                              <div className="mt-3 flex items-center gap-4">
+                                <div className="bg-muted-foreground/10 h-8 w-16 animate-pulse rounded"></div>
+                                <div className="bg-muted-foreground/10 h-8 w-20 animate-pulse rounded"></div>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
