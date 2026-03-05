@@ -1,4 +1,4 @@
-import { apiClient } from "./api"
+import { apiClient, isAuthError } from "./api"
 import type {
   Booking,
   CreateBookingInput,
@@ -180,6 +180,7 @@ class BookingService {
 
       return mapped as Booking[]
     } catch (error) {
+      if (isAuthError(error)) throw error // let the caller handle auth failures
       console.error("Failed to fetch bookings:", error)
       return []
     }
