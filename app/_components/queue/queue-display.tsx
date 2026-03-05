@@ -345,18 +345,20 @@ export default function QueueDisplay({
 
         {/* Queue Details */}
         {activeQueue && (
-          <QueueDetails
-            persons={persons}
-            mode={mode}
-            isExpanded={isExpanded}
-            setIsExpanded={setIsExpanded}
-            isFullScreen={isFullScreen}
-            onDragEnd={handleDragEnd}
-            onStatusChange={handleStatusChange}
-            onRemove={handleRemove}
-            onAddPerson={() => setShowAddDialog(true)}
-            isUpdating={isMutating}
-          />
+          <div className={isFullScreen || isPseudoFullScreen ? "mb-24" : ""}>
+            <QueueDetails
+              persons={persons}
+              mode={mode}
+              isExpanded={isExpanded}
+              setIsExpanded={setIsExpanded}
+              isFullScreen={isFullScreen}
+              onDragEnd={handleDragEnd}
+              onStatusChange={handleStatusChange}
+              onRemove={handleRemove}
+              onAddPerson={() => setShowAddDialog(true)}
+              isUpdating={isMutating}
+            />
+          </div>
         )}
       </div>
 

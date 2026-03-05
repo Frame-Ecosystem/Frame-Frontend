@@ -163,6 +163,7 @@ export function ProfileCover({
                 <Button
                   size="sm"
                   variant="secondary"
+                  data-profile-edit
                   className="absolute right-3 bottom-3 z-10 gap-1.5 rounded-lg bg-black/50 p-2 text-white backdrop-blur-sm hover:bg-black/70 sm:right-4 sm:bottom-4 sm:p-2.5"
                 >
                   <CameraIcon className="h-4 w-4" />
@@ -227,6 +228,7 @@ export function ProfileCover({
                   <DialogTrigger asChild>
                     <Button
                       size="icon"
+                      data-profile-edit
                       className="bg-primary text-primary-foreground absolute right-1 bottom-1 z-10 h-9 w-9 rounded-full shadow-lg md:right-2 md:bottom-2"
                     >
                       <CameraIcon className="h-4 w-4" />

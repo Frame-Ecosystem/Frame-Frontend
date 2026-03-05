@@ -394,6 +394,7 @@ body.queue-fullscreen {
 body.queue-fullscreen [data-nav-topbar],
 body.queue-fullscreen [data-nav-mobile],
 body.queue-fullscreen [data-nav-desktop],
-body.queue-fullscreen [data-nav-tabs] {
+body.queue-fullscreen [data-nav-tabs],
+body.queue-fullscreen [data-profile-edit] {
   display: none !important;
 }
