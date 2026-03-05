@@ -3,6 +3,9 @@
  * @description React hook that joins Socket.IO rooms and listens
  *   for events, automatically cleaning up when rooms/events change
  *   or the component unmounts.
+ *
+ *   Handles reconnection: rooms are re-joined on every `connect`
+ *   event so the server-side room membership is restored.
  */
 
 import { useEffect, useRef } from "react"
@@ -24,7 +27,7 @@ interface SocketEventHandler {
  * @param enabled Whether the subscriptions should be active (default `true`).
  *
  * The hook automatically:
- * - emits `room:join` for each room on subscribe
+ * - emits `room:join` for each room on subscribe (and on every reconnect)
  * - emits `room:leave` for each room on cleanup
  * - registers / deregisters event listeners
  */
@@ -45,19 +48,34 @@ export function useSocketRoom(
 
     const socket = getSocket()
 
-    // ── Join rooms ──────────────────────────────────────────
-    for (const room of validRooms) {
-      socket.emit("room:join", room)
+    // ── Helper to (re-)join rooms ───────────────────────────
+    const joinRooms = () => {
+      for (const room of validRooms) {
+        console.log("[useSocketRoom] joining", room)
+        socket.emit("room:join", room)
+      }
     }
+
+    // Join now if already connected
+    if (socket.connected) {
+      joinRooms()
+    }
+
+    // Re-join rooms on every (re)connect so server-side
+    // membership is restored after a disconnect.
+    socket.on("connect", joinRooms)
+
     joinedRoomsRef.current = validRooms
 
     // ── Register event listeners ────────────────────────────
     for (const { event, handler } of events) {
+      console.log("[useSocketRoom] listening for", event)
       socket.on(event, handler)
     }
 
     // ── Cleanup ─────────────────────────────────────────────
     return () => {
+      socket.off("connect", joinRooms)
       for (const room of joinedRoomsRef.current) {
         socket.emit("room:leave", room)
       }

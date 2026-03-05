@@ -24,18 +24,27 @@ export function getSocket(): Socket {
       transports: ["websocket", "polling"],
       auth: { token },
       autoConnect: true,
+      reconnection: true,
+      reconnectionAttempts: Infinity,
+      reconnectionDelay: 1000,
+      reconnectionDelayMax: 10000,
     })
 
     socket.on("connect", () => {
-      console.debug("[socket] connected", socket?.id)
+      console.log("[socket] connected", socket?.id)
     })
 
     socket.on("disconnect", (reason) => {
-      console.debug("[socket] disconnected", reason)
+      console.log("[socket] disconnected:", reason)
     })
 
     socket.on("connect_error", (err) => {
-      console.warn("[socket] connection error", err.message)
+      console.warn("[socket] connection error:", err.message)
+    })
+
+    // Debug: log ALL incoming events so we can see what the server sends
+    socket.onAny((eventName, ...args) => {
+      console.log("[socket] event received:", eventName, args)
     })
   }
 

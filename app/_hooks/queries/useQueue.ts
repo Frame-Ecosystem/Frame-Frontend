@@ -22,10 +22,10 @@ export const queueKeys = {
 /** Fetch a single agent's queue */
 export function useAgentQueue(agentId: string | null, date?: string) {
   const queryClient = useQueryClient()
-  const invalidate = useCallback(
-    () => queryClient.invalidateQueries({ queryKey: queueKeys.all }),
-    [queryClient],
-  )
+  const invalidate = useCallback(() => {
+    console.log("[socket] queue:updated → invalidating agent queue")
+    queryClient.invalidateQueries({ queryKey: queueKeys.all })
+  }, [queryClient])
 
   // Subscribe to the agent's queue room for live updates
   const rooms = useMemo(
@@ -48,10 +48,10 @@ export function useAgentQueue(agentId: string | null, date?: string) {
 /** Fetch all agent queues for a specific lounge */
 export function useLoungeQueues(loungeId: string | null, date?: string) {
   const queryClient = useQueryClient()
-  const invalidate = useCallback(
-    () => queryClient.invalidateQueries({ queryKey: queueKeys.all }),
-    [queryClient],
-  )
+  const invalidate = useCallback(() => {
+    console.log("[socket] queue:lounge:updated → invalidating lounge queues")
+    queryClient.invalidateQueries({ queryKey: queueKeys.all })
+  }, [queryClient])
 
   const rooms = useMemo(
     () => (loungeId ? [`queue:lounge:${loungeId}`] : []),
@@ -73,10 +73,10 @@ export function useLoungeQueues(loungeId: string | null, date?: string) {
 /** Fetch all queues for the authenticated lounge */
 export function useMyLoungeQueues(date?: string, enabled = true) {
   const queryClient = useQueryClient()
-  const invalidate = useCallback(
-    () => queryClient.invalidateQueries({ queryKey: queueKeys.all }),
-    [queryClient],
-  )
+  const invalidate = useCallback(() => {
+    console.log("[socket] queue:lounge:updated → invalidating my lounge queues")
+    queryClient.invalidateQueries({ queryKey: queueKeys.all })
+  }, [queryClient])
 
   // We don't know the loungeId at this point (it's the auth'd user),
   // but the server will join the right room when the client subscribes

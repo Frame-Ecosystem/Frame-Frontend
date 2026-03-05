@@ -82,9 +82,27 @@ export function BookingList({
 
   const bookingEvents = useMemo(
     () => [
-      { event: "booking:created", handler: () => loadBookings() },
-      { event: "booking:updated", handler: () => loadBookings() },
-      { event: "booking:deleted", handler: () => loadBookings() },
+      {
+        event: "booking:created",
+        handler: () => {
+          console.log("[socket] booking:created → reloading bookings")
+          loadBookings()
+        },
+      },
+      {
+        event: "booking:updated",
+        handler: () => {
+          console.log("[socket] booking:updated → reloading bookings")
+          loadBookings()
+        },
+      },
+      {
+        event: "booking:deleted",
+        handler: () => {
+          console.log("[socket] booking:deleted → reloading bookings")
+          loadBookings()
+        },
+      },
     ],
     [loadBookings],
   )
