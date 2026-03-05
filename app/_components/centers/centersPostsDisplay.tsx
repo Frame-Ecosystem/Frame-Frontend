@@ -184,7 +184,7 @@ export default function PostsDisplay({
         </Card>
       ) : (
         <div className="space-y-4">
-          {posts.map((post) => {
+          {posts.map((post, postIndex) => {
             const state = postStates.get(post.id)!
 
             return (
@@ -260,6 +260,8 @@ export default function PostsDisplay({
                         fill
                         className="object-cover transition-transform duration-500 hover:scale-105"
                         sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                        priority={postIndex === 0}
+                        loading={postIndex === 0 ? "eager" : undefined}
                       />
                     </div>
                   )}

@@ -14,13 +14,7 @@ const Home = () => {
   // Redirect authenticated users to their respective dashboards
   useEffect(() => {
     if (!isLoading && user) {
-      // For now, let all users access the home page
-      // In the future, you might want to redirect based on user preferences
-      // if (user.type === "lounge") {
-      //   router.replace("/loungeHome")
-      // } else if (user.type === "client") {
-      //   router.replace("/clientHome")
-      // }
+      // All user types share this home page
     }
   }, [user, isLoading, router])
 

@@ -141,8 +141,8 @@ export function PostFeed() {
         </div>
       ) : (
         <div className="space-y-4">
-          {allPosts.map((post) => (
-            <PostCard key={post.id} post={post} />
+          {allPosts.map((post, index) => (
+            <PostCard key={post.id} post={post} priority={index === 0} />
           ))}
 
           {/* Load more trigger */}

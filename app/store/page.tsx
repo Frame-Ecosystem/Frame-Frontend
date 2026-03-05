@@ -138,7 +138,7 @@ export default function StorePage() {
 
           {/* Products Grid */}
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            {filteredProducts.map((product) => (
+            {filteredProducts.map((product, productIndex) => (
               <Card
                 key={product.id}
                 className="group overflow-hidden rounded-2xl"
@@ -152,6 +152,8 @@ export default function StorePage() {
                       sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
                       className="object-cover transition-transform duration-300 group-hover:scale-110"
                       src={product.imageUrl}
+                      priority={productIndex === 0}
+                      loading={productIndex === 0 ? "eager" : undefined}
                     />
 
                     {/* Stock Badge */}
