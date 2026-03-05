@@ -6,6 +6,7 @@ import { toast } from "sonner"
 import { useAuth } from "../../_providers/auth"
 import { loungeService } from "../../_services/lounge.service"
 import { bookingService } from "../../_services/booking.service"
+import { isAuthError } from "../../_services/api"
 import type {
   CreateBookingInput,
   CenterService,
@@ -33,7 +34,7 @@ export function BookingWizard({
   preSelectedServices = [],
 }: BookingWizardProps) {
   const { user } = useAuth()
-  const [currentStep, setCurrentStep] = useState<BookingStep>("datetime")
+  const [currentStep, setCurrentStep] = useState<BookingStep>("agent")
   const [isLoading, setIsLoading] = useState(false)
 
   // Step 1: Date & Time
@@ -51,6 +52,16 @@ export function BookingWizard({
 
   // Step 3: Preview & Notes
   const [notes, setNotes] = useState("")
+
+  // Availability data
+  const [availability, setAvailability] = useState<{
+    unavailableSlots: any[]
+    loungeOpeningHours: any
+  }>({
+    unavailableSlots: [],
+    loungeOpeningHours: {},
+  })
+  const [isLoadingAvailability, setIsLoadingAvailability] = useState(false)
 
   // Services data
   const [selectedServices, setSelectedServices] = useState<CenterService[]>([])
@@ -84,6 +95,7 @@ export function BookingWizard({
           setAgents([])
         }
       } catch (agentsError) {
+        if (isAuthError(agentsError)) return
         console.error("Failed to load agents:", agentsError)
         setAgents([])
       }
@@ -91,6 +103,48 @@ export function BookingWizard({
 
     loadAgents()
   }, [loungeId])
+
+  // Load availability when agents are selected
+  useEffect(() => {
+    const loadAvailability = async () => {
+      let agentIds: string[] = []
+
+      if (useMultipleAgents) {
+        // Get all selected agents for multiple agent mode
+        agentIds = Object.values(selectedAgents)
+          .filter((agent): agent is LoungeAgent => agent !== undefined)
+          .map((agent) => agent._id)
+      } else if (selectedAgent) {
+        // Get single selected agent
+        agentIds = [selectedAgent._id]
+      }
+
+      if (agentIds.length === 0) {
+        setAvailability({
+          unavailableSlots: [],
+          loungeOpeningHours: {},
+        })
+        return
+      }
+
+      setIsLoadingAvailability(true)
+      try {
+        const availabilityData = await bookingService.getAvailability(agentIds)
+        setAvailability(availabilityData)
+      } catch (error) {
+        if (isAuthError(error)) return
+        console.error("Failed to load availability:", error)
+        setAvailability({
+          unavailableSlots: [],
+          loungeOpeningHours: {},
+        })
+      } finally {
+        setIsLoadingAvailability(false)
+      }
+    }
+
+    loadAvailability()
+  }, [selectedAgent, selectedAgents, useMultipleAgents])
 
   // Calculate total price and duration when selected services change
   useEffect(() => {
@@ -238,6 +292,7 @@ export function BookingWizard({
       toast.success("Booking created successfully!")
       onSuccess?.()
     } catch (error) {
+      if (isAuthError(error)) return
       console.error("Failed to create booking:", error)
       toast.error("Failed to create booking. Please try again.")
     } finally {
@@ -246,10 +301,6 @@ export function BookingWizard({
   }
 
   const nextStep = () => {
-    if (currentStep === "datetime" && (!bookingDate || !bookingTime)) {
-      toast.error("Please select a date and time")
-      return
-    }
     if (currentStep === "agent") {
       if (useMultipleAgents) {
         // For multiple agents, check if all services have agents assigned
@@ -271,14 +322,18 @@ export function BookingWizard({
         }
       }
     }
+    if (currentStep === "datetime" && (!bookingDate || !bookingTime)) {
+      toast.error("Please select a date and time")
+      return
+    }
 
-    if (currentStep === "datetime") setCurrentStep("agent")
-    else if (currentStep === "agent") setCurrentStep("preview")
+    if (currentStep === "agent") setCurrentStep("datetime")
+    else if (currentStep === "datetime") setCurrentStep("preview")
   }
 
   const prevStep = () => {
-    if (currentStep === "agent") setCurrentStep("datetime")
-    else if (currentStep === "preview") setCurrentStep("agent")
+    if (currentStep === "datetime") setCurrentStep("agent")
+    else if (currentStep === "preview") setCurrentStep("datetime")
   }
 
   // Check if current step is valid
@@ -338,6 +393,8 @@ export function BookingWizard({
               setBookingTime={setBookingTime}
               isDatePopoverOpen={isDatePopoverOpen}
               setIsDatePopoverOpen={setIsDatePopoverOpen}
+              availability={availability}
+              isLoadingAvailability={isLoadingAvailability}
             />
           )}
 

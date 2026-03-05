@@ -1,7 +1,7 @@
 "use client"
 
 import { Booking } from "../../_types"
-import { Avatar, AvatarImage } from "../ui/avatar"
+import { Avatar, AvatarImage, AvatarFallback } from "../ui/avatar"
 import { Badge } from "../ui/badge"
 import { Card, CardContent } from "../ui/card"
 import { format, isFuture } from "date-fns"
@@ -30,6 +30,7 @@ import {
 import { DialogClose } from "@radix-ui/react-dialog"
 import { toast } from "sonner"
 import { useState } from "react"
+import { Building } from "lucide-react"
 import BookingSummary from "./booking-summary"
 
 interface BookingItemProps {
@@ -122,6 +123,9 @@ const BookingItem = ({ booking }: BookingItemProps) => {
               <div className="flex items-center gap-2">
                 <Avatar className="h-6 w-6">
                   <AvatarImage src={center.imageUrl} />
+                  <AvatarFallback>
+                    <Building className="h-4 w-4" />
+                  </AvatarFallback>
                 </Avatar>
                 <p className="text-sm">{center.name}</p>
               </div>
@@ -165,6 +169,9 @@ const BookingItem = ({ booking }: BookingItemProps) => {
             <CardContent className="flex items-center gap-3 px-5 py-3">
               <Avatar>
                 <AvatarImage src={center.imageUrl} />
+                <AvatarFallback>
+                  <Building className="h-4 w-4" />
+                </AvatarFallback>
               </Avatar>
               <div>
                 <h3 className="font-bold">{center.name}</h3>

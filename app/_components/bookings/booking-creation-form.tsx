@@ -22,6 +22,7 @@ import { toast } from "sonner"
 import { useAuth } from "../../_providers/auth"
 import { loungeService } from "../../_services/lounge.service"
 import { bookingService } from "../../_services/booking.service"
+import { isAuthError } from "../../_services/api"
 import type {
   LoungeServiceItem,
   CreateBookingInput,
@@ -74,6 +75,7 @@ export function BookingCreationForm({
           setSelectedLoungeService({ id: loungeId, name: "", loungeId } as any)
         }
       } catch (error) {
+        if (isAuthError(error)) return
         console.error("Failed to load lounge services:", error)
         toast.error("Failed to load available services")
       }
@@ -151,6 +153,7 @@ export function BookingCreationForm({
         toast.error("Failed to create booking")
       }
     } catch (error) {
+      if (isAuthError(error)) return
       console.error("Booking creation error:", error)
       toast.error("Failed to create booking")
     } finally {

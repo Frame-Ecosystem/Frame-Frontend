@@ -15,6 +15,7 @@ import { ArrowLeft, CheckCircle, XCircle } from "lucide-react"
 import { toast } from "sonner"
 import { loungeService, serviceCategoryService } from "../../_services"
 import { serviceSuggestionsService } from "../../_services"
+import { isAuthError } from "../../_services/api"
 import {
   Dialog,
   DialogContent,
@@ -68,6 +69,7 @@ export default function AdminServiceSuggestionsPage() {
       const { suggestions } = await loungeService.getServiceSuggestions()
       setSuggestions(suggestions)
     } catch (err) {
+      if (isAuthError(err)) return
       console.error("Failed to load suggestions", err)
       toast.error("Failed to load suggestions")
       setSuggestions([])
@@ -81,6 +83,7 @@ export default function AdminServiceSuggestionsPage() {
       const data = await serviceCategoryService.getAll()
       setCategories(Array.isArray(data) ? data : [])
     } catch (err) {
+      if (isAuthError(err)) return
       console.error("Failed to load categories:", err)
       setCategories([])
     }
@@ -114,6 +117,7 @@ export default function AdminServiceSuggestionsPage() {
       toast.success("Suggestion rejected successfully")
       loadSuggestions() // Refresh the list
     } catch (err) {
+      if (isAuthError(err)) return
       console.error("Failed to reject suggestion", err)
       toast.error("Failed to reject suggestion")
     }
@@ -155,6 +159,7 @@ export default function AdminServiceSuggestionsPage() {
       setApproveDialog({ open: false, suggestion: null })
       loadSuggestions() // Refresh the list
     } catch (err) {
+      if (isAuthError(err)) return
       console.error("Failed to approve suggestion", err)
       toast.error("Failed to approve suggestion")
     }

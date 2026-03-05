@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback, useRef } from "react"
 import { useAuth } from "../_providers/auth"
 import { useRouter, useSearchParams } from "next/navigation"
 import clientService from "../_services/client.service"
+import { isAuthError } from "../_services/api"
 import { Button } from "../_components/ui/button"
 import { Input } from "../_components/ui/input"
 import { Search as SearchIcon, TrendingUpIcon, Globe, X } from "lucide-react"
@@ -138,6 +139,7 @@ export default function CentersPage() {
       setLounges(response.data || [])
       setTotalPages(response.pagination?.totalPages || 1)
     } catch (_error: any) {
+      if (isAuthError(_error)) return
       setLounges([])
       setTotalPages(1)
 
@@ -340,21 +342,21 @@ export default function CentersPage() {
 
             {/* SERVICE CATEGORIES SECTION */}
             <ServiceCategoriesSection
-              className="mt-6 lg:mt-8"
+              className="mt-8"
               onCategorySelect={setSelectedCategoryId}
               selectedCategoryId={selectedCategoryId}
             />
 
             {/* POPULAR SERVICES SECTION */}
             <PopularServicesSection
-              className="mt-6 lg:mt-8"
+              className="mt-8"
               selectedCategoryId={selectedCategoryId}
               onServiceSelect={handleServiceSelect}
               selectedServiceId={selectedServiceId}
             />
 
             {/* ALL CENTERS SECTION */}
-            <div className="mt-6 lg:mt-20 lg:mb-12">
+            <div className="mt-20 mb-12">
               <div className="mb-6 flex items-center justify-between lg:mb-8">
                 <div className="flex items-center gap-3">
                   <TrendingUpIcon className="text-primary h-5 w-5 lg:h-6 lg:w-6" />

@@ -20,6 +20,7 @@ import {
   Package,
 } from "lucide-react"
 import { adminService } from "../_services"
+import { isAuthError } from "../_services/api"
 
 interface AdminStats {
   totalUsers: number
@@ -49,6 +50,7 @@ export default function AdminDashboard() {
           const data = await adminService.getStats()
           setStats(data)
         } catch (error) {
+          if (isAuthError(error)) return
           console.error("Failed to load admin stats:", error)
         } finally {
           setStatsLoading(false)

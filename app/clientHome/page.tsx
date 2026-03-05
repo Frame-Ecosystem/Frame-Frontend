@@ -9,6 +9,7 @@ import { ErrorBoundary } from "../_components/common/errorBoundary"
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { serviceService } from "../_services"
+import { isAuthError } from "../_services/api"
 import type { Service, Center } from "../_types"
 import { useAuth } from "../_providers/auth"
 
@@ -44,6 +45,7 @@ const ClientHome = () => {
         const data = await serviceService.getAll()
         setServices(data.slice(0, 9)) // Limit to 9 services for display
       } catch (error) {
+        if (isAuthError(error)) return
         console.error("Failed to fetch services:", error)
       } finally {
         setLoadingServices(false)
@@ -147,7 +149,7 @@ const ClientHome = () => {
                   </div>
                 </div>
 
-                <div className="mt-6 lg:mt-8">
+                <div className="mt-8">
                   <div className="lg:bg-card/30 lg:rounded-2xl lg:border lg:p-6 lg:backdrop-blur-sm">
                     <h3 className="mb-4 hidden text-lg font-semibold lg:block">
                       Find your ideal center
@@ -156,7 +158,7 @@ const ClientHome = () => {
                   </div>
                 </div>
 
-                <div className="mt-6 lg:mt-8">
+                <div className="mt-8">
                   <h3 className="text-muted-foreground mb-4 hidden text-sm font-medium tracking-wider uppercase lg:block">
                     Popular Services
                   </h3>

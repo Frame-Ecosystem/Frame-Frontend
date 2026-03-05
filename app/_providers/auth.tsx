@@ -153,9 +153,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   // Handle authentication failure - clear auth and redirect to root with sign-in dialog
   const handleAuthFailure = useCallback(() => {
-    console.log(
-      "[AuthProvider] Authentication failed - redirecting to root with sign-in dialog",
-    )
     clearAuth()
     router.push("/?signin=true")
   }, [clearAuth, router])

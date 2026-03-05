@@ -143,6 +143,18 @@ class AuthService {
     }
   }
 
+  async updateCoverImage(formData: FormData): Promise<User | null> {
+    try {
+      const data = await apiClient.put<{ data: User; message: string }>(
+        "/v1/me/cover-image",
+        formData,
+      )
+      return data.data
+    } catch {
+      return null
+    }
+  }
+
   async signOut(): Promise<void> {
     try {
       // Call backend to clear HttpOnly cookie

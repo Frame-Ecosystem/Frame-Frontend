@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from "react"
 import { Button } from "../ui/button"
 import { serviceCategoryService } from "../../_services"
+import { isAuthError } from "../../_services/api"
 import type { ServiceCategory } from "../../_types"
 
 interface ServiceCategoriesSectionProps {
@@ -98,6 +99,7 @@ export default function ServiceCategoriesSection({
         const data = await serviceCategoryService.getAll()
         setServiceCategories(data.slice(0, 6)) // Limit to 6 categories for display
       } catch (error) {
+        if (isAuthError(error)) return
         console.error("Error fetching service categories:", error)
         setServiceCategories([])
       } finally {

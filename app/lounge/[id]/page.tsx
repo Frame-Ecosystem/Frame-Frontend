@@ -27,6 +27,7 @@ import { useAuth } from "@/app/_providers/auth"
 import { useEffect, useState } from "react"
 import { useParams, useRouter } from "next/navigation"
 import { clientService } from "@/app/_services"
+import { isAuthError } from "@/app/_services/api"
 
 export default function LoungePage() {
   const params = useParams()
@@ -113,6 +114,7 @@ export default function LoungePage() {
 
         setCenter(transformedCenter)
       } catch (err: any) {
+        if (isAuthError(err)) return
         console.error("Error fetching lounge:", err)
         setError(err?.message || "Failed to load lounge details")
       } finally {

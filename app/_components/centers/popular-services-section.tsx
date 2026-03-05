@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from "react"
 import { Button } from "../ui/button"
 import { serviceService } from "../../_services"
 import { serviceCategoryService } from "../../_services"
+import { isAuthError } from "../../_services/api"
 import { quickSearchOptions } from "../../_constants/search"
 import type { Service, ServiceCategory } from "../../_types"
 
@@ -103,7 +104,8 @@ export default function PopularServicesSection({
       try {
         const data = await serviceCategoryService.getAll()
         setCategories(data)
-      } catch {
+      } catch (error) {
+        if (isAuthError(error)) return
         setCategories([])
       }
     }
@@ -127,7 +129,8 @@ export default function PopularServicesSection({
         }
 
         setServices(filteredServices.slice(0, 6)) // Limit to 6 services for display
-      } catch {
+      } catch (error) {
+        if (isAuthError(error)) return
         setServices([])
       } finally {
         setLoadingServices(false)

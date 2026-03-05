@@ -6,6 +6,7 @@ import { Input } from "../ui/input"
 import { Label } from "../ui/label"
 import { MapPinIcon, SearchIcon, ChevronDown } from "lucide-react"
 import { authService } from "../../_services/auth.service"
+import { isAuthError } from "../../_services/api"
 import { useAuth } from "../../_providers/auth"
 import type { LocationData } from "../../_types"
 
@@ -276,6 +277,7 @@ export function LocationSelector({ onLocationUpdate }: LocationSelectorProps) {
         setIsOpen(false) // Close the expanded view after successful update
       }
     } catch (error) {
+      if (isAuthError(error)) return
       console.error("Failed to update location:", error)
     } finally {
       setIsUpdating(false)

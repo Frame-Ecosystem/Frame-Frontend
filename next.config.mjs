@@ -23,15 +23,6 @@ const nextConfig = {
     contentDispositionType: "attachment",
     contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
   },
-  // Proxy API requests to backend to avoid CORS issues during development
-  async rewrites() {
-    return [
-      {
-        source: "/v1/:path*",
-        destination: "http://192.168.100.11:3000/v1/:path*",
-      },
-    ]
-  },
 }
 
 export default nextConfig

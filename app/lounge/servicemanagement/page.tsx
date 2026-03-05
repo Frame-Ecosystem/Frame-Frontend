@@ -25,6 +25,7 @@ import { Badge } from "../../_components/ui/badge"
 import { Plus, Edit, Trash2, ArrowLeft } from "lucide-react"
 import { toast } from "sonner"
 import { loungeService, serviceService } from "../../_services"
+import { isAuthError } from "../../_services/api"
 import SuggestService from "../../_components/services/SuggestService"
 import type { Service, LoungeServiceItem } from "../../_types"
 import {
@@ -89,6 +90,7 @@ export default function LoungeServiceManagementPage() {
       const data = await serviceService.getAll()
       setGlobalServices(Array.isArray(data) ? data : [])
     } catch (error) {
+      if (isAuthError(error)) return
       console.error("Failed to load global services:", error)
       setGlobalServices([])
     }
@@ -121,6 +123,7 @@ export default function LoungeServiceManagementPage() {
       }
       setServiceNames(names)
     } catch (error) {
+      if (isAuthError(error)) return
       console.error("Failed to load lounge services:", error)
       setServices([])
     } finally {
@@ -374,6 +377,7 @@ export default function LoungeServiceManagementPage() {
       resetForm()
       loadServices()
     } catch (error) {
+      if (isAuthError(error)) return
       console.error("Failed to save lounge service:", error)
       if (error instanceof Error) {
         setError(error.message)
@@ -418,6 +422,7 @@ export default function LoungeServiceManagementPage() {
       loadServices()
       toast.success("Service deleted successfully")
     } catch (error) {
+      if (isAuthError(error)) return
       console.error("Failed to delete lounge service:", error)
       if (error instanceof Error) {
         toast.error(error.message)

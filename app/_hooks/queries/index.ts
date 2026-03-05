@@ -2,3 +2,4 @@
 export * from "./useAuth"
 export * from "./useClientProfile"
 export * from "./useLoungeProfile"
+export * from "./useQueue"

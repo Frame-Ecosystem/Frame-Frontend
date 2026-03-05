@@ -7,6 +7,7 @@ import { CenterService } from "../_types"
 import { useRouter } from "next/navigation"
 import { loungeService } from "../_services"
 import { serviceService } from "../_services"
+import { isAuthError } from "../_services/api"
 
 // Helper function to get valid image URL
 const getValidImageUrl = (image: any): string => {
@@ -68,6 +69,7 @@ function BookPageContent() {
 
         setPreSelectedServices(services)
       } catch (error) {
+        if (isAuthError(error)) return
         console.error(
           "Failed to parse services parameter or load services:",
           error,

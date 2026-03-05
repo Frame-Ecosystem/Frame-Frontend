@@ -302,6 +302,53 @@ class BookingService {
       return false
     }
   }
+
+  // Get availability for agents
+  // Expected response: { unavailableSlots: Array<{ date: string, unavailableTimes: string[] }>, loungeOpeningHours: Object }
+  async getAvailability(agentIds: string[]): Promise<{
+    unavailableSlots: any[]
+    loungeOpeningHours: any
+  }> {
+    try {
+      const agentIdsParam = agentIds.join(",")
+      const response = await apiClient.get<any>(
+        `/v1/bookings/availability?agentIds=${agentIdsParam}`,
+      )
+      const data = response.data || response
+      return {
+        unavailableSlots: data.unavailableSlots || [],
+        loungeOpeningHours: data.loungeOpeningHours || {},
+      }
+    } catch (error: any) {
+      // If the endpoint doesn't exist (404), assume all times are available and default hours
+      if (
+        error.message?.includes("404") ||
+        error.message?.includes("not found") ||
+        error.message?.includes("Booking not found")
+      ) {
+        console.warn(
+          "Availability endpoint not available, assuming all times are available",
+        )
+        return {
+          unavailableSlots: [],
+          loungeOpeningHours: {
+            monday: { from: "09:00", to: "17:00" },
+            tuesday: { from: "09:00", to: "17:00" },
+            wednesday: { from: "09:00", to: "17:00" },
+            thursday: { from: "09:00", to: "17:00" },
+            friday: { from: "09:00", to: "17:00" },
+            saturday: { from: "09:00", to: "17:00" },
+            sunday: { from: "09:00", to: "17:00" },
+          },
+        }
+      }
+      console.error("Failed to fetch availability:", error)
+      return {
+        unavailableSlots: [],
+        loungeOpeningHours: {},
+      }
+    }
+  }
 }
 
 export const bookingService = new BookingService()

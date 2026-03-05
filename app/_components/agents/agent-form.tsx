@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react"
 import { ImageSelector } from "./ImageSelector"
 import { useAgent } from "../../_providers/agent"
+import { isAuthError } from "../../_services/api"
 import { useAuth } from "../../_providers/auth"
 import { Agent, CreateAgentDto, UpdateAgentDto } from "../../_types"
 import { Button } from "../ui/button"
@@ -111,6 +112,7 @@ export function AgentForm({
             }
           }
         } catch (error) {
+          if (isAuthError(error)) return
           console.error("Failed to fetch lounge services:", error)
           setLoungeServices([])
           if (isAdmin) {
@@ -250,6 +252,7 @@ export function AgentForm({
       onOpenChange(false)
       onSuccess?.()
     } catch (error: any) {
+      if (isAuthError(error)) return
       // Handle specific validation errors
       if (error.code === "AGENT_NAME_EXISTS") {
         setErrors({

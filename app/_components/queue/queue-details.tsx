@@ -1,10 +1,7 @@
-/* eslint-disable no-unused-vars */
 "use client"
-
-import React from "react"
 import { Card, CardContent, CardHeader } from "../ui/card"
 import { Button } from "../ui/button"
-import { Users, CalendarClock, ChevronDown } from "lucide-react"
+import { Users, CalendarClock, ChevronDown, Plus } from "lucide-react"
 import {
   DndContext,
   closestCenter,
@@ -19,25 +16,38 @@ import {
   sortableKeyboardCoordinates,
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable"
-import SortableQueueItem from "./queue-item"
-import { QueuePerson } from "../../_constants/mockQueues"
+import QueueItem from "./queue-item"
+import type { QueuePerson } from "../../_types"
+import { QueuePersonStatus } from "../../_types"
 
 interface QueueDetailsProps {
-  queueItems: QueuePerson[]
+  persons: QueuePerson[]
   mode: "client" | "staff"
   isExpanded: boolean
+  // eslint-disable-next-line no-unused-vars
   setIsExpanded: (expanded: boolean) => void
   isFullScreen: boolean
+  // eslint-disable-next-line no-unused-vars
   onDragEnd: (event: DragEndEvent) => void
+  // eslint-disable-next-line no-unused-vars
+  onStatusChange?: (bookingId: string, status: QueuePersonStatus) => void
+  // eslint-disable-next-line no-unused-vars
+  onRemove?: (bookingId: string) => void
+  onAddPerson?: () => void
+  isUpdating?: boolean
 }
 
 export default function QueueDetails({
-  queueItems,
+  persons,
   mode,
   isExpanded,
   setIsExpanded,
   isFullScreen,
   onDragEnd,
+  onStatusChange,
+  onRemove,
+  onAddPerson,
+  isUpdating = false,
 }: QueueDetailsProps) {
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -45,6 +55,8 @@ export default function QueueDetails({
       coordinateGetter: sortableKeyboardCoordinates,
     }),
   )
+
+  const sortableIds = persons.map((p) => p.bookingId?._id)
 
   return (
     <Card className={isFullScreen ? "shadow-2xl" : ""}>
@@ -74,12 +86,16 @@ export default function QueueDetails({
 
       {isExpanded && (
         <CardContent className="space-y-3 pt-0">
-          {queueItems.length === 0 ? (
+          {persons.length === 0 ? (
             <div className="py-12 text-center">
               <Users className="text-muted-foreground/50 mx-auto mb-3 h-12 w-12" />
-              <p className="text-muted-foreground">No one in queue</p>
+              <p className="text-muted-foreground font-medium">
+                This queue is empty
+              </p>
               <p className="text-muted-foreground mt-1 text-sm">
-                Be the first to join!
+                {mode === "staff"
+                  ? "Add clients from today's bookings to get started"
+                  : "No one is currently in this queue. Client booking from the queue is coming soon!"}
               </p>
             </div>
           ) : mode === "staff" ? (
@@ -89,42 +105,53 @@ export default function QueueDetails({
               onDragEnd={onDragEnd}
             >
               <SortableContext
-                items={queueItems.map((item) => item.id)}
+                items={sortableIds}
                 strategy={verticalListSortingStrategy}
               >
-                {queueItems.map((person) => (
-                  <SortableQueueItem
-                    key={person.id}
+                {persons.map((person) => (
+                  <QueueItem
+                    key={person.bookingId?._id}
                     person={person}
+                    allPersons={persons}
                     mode={mode}
+                    onStatusChange={onStatusChange}
+                    onRemove={onRemove}
+                    isUpdating={isUpdating}
                   />
                 ))}
               </SortableContext>
             </DndContext>
           ) : (
-            // Client mode: render without drag and drop
-            queueItems.map((person) => (
-              <SortableQueueItem key={person.id} person={person} mode={mode} />
+            persons.map((person) => (
+              <QueueItem
+                key={person.bookingId?._id}
+                person={person}
+                allPersons={persons}
+                mode={mode}
+              />
             ))
           )}
 
-          {/* Join Queue CTA - Inside the queue list */}
-          <div className="bg-primary/5 my-4 rounded-xl border-2 border-dashed border-green-500 p-4 text-center shadow-lg">
-            <Users className="text-primary mx-auto mb-2 h-6 w-6" />
-            <h3 className="mb-1 text-sm font-semibold">
-              {mode === "staff"
-                ? "Add External Client"
-                : "Want to join the queue?"}
-            </h3>
-            <p className="text-muted-foreground mb-3 text-xs">
-              {mode === "staff"
-                ? "Add a client to the queue for walk-in services"
-                : "Reserve your spot and get real-time updates"}
-            </p>
-            <Button size="sm" className="w-full text-xs sm:w-auto">
-              {mode === "staff" ? "Add to Queue" : "Join Queue Now"}
-            </Button>
-          </div>
+          {/* Add to Queue CTA — staff mode only */}
+          {mode === "staff" && (
+            <div className="bg-primary/5 my-4 rounded-xl border-2 border-dashed border-green-500 p-4 text-center shadow-lg">
+              <Users className="text-primary mx-auto mb-2 h-6 w-6" />
+              <h3 className="mb-1 text-sm font-semibold">
+                Add Client to Queue
+              </h3>
+              <p className="text-muted-foreground mb-3 text-xs">
+                Add a client from today&apos;s confirmed bookings
+              </p>
+              <Button
+                size="sm"
+                className="w-full gap-1 text-xs sm:w-auto"
+                onClick={onAddPerson}
+              >
+                <Plus className="h-3 w-3" />
+                Add to Queue
+              </Button>
+            </div>
+          )}
         </CardContent>
       )}
     </Card>

@@ -18,6 +18,7 @@ import {
 import { Plus, Edit, Trash2, ArrowLeft } from "lucide-react"
 import { toast } from "sonner"
 import { serviceService, serviceCategoryService } from "../../_services"
+import { isAuthError } from "../../_services/api"
 import type { Service, ServiceCategory } from "../../_types"
 import {
   INITIAL_SERVICE_FORM_STATE,
@@ -46,6 +47,7 @@ export default function ServiceManagementPage() {
       const data = await serviceService.getAll()
       setServices(Array.isArray(data) ? data : [])
     } catch (error) {
+      if (isAuthError(error)) return
       console.error("Failed to load services:", error)
       toast.error("Failed to load services")
       setServices([])
@@ -59,6 +61,7 @@ export default function ServiceManagementPage() {
       const data = await serviceCategoryService.getAll()
       setCategories(Array.isArray(data) ? data : [])
     } catch (error) {
+      if (isAuthError(error)) return
       console.error("Failed to load categories:", error)
       toast.error("Failed to load categories")
       setCategories([])
@@ -161,6 +164,7 @@ export default function ServiceManagementPage() {
       resetForm()
       await loadServices()
     } catch (error) {
+      if (isAuthError(error)) return
       console.error("Failed to save service:", error)
       const errorMessage =
         error instanceof Error ? error.message : "Failed to save service"
@@ -215,6 +219,7 @@ export default function ServiceManagementPage() {
       toast.success("Service deleted successfully")
       await loadServices()
     } catch (error) {
+      if (isAuthError(error)) return
       console.error("Failed to delete service:", error)
       const errorMessage =
         error instanceof Error ? error.message : "Failed to delete service"

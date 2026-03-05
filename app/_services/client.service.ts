@@ -22,6 +22,12 @@ interface LoungeUser {
     url: string
     publicId: string
   }
+  coverImage?:
+    | {
+        url: string
+        publicId: string
+      }
+    | string
   phoneNumber?: string
   createdAt?: string
   type?: string

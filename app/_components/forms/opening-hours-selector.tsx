@@ -15,6 +15,7 @@ import { Input } from "../ui/input"
 import { toast } from "sonner"
 import { useAuth } from "../../_providers/auth"
 import { loungeService } from "../../_services"
+import { isAuthError } from "../../_services/api"
 
 const DAYS = [
   "monday",
@@ -106,6 +107,7 @@ export function OpeningHoursSelector() {
       toast.success("Opening hours updated successfully")
       setOpen(false)
     } catch (error) {
+      if (isAuthError(error)) return
       console.error("Failed to update opening hours:", error)
       if (error instanceof Error) {
         toast.error(error.message)

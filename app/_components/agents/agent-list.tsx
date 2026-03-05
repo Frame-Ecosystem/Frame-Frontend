@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { useAgent } from "../../_providers/agent"
+import { isAuthError } from "../../_services/api"
 import { Agent } from "../../_types"
 import { Button } from "../ui/button"
 import { Input } from "../ui/input"
@@ -138,6 +139,7 @@ export function AgentList({
       // Refresh the list after successful deletion
       fetchAgents(pagination.page, pagination.limit)
     } catch (error: any) {
+      if (isAuthError(error)) return
       console.error("Delete failed:", error)
       console.error("Error code:", error.code)
       console.error("Error message:", error.message)

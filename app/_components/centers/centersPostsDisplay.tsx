@@ -151,7 +151,7 @@ export default function PostsDisplay({
   }
 
   return (
-    <div className="space-y-4 xl:mx-auto xl:w-3/5">
+    <div className="mb-6 space-y-4 xl:mx-auto xl:w-3/5">
       {/* Header */}
       <div className="mb-6 flex items-center justify-between">
         <div className="flex items-center gap-3">

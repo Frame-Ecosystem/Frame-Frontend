@@ -29,18 +29,16 @@ export function BookingNavigation({
     <div className="flex gap-3 pt-4 sm:justify-between sm:gap-4 sm:pt-3">
       <Button
         variant="outline"
-        onClick={
-          currentStep === "datetime" ? onCancel || (() => {}) : onPrevStep
-        }
+        onClick={currentStep === "agent" ? onCancel || (() => {}) : onPrevStep}
         disabled={isLoading}
         className={cn(
           "h-12 flex-1 font-medium shadow-sm transition-all hover:shadow-md sm:h-10 sm:w-auto sm:flex-none",
-          currentStep === "datetime"
+          currentStep === "agent"
             ? "border-red-500 text-red-600 hover:bg-red-50 hover:text-red-700 active:bg-red-100"
             : "border-gray-500 text-gray-600 hover:bg-gray-50 hover:text-gray-700 active:bg-gray-100",
         )}
       >
-        {currentStep === "datetime" ? (
+        {currentStep === "agent" ? (
           "Cancel"
         ) : (
           <div className="flex w-full items-center justify-between">

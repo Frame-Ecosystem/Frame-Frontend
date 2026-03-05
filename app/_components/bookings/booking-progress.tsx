@@ -18,52 +18,17 @@ export function BookingProgress({ currentStep }: BookingProgressProps) {
           <div
             className={cn(
               "flex h-10 w-10 items-center justify-center rounded-full text-sm font-medium transition-all duration-300 sm:h-8 sm:w-8",
-              currentStep === "datetime"
+              currentStep === "agent"
                 ? "bg-primary text-primary-foreground shadow-lg"
-                : ["datetime", "agent", "preview"].indexOf(currentStep) > 0
+                : ["agent", "datetime", "preview"].indexOf(currentStep) > 0
                   ? "bg-green-500 text-white shadow-md"
                   : "bg-muted text-muted-foreground",
             )}
           >
-            {["datetime", "agent", "preview"].indexOf(currentStep) >= 0 ? (
+            {["agent", "datetime", "preview"].indexOf(currentStep) >= 0 ? (
               <Check className="h-5 w-5 sm:h-4 sm:w-4" />
             ) : (
               "1"
-            )}
-          </div>
-          <div className="flex flex-col sm:flex-row sm:items-center">
-            <span
-              className={cn(
-                "text-base font-medium sm:text-sm",
-                currentStep === "datetime"
-                  ? "text-primary"
-                  : "text-muted-foreground",
-              )}
-            >
-              Select Date & Time
-            </span>
-            <span className="text-muted-foreground text-xs sm:hidden">
-              Choose your preferred date and time
-            </span>
-          </div>
-        </div>
-
-        {/* Step 2 */}
-        <div className="flex items-center space-x-3 sm:space-x-4">
-          <div
-            className={cn(
-              "flex h-10 w-10 items-center justify-center rounded-full text-sm font-medium transition-all duration-300 sm:h-8 sm:w-8",
-              currentStep === "agent"
-                ? "bg-primary text-primary-foreground shadow-lg"
-                : currentStep === "preview"
-                  ? "bg-green-500 text-white shadow-md"
-                  : "bg-muted text-muted-foreground",
-            )}
-          >
-            {["datetime", "agent", "preview"].indexOf(currentStep) >= 1 ? (
-              <Check className="h-5 w-5 sm:h-4 sm:w-4" />
-            ) : (
-              "2"
             )}
           </div>
           <div className="flex flex-col sm:flex-row sm:items-center">
@@ -79,6 +44,41 @@ export function BookingProgress({ currentStep }: BookingProgressProps) {
             </span>
             <span className="text-muted-foreground text-xs sm:hidden">
               Select your preferred agent
+            </span>
+          </div>
+        </div>
+
+        {/* Step 2 */}
+        <div className="flex items-center space-x-3 sm:space-x-4">
+          <div
+            className={cn(
+              "flex h-10 w-10 items-center justify-center rounded-full text-sm font-medium transition-all duration-300 sm:h-8 sm:w-8",
+              currentStep === "datetime"
+                ? "bg-primary text-primary-foreground shadow-lg"
+                : currentStep === "preview"
+                  ? "bg-green-500 text-white shadow-md"
+                  : "bg-muted text-muted-foreground",
+            )}
+          >
+            {["agent", "datetime", "preview"].indexOf(currentStep) >= 1 ? (
+              <Check className="h-5 w-5 sm:h-4 sm:w-4" />
+            ) : (
+              "2"
+            )}
+          </div>
+          <div className="flex flex-col sm:flex-row sm:items-center">
+            <span
+              className={cn(
+                "text-base font-medium sm:text-sm",
+                currentStep === "datetime"
+                  ? "text-primary"
+                  : "text-muted-foreground",
+              )}
+            >
+              Select Date & Time
+            </span>
+            <span className="text-muted-foreground text-xs sm:hidden">
+              Choose your preferred date and time
             </span>
           </div>
         </div>
@@ -119,9 +119,9 @@ export function BookingProgress({ currentStep }: BookingProgressProps) {
           className="bg-primary h-3 rounded-full shadow-sm transition-all duration-500 ease-out"
           style={{
             width:
-              currentStep === "datetime"
+              currentStep === "agent"
                 ? "33%"
-                : currentStep === "agent"
+                : currentStep === "datetime"
                   ? "66%"
                   : "100%",
           }}

@@ -25,7 +25,7 @@ export function AccountInformation({
   const displayName = user?.loungeTitle || user?.firstName || user?.email
 
   return (
-    <div className="space-y-2">
+    <div className="mb-6 space-y-2">
       <button
         onClick={() => setIsAccountInfoOpen(!isAccountInfoOpen)}
         className="border-border hover:bg-card/50 w-full rounded-lg border p-4 text-left transition-colors"

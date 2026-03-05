@@ -16,6 +16,7 @@ import { Textarea } from "../ui/textarea"
 import { Badge } from "../ui/badge"
 import { toast } from "sonner"
 import { apiClient, serviceSuggestionsService } from "../../_services"
+import { isAuthError } from "../../_services/api"
 import { useAuth } from "../../_providers/auth"
 import type { ServiceSuggestion } from "../../_types"
 
@@ -46,6 +47,7 @@ export default function SuggestService() {
         await serviceSuggestionsService.getMySuggestions(loungeId)
       setUserSuggestions(suggestions)
     } catch (error) {
+      if (isAuthError(error)) return
       console.error("Failed to fetch suggestions:", error)
       toast.error("Failed to load your suggestions")
       setUserSuggestions([])
@@ -186,6 +188,7 @@ export default function SuggestService() {
         targetGender: "unisex",
       })
     } catch (err) {
+      if (isAuthError(err)) return
       console.error("Failed to submit suggestion", err)
 
       // Handle specific backend error messages

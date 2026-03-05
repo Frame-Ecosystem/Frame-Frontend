@@ -1,7 +1,9 @@
 // API Base Configuration
 import { withCsrfHeader, isStateChanging } from "../_lib/csrf"
 export const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000"
+  typeof window !== "undefined"
+    ? `${window.location.protocol}//${window.location.hostname}:3000`
+    : "http://localhost:3000"
 
 // Google Auth: force localhost for OAuth redirects to avoid using LAN IP
 // Use GOOGLE_AUTH_LOCAL_API_URL if explicitly provided, otherwise default to localhost.
@@ -76,6 +78,9 @@ class ApiClient {
           typeof window !== "undefined" &&
           localStorage.getItem("hasRefreshToken") === "true"
         if (!hasSessionFlag && !token) {
+          // No session at all — redirect to sign-in
+          this.authFailureCallback?.()
+          throw new Error("AUTH_FAILURE")
         } else {
           const newToken = await this.refreshTokenCallback()
 
@@ -94,6 +99,7 @@ class ApiClient {
           } else {
             // Token refresh failed - authentication has failed
             this.authFailureCallback?.()
+            throw new Error("AUTH_FAILURE")
           }
         }
       }
@@ -101,13 +107,23 @@ class ApiClient {
       // If still 401 after refresh attempt, authentication has failed
       if (response.status === 401) {
         this.authFailureCallback?.()
+        throw new Error("AUTH_FAILURE")
       }
 
       if (!response.ok) {
         const error = await response.json().catch(() => ({}))
-        const err = new Error(
-          error.message || `API Error: ${response.statusText}`,
-        )
+        const message = error.message || `API Error: ${response.statusText}`
+
+        // Catch auth-related errors from non-401 responses (e.g. 403)
+        const isAuthError =
+          response.status === 403 ||
+          /authenticat|unauthori|token.*expired|session.*expired/i.test(message)
+        if (isAuthError) {
+          this.authFailureCallback?.()
+          throw new Error("AUTH_FAILURE")
+        }
+
+        const err = new Error(message)
         try {
           ;(err as any).code = error.code
         } catch {}
@@ -155,3 +171,8 @@ class ApiClient {
 }
 
 export const apiClient = new ApiClient()
+
+/** Check if an error is an auth failure (handled globally via redirect) */
+export function isAuthError(error: unknown): boolean {
+  return error instanceof Error && error.message === "AUTH_FAILURE"
+}

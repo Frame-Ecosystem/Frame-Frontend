@@ -2,39 +2,12 @@
 
 import { useState, useEffect } from "react"
 import { Button } from "../../_components/ui/button"
-import { CameraIcon, Pencil, StarIcon, User, FileText } from "lucide-react"
-import {
-  Avatar,
-  AvatarImage,
-  AvatarFallback,
-} from "../../_components/ui/avatar"
+import { Pencil, StarIcon, User, FileText, Heart } from "lucide-react"
 import { ErrorBoundary } from "../../_components/common/errorBoundary"
 import { useAuth } from "../../_providers/auth"
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "../../_components/ui/dialog"
-import {
-  authService,
-  getUserDisplayName,
-  getUserInitials,
-} from "../../_services/auth.service"
-import dynamic from "next/dynamic"
-const ImageSelector = dynamic(
-  () =>
-    import("../../_components/common/ImageSelector").then(
-      (m) => m.ImageSelector,
-    ),
-  {
-    loading: () => (
-      <div className="bg-muted-foreground/10 h-24 w-24 animate-pulse rounded-full" />
-    ),
-    ssr: false,
-  },
-)
+import { authService, getUserDisplayName } from "../../_services/auth.service"
+import { PostService } from "../../_services/post.service"
+import { ProfileCover } from "../../_components/common/profile-cover"
 import { AccountSettings } from "../../_components/profile/account-settings"
 import { AccountInformation } from "../../_components/profile/account-information"
 import PostsDisplay from "../../_components/centers/centersPostsDisplay"
@@ -52,8 +25,8 @@ const formatBioText = (text: string, isMobile: boolean = false) => {
 
 export default function ClientProfilePage() {
   const { user, isLoading, setAuth } = useAuth()
-  const [dialogOpen, setDialogOpen] = useState(false)
   const [updating, setUpdating] = useState(false)
+  const [updatingCover, setUpdatingCover] = useState(false)
   const [openNameSection, setOpenNameSection] = useState(false)
   const [openSettings, setOpenSettings] = useState(false)
   const [openPhoneSection, setOpenPhoneSection] = useState(false)
@@ -62,6 +35,7 @@ export default function ClientProfilePage() {
   const [isBioExpanded, setIsBioExpanded] = useState(false)
   const [isMobile, setIsMobile] = useState(false)
   const [activeTab, setActiveTab] = useState<"account" | "posts">("account")
+  const [postsCount, setPostsCount] = useState(0)
 
   useEffect(() => {
     const checkMobile = () => {
@@ -105,6 +79,20 @@ export default function ClientProfilePage() {
     }
   }, [openBioSection])
 
+  useEffect(() => {
+    const fetchPostsCount = async () => {
+      if (user?._id) {
+        try {
+          const posts = await PostService.getUserPosts(user._id, 1, 1)
+          setPostsCount(posts.total)
+        } catch {
+          setPostsCount(0)
+        }
+      }
+    }
+    fetchPostsCount()
+  }, [user?._id])
+
   const handleUpdateProfileImage = async (file: File) => {
     if (file.size > 5 * 1024 * 1024) {
       alert("File size must be less than 5MB")
@@ -117,12 +105,31 @@ export default function ClientProfilePage() {
       const updatedUser = await authService.updateProfileImage(formData)
       if (updatedUser) {
         setAuth(updatedUser, null) // Update the auth context
-        setDialogOpen(false)
       }
-    } catch (error) {
-      console.error("Failed to update profile image:", error)
+    } catch {
+      // handled silently
     } finally {
       setUpdating(false)
+    }
+  }
+
+  const handleUpdateCoverImage = async (file: File) => {
+    if (file.size > 5 * 1024 * 1024) {
+      alert("File size must be less than 5MB")
+      return
+    }
+    setUpdatingCover(true)
+    const formData = new FormData()
+    formData.append("coverImage", file)
+    try {
+      const updatedUser = await authService.updateCoverImage(formData)
+      if (updatedUser) {
+        setAuth(updatedUser, null)
+      }
+    } catch {
+      // handled silently
+    } finally {
+      setUpdatingCover(false)
     }
   }
 
@@ -217,204 +224,162 @@ export default function ClientProfilePage() {
   return (
     <ErrorBoundary>
       <div className="from-background via-background to-muted/20 min-h-screen bg-linear-to-br pb-24 lg:pb-0">
-        <div className="w-full">
-          <div className="p-0 lg:px-0">
-            <div className="px-0 py-2 lg:px-0 lg:py-4">
-              <div className="m-4 md:m-6 lg:m-8">
-                <div className="mb-6 flex items-start gap-4">
-                  <div className="relative">
-                    <Avatar className="border-primary h-32 w-32 border-2 lg:h-40 lg:w-40">
-                      {user?.profileImage && (
-                        <AvatarImage
-                          src={
-                            typeof user.profileImage === "string"
-                              ? user.profileImage
-                              : user.profileImage.url
-                          }
-                          alt={getUserDisplayName(user)}
-                        />
-                      )}
-                      <AvatarFallback>{getUserInitials(user)}</AvatarFallback>
-                    </Avatar>
-                    <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-                      <DialogTrigger asChild>
-                        <Button
-                          size="icon"
-                          className="absolute right-0 bottom-0 h-9 w-9 rounded-full"
-                        >
-                          <CameraIcon className="h-4 w-4" />
-                        </Button>
-                      </DialogTrigger>
-                      <DialogContent>
-                        <DialogHeader>
-                          <DialogTitle>Update Profile Image</DialogTitle>
-                        </DialogHeader>
-                        <ImageSelector
-                          onUpdate={handleUpdateProfileImage}
-                          updating={updating}
-                        />
-                      </DialogContent>
-                    </Dialog>
-                  </div>
+        {/* Facebook-style Cover + Profile Image */}
+        <ProfileCover
+          user={user}
+          editable
+          onProfileImageUpdate={handleUpdateProfileImage}
+          onCoverImageUpdate={handleUpdateCoverImage}
+          updatingProfile={updating}
+          updatingCover={updatingCover}
+        />
 
-                  <div className="mt-8 flex-1 pt-4 lg:pt-8">
-                    {user?.firstName && user?.lastName ? (
-                      <h1 className="mb-2 ml-4 text-2xl font-bold lg:mb-4 lg:ml-6 lg:text-3xl">{`${user.firstName} ${user.lastName}`}</h1>
-                    ) : (
-                      <button
-                        onClick={() => {
-                          setOpenNameSection(true)
-                          setOpenSettings(true)
-                        }}
-                        className="text-primary hover:text-primary/80 flex items-center gap-2 text-left text-lg font-medium transition-colors lg:text-xl"
-                      >
-                        Update your name
-                        <Pencil className="h-4 w-4" />
-                      </button>
-                    )}
-                  </div>
-                </div>
+        {/* MAIN CONTENT CONTAINER */}
+        <div className="mx-auto max-w-5xl px-4 pt-4 sm:px-6 lg:px-8">
+          {/* Edit Name / Bio */}
+          <div className="space-y-4">
+            {!(user?.firstName && user?.lastName) && (
+              <button
+                onClick={() => {
+                  setOpenNameSection(true)
+                  setOpenSettings(true)
+                }}
+                className="text-primary hover:text-primary/80 flex items-center gap-2 text-left text-lg font-medium transition-colors"
+              >
+                Update your name
+                <Pencil className="h-4 w-4" />
+              </button>
+            )}
 
-                {user?.bio ? (
-                  <div className="mt-6">
-                    <p className="text-muted-foreground ml-4 text-sm leading-relaxed whitespace-pre-line lg:ml-6">
-                      {isBioExpanded
-                        ? formatBioText(user.bio, isMobile)
-                        : user.bio.length > (isMobile ? 25 : 55)
-                          ? `${user.bio.substring(0, isMobile ? 25 : 55)}... `
-                          : formatBioText(user.bio, isMobile)}
-                      {user.bio.length > (isMobile ? 25 : 55) &&
-                        !isBioExpanded && (
-                          <button
-                            onClick={() => setIsBioExpanded(true)}
-                            className="text-primary hover:text-primary/80 ml-1 text-sm transition-colors"
-                          >
-                            read more
-                          </button>
-                        )}
-                      {user.bio.length > (isMobile ? 25 : 55) &&
-                        isBioExpanded && (
-                          <button
-                            onClick={() => setIsBioExpanded(false)}
-                            className="text-primary hover:text-primary/80 ml-1 text-sm transition-colors"
-                          >
-                            show less
-                          </button>
-                        )}
-                      <button
-                        onClick={() => {
-                          setOpenBioSection(true)
-                          setOpenSettings(true)
-                        }}
-                        className="text-primary hover:text-primary/80 ml-2 inline transition-colors"
-                      >
-                        <Pencil className="h-4 w-4" />
-                      </button>
-                    </p>
-                  </div>
-                ) : (
-                  <div className="mt-6 flex items-start gap-4">
+            {user?.bio ? (
+              <div>
+                <p className="text-muted-foreground text-sm leading-relaxed whitespace-pre-line">
+                  {isBioExpanded
+                    ? formatBioText(user.bio, isMobile)
+                    : user.bio.length > (isMobile ? 25 : 55)
+                      ? `${user.bio.substring(0, isMobile ? 25 : 55)}... `
+                      : formatBioText(user.bio, isMobile)}
+                  {user.bio.length > (isMobile ? 25 : 55) && !isBioExpanded && (
                     <button
-                      onClick={() => {
-                        setOpenBioSection(true)
-                        setOpenSettings(true)
-                      }}
-                      className="text-primary hover:text-primary/80 flex items-center gap-2 text-sm transition-colors"
+                      onClick={() => setIsBioExpanded(true)}
+                      className="text-primary hover:text-primary/80 ml-1 text-sm transition-colors"
                     >
-                      Add bio
-                      <Pencil className="h-4 w-4" />
+                      read more
                     </button>
-                  </div>
-                )}
-
-                {/* Stats Section */}
-                <div className="mt-6 flex flex-col items-start justify-between gap-4 text-sm md:flex-row md:items-center md:gap-0">
-                  <div className="flex items-center gap-2">
-                    <button className="mx-1 mb-0 flex cursor-pointer items-center gap-1.5 rounded-full bg-yellow-500/20 px-2 py-1 backdrop-blur-sm transition-colors hover:bg-yellow-500/30">
-                      <StarIcon
-                        size={14}
-                        className={`fill-yellow-500 text-yellow-500 transition-colors`}
-                      />
-                      <span className="text-sm font-medium text-yellow-500">
-                        4.5
-                      </span>
+                  )}
+                  {user.bio.length > (isMobile ? 25 : 55) && isBioExpanded && (
+                    <button
+                      onClick={() => setIsBioExpanded(false)}
+                      className="text-primary hover:text-primary/80 ml-1 text-sm transition-colors"
+                    >
+                      show less
                     </button>
-                  </div>
-                  <div className="flex items-center gap-6">
-                    <div className="flex flex-col items-center">
-                      <span className="text-foreground font-semibold">0</span>
-                      <span className="text-muted-foreground">posts</span>
-                    </div>
-                    <div className="flex flex-col items-center">
-                      <span className="text-foreground font-semibold">14</span>
-                      <span className="text-muted-foreground">followers</span>
-                    </div>
-                    <div className="flex flex-col items-center">
-                      <span className="text-foreground font-semibold">3</span>
-                      <span className="text-muted-foreground">following</span>
-                    </div>
-                  </div>
-                </div>
+                  )}
+                  <button
+                    onClick={() => {
+                      setOpenBioSection(true)
+                      setOpenSettings(true)
+                    }}
+                    className="text-primary hover:text-primary/80 ml-2 inline transition-colors"
+                  >
+                    <Pencil className="h-4 w-4" />
+                  </button>
+                </p>
               </div>
-            </div>
-            {/* Tabbed Content (single responsive nav) */}
-            <div className="to-background/95 sticky top-[var(--header-offset)] z-50 bg-gradient-to-b from-transparent shadow-sm backdrop-blur-md lg:top-[var(--header-offset-lg)]">
-              <div className="flex w-full justify-center gap-2 py-4">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className={`rounded-full px-2 py-0.5 pr-2 text-xs transition-all duration-150 md:px-3 md:py-1 ${activeTab === "account" ? "bg-primary/10 text-primary ring-primary ring-1" : "text-muted-foreground hover:bg-muted/5"}`}
-                  onClick={() => setActiveTab("account")}
-                >
-                  <User className="h-4 w-4" />
-                  Account
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className={`rounded-full px-2 py-0.5 pr-2 text-xs transition-all duration-150 md:px-3 md:py-1 ${activeTab === "posts" ? "bg-primary/10 text-primary ring-primary ring-1" : "text-muted-foreground hover:bg-muted/5"}`}
-                  onClick={() => setActiveTab("posts")}
-                >
-                  <FileText className="h-4 w-4" />
-                  Posts
-                </Button>
-              </div>
-            </div>
-            <div className="md:grid md:grid-cols-5 xl:grid-cols-7 2xl:grid-cols-12">
-              <div className="hidden md:block xl:col-span-1 2xl:col-span-1"></div>
-              {/* 1/5 left space on desktop, 1/7 on xl, 1/12 on 2xl */}
-              <div className="md:col-span-3 xl:col-span-5 2xl:col-span-10">
-                {/* Desktop: Card wrapper */}
-                <Card className="border-0 bg-transparent backdrop-blur-sm">
-                  <CardContent className="mt-4">
-                    {activeTab === "account" && (
-                      <>
-                        <AccountInformation
-                          user={user}
-                          isAccountInfoOpen={isAccountInfoOpen}
-                          setIsAccountInfoOpen={setIsAccountInfoOpen}
-                          setOpenPhoneSection={setOpenPhoneSection}
-                          setOpenSettings={setOpenSettings}
-                        />
+            ) : (
+              <button
+                onClick={() => {
+                  setOpenBioSection(true)
+                  setOpenSettings(true)
+                }}
+                className="text-primary hover:text-primary/80 flex items-center gap-2 text-sm transition-colors"
+              >
+                Add bio
+                <Pencil className="h-4 w-4" />
+              </button>
+            )}
 
-                        <AccountSettings
-                          openNameSection={openNameSection}
-                          openSettings={openSettings}
-                          openPhoneSection={openPhoneSection}
-                          openBioSection={openBioSection}
-                        />
-                      </>
-                    )}
-                    {activeTab === "posts" && (
-                      <PostsDisplay centerName={getUserDisplayName(user)} />
-                    )}
-                  </CardContent>
-                </Card>
+            {/* Stats Section */}
+            <div className="flex flex-col items-start justify-between gap-4 text-sm md:flex-row md:items-center md:gap-0">
+              <div className="flex items-center gap-4">
+                <button className="hover:text-primary flex cursor-pointer items-center gap-2 transition-colors">
+                  <StarIcon
+                    size={14}
+                    className="fill-yellow-500 text-yellow-500"
+                  />
+                  <span className="text-muted-foreground text-sm">4.9</span>
+                </button>
+                <button className="hover:text-primary flex cursor-pointer items-center gap-2 transition-colors">
+                  <Heart size={14} className="fill-red-500 text-red-500" />
+                  <span className="text-muted-foreground text-sm">2.5k</span>
+                </button>
+                <button className="hover:text-primary flex cursor-pointer items-center gap-2 transition-colors">
+                  <span className="text-muted-foreground text-sm">1.2k</span>
+                  <span className="text-muted-foreground text-sm">
+                    followers
+                  </span>
+                  <span className="text-muted-foreground text-sm">•</span>
+                  <span className="text-muted-foreground text-sm">850</span>
+                  <span className="text-muted-foreground text-sm">
+                    following
+                  </span>
+                </button>
               </div>
-
-              {/* Mobile/Tablet: content handled by the single responsive Card above (no duplicate nav) */}
             </div>
           </div>
+        </div>
+
+        {/* Tabbed Content */}
+        <div className="to-background/95 sticky top-[var(--header-offset)] z-50 mt-4 bg-gradient-to-b from-transparent shadow-sm backdrop-blur-md lg:top-[var(--header-offset-lg)]">
+          <div className="mx-auto flex w-full max-w-5xl gap-2 px-4 py-3 sm:px-6 lg:px-8">
+            <Button
+              variant="ghost"
+              size="sm"
+              className={`rounded-lg border px-3 py-2 text-sm font-medium transition-all duration-300 ${activeTab === "account" ? "border-primary bg-primary/10 text-primary" : "border-border text-foreground hover:border-primary/50 hover:text-primary hover:bg-primary/5"}`}
+              onClick={() => setActiveTab("account")}
+            >
+              <User className="h-4 w-4" />
+              Account
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              className={`rounded-lg border px-3 py-2 text-sm font-medium transition-all duration-300 ${activeTab === "posts" ? "border-primary bg-primary/10 text-primary" : "border-border text-foreground hover:border-primary/50 hover:text-primary hover:bg-primary/5"}`}
+              onClick={() => setActiveTab("posts")}
+            >
+              <FileText className="h-4 w-4" />
+              Posts {postsCount > 0 && `(${postsCount})`}
+            </Button>
+          </div>
+        </div>
+
+        {/* Tab Content Area */}
+        <div className="mx-auto max-w-5xl px-4 pb-8 sm:px-6 lg:px-8">
+          <Card className="border-0 bg-transparent backdrop-blur-sm">
+            <CardContent className="mt-4">
+              {activeTab === "account" && (
+                <>
+                  <AccountInformation
+                    user={user}
+                    isAccountInfoOpen={isAccountInfoOpen}
+                    setIsAccountInfoOpen={setIsAccountInfoOpen}
+                    setOpenPhoneSection={setOpenPhoneSection}
+                    setOpenSettings={setOpenSettings}
+                  />
+
+                  <AccountSettings
+                    openNameSection={openNameSection}
+                    openSettings={openSettings}
+                    openPhoneSection={openPhoneSection}
+                    openBioSection={openBioSection}
+                  />
+                </>
+              )}
+              {activeTab === "posts" && (
+                <PostsDisplay centerName={getUserDisplayName(user)} />
+              )}
+            </CardContent>
+          </Card>
         </div>
       </div>
     </ErrorBoundary>

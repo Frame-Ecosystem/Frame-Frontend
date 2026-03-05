@@ -15,6 +15,7 @@ import { Calendar, Clock, MapPin, User, Scissors } from "lucide-react"
 import { format } from "date-fns"
 import { toast } from "sonner"
 import { useAuth } from "../../_providers/auth"
+import { isAuthError } from "../../_services/api"
 import { bookingService } from "../../_services/booking.service"
 import type { Booking, BookingStatus } from "../../_types"
 import Image from "next/image"
@@ -55,6 +56,8 @@ export function BookingList({
       const data = await bookingService.getAll()
       setBookings(Array.isArray(data) ? data : [])
     } catch (error) {
+      // Auth failures are handled globally (redirect to sign-in)
+      if (isAuthError(error)) return
       console.error("Failed to load bookings:", error)
       toast.error("Failed to load bookings")
       setBookings([])
@@ -87,6 +90,7 @@ export function BookingList({
       toast.success("Booking status updated")
       loadBookings() // Refresh the list
     } catch (error) {
+      if (isAuthError(error)) return
       console.error("Failed to update booking status:", error)
       toast.error("Failed to update booking status")
     }
@@ -105,6 +109,7 @@ export function BookingList({
       toast.success("Booking cancelled")
       loadBookings() // Refresh the list
     } catch (error) {
+      if (isAuthError(error)) return
       console.error("Failed to cancel booking:", error)
       toast.error("Failed to cancel booking")
     }
@@ -116,6 +121,7 @@ export function BookingList({
       toast.success("Booking deleted successfully")
       loadBookings() // Refresh the list
     } catch (error) {
+      if (isAuthError(error)) return
       console.error("Failed to delete booking:", error)
       toast.error("Failed to delete booking")
     }
@@ -414,6 +420,8 @@ export function BookingList({
                           {/* Service Image */}
                           <div className="bg-muted relative flex h-10 w-10 flex-shrink-0 items-center justify-center overflow-hidden rounded-md">
                             {service.image &&
+                            typeof service.image === "string" &&
+                            service.image.trim() !== "" &&
                             service.image !== "/images/placeholder.png" ? (
                               <Image
                                 src={service.image}

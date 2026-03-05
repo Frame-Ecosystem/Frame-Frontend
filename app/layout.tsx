@@ -132,13 +132,13 @@ export default function RootLayout({
                   <ServiceWorkerRegister />
                   {/* MAIN LAYOUT STRUCTURE */}
                   {/* Uses flexbox to keep footer at bottom of viewport */}
-                  <div className="flex h-full flex-col">
+                  <div className="flex min-h-screen flex-col">
                     {/* Header handles top bars and navigation visibility */}
                     <ConditionalHeader />
-                    {/* Main content area - auth-guarded (except root) */}
-                    <AuthGuard>
-                      <MainContentWrapper>{children}</MainContentWrapper>
-                    </AuthGuard>
+                    {/* Main content area - flex-1 always reserves space */}
+                    <MainContentWrapper>
+                      <AuthGuard>{children}</AuthGuard>
+                    </MainContentWrapper>
                     {/* Footer - always at the bottom for desktop */}
                     <ConditionalFooter />
                   </div>
