@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useCallback } from "react"
+import { useState, useEffect, useCallback, useMemo } from "react"
 import { Card, CardContent } from "../ui/card"
 import { Badge } from "../ui/badge"
 import { Button } from "../ui/button"
@@ -31,6 +31,7 @@ import {
   AlertDialogTrigger,
 } from "../ui/alert-dialog"
 import { BookingAvatar } from "./booking-avatar"
+import { useSocketRoom } from "../../_hooks/useSocketRoom"
 
 interface BookingListProps {
   showActions?: boolean
@@ -69,6 +70,26 @@ export function BookingList({
   useEffect(() => {
     loadBookings()
   }, [loadBookings])
+
+  // ── Socket.IO: live booking updates ───────────────────────
+  const bookingRoom = useMemo(() => {
+    if (!user) return []
+    if (user.type === "client") return [`bookings:client:${user._id}`]
+    if (user.type === "lounge") return [`bookings:lounge:${user._id}`]
+    if (user.type === "admin") return ["bookings:admin"]
+    return []
+  }, [user])
+
+  const bookingEvents = useMemo(
+    () => [
+      { event: "booking:created", handler: () => loadBookings() },
+      { event: "booking:updated", handler: () => loadBookings() },
+      { event: "booking:deleted", handler: () => loadBookings() },
+    ],
+    [loadBookings],
+  )
+
+  useSocketRoom(bookingRoom, bookingEvents, !!user)
 
   const handleStatusUpdate = async (
     bookingId: string,

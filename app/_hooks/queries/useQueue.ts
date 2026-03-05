@@ -1,8 +1,10 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
+import { useCallback, useMemo } from "react"
 import { queueService } from "../../_services/queue.service"
 import { QueuePersonStatus } from "../../_types"
 import { toast } from "sonner"
 import { isAuthError } from "../../_services/api"
+import { useSocketRoom } from "../useSocketRoom"
 
 // ── Query Keys ────────────────────────────────────────────────
 export const queueKeys = {
@@ -19,26 +21,75 @@ export const queueKeys = {
 
 /** Fetch a single agent's queue */
 export function useAgentQueue(agentId: string | null, date?: string) {
+  const queryClient = useQueryClient()
+  const invalidate = useCallback(
+    () => queryClient.invalidateQueries({ queryKey: queueKeys.all }),
+    [queryClient],
+  )
+
+  // Subscribe to the agent's queue room for live updates
+  const rooms = useMemo(
+    () => (agentId ? [`queue:agent:${agentId}`] : []),
+    [agentId],
+  )
+  const events = useMemo(
+    () => [{ event: "queue:updated", handler: invalidate }],
+    [invalidate],
+  )
+  useSocketRoom(rooms, events, !!agentId)
+
   return useQuery({
     queryKey: queueKeys.agentQueue(agentId ?? "", date),
     queryFn: () => queueService.getAgentQueue(agentId!, date),
     enabled: !!agentId,
-    refetchInterval: 20_000, // Poll every 20s for live feel
   })
 }
 
 /** Fetch all agent queues for a specific lounge */
 export function useLoungeQueues(loungeId: string | null, date?: string) {
+  const queryClient = useQueryClient()
+  const invalidate = useCallback(
+    () => queryClient.invalidateQueries({ queryKey: queueKeys.all }),
+    [queryClient],
+  )
+
+  const rooms = useMemo(
+    () => (loungeId ? [`queue:lounge:${loungeId}`] : []),
+    [loungeId],
+  )
+  const events = useMemo(
+    () => [{ event: "queue:lounge:updated", handler: invalidate }],
+    [invalidate],
+  )
+  useSocketRoom(rooms, events, !!loungeId)
+
   return useQuery({
     queryKey: queueKeys.loungeQueues(loungeId ?? "", date),
     queryFn: () => queueService.getLoungeQueues(loungeId!, date),
     enabled: !!loungeId,
-    refetchInterval: 20_000,
   })
 }
 
 /** Fetch all queues for the authenticated lounge */
 export function useMyLoungeQueues(date?: string, enabled = true) {
+  const queryClient = useQueryClient()
+  const invalidate = useCallback(
+    () => queryClient.invalidateQueries({ queryKey: queueKeys.all }),
+    [queryClient],
+  )
+
+  // We don't know the loungeId at this point (it's the auth'd user),
+  // but the server will join the right room when the client subscribes
+  // to "queue:lounge:me" – however, the hook is only active when the
+  // user is the lounge owner. We still use the room pattern so that
+  // the server can broadcast to all lounge queue rooms.
+  const rooms = useMemo(() => (enabled ? ["queue:lounge:me"] : []), [enabled])
+  const events = useMemo(
+    () => [{ event: "queue:lounge:updated", handler: invalidate }],
+    [invalidate],
+  )
+  useSocketRoom(rooms, events, enabled)
+
   return useQuery({
     queryKey: queueKeys.myLoungeQueues(date),
     queryFn: () => {
@@ -46,7 +97,6 @@ export function useMyLoungeQueues(date?: string, enabled = true) {
       return queueService.getMyLoungeQueues(date)
     },
     enabled,
-    refetchInterval: enabled ? 20_000 : false,
   })
 }
 
