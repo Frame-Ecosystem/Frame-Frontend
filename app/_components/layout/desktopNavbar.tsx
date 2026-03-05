@@ -30,7 +30,10 @@ const DesktopNavbar = () => {
     }
   }, [resolvedTheme])
   return (
-    <Card className="bg-card border-b-primary fixed top-0 right-0 left-0 z-20 hidden rounded-none border-b shadow-xl transition-all duration-300 lg:block">
+    <Card
+      data-nav-desktop
+      className="bg-card border-b-primary fixed top-0 right-0 left-0 z-20 hidden rounded-none border-b shadow-xl transition-all duration-300 lg:block"
+    >
       <CardContent className="flex flex-row items-center justify-between p-3 md:p-5 lg:px-10 lg:py-5">
         {/* LOGO */}
         <Link

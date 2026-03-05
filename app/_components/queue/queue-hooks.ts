@@ -37,15 +37,19 @@ export function useBodyOverflow(
   isPseudoFullScreen: boolean,
 ) {
   useEffect(() => {
-    if (isFullScreen || isPseudoFullScreen) {
+    const active = isFullScreen || isPseudoFullScreen
+    if (active) {
       document.body.style.overflow = "hidden"
+      document.body.classList.add("queue-fullscreen")
     } else {
       document.body.style.overflow = ""
+      document.body.classList.remove("queue-fullscreen")
     }
 
     // Cleanup on unmount
     return () => {
       document.body.style.overflow = ""
+      document.body.classList.remove("queue-fullscreen")
     }
   }, [isFullScreen, isPseudoFullScreen])
 }

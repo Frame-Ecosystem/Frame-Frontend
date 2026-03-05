@@ -183,7 +183,7 @@ export default function QueueDisplay({
       ref={fullScreenContainerRef}
       className={
         isFullScreen || isPseudoFullScreen
-          ? "bg-background fixed inset-0 z-[1000] w-full"
+          ? "bg-background fixed inset-0 z-[9999] w-full"
           : ""
       }
       style={
@@ -194,9 +194,10 @@ export default function QueueDisplay({
               paddingBottom: "env(safe-area-inset-bottom)",
               paddingLeft: "env(safe-area-inset-left)",
               paddingRight: "env(safe-area-inset-right)",
-              backgroundColor: "var(--background, #ffffff)",
+              backgroundColor: "hsl(var(--background))",
               overscrollBehavior: "contain",
               touchAction: "manipulation",
+              isolation: "isolate",
             }
           : undefined
       }
@@ -205,12 +206,14 @@ export default function QueueDisplay({
       <QueueHeader
         isFullScreen={isFullScreen}
         isPseudoFullScreen={isPseudoFullScreen}
-        onToggleFullscreen={isFullScreen ? exitFullScreen : enterFullScreen}
+        onToggleFullscreen={
+          isFullScreen || isPseudoFullScreen ? exitFullScreen : enterFullScreen
+        }
       />
 
       {/* Queue Content */}
       <div
-        className={`z-[100] mb-6 space-y-4 ${isFullScreen || isPseudoFullScreen ? "h-full overflow-auto p-6" : ""}`}
+        className={`mb-6 space-y-4 ${isFullScreen || isPseudoFullScreen ? "z-[100] h-full overflow-auto p-6" : ""}`}
         style={
           isFullScreen || isPseudoFullScreen
             ? {
@@ -232,18 +235,20 @@ export default function QueueDisplay({
                 className="border-input bg-background text-foreground rounded-md border px-3 py-1.5 text-sm"
               />
             </div>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => refetch()}
-              disabled={isLoading}
-              className="gap-1"
-            >
-              <RefreshCw
-                className={`h-3.5 w-3.5 ${isLoading ? "animate-spin" : ""}`}
-              />
-              Refresh
-            </Button>
+            {!(isFullScreen || isPseudoFullScreen) && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => refetch()}
+                disabled={isLoading}
+                className="gap-1"
+              >
+                <RefreshCw
+                  className={`h-3.5 w-3.5 ${isLoading ? "animate-spin" : ""}`}
+                />
+                Refresh
+              </Button>
+            )}
           </div>
         )}
 

@@ -29,6 +29,7 @@ const MobileNavbar = () => {
   return (
     <>
       <nav
+        data-nav-mobile
         className={`bg-card/95 border-border fixed right-0 bottom-0 left-0 z-20 h-[85px] border-t shadow-[0_-2px_12px_0_rgba(0,0,0,0.04)] backdrop-blur-sm lg:hidden`}
       >
         <div className="relative flex h-full items-center justify-between gap-1 px-2 py-3 pb-6">

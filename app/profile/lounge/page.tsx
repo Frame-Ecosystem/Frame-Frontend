@@ -419,7 +419,10 @@ export default function LoungeProfilePage() {
         </div>
 
         {/* Tabbed Content (single responsive nav) */}
-        <div className="to-background/95 sticky top-[var(--header-offset)] z-50 mt-4 bg-gradient-to-b from-transparent shadow-sm backdrop-blur-md lg:top-[var(--header-offset-lg)]">
+        <div
+          data-nav-tabs
+          className="to-background/95 sticky top-[var(--header-offset)] z-50 mt-4 bg-gradient-to-b from-transparent shadow-sm backdrop-blur-md lg:top-[var(--header-offset-lg)]"
+        >
           <div className="mx-auto flex w-full max-w-5xl justify-evenly px-4 py-3 sm:px-6 lg:px-8">
             <Button
               variant="ghost"

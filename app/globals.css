@@ -380,3 +380,20 @@
     @apply bg-background text-foreground h-full; /* Theme-aware background and text colors */
   }
 }
+
+/* =============================================================================
+   QUEUE FULLSCREEN MODE
+   Hides all navigation elements when queue is in fullscreen / pseudo-fullscreen.
+   Applied via body.queue-fullscreen class toggled by queue-hooks.
+   ============================================================================= */
+body.queue-fullscreen {
+  overflow: hidden !important;
+}
+
+/* Hide all fixed/sticky nav elements when queue is fullscreen */
+body.queue-fullscreen [data-nav-topbar],
+body.queue-fullscreen [data-nav-mobile],
+body.queue-fullscreen [data-nav-desktop],
+body.queue-fullscreen [data-nav-tabs] {
+  display: none !important;
+}

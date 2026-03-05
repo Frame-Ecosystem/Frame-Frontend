@@ -40,6 +40,7 @@ const TopBar: React.FC<TopBarProps> = ({
   }, [resolvedTheme])
   return (
     <div
+      data-nav-topbar
       className={`bg-background border-border border-b-primary fixed top-0 right-0 left-0 z-20 flex items-center justify-between gap-2 border-b px-3 py-3 pr-6 shadow-xl backdrop-blur-sm md:py-5 lg:px-10 lg:py-5 lg:pr-20 ${user ? "lg:hidden" : ""} ${className}`}
     >
       {/* LOGO - flex start */}
