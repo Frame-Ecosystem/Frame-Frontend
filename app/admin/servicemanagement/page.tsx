@@ -239,10 +239,26 @@ export default function ServiceManagementPage() {
 
   if (isLoading || loading) {
     return (
-      <div className="from-background via-background to-muted/20 flex min-h-screen items-center justify-center bg-gradient-to-br">
-        <div className="text-center">
-          <div className="border-primary mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-b-2"></div>
-          <p className="text-muted-foreground">Loading service management...</p>
+      <div className="from-background via-background to-muted/20 min-h-screen bg-gradient-to-br">
+        <div className="mx-auto max-w-7xl p-5 lg:px-8 lg:py-12">
+          <div className="space-y-6">
+            <div className="bg-primary/10 h-8 w-56 animate-pulse rounded" />
+            <div className="space-y-3">
+              {[...Array(4)].map((_, i) => (
+                <div
+                  key={i}
+                  className="flex items-center gap-4 rounded-lg border p-4"
+                >
+                  <div className="bg-primary/10 h-16 w-16 animate-pulse rounded-lg" />
+                  <div className="flex-1 space-y-2">
+                    <div className="bg-primary/10 h-4 w-40 animate-pulse rounded" />
+                    <div className="bg-primary/10 h-3 w-24 animate-pulse rounded" />
+                  </div>
+                  <div className="bg-primary/10 h-8 w-16 animate-pulse rounded" />
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
       </div>
     )
@@ -276,11 +292,7 @@ export default function ServiceManagementPage() {
           <CardHeader className="flex flex-row items-center justify-end">
             <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
               <DialogTrigger asChild>
-                <Button
-                  variant="outline"
-                  onClick={openCreateDialog}
-                  className="border-green-500 text-green-600 hover:bg-green-50 hover:text-green-700"
-                >
+                <Button variant="default" onClick={openCreateDialog}>
                   <Plus className="mr-2 h-4 w-4" />
                   Add Service
                 </Button>
@@ -354,18 +366,16 @@ export default function ServiceManagementPage() {
                   <div className="flex justify-end space-x-2">
                     <Button
                       type="button"
-                      variant="outline"
+                      variant="destructive"
                       onClick={() => setDialogOpen(false)}
                       disabled={isSubmitting}
-                      className="border-red-500 text-red-600 hover:bg-red-50 hover:text-red-700"
                     >
                       Cancel
                     </Button>
                     <Button
                       type="submit"
                       disabled={isSubmitting}
-                      variant="outline"
-                      className="border-green-500 text-green-600 hover:bg-green-50 hover:text-green-700"
+                      variant="success"
                     >
                       {isSubmitting
                         ? "Saving..."
@@ -448,9 +458,8 @@ export default function ServiceManagementPage() {
               </p>
               <div>
                 <Button
-                  variant="outline"
+                  variant="default"
                   onClick={() => router.push("/admin/service-suggestions")}
-                  className="border-blue-500 text-blue-600 hover:bg-blue-50 hover:text-blue-700"
                 >
                   View Suggestions
                 </Button>

@@ -7,7 +7,7 @@ import { Button } from "../ui/button"
 import SignUpForm from "./sign-up-form"
 import { DialogHeader, DialogTitle, DialogDescription } from "../ui/dialog"
 import { useAuth } from "../../_providers/auth"
-import { Mail, Loader2 } from "lucide-react"
+import { Mail } from "lucide-react"
 
 export default function SignupFlow({
   onSuccess,
@@ -154,7 +154,7 @@ export default function SignupFlow({
               Click the link in your email to complete your account setup.
             </p>
             <div className="flex items-center justify-center space-x-2 text-blue-600">
-              <Loader2 className="h-3 w-3 animate-spin sm:h-4 sm:w-4" />
+              <div className="h-3 w-3 animate-pulse rounded-full bg-blue-400 sm:h-4 sm:w-4" />
               <span className="text-xs sm:text-sm">
                 Waiting for verification...
               </span>

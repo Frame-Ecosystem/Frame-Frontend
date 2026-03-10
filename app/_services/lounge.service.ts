@@ -277,6 +277,19 @@ class LoungeService {
       throw error
     }
   }
+
+  // Get a client's public profile by ID
+  async getClientById(clientId: string): Promise<any> {
+    try {
+      const response = await apiClient.get<any>(
+        `/v1/lounge/clients/${clientId}`,
+      )
+      return response?.data || response
+    } catch (error) {
+      console.error(`Failed to fetch client ${clientId}:`, error)
+      throw error
+    }
+  }
 }
 
 export const loungeService = new LoungeService()

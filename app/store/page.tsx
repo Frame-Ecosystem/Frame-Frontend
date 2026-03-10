@@ -45,7 +45,7 @@ const SAMPLE_PRODUCTS = [
     name: "Shaving Cream",
     description: "Luxury shaving cream with moisturizing formula",
     price: 15.99,
-    imageUrl: "/images/bgHome.png",
+    imageUrl: "/images/frameDark.png",
     category: "Shaving",
     rating: 4.7,
     inStock: false,

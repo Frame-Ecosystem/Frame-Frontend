@@ -1,18 +1,19 @@
 "use client"
 
-import { useMemo, useState, useEffect } from "react"
+import { useMemo, useState } from "react"
 import { Button } from "../ui/button"
 import { Input } from "../ui/input"
 import { Label } from "../ui/label"
-import { authService } from "../../_services/auth.service"
-import { GOOGLE_AUTH_BASE_URL, apiClient } from "../../_services/api"
+import { GOOGLE_AUTH_BASE_URL } from "../../_services/api"
 import { useAuth } from "../../_providers/auth"
 import { useRouter, useSearchParams } from "next/navigation"
 import { getLoginRedirectPath } from "../../_lib/profile"
 import { Eye, EyeOff } from "lucide-react"
 import { useSignUp } from "../../_hooks/queries"
 import GoogleButton from "./google-button"
-import openGoogleOAuthPopup from "../../_lib/googlePopup"
+import openGoogleOAuthPopup, {
+  handleGoogleAuthResult,
+} from "../../_lib/googlePopup"
 import { validateSignupPassword } from "../../_lib/signupValidators"
 
 export default function SignUpForm({
@@ -45,24 +46,6 @@ export default function SignUpForm({
   const { setAuth } = useAuth()
   const router = useRouter()
   const signUpMutation = useSignUp()
-
-  // Listen for messages from Google auth error page
-  useEffect(() => {
-    const handleMessage = (event: MessageEvent) => {
-      if (event.origin !== window.location.origin) return
-
-      if (event.data.type === "GOOGLE_AUTH_ERROR") {
-        setLoading(false)
-        setError(event.data.message || "Authentication failed")
-      } else if (event.data.type === "GOOGLE_AUTH_LOGIN") {
-        setLoading(false)
-        setError("Account already exists. Please sign in instead.")
-      }
-    }
-
-    window.addEventListener("message", handleMessage)
-    return () => window.removeEventListener("message", handleMessage)
-  }, [])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -139,46 +122,16 @@ export default function SignUpForm({
     }
 
     try {
-      const url = `${GOOGLE_AUTH_BASE_URL}/v1/auth/google/signup?type=${selectedType}`
-      const result = await openGoogleOAuthPopup(url, 60000, 5000, {
+      const result = await openGoogleOAuthPopup({
+        url: `${GOOGLE_AUTH_BASE_URL}/v1/auth/google/signup?type=${selectedType}`,
         mode: "signup",
       })
-      const newToken = result.token
-      const popupUser = result.user
-
-      if (!newToken) throw new Error("Sign-up failed. Please try again.")
-
-      if (popupUser) {
-        if (popupUser.type) {
-          setAuth(popupUser, newToken)
-          onSuccess?.()
-          const redirectPath = getLoginRedirectPath()
-          if (redirectPath) router.push(redirectPath)
-        } else {
-          throw new Error(
-            "Account created but type not set. Please contact support.",
-          )
-        }
-      } else {
-        apiClient.setAccessTokenGetter(() => newToken)
-        const userData = await authService.getCurrentUser()
-        if (userData) {
-          if (userData.type) {
-            setAuth(userData, newToken)
-            onSuccess?.()
-            const redirectPath = getLoginRedirectPath()
-            if (redirectPath) router.push(redirectPath)
-          } else {
-            throw new Error(
-              "Account created but type not set. Please contact support.",
-            )
-          }
-        } else {
-          throw new Error(
-            "Account created but unable to verify. Please try signing in.",
-          )
-        }
-      }
+      await handleGoogleAuthResult(result, {
+        setAuth,
+        onSuccess,
+        redirect: (path) => router.push(path),
+        getRedirectPath: getLoginRedirectPath,
+      })
     } catch (err) {
       setError(err instanceof Error ? err.message : String(err))
     } finally {

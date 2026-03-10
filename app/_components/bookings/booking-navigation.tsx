@@ -2,7 +2,6 @@
 
 import { Button } from "../ui/button"
 import { ChevronLeft, ChevronRight, Check } from "lucide-react"
-import { cn } from "@/app/_lib/utils"
 
 type BookingStep = "datetime" | "agent" | "preview"
 
@@ -28,15 +27,10 @@ export function BookingNavigation({
   return (
     <div className="flex gap-3 pt-4 sm:justify-between sm:gap-4 sm:pt-3">
       <Button
-        variant="outline"
+        variant={currentStep === "agent" ? "destructive" : "outline"}
         onClick={currentStep === "agent" ? onCancel || (() => {}) : onPrevStep}
         disabled={isLoading}
-        className={cn(
-          "h-12 flex-1 font-medium shadow-sm transition-all hover:shadow-md sm:h-10 sm:w-auto sm:flex-none",
-          currentStep === "agent"
-            ? "border-red-500 text-red-600 hover:bg-red-50 hover:text-red-700 active:bg-red-100"
-            : "border-gray-500 text-gray-600 hover:bg-gray-50 hover:text-gray-700 active:bg-gray-100",
-        )}
+        className="h-12 flex-1 font-medium shadow-sm transition-all hover:shadow-md sm:h-10 sm:w-auto sm:flex-none"
       >
         {currentStep === "agent" ? (
           "Cancel"
@@ -50,14 +44,14 @@ export function BookingNavigation({
 
       {currentStep === "preview" ? (
         <Button
-          variant="outline"
+          variant="success"
           onClick={onSubmit}
           disabled={isLoading}
-          className="h-12 flex-1 border-green-500 bg-green-50 font-medium text-green-700 shadow-sm transition-all hover:bg-green-100 hover:text-green-800 hover:shadow-md active:bg-green-200 sm:h-10 sm:w-auto sm:flex-none"
+          className="h-12 flex-1 font-medium shadow-sm transition-all hover:shadow-md sm:h-10 sm:w-auto sm:flex-none"
         >
           {isLoading ? (
             <>
-              <div className="h-4 w-4 animate-spin rounded-full border-2 border-green-600 border-t-transparent" />
+              <div className="h-4 w-4 animate-pulse rounded-full bg-green-300" />
               Creating...
             </>
           ) : (
@@ -69,15 +63,10 @@ export function BookingNavigation({
         </Button>
       ) : (
         <Button
-          variant="outline"
+          variant="default"
           onClick={onNextStep}
           disabled={isLoading || !isStepValid}
-          className={cn(
-            "h-12 flex-1 font-medium shadow-sm transition-all hover:shadow-md sm:h-10 sm:w-auto sm:flex-none",
-            !isStepValid
-              ? "cursor-not-allowed border-gray-300 bg-gray-50 text-gray-400"
-              : "border-primary bg-primary/10 text-primary hover:bg-primary/20 active:bg-primary/30",
-          )}
+          className="h-12 flex-1 font-medium shadow-sm transition-all hover:shadow-md sm:h-10 sm:w-auto sm:flex-none"
         >
           <div className="flex w-full items-center justify-between">
             <span className="flex-1 text-center">Next</span>

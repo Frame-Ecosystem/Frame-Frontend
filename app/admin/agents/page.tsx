@@ -28,10 +28,25 @@ function AgentManagementContent() {
 
   if (isLoading) {
     return (
-      <div className="from-background via-background to-muted/20 flex min-h-screen items-center justify-center bg-gradient-to-br">
-        <div className="text-center">
-          <div className="border-primary mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-b-2"></div>
-          <p className="text-muted-foreground">Loading agent management...</p>
+      <div className="from-background via-background to-muted/20 min-h-screen bg-gradient-to-br">
+        <div className="mx-auto max-w-7xl p-5 lg:px-8 lg:py-12">
+          <div className="space-y-6">
+            <div className="bg-primary/10 h-8 w-56 animate-pulse rounded" />
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {[...Array(3)].map((_, i) => (
+                <div key={i} className="space-y-3 rounded-lg border p-4">
+                  <div className="flex items-center gap-3">
+                    <div className="bg-primary/10 h-10 w-10 animate-pulse rounded-full" />
+                    <div className="flex-1 space-y-2">
+                      <div className="bg-primary/10 h-4 w-28 animate-pulse rounded" />
+                      <div className="bg-primary/10 h-3 w-20 animate-pulse rounded" />
+                    </div>
+                  </div>
+                  <div className="bg-primary/10 h-3 w-full animate-pulse rounded" />
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
       </div>
     )

@@ -16,22 +16,16 @@ let socket: Socket | null = null
  */
 export function getSocket(): Socket {
   if (!socket) {
-    const token =
-      typeof window !== "undefined" ? localStorage.getItem("accessToken") : null
-
     socket = io(API_BASE_URL, {
       withCredentials: true,
       transports: ["websocket", "polling"],
-      auth: { token },
-      autoConnect: true,
       reconnection: true,
-      reconnectionAttempts: Infinity,
+      reconnectionAttempts: 10,
       reconnectionDelay: 1000,
-      reconnectionDelayMax: 10000,
     })
 
     socket.on("connect", () => {
-      console.log("[socket] connected", socket?.id)
+      console.log("[socket] connected:", socket?.id)
     })
 
     socket.on("disconnect", (reason) => {
@@ -41,19 +35,10 @@ export function getSocket(): Socket {
     socket.on("connect_error", (err) => {
       console.warn("[socket] connection error:", err.message)
     })
-
-    // Debug: log ALL incoming events so we can see what the server sends
-    socket.onAny((eventName, ...args) => {
-      console.log("[socket] event received:", eventName, args)
-    })
   }
 
   // If the socket exists but is disconnected, reconnect
   if (!socket.connected) {
-    // Update auth token before reconnecting
-    const token =
-      typeof window !== "undefined" ? localStorage.getItem("accessToken") : null
-    socket.auth = { token }
     socket.connect()
   }
 

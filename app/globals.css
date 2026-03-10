@@ -398,3 +398,16 @@ body.queue-fullscreen [data-nav-tabs],
 body.queue-fullscreen [data-profile-edit] {
   display: none !important;
 }
+
+/* Hourglass: spin once then pause — 4s total cycle */
+@keyframes hourglass-spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  25% {
+    transform: rotate(360deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}

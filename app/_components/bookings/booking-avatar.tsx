@@ -2,6 +2,7 @@
 
 import { User, MapPin } from "lucide-react"
 import Image from "next/image"
+import { useRouter } from "next/navigation"
 import type { User as UserType } from "../../_types"
 
 interface BookingAvatarProps {
@@ -15,15 +16,25 @@ export function BookingAvatar({
   client,
   lounge,
 }: BookingAvatarProps) {
-  // For lounges: show client avatar
+  const router = useRouter()
+
+  // For lounges: show client avatar → click navigates to client visitor profile
   if (userType === "lounge" && client) {
     const imageUrl =
       typeof client.profileImage === "string"
         ? client.profileImage
         : client.profileImage?.url
 
+    const handleClick = () => {
+      if (client._id) router.push(`/clients/${client._id}`)
+    }
+
     return (
-      <div className="flex flex-col items-center gap-2">
+      <button
+        type="button"
+        onClick={handleClick}
+        className="flex cursor-pointer flex-col items-center gap-2 transition-opacity hover:opacity-80"
+      >
         <div className="bg-background relative h-12 w-12 overflow-hidden rounded-full border-2 border-white shadow-md">
           {client.profileImage && imageUrl ? (
             <Image
@@ -46,19 +57,27 @@ export function BookingAvatar({
           {`${client.firstName || ""} ${client.lastName || ""}`.trim() ||
             "Client"}
         </span>
-      </div>
+      </button>
     )
   }
 
-  // For clients: show lounge avatar
+  // For clients: show lounge avatar → click navigates to lounge page
   if (userType === "client" && lounge) {
     const imageUrl =
       typeof lounge.profileImage === "string"
         ? lounge.profileImage
         : lounge.profileImage?.url
 
+    const handleClick = () => {
+      if (lounge._id) router.push(`/centers/${lounge._id}`)
+    }
+
     return (
-      <div className="flex flex-col items-center gap-2">
+      <button
+        type="button"
+        onClick={handleClick}
+        className="flex cursor-pointer flex-col items-center gap-2 transition-opacity hover:opacity-80"
+      >
         <div className="bg-background relative h-12 w-12 overflow-hidden rounded-full border-2 border-white shadow-md">
           {lounge.profileImage && imageUrl ? (
             <Image
@@ -77,7 +96,7 @@ export function BookingAvatar({
         <span className="max-w-32 truncate text-center text-sm font-medium">
           {lounge.loungeTitle || lounge.email || "Lounge"}
         </span>
-      </div>
+      </button>
     )
   }
 

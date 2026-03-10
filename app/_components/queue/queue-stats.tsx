@@ -3,7 +3,14 @@
 import React from "react"
 import { Card, CardContent } from "../ui/card"
 import { Badge } from "../ui/badge"
-import { Users, Clock, TrendingUp, CheckCircle2, UserX } from "lucide-react"
+import {
+  Users,
+  Clock,
+  TrendingUp,
+  CheckCircle2,
+  UserX,
+  Armchair,
+} from "lucide-react"
 import type { QueueStats as QueueStatsData } from "./queue-utils"
 
 interface QueueStatsProps {
@@ -23,87 +30,101 @@ export default function QueueStats({
 }: QueueStatsProps) {
   return (
     <Card
-      className={`border-primary/20 from-primary/5 to-primary/10 bg-gradient-to-br ${isFullScreen ? "shadow-2xl" : ""}`}
+      className={`border-primary/20 from-primary/5 to-primary/10 rounded-lg bg-gradient-to-br ${isFullScreen ? "shadow-2xl" : ""}`}
     >
-      <CardContent className={`p-6 ${isFullScreen ? "p-8" : ""}`}>
-        <div className="mb-4 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="bg-primary/20 rounded-full p-3">
+      <CardContent className={`p-3 ${isFullScreen ? "p-4" : ""}`}>
+        <div className="mb-2 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <div className="bg-primary/20 rounded-full p-2">
               <Users className="text-primary h-5 w-5" />
             </div>
             <div>
-              <h3 className="text-lg font-semibold">
+              <h3 className="text-base font-semibold">
                 {agentName ? `${agentName}'s Queue` : "Queue"}
               </h3>
-              <p className="text-muted-foreground text-sm">
+              <p className="text-muted-foreground text-xs">
                 {centerName || "Current status"}
               </p>
             </div>
           </div>
-          <Badge className="bg-primary text-primary-foreground px-4 py-2 text-base">
+          <Badge className="bg-primary text-primary-foreground px-2 py-1 text-xs">
             {stats.totalWaiting} waiting
           </Badge>
         </div>
 
         {/* Stats Grid */}
         <div
-          className={`grid grid-cols-2 gap-4 ${isFullScreen ? "md:grid-cols-2" : mode === "staff" ? "md:grid-cols-5" : "md:grid-cols-3"}`}
+          className={`grid grid-cols-2 gap-2 ${isFullScreen ? "md:grid-cols-2" : mode === "staff" ? "md:grid-cols-5" : "md:grid-cols-3"}`}
         >
-          <div className="bg-card/50 rounded-lg border p-3 backdrop-blur-sm">
-            <div className="mb-1 flex items-center gap-2">
-              <Clock className="h-4 w-4 text-amber-500" />
-              <p className="text-muted-foreground text-xs font-medium">
+          <div className="bg-card/50 rounded-md border p-2 backdrop-blur-sm">
+            <div className="flex items-center gap-1">
+              <Armchair className="h-5 w-5 text-amber-500" />
+              <p className="text-muted-foreground text-[11px] font-medium">
                 Waiting
               </p>
             </div>
-            <p className="text-2xl font-bold">{stats.totalWaiting}</p>
+            <div className="mt-1 flex w-full justify-end">
+              <p className="text-base font-bold">{stats.totalWaiting}</p>
+            </div>
           </div>
-          <div className="bg-card/50 rounded-lg border p-3 backdrop-blur-sm">
-            <div className="mb-1 flex items-center gap-2">
-              <Clock className="h-4 w-4 text-amber-500" />
-              <p className="text-muted-foreground text-xs font-medium">
+          <div className="bg-card/50 rounded-md border p-2 backdrop-blur-sm">
+            <div className="flex items-center gap-1">
+              <Clock className="h-5 w-5 text-amber-500" />
+              <p className="text-muted-foreground text-[11px] font-medium">
                 Avg Wait
               </p>
             </div>
-            <p className="text-2xl font-bold">{stats.averageWait} min</p>
+            <div className="mt-1 flex w-full justify-end">
+              <p className="text-base font-bold">{stats.averageWait} min</p>
+            </div>
           </div>
-          <div className="bg-card/50 rounded-lg border p-3 backdrop-blur-sm">
-            <div className="mb-1 flex items-center gap-2">
-              <TrendingUp className="h-4 w-4 text-blue-500" />
-              <p className="text-muted-foreground text-xs font-medium">
+          <div className="bg-card/50 rounded-md border p-2 backdrop-blur-sm">
+            <div className="flex items-center gap-1">
+              <TrendingUp className="h-5 w-5 text-blue-500" />
+              <p className="text-muted-foreground text-[11px] font-medium">
                 In Service
               </p>
             </div>
-            <p className="text-2xl font-bold">{stats.totalInService}</p>
+            <div className="mt-1 flex w-full justify-end">
+              <p className="text-base font-bold">{stats.totalInService}</p>
+            </div>
           </div>
           {mode === "staff" && (
-            <div className="bg-card/50 rounded-lg border p-3 backdrop-blur-sm">
-              <div className="mb-1 flex items-center gap-2">
-                <Users className="h-4 w-4 text-amber-500" />
-                <p className="text-muted-foreground text-xs font-medium">
+            <div className="bg-card/50 rounded-md border p-2 backdrop-blur-sm">
+              <div className="flex items-center gap-1">
+                <Users className="h-5 w-5 text-indigo-500" />
+                <p className="text-muted-foreground text-[11px] font-medium">
                   Total People
                 </p>
               </div>
-              <p className="text-2xl font-bold">{stats.totalPeople}</p>
+              <div className="mt-1 flex w-full justify-end">
+                <p className="text-base font-bold">{stats.totalPeople}</p>
+              </div>
             </div>
           )}
-          <div className="bg-card/50 rounded-lg border p-3 backdrop-blur-sm">
-            <div className="mb-1 flex items-center gap-2">
-              <CheckCircle2 className="h-4 w-4 text-green-500" />
-              <p className="text-muted-foreground text-xs font-medium">
-                Completed
-              </p>
+          {mode === "staff" && (
+            <div className="bg-card/50 rounded-md border p-2 backdrop-blur-sm">
+              <div className="flex items-center gap-1">
+                <CheckCircle2 className="h-5 w-5 text-green-500" />
+                <p className="text-muted-foreground text-[11px] font-medium">
+                  Completed
+                </p>
+              </div>
+              <div className="mt-1 flex w-full justify-end">
+                <p className="text-base font-bold">{stats.totalCompleted}</p>
+              </div>
             </div>
-            <p className="text-2xl font-bold">{stats.totalCompleted}</p>
-          </div>
-          <div className="bg-card/50 rounded-lg border p-3 backdrop-blur-sm">
-            <div className="mb-1 flex items-center gap-2">
-              <UserX className="h-4 w-4 text-red-500" />
-              <p className="text-muted-foreground text-xs font-medium">
+          )}
+          <div className="bg-card/50 rounded-md border p-2 backdrop-blur-sm">
+            <div className="flex items-center gap-1">
+              <UserX className="h-5 w-5 text-red-500" />
+              <p className="text-muted-foreground text-[11px] font-medium">
                 Absent
               </p>
             </div>
-            <p className="text-2xl font-bold">{stats.totalAbsent}</p>
+            <div className="mt-1 flex w-full justify-end">
+              <p className="text-base font-bold">{stats.totalAbsent}</p>
+            </div>
           </div>
         </div>
       </CardContent>

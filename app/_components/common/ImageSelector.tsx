@@ -86,7 +86,7 @@ export function ImageSelector({
               className={`border-primary/50 relative overflow-hidden border-2 ${
                 cropShape === "round"
                   ? "h-32 w-32 rounded-full"
-                  : "h-24 w-full max-w-xs rounded-lg"
+                  : "h-24 w-72 rounded-lg"
               }`}
             >
               <Image

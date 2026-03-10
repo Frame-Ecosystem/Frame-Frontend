@@ -195,8 +195,8 @@ export default function ResetPasswordPage() {
 
               <Button
                 type="submit"
-                variant="outline"
-                className="w-full border-green-500 text-green-600 hover:bg-green-50 hover:text-green-700"
+                variant="default"
+                className="w-full"
                 disabled={loading}
               >
                 {loading ? "Resetting..." : "Reset password"}

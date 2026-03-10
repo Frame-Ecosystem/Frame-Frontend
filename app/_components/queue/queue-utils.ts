@@ -46,13 +46,26 @@ export function estimatedWaitTime(
   person: QueuePerson,
   allPersons: QueuePerson[],
 ): number {
+  // Sum durations of all preceding persons that are waiting or inService
   const preceding = allPersons.filter(
-    (p) => p.position < person.position && p.status === "waiting",
+    (p) =>
+      p.position < person.position &&
+      (p.status === "waiting" || p.status === "inService"),
   )
-  return preceding.reduce(
-    (sum, p) => sum + (p.bookingId?.totalDuration ?? 0),
-    0,
-  )
+
+  return preceding.reduce((sum, p) => {
+    const duration = p.bookingId?.totalDuration ?? 0
+
+    if (p.status === "inService" && p.inServiceAt) {
+      // For in-service persons, only count remaining time
+      const elapsed = Math.floor(
+        (Date.now() - new Date(p.inServiceAt).getTime()) / 60000,
+      )
+      return sum + Math.max(duration - elapsed, 0)
+    }
+
+    return sum + duration
+  }, 0)
 }
 
 /**
@@ -63,7 +76,7 @@ export function getValidTransitions(
 ): string[] {
   const map: Record<string, string[]> = {
     waiting: ["inService", "absent"],
-    inService: ["completed"],
+    inService: ["completed", "waiting"],
     absent: ["waiting"],
     completed: [],
   }

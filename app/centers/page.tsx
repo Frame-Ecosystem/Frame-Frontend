@@ -220,9 +220,18 @@ export default function CentersPage() {
         <div className="from-background via-background to-muted/20 min-h-screen bg-linear-to-br">
           <div className="mx-auto max-w-7xl p-5 lg:px-8 lg:py-12">
             <div className="flex min-h-[400px] items-center justify-center">
-              <div className="text-center">
-                <div className="border-primary mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-b-2"></div>
-                <p className="text-muted-foreground">Loading...</p>
+              <div className="w-full max-w-4xl space-y-6">
+                <div className="bg-primary/10 h-8 w-40 animate-pulse rounded" />
+                <div className="bg-primary/10 h-10 w-full animate-pulse rounded-lg" />
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                  {[...Array(6)].map((_, i) => (
+                    <div key={i} className="space-y-3 rounded-lg border p-4">
+                      <div className="bg-primary/10 h-32 w-full animate-pulse rounded-lg" />
+                      <div className="bg-primary/10 h-4 w-3/4 animate-pulse rounded" />
+                      <div className="bg-primary/10 h-3 w-1/2 animate-pulse rounded" />
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
           </div>
@@ -299,44 +308,40 @@ export default function CentersPage() {
     <ErrorBoundary>
       <div className="from-background via-background to-muted/20 min-h-screen bg-linear-to-br pb-24 lg:pb-0">
         <div className="mx-auto max-w-7xl lg:pt-0">
-          <div className="px-5 py-3 lg:px-8 lg:py-12">
+          <div className="p-5 lg:px-8 lg:py-12">
             {/* HERO SECTION */}
-            <div className="mb-6 lg:mb-8">
-              <div className="space-y-2">
-                <div className="space-y-1">
-                  <div className="mt-6 mb-3 flex items-center gap-3">
-                    <Globe className="text-primary h-8 w-8 lg:h-10 lg:w-10" />
-                    <h1 className="text-3xl font-bold lg:text-4xl">Centers</h1>
-                  </div>
-                  <p className="text-muted-foreground lg:text-lg">
-                    Browse and discover amazing center services
-                  </p>
-                </div>
+            <div className="mb-8 lg:mb-12">
+              <div className="mt-6 mb-4 flex items-center gap-3">
+                <Globe className="text-primary h-8 w-8 lg:h-10 lg:w-10" />
+                <h1 className="text-3xl font-bold lg:text-4xl">Centers</h1>
+              </div>
+              <p className="text-muted-foreground lg:text-lg">
+                Browse and discover amazing center services
+              </p>
 
-                {/* Search Section */}
-                <div className="flex items-center gap-3">
-                  <form onSubmit={handleSearch} className="flex-1">
-                    <div className="relative">
-                      <SearchIcon className="text-muted-foreground absolute top-1/2 left-3 h-5 w-5 -translate-y-1/2 transform" />
-                      <Input
-                        type="text"
-                        placeholder="Search centers..."
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                        className="pr-10 pl-10"
-                      />
-                      {searchTerm && (
-                        <button
-                          type="button"
-                          onClick={() => setSearchTerm("")}
-                          className="text-muted-foreground hover:text-foreground absolute top-1/2 right-3 h-5 w-5 -translate-y-1/2 transform transition-colors"
-                        >
-                          <X className="h-4 w-4" />
-                        </button>
-                      )}
-                    </div>
-                  </form>
-                </div>
+              {/* Search Section */}
+              <div className="flex items-center gap-3">
+                <form onSubmit={handleSearch} className="flex-1">
+                  <div className="relative">
+                    <SearchIcon className="text-muted-foreground absolute top-1/2 left-3 h-5 w-5 -translate-y-1/2 transform" />
+                    <Input
+                      type="text"
+                      placeholder="Search centers..."
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                      className="pr-10 pl-10"
+                    />
+                    {searchTerm && (
+                      <button
+                        type="button"
+                        onClick={() => setSearchTerm("")}
+                        className="text-muted-foreground hover:text-foreground absolute top-1/2 right-3 h-5 w-5 -translate-y-1/2 transform transition-colors"
+                      >
+                        <X className="h-4 w-4" />
+                      </button>
+                    )}
+                  </div>
+                </form>
               </div>
             </div>
 

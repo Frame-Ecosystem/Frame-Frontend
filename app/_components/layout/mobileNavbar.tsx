@@ -18,9 +18,13 @@ const MobileNavbar = () => {
   if (isLoading || !user) return null
 
   // Filter navigation links based on user type
-  const filteredNavLinks = NAV_LINKS.filter((link) => {
+  const filteredNavLinks = NAV_LINKS.filter((link: any) => {
     // Hide centers page for lounge users
     if (link.href === "/centers" && user.type === "lounge") {
+      return false
+    }
+    // Show loungeOnly items only for lounge users
+    if (link.loungeOnly && user.type !== "lounge") {
       return false
     }
     return true

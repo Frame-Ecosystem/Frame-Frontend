@@ -128,7 +128,7 @@ export interface Booking {
     price: number
     duration: number
   }>
-  cancelledBy?: string
+  cancelledBy?: { idUser: string; cancelledByName: string }
   // Backwards compatibility
   loungeServiceId?: string
   userId?: string
@@ -172,7 +172,6 @@ export interface UpdateBookingInput {
   totalPrice?: number
   totalDuration?: number
   notes?: string
-  cancelledBy?: string
 }
 
 // Booking statistics
@@ -375,6 +374,7 @@ export interface LoungeAgent {
   profileImage: ProfileImage | string
   isBlocked: boolean
   idLoungeService?: string[] // Array of lounge service IDs this agent can perform
+  acceptQueueBooking?: boolean // Whether this agent's queue accepts client bookings
   createdAt: string
   updatedAt: string
 }
@@ -466,6 +466,60 @@ export interface AddPersonToQueueInput {
 
 export interface UpdatePersonStatusInput {
   status: QueuePersonStatus
+}
+
+// ── Notification Types ─────────────────────────────────────
+/* eslint-disable no-unused-vars */
+export enum NotificationType {
+  BOOKING_CREATED = "booking:created",
+  BOOKING_CONFIRMED = "booking:confirmed",
+  BOOKING_CANCELLED = "booking:cancelled",
+  BOOKING_IN_QUEUE = "booking:inQueue",
+  BOOKING_COMPLETED = "booking:completed",
+  BOOKING_ABSENT = "booking:absent",
+  QUEUE_IN_SERVICE = "queue:inService",
+  QUEUE_COMPLETED = "queue:completed",
+  QUEUE_ABSENT = "queue:absent",
+  QUEUE_AUTO_CANCELLED = "queue:autoCancelled",
+  QUEUE_BACK_IN_QUEUE = "queue:backInQueue",
+  QUEUE_REMINDER = "queue:reminder",
+}
+/* eslint-enable no-unused-vars */
+
+export interface NotificationMetadata {
+  bookingId?: string
+  loungeId?: string
+  clientId?: string
+  agentId?: string
+}
+
+export interface AppNotification {
+  _id: string
+  userId: string
+  title: string
+  body: string
+  type: NotificationType | string
+  isRead: boolean
+  metadata?: NotificationMetadata
+  createdAt: string
+  updatedAt: string
+}
+
+export interface NotificationsResponse {
+  success: boolean
+  data: AppNotification[]
+  unreadCount: number
+  total: number
+  page: number
+  limit: number
+  totalPages: number
+  message: string
+}
+
+export interface UnreadCountResponse {
+  success: boolean
+  data: { unreadCount: number }
+  message: string
 }
 
 const typesDefault = {}

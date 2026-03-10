@@ -132,27 +132,19 @@ class AuthService {
   async updateProfileImage(
     updates: Partial<User> | FormData,
   ): Promise<User | null> {
-    try {
-      const data = await apiClient.put<{ data: User; message: string }>(
-        "/v1/me/image",
-        updates,
-      )
-      return data.data
-    } catch {
-      return null
-    }
+    const data = await apiClient.put<{ data: User; message: string }>(
+      "/v1/me/image",
+      updates,
+    )
+    return data.data
   }
 
   async updateCoverImage(formData: FormData): Promise<User | null> {
-    try {
-      const data = await apiClient.put<{ data: User; message: string }>(
-        "/v1/me/cover-image",
-        formData,
-      )
-      return data.data
-    } catch {
-      return null
-    }
+    const data = await apiClient.put<{ data: User; message: string }>(
+      "/v1/me/cover-image",
+      formData,
+    )
+    return data.data
   }
 
   async signOut(): Promise<void> {

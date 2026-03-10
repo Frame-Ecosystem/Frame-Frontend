@@ -255,9 +255,8 @@ export default function AdminServiceSuggestionsPage() {
                           <div className="flex gap-2">
                             <Button
                               size="sm"
-                              variant="default"
+                              variant="success"
                               onClick={() => handleApprove(s)}
-                              className="bg-green-600 hover:bg-green-700"
                             >
                               <CheckCircle className="mr-1 h-4 w-4" />
                               Approve
@@ -411,20 +410,15 @@ export default function AdminServiceSuggestionsPage() {
             </div>
 
             <div className="flex gap-2 pt-4">
-              <Button
-                type="submit"
-                variant="outline"
-                className="flex-1 border-green-500 text-green-600 hover:bg-green-50 hover:text-green-700"
-              >
+              <Button type="submit" variant="success" className="flex-1">
                 Approve & Create Service
               </Button>
               <Button
                 type="button"
-                variant="outline"
+                variant="destructive"
                 onClick={() =>
                   setApproveDialog({ open: false, suggestion: null })
                 }
-                className="border-red-500 text-red-600 hover:bg-red-50 hover:text-red-700"
               >
                 Cancel
               </Button>

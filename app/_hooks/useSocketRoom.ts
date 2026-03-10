@@ -11,49 +11,30 @@
 import { useEffect, useRef } from "react"
 import { getSocket } from "../_services/socket"
 
-interface SocketEventHandler {
-  /** The event name to listen for, e.g. `queue:updated` */
-  event: string
-  /** Callback invoked with the event payload */
-  // eslint-disable-next-line no-unused-vars
-  handler: (...args: any[]) => void
-}
-
 /**
- * Join one or more Socket.IO rooms and subscribe to events.
+ * Subscribe to Socket.IO room(s) and listen for events.
+ * Automatically joins on mount / reconnect, leaves on unmount.
  *
- * @param rooms  Array of room names to join (falsy entries are filtered out).
- * @param events Array of `{ event, handler }` pairs to register.
- * @param enabled Whether the subscriptions should be active (default `true`).
- *
- * The hook automatically:
- * - emits `room:join` for each room on subscribe (and on every reconnect)
- * - emits `room:leave` for each room on cleanup
- * - registers / deregisters event listeners
+ * @param rooms  Room name(s) to join. Accepts a single string or an array.
+ * @param events Record of `{ eventName: handler }` pairs to register.
  */
 export function useSocketRoom(
-  rooms: (string | null | undefined)[],
-  events: SocketEventHandler[],
-  enabled = true,
+  rooms: string | string[],
+  // eslint-disable-next-line no-unused-vars
+  events: Record<string, (data: any) => void>,
 ) {
-  // Keep a stable ref to the current rooms so the cleanup always
-  // leaves the correct set even if `rooms` changes between renders.
   const joinedRoomsRef = useRef<string[]>([])
 
   useEffect(() => {
-    if (!enabled) return
-
-    const validRooms = rooms.filter(Boolean) as string[]
-    if (validRooms.length === 0 && events.length === 0) return
+    const roomList = Array.isArray(rooms) ? rooms : [rooms]
+    const validRooms = roomList.filter(Boolean)
+    if (validRooms.length === 0) return
 
     const socket = getSocket()
 
     // ── Helper to (re-)join rooms ───────────────────────────
     const joinRooms = () => {
-      for (const room of validRooms) {
-        console.log("[useSocketRoom] joining", room)
-        socket.emit("room:join", room)
-      }
+      socket.emit("join", validRooms)
     }
 
     // Join now if already connected
@@ -68,27 +49,20 @@ export function useSocketRoom(
     joinedRoomsRef.current = validRooms
 
     // ── Register event listeners ────────────────────────────
-    for (const { event, handler } of events) {
-      console.log("[useSocketRoom] listening for", event)
+    const entries = Object.entries(events)
+    entries.forEach(([event, handler]) => {
       socket.on(event, handler)
-    }
+    })
 
     // ── Cleanup ─────────────────────────────────────────────
     return () => {
       socket.off("connect", joinRooms)
-      for (const room of joinedRoomsRef.current) {
-        socket.emit("room:leave", room)
-      }
-      for (const { event, handler } of events) {
+      socket.emit("leave", joinedRoomsRef.current)
+      entries.forEach(([event, handler]) => {
         socket.off(event, handler)
-      }
+      })
       joinedRoomsRef.current = []
     }
-    // We intentionally stringify rooms for a stable dependency.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [
-    enabled,
-    JSON.stringify(rooms),
-    JSON.stringify(events.map((e) => e.event)),
-  ])
+  }, [JSON.stringify(rooms)])
 }

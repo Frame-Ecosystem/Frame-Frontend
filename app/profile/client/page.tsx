@@ -1,6 +1,7 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
+import { useSearchParams } from "next/navigation"
 import { Button } from "../../_components/ui/button"
 import { Pencil, StarIcon, User, FileText, Heart } from "lucide-react"
 import { ErrorBoundary } from "../../_components/common/errorBoundary"
@@ -24,7 +25,8 @@ const formatBioText = (text: string, isMobile: boolean = false) => {
 }
 
 export default function ClientProfilePage() {
-  const { user, isLoading, setAuth } = useAuth()
+  const { user, isLoading, setAuth, accessToken } = useAuth()
+  const searchParams = useSearchParams()
   const [updating, setUpdating] = useState(false)
   const [updatingCover, setUpdatingCover] = useState(false)
   const [openNameSection, setOpenNameSection] = useState(false)
@@ -34,7 +36,18 @@ export default function ClientProfilePage() {
   const [isAccountInfoOpen, setIsAccountInfoOpen] = useState(true)
   const [isBioExpanded, setIsBioExpanded] = useState(false)
   const [isMobile, setIsMobile] = useState(false)
-  const [activeTab, setActiveTab] = useState<"account" | "posts">("account")
+  const [activeTab, setActiveTab] = useState<"account" | "posts">(() => {
+    const tab = searchParams.get("tab")
+    if (tab === "posts") return tab
+    return "account"
+  })
+
+  const handleTabChange = useCallback((tab: "account" | "posts") => {
+    setActiveTab(tab)
+    const url = new URL(window.location.href)
+    url.searchParams.set("tab", tab)
+    window.history.replaceState({}, "", url.toString())
+  }, [])
   const [postsCount, setPostsCount] = useState(0)
 
   useEffect(() => {
@@ -104,10 +117,14 @@ export default function ClientProfilePage() {
     try {
       const updatedUser = await authService.updateProfileImage(formData)
       if (updatedUser) {
-        setAuth(updatedUser, null) // Update the auth context
+        setAuth(updatedUser, accessToken) // Update the auth context, preserve token
       }
-    } catch {
-      // handled silently
+    } catch (error) {
+      const message =
+        error instanceof Error
+          ? error.message
+          : "Failed to update profile image"
+      alert(message)
     } finally {
       setUpdating(false)
     }
@@ -124,10 +141,12 @@ export default function ClientProfilePage() {
     try {
       const updatedUser = await authService.updateCoverImage(formData)
       if (updatedUser) {
-        setAuth(updatedUser, null)
+        setAuth(updatedUser, accessToken)
       }
-    } catch {
-      // handled silently
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : "Failed to update cover image"
+      alert(message)
     } finally {
       setUpdatingCover(false)
     }
@@ -137,80 +156,52 @@ export default function ClientProfilePage() {
     return (
       <ErrorBoundary>
         <div className="from-background via-background to-muted/20 min-h-screen bg-linear-to-br">
-          <div className="mx-auto max-w-7xl p-5 lg:px-8 lg:py-12">
-            <div className="w-full">
-              <div className="p-0 lg:px-0">
-                <div className="px-0 py-2 lg:px-0 lg:py-4">
-                  <div className="m-4 md:m-6 lg:m-8">
-                    {/* Header Skeleton */}
-                    <div className="mb-6 flex items-start gap-4">
-                      <div className="relative">
-                        <div className="bg-muted-foreground/10 border-primary h-32 w-32 animate-pulse rounded-full border-2 lg:h-40 lg:w-40"></div>
-                        <div className="bg-muted-foreground/10 absolute right-0 bottom-0 h-9 w-9 animate-pulse rounded-full"></div>
-                      </div>
+          {/* Cover Image Skeleton */}
+          <div className="bg-primary/10 relative h-[200px] w-full animate-pulse sm:h-[280px] lg:h-[320px]" />
 
-                      <div className="mt-8 flex-1 pt-4 lg:pt-8">
-                        <div className="bg-muted-foreground/10 mb-2 ml-4 h-8 w-48 animate-pulse rounded lg:mb-4 lg:ml-6"></div>
-                      </div>
-                    </div>
+          {/* Overlapping Avatar Skeleton */}
+          <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
+            <div className="-mt-16 flex items-end gap-4 sm:-mt-20">
+              <div className="bg-primary/10 ring-background h-32 w-32 animate-pulse rounded-full ring-4 sm:h-40 sm:w-40" />
+              <div className="mb-2 flex-1">
+                <div className="bg-primary/10 h-7 w-48 animate-pulse rounded" />
+              </div>
+            </div>
 
-                    {/* Bio Skeleton */}
-                    <div className="mt-6 ml-4 lg:ml-6">
-                      <div className="bg-muted-foreground/10 mb-1 h-4 w-full animate-pulse rounded"></div>
-                      <div className="bg-muted-foreground/10 mb-1 h-4 w-3/4 animate-pulse rounded"></div>
-                      <div className="bg-muted-foreground/10 h-4 w-1/2 animate-pulse rounded"></div>
-                    </div>
+            {/* Bio Skeleton */}
+            <div className="mt-4 space-y-2">
+              <div className="bg-primary/10 h-4 w-full animate-pulse rounded" />
+              <div className="bg-primary/10 h-4 w-3/4 animate-pulse rounded" />
+            </div>
 
-                    {/* Tabs Skeleton */}
-                    <div className="mt-8 flex gap-2 border-b">
-                      <div className="bg-muted-foreground/10 h-10 w-20 animate-pulse rounded"></div>
-                      <div className="bg-muted-foreground/10 h-10 w-16 animate-pulse rounded"></div>
-                    </div>
+            {/* Stats Skeleton */}
+            <div className="mt-4 flex items-center gap-4">
+              <div className="bg-primary/10 h-4 w-12 animate-pulse rounded" />
+              <div className="bg-primary/10 h-4 w-12 animate-pulse rounded" />
+              <div className="bg-primary/10 h-4 w-32 animate-pulse rounded" />
+            </div>
+          </div>
 
-                    {/* Content Skeleton */}
-                    <div className="mt-6 space-y-6">
-                      {/* Account Info Card Skeleton */}
-                      <div className="bg-card rounded-lg border p-6 shadow-sm">
-                        <div className="bg-muted-foreground/10 mb-4 h-6 w-32 animate-pulse rounded"></div>
-                        <div className="space-y-3">
-                          <div className="bg-muted-foreground/10 h-4 w-full animate-pulse rounded"></div>
-                          <div className="bg-muted-foreground/10 h-4 w-3/4 animate-pulse rounded"></div>
-                          <div className="bg-muted-foreground/10 h-4 w-1/2 animate-pulse rounded"></div>
-                        </div>
-                      </div>
+          {/* Tabs Skeleton */}
+          <div className="mt-4 border-b backdrop-blur-md">
+            <div className="mx-auto flex max-w-5xl gap-2 px-4 py-3 sm:px-6 lg:px-8">
+              <div className="bg-primary/10 h-9 w-24 animate-pulse rounded-lg" />
+              <div className="bg-primary/10 h-9 w-20 animate-pulse rounded-lg" />
+            </div>
+          </div>
 
-                      {/* Posts Section Skeleton */}
-                      <div className="space-y-4">
-                        <div className="bg-muted-foreground/10 h-6 w-24 animate-pulse rounded"></div>
-                        <div className="space-y-4">
-                          {[...Array(2)].map((_, i) => (
-                            <div
-                              key={i}
-                              className="bg-card rounded-lg border p-4 shadow-sm"
-                            >
-                              <div className="mb-3 flex items-center gap-3">
-                                <div className="bg-muted-foreground/10 h-8 w-8 animate-pulse rounded-full"></div>
-                                <div>
-                                  <div className="bg-muted-foreground/10 mb-1 h-4 w-24 animate-pulse rounded"></div>
-                                  <div className="bg-muted-foreground/10 h-3 w-16 animate-pulse rounded"></div>
-                                </div>
-                              </div>
-                              <div className="mb-3 space-y-2">
-                                <div className="bg-muted-foreground/10 h-4 w-full animate-pulse rounded"></div>
-                                <div className="bg-muted-foreground/10 h-4 w-3/4 animate-pulse rounded"></div>
-                              </div>
-                              <div className="bg-muted-foreground/10 aspect-video w-full animate-pulse rounded-lg"></div>
-                              <div className="mt-3 flex items-center gap-4">
-                                <div className="bg-muted-foreground/10 h-8 w-16 animate-pulse rounded"></div>
-                                <div className="bg-muted-foreground/10 h-8 w-20 animate-pulse rounded"></div>
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    </div>
+          {/* Content Skeleton */}
+          <div className="mx-auto max-w-5xl px-4 pt-4 sm:px-6 lg:px-8">
+            {/* Account Info Card */}
+            <div className="bg-card rounded-lg border p-6 shadow-sm">
+              <div className="bg-primary/10 mb-4 h-6 w-40 animate-pulse rounded" />
+              <div className="space-y-4">
+                {[...Array(4)].map((_, i) => (
+                  <div key={i} className="flex items-center gap-3">
+                    <div className="bg-primary/10 h-4 w-4 animate-pulse rounded" />
+                    <div className="bg-primary/10 h-4 w-48 animate-pulse rounded" />
                   </div>
-                </div>
+                ))}
               </div>
             </div>
           </div>
@@ -336,7 +327,7 @@ export default function ClientProfilePage() {
               variant="ghost"
               size="sm"
               className={`rounded-lg border px-3 py-2 text-sm font-medium transition-all duration-300 ${activeTab === "account" ? "border-primary bg-primary/10 text-primary" : "border-border text-foreground hover:border-primary/50 hover:text-primary hover:bg-primary/5"}`}
-              onClick={() => setActiveTab("account")}
+              onClick={() => handleTabChange("account")}
             >
               <User className="h-4 w-4" />
               Account
@@ -345,7 +336,7 @@ export default function ClientProfilePage() {
               variant="ghost"
               size="sm"
               className={`rounded-lg border px-3 py-2 text-sm font-medium transition-all duration-300 ${activeTab === "posts" ? "border-primary bg-primary/10 text-primary" : "border-border text-foreground hover:border-primary/50 hover:text-primary hover:bg-primary/5"}`}
-              onClick={() => setActiveTab("posts")}
+              onClick={() => handleTabChange("posts")}
             >
               <FileText className="h-4 w-4" />
               Posts {postsCount > 0 && `(${postsCount})`}

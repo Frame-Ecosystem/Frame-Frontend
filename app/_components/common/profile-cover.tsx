@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import Image from "next/image"
-import { CameraIcon, X } from "lucide-react"
+import { CameraIcon } from "lucide-react"
 import { Button } from "../ui/button"
 import { Avatar, AvatarImage, AvatarFallback } from "../ui/avatar"
 import {
@@ -13,6 +13,7 @@ import {
   DialogTrigger,
 } from "../ui/dialog"
 import { ImageSelector } from "./ImageSelector"
+import { ImageLightbox } from "./image-lightbox"
 import type { User } from "../../_types"
 import {
   getUserDisplayName,
@@ -41,50 +42,6 @@ function getCoverImageUrl(user: User | null): string | undefined {
   if (!user?.coverImage) return undefined
   if (typeof user.coverImage === "string") return user.coverImage
   return user.coverImage.url
-}
-
-/* ─── Fullscreen image lightbox ────────────────────────────── */
-function ImageLightbox({
-  src,
-  alt,
-  open,
-  onClose,
-}: {
-  src: string
-  alt: string
-  open: boolean
-  onClose: () => void
-}) {
-  if (!open) return null
-
-  return (
-    <div
-      className="fixed inset-0 z-[100] flex items-center justify-center bg-black/90 backdrop-blur-sm"
-      onClick={onClose}
-    >
-      <button
-        onClick={onClose}
-        className="absolute top-4 right-4 z-[101] rounded-full bg-black/50 p-2 text-white transition-colors hover:bg-black/70"
-        aria-label="Close"
-      >
-        <X className="h-6 w-6" />
-      </button>
-      <div
-        className="relative h-full w-full"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <Image
-          src={src}
-          alt={alt}
-          fill
-          sizes="100vw"
-          quality={90}
-          className="object-contain"
-          priority
-        />
-      </div>
-    </div>
-  )
 }
 
 export function ProfileCover({

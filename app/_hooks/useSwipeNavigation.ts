@@ -25,12 +25,13 @@ export function useSwipeNavigation() {
 
     const homeRoute = getHomePath()
     const profileRoute = getProfilePath(user)
-    const routes = [homeRoute, "/bookings", "/centers", "/store", profileRoute]
 
-    // Remove centers for lounge users
-    return user?.type === "lounge"
-      ? routes.filter((route) => route !== "/centers")
-      : routes
+    if (user?.type === "lounge") {
+      // Lounge: replace centers with queue in the middle
+      return [homeRoute, "/bookings", "/queue", "/store", profileRoute]
+    }
+
+    return [homeRoute, "/bookings", "/centers", "/store", profileRoute]
   }, [user])
 
   // Check if current path is a navigation page
@@ -113,44 +114,13 @@ export function useSwipeNavigation() {
     [],
   )
 
-  // Handle swipe navigation
+  // Handle swipe navigation — disabled
   const handleSwipe = useCallback(
-    (deltaX: number, deltaY: number, startElement: EventTarget | null) => {
-      const routes = getNavigationRoutes()
-      const isOnNavPage = isNavigationPage(routes)
-
-      // Always block navigation in scrollable containers
-      if (hasHorizontalScroll(startElement)) {
-        return
-      }
-
-      // Allow vertical scrolling
-      if (Math.abs(deltaY) > DIAGONAL_THRESHOLD) return
-
-      // Require clear horizontal swipe
-      if (Math.abs(deltaX) < SWIPE_THRESHOLD) return
-
-      if (isOnNavPage) {
-        // Navigate to next page (circular)
-        if (deltaX > 0) {
-          const currentIndex = getCurrentNavIndex(routes)
-          const nextIndex = (currentIndex + 1) % routes.length
-          router.push(routes[nextIndex])
-        }
-      } else {
-        // Go back on right swipe
-        if (deltaX < 0) {
-          router.back()
-        }
-      }
+    (_deltaX: number, _deltaY: number, _startElement: EventTarget | null) => {
+      // Swipe navigation is disabled
+      return
     },
-    [
-      getNavigationRoutes,
-      isNavigationPage,
-      hasHorizontalScroll,
-      getCurrentNavIndex,
-      router,
-    ],
+    [],
   )
 
   useEffect(() => {

@@ -144,9 +144,10 @@ class ApiClient {
   }
 
   async post<T>(endpoint: string, data?: unknown): Promise<T> {
+    const body = data instanceof FormData ? data : JSON.stringify(data)
     return this.request<T>(endpoint, {
       method: "POST",
-      body: JSON.stringify(data),
+      body,
     })
   }
 
@@ -163,9 +164,10 @@ class ApiClient {
   }
 
   async patch<T>(endpoint: string, data?: unknown): Promise<T> {
+    const body = data instanceof FormData ? data : JSON.stringify(data)
     return this.request<T>(endpoint, {
       method: "PATCH",
-      body: JSON.stringify(data),
+      body,
     })
   }
 }

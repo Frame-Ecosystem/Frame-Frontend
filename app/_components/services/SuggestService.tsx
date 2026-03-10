@@ -225,11 +225,7 @@ export default function SuggestService() {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button
-          type="button"
-          variant="outline"
-          className="border-blue-500 text-blue-600 hover:bg-blue-50 hover:text-blue-700"
-        >
+        <Button type="button" variant="default">
           Suggest a service
         </Button>
       </DialogTrigger>
@@ -251,22 +247,25 @@ export default function SuggestService() {
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <p className="text-muted-foreground text-sm"></p>
-              <Button
-                onClick={handleBackToForm}
-                variant="outline"
-                size="sm"
-                className="border-blue-500 text-blue-600 hover:bg-blue-50 hover:text-blue-700"
-              >
+              <Button onClick={handleBackToForm} variant="default" size="sm">
                 Suggest New Service
               </Button>
             </div>
 
             {loadingSuggestions ? (
-              <div className="py-8 text-center">
-                <div className="border-primary mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-b-2"></div>
-                <p className="text-muted-foreground">
-                  Loading your suggestions...
-                </p>
+              <div className="space-y-3 py-8">
+                {[...Array(2)].map((_, i) => (
+                  <div
+                    key={i}
+                    className="flex items-center gap-3 rounded-lg border p-3"
+                  >
+                    <div className="bg-primary/10 h-8 w-8 animate-pulse rounded" />
+                    <div className="flex-1 space-y-2">
+                      <div className="bg-primary/10 h-4 w-40 animate-pulse rounded" />
+                      <div className="bg-primary/10 h-3 w-24 animate-pulse rounded" />
+                    </div>
+                  </div>
+                ))}
               </div>
             ) : userSuggestions.length === 0 ? (
               <div className="py-8 text-center">
@@ -275,8 +274,8 @@ export default function SuggestService() {
                 </p>
                 <Button
                   onClick={handleBackToForm}
-                  className="mt-4 border-green-500 text-green-600 hover:bg-green-50 hover:text-green-700"
-                  variant="outline"
+                  className="mt-4"
+                  variant="default"
                 >
                   Suggest Your First Service
                 </Button>
@@ -425,17 +424,12 @@ export default function SuggestService() {
               <div className="flex justify-end space-x-2">
                 <Button
                   type="button"
-                  variant="outline"
+                  variant="destructive"
                   onClick={() => setOpen(false)}
-                  className="border-red-500 text-red-600 hover:bg-red-50 hover:text-red-700"
                 >
                   Cancel
                 </Button>
-                <Button
-                  type="submit"
-                  variant="outline"
-                  className="border-green-500 text-green-600 hover:bg-green-50 hover:text-green-700"
-                >
+                <Button type="submit" variant="success">
                   Submit Suggestion
                 </Button>
               </div>

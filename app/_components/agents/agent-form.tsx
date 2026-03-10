@@ -479,7 +479,7 @@ export function AgentForm({
                 <Label>Select Lounge Services *</Label>
                 {loadingServices ? (
                   <div className="text-muted-foreground flex items-center space-x-2">
-                    <div className="border-primary h-4 w-4 animate-spin rounded-full border-b-2"></div>
+                    <div className="bg-primary/10 h-4 w-4 animate-pulse rounded-full"></div>
                     <span>Loading services...</span>
                   </div>
                 ) : loungeServices.length === 0 ? (
@@ -526,7 +526,7 @@ export function AgentForm({
                             "Unnamed Service"}
                           {service.price && (
                             <span className="text-muted-foreground ml-2">
-                              (${service.price})
+                              ({service.price} dt)
                             </span>
                           )}
                         </Label>
@@ -562,22 +562,16 @@ export function AgentForm({
             <DialogFooter>
               <Button
                 type="button"
-                variant="outline"
+                variant="destructive"
                 onClick={() => onOpenChange(false)}
                 disabled={loading}
-                className="border-red-500 text-red-600 hover:bg-red-50 hover:text-red-700"
               >
                 Cancel
               </Button>
-              <Button
-                type="submit"
-                disabled={loading}
-                variant="outline"
-                className="border-green-500 text-green-600 hover:bg-green-50 hover:text-green-700"
-              >
+              <Button type="submit" disabled={loading} variant="success">
                 {loading ? (
                   <>
-                    <div className="border-primary mr-2 h-4 w-4 animate-spin rounded-full border-b-2"></div>
+                    <div className="bg-primary/10 mr-2 h-4 w-4 animate-pulse rounded-full"></div>
                     {agent ? "Updating..." : "Creating..."}
                   </>
                 ) : agent ? (

@@ -1,95 +1,315 @@
 "use client"
 
-import { Bell } from "lucide-react"
+import React, { useEffect, useMemo, useState } from "react"
+import {
+  Bell,
+  BellRing,
+  CalendarPlus,
+  CheckCircle2,
+  XCircle,
+  Clock,
+  AlertTriangle,
+  Slash,
+  RefreshCw,
+  Timer,
+  ChevronRight,
+  Users,
+  type LucideIcon,
+} from "lucide-react"
 import { Button } from "../ui/button"
 import { Badge } from "../ui/badge"
 import { Popover, PopoverTrigger, PopoverContent } from "../ui/popover"
-import { useState } from "react"
 import { useAuth } from "../../_providers/auth"
+import { useNotificationContext } from "../../_providers/notification"
+import {
+  useNotifications,
+  useMarkNotificationsRead,
+} from "../../_hooks/queries/useNotifications"
+import { NotificationType } from "../../_types"
+import type { AppNotification } from "../../_types"
+import { useRouter } from "next/navigation"
 
-interface NotificationButtonProps {
-  unreadCount?: number
+// ── Icon / colour mapping per notification type ──────────────
+interface NotificationMeta {
+  Icon: LucideIcon
+  color: string
 }
 
-const NotificationButton = ({ unreadCount = 0 }: NotificationButtonProps) => {
-  const { user, isLoading } = useAuth()
-  const [isOpen, setIsOpen] = useState(false)
+const DEFAULT_META: NotificationMeta = {
+  Icon: Bell,
+  color: "text-muted-foreground",
+}
 
-  // Don't render if user is not logged in or still loading
-  if (isLoading || !user) {
-    return null
+const NOTIFICATION_META: Record<string, NotificationMeta> = {
+  [NotificationType.BOOKING_CREATED]: {
+    Icon: CalendarPlus,
+    color: "text-blue-500",
+  },
+  [NotificationType.BOOKING_CONFIRMED]: {
+    Icon: CheckCircle2,
+    color: "text-green-500",
+  },
+  [NotificationType.BOOKING_CANCELLED]: {
+    Icon: XCircle,
+    color: "text-red-500",
+  },
+  [NotificationType.BOOKING_IN_QUEUE]: {
+    Icon: Clock,
+    color: "text-blue-500",
+  },
+  [NotificationType.BOOKING_COMPLETED]: {
+    Icon: CheckCircle2,
+    color: "text-green-500",
+  },
+  [NotificationType.QUEUE_COMPLETED]: {
+    Icon: CheckCircle2,
+    color: "text-green-500",
+  },
+  [NotificationType.BOOKING_ABSENT]: {
+    Icon: AlertTriangle,
+    color: "text-yellow-500",
+  },
+  [NotificationType.QUEUE_ABSENT]: {
+    Icon: AlertTriangle,
+    color: "text-yellow-500",
+  },
+  [NotificationType.QUEUE_IN_SERVICE]: {
+    Icon: BellRing,
+    color: "text-orange-500",
+  },
+  [NotificationType.QUEUE_AUTO_CANCELLED]: {
+    Icon: Slash,
+    color: "text-red-500",
+  },
+  [NotificationType.QUEUE_BACK_IN_QUEUE]: {
+    Icon: RefreshCw,
+    color: "text-blue-500",
+  },
+  [NotificationType.QUEUE_REMINDER]: {
+    Icon: Timer,
+    color: "text-orange-500",
+  },
+}
+
+// ── Title-aware meta resolver ────────────────────────────────
+const QUEUE_JOIN_TITLE = "New Queue Join"
+
+const QUEUE_JOIN_META: NotificationMeta = {
+  Icon: Users,
+  color: "text-violet-500",
+}
+
+export function getNotificationMeta(notification: {
+  type: string
+  title: string
+}): NotificationMeta {
+  if (
+    notification.type === NotificationType.BOOKING_CREATED &&
+    notification.title === QUEUE_JOIN_TITLE
+  ) {
+    return QUEUE_JOIN_META
   }
+  return NOTIFICATION_META[notification.type] ?? DEFAULT_META
+}
+
+// ── Shared exports for the full notifications page ───────────
+export { NOTIFICATION_META, DEFAULT_META, type NotificationMeta }
+
+// ── Time-ago helper ──────────────────────────────────────────
+export function timeAgo(dateStr: string): string {
+  const now = Date.now()
+  const diff = now - new Date(dateStr).getTime()
+  const seconds = Math.floor(diff / 1000)
+  if (seconds < 60) return "Just now"
+  const minutes = Math.floor(seconds / 60)
+  if (minutes < 60) return `${minutes}m ago`
+  const hours = Math.floor(minutes / 60)
+  if (hours < 24) return `${hours}h ago`
+  const days = Math.floor(hours / 24)
+  if (days === 1) return "Yesterday"
+  if (days < 7) return `${days}d ago`
+  return new Date(dateStr).toLocaleDateString()
+}
+
+// ── Compact notification row (for popover preview) ───────────
+function NotificationPreviewItem({
+  notification,
+  onClick,
+}: {
+  notification: AppNotification
+  onClick: () => void
+}) {
+  const { Icon, color } = getNotificationMeta(notification)
+
+  return (
+    <button
+      onClick={onClick}
+      className={`hover:bg-muted/50 flex w-full cursor-pointer items-center gap-3 rounded-lg border-1 p-3 text-left transition-colors ${
+        !notification.isRead ? "bg-primary/5 border-primary/20" : ""
+      }`}
+    >
+      <div className={`shrink-0 ${color}`}>
+        <Icon className="h-4 w-4" />
+      </div>
+      <div className="min-w-0 flex-1">
+        <div className="flex items-center gap-2">
+          <p
+            className={`truncate text-sm ${!notification.isRead ? "font-semibold" : "font-medium"}`}
+          >
+            {notification.title}
+          </p>
+          {!notification.isRead && (
+            <span className="bg-primary h-1.5 w-1.5 shrink-0 rounded-full" />
+          )}
+        </div>
+        <p className="text-muted-foreground mt-0.5 truncate text-xs">
+          {notification.body}
+        </p>
+        <p className="text-muted-foreground/70 mt-0.5 text-[10px]">
+          {timeAgo(notification.createdAt)}
+        </p>
+      </div>
+    </button>
+  )
+}
+
+// ── Main notification button + popover ───────────────────────
+const PREVIEW_COUNT = 3
+
+interface NotificationButtonProps {
+  compact?: boolean
+}
+
+const NotificationButton = ({ compact }: NotificationButtonProps) => {
+  const { user, isLoading: authLoading } = useAuth()
+  const { unreadCount } = useNotificationContext()
+  const [isOpen, setIsOpen] = useState(false)
+  const router = useRouter()
+
+  const { data, isLoading: listLoading } = useNotifications()
+
+  const markRead = useMarkNotificationsRead()
+
+  // Flatten pages, take only the latest 3 for preview
+  const allNotifications = useMemo(
+    () => data?.pages.flatMap((p) => p.data) ?? [],
+    [data],
+  )
+  const previewNotifications = useMemo(
+    () => allNotifications.slice(0, PREVIEW_COUNT),
+    [allNotifications],
+  )
+
+  // When popover opens, mark the visible preview as read
+  useEffect(() => {
+    if (!isOpen || previewNotifications.length === 0) return
+    const unreadIds = previewNotifications
+      .filter((n) => !n.isRead)
+      .map((n) => n._id)
+    if (unreadIds.length > 0) {
+      markRead.mutate(unreadIds)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isOpen, previewNotifications.length])
+
+  const handleNotificationClick = (n: AppNotification) => {
+    setIsOpen(false)
+    if (n.metadata?.bookingId) {
+      router.push("/bookings")
+    } else {
+      router.push("/notifications")
+    }
+  }
+
+  const handleViewAll = () => {
+    setIsOpen(false)
+    router.push("/notifications")
+  }
+
+  if (authLoading || !user) return null
 
   return (
     <Popover open={isOpen} onOpenChange={setIsOpen}>
       <PopoverTrigger asChild>
         <Button
           variant="ghost"
-          className="hover:bg-primary/10 relative h-12 w-12 rounded-full p-0"
+          size="icon"
+          className="hover:bg-primary/10 relative flex items-center gap-2 rounded-full"
         >
-          <Bell className="h-6 w-6" />
-          {unreadCount > 0 && (
-            <Badge
-              variant="destructive"
-              className="absolute -top-1 -right-1 flex h-6 w-6 items-center justify-center p-0 text-xs font-bold"
+          <div className="relative">
+            <div
+              className={`border-border flex items-center justify-center rounded-full border ${
+                compact ? "h-9 w-9" : "h-12 w-12"
+              }`}
             >
-              {unreadCount > 99 ? "99+" : unreadCount}
-            </Badge>
-          )}
-        </Button>
-      </PopoverTrigger>
-      <PopoverContent className="w-96 p-0" align="end">
-        <div className="p-6">
-          <div className="mb-4 flex items-center justify-between">
-            <h3 className="text-xl font-semibold">Notifications</h3>
+              <Bell className={compact ? "h-4 w-4" : "h-5 w-5"} />
+            </div>
             {unreadCount > 0 && (
-              <Badge variant="secondary" className="text-sm">
-                {unreadCount} new
+              <Badge
+                variant="destructive"
+                className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center p-0 text-[10px] font-bold"
+              >
+                {unreadCount > 99 ? "99+" : unreadCount}
               </Badge>
             )}
           </div>
-          <div className="space-y-3">
-            {unreadCount === 0 ? (
-              <div className="py-8 text-center">
-                <Bell className="text-muted-foreground mx-auto mb-3 h-12 w-12 opacity-50" />
-                <p className="text-muted-foreground">No new notifications</p>
-              </div>
-            ) : (
-              <div className="text-muted-foreground text-sm">
-                {/* Placeholder for actual notifications */}
-                <div className="space-y-3">
-                  <div className="bg-muted/50 rounded-lg border p-3">
-                    <p className="text-foreground font-medium">
-                      Booking Confirmed
-                    </p>
-                    <p className="text-sm">
-                      Your appointment with John&apos;s Center has been
-                      confirmed for tomorrow at 2:00 PM.
-                    </p>
-                    <p className="text-muted-foreground mt-1 text-xs">
-                      2 hours ago
-                    </p>
-                  </div>
-                  <div className="bg-muted/50 rounded-lg border p-3">
-                    <p className="text-foreground font-medium">New Message</p>
-                    <p className="text-sm">
-                      You have a new message from your center.
-                    </p>
-                    <p className="text-muted-foreground mt-1 text-xs">
-                      5 hours ago
-                    </p>
-                  </div>
-                </div>
-              </div>
-            )}
+        </Button>
+      </PopoverTrigger>
+
+      <PopoverContent className="mt-2 w-72 p-0" align="end">
+        <div className="flex flex-col gap-3 p-2">
+          {/* Header */}
+          <div className="flex items-center justify-between px-1 pt-1">
+            <div className="flex items-center gap-2">
+              <h3 className="text-sm font-semibold">Notifications</h3>
+              {unreadCount > 0 && (
+                <Badge variant="secondary" className="px-1.5 py-0 text-[10px]">
+                  {unreadCount} new
+                </Badge>
+              )}
+            </div>
           </div>
-          {unreadCount > 0 && (
-            <div className="mt-4 border-t pt-4">
-              <Button variant="outline" className="w-full">
-                View All Notifications
-              </Button>
+
+          {/* Preview list (3 latest) */}
+          {listLoading ? (
+            <div className="flex items-center justify-center py-6">
+              <div className="border-primary h-5 w-5 animate-spin rounded-full border-2 border-t-transparent" />
+            </div>
+          ) : previewNotifications.length === 0 ? (
+            <div className="py-6 text-center">
+              <Bell className="text-muted-foreground mx-auto mb-2 h-8 w-8 opacity-40" />
+              <p className="text-muted-foreground text-xs">
+                No notifications yet
+              </p>
+            </div>
+          ) : (
+            <div className="flex flex-col gap-1">
+              {previewNotifications.map((n) => (
+                <NotificationPreviewItem
+                  key={n._id}
+                  notification={n}
+                  onClick={() => handleNotificationClick(n)}
+                />
+              ))}
             </div>
           )}
+
+          {/* Separator */}
+          <div className="border-border my-1 border-t" />
+
+          {/* See all button */}
+          <div className="mb-1">
+            <Button
+              variant="outline"
+              size="sm"
+              className="border-border hover:bg-primary/10 w-full justify-start gap-2 border-1"
+              onClick={handleViewAll}
+            >
+              <Bell className="h-4 w-4" />
+              See All Notifications
+              <ChevronRight className="ml-auto h-4 w-4" />
+            </Button>
+          </div>
         </div>
       </PopoverContent>
     </Popover>

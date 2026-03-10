@@ -43,7 +43,7 @@ const MOCK_POSTS: Post[] = [
     authorRole: "Official",
     content:
       "New summer hairstyles are here! 🌞 Check out our latest collection featuring modern cuts and vibrant colors. Book your appointment today and get 10% off your first visit this month!",
-    imageUrl: "/images/bgHome.png",
+    imageUrl: "/images/frameDark.png",
     timestamp: "2 hours ago",
     likes: 145,
     comments: 23,

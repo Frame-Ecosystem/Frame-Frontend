@@ -27,9 +27,13 @@ export default function SettingsPage() {
           <div className="mx-auto max-w-7xl">
             <div className="space-y-6 p-5 pb-32 lg:px-8 lg:py-12 lg:pb-6">
               <div className="flex min-h-[200px] items-center justify-center">
-                <div className="text-center">
-                  <div className="border-primary mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-b-2"></div>
-                  <p className="text-muted-foreground">Loading...</p>
+                <div className="w-full max-w-lg space-y-4">
+                  <div className="bg-primary/10 h-8 w-48 animate-pulse rounded" />
+                  <div className="space-y-3">
+                    <div className="bg-primary/10 h-12 w-full animate-pulse rounded-lg" />
+                    <div className="bg-primary/10 h-12 w-full animate-pulse rounded-lg" />
+                    <div className="bg-primary/10 h-12 w-full animate-pulse rounded-lg" />
+                  </div>
                 </div>
               </div>
             </div>

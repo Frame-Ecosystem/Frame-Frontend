@@ -1,10 +1,13 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
-import { useCallback, useMemo } from "react"
+import { useMemo } from "react"
 import { queueService } from "../../_services/queue.service"
+import { bookingService } from "../../_services/booking.service"
+import { agentService } from "../../_services/agent.service"
 import { QueuePersonStatus } from "../../_types"
 import { toast } from "sonner"
 import { isAuthError } from "../../_services/api"
 import { useSocketRoom } from "../useSocketRoom"
+import { useAuth } from "../../_providers/auth"
 
 // ── Query Keys ────────────────────────────────────────────────
 export const queueKeys = {
@@ -22,21 +25,29 @@ export const queueKeys = {
 /** Fetch a single agent's queue */
 export function useAgentQueue(agentId: string | null, date?: string) {
   const queryClient = useQueryClient()
-  const invalidate = useCallback(() => {
-    console.log("[socket] queue:updated → invalidating agent queue")
-    queryClient.invalidateQueries({ queryKey: queueKeys.all })
-  }, [queryClient])
 
   // Subscribe to the agent's queue room for live updates
   const rooms = useMemo(
-    () => (agentId ? [`queue:agent:${agentId}`] : []),
+    () => (agentId ? `queue:agent:${agentId}` : []),
     [agentId],
   )
   const events = useMemo(
-    () => [{ event: "queue:updated", handler: invalidate }],
-    [invalidate],
+    () => ({
+      "queue:updated": (payload: {
+        agentId: string
+        data: unknown
+        timestamp: string
+      }) => {
+        console.log("[socket] queue:updated → setQueryData")
+        queryClient.setQueryData(
+          queueKeys.agentQueue(payload.agentId, date),
+          payload.data,
+        )
+      },
+    }),
+    [queryClient, date],
   )
-  useSocketRoom(rooms, events, !!agentId)
+  useSocketRoom(rooms, events)
 
   return useQuery({
     queryKey: queueKeys.agentQueue(agentId ?? "", date),
@@ -48,20 +59,23 @@ export function useAgentQueue(agentId: string | null, date?: string) {
 /** Fetch all agent queues for a specific lounge */
 export function useLoungeQueues(loungeId: string | null, date?: string) {
   const queryClient = useQueryClient()
-  const invalidate = useCallback(() => {
-    console.log("[socket] queue:lounge:updated → invalidating lounge queues")
-    queryClient.invalidateQueries({ queryKey: queueKeys.all })
-  }, [queryClient])
 
   const rooms = useMemo(
-    () => (loungeId ? [`queue:lounge:${loungeId}`] : []),
+    () => (loungeId ? `queue:lounge:${loungeId}` : []),
     [loungeId],
   )
   const events = useMemo(
-    () => [{ event: "queue:lounge:updated", handler: invalidate }],
-    [invalidate],
+    () => ({
+      "queue:lounge:updated": () => {
+        console.log(
+          "[socket] queue:lounge:updated → invalidating lounge queues",
+        )
+        queryClient.invalidateQueries({ queryKey: queueKeys.all })
+      },
+    }),
+    [queryClient],
   )
-  useSocketRoom(rooms, events, !!loungeId)
+  useSocketRoom(rooms, events)
 
   return useQuery({
     queryKey: queueKeys.loungeQueues(loungeId ?? "", date),
@@ -72,23 +86,29 @@ export function useLoungeQueues(loungeId: string | null, date?: string) {
 
 /** Fetch all queues for the authenticated lounge */
 export function useMyLoungeQueues(date?: string, enabled = true) {
+  const { user } = useAuth()
   const queryClient = useQueryClient()
-  const invalidate = useCallback(() => {
-    console.log("[socket] queue:lounge:updated → invalidating my lounge queues")
-    queryClient.invalidateQueries({ queryKey: queueKeys.all })
-  }, [queryClient])
 
-  // We don't know the loungeId at this point (it's the auth'd user),
-  // but the server will join the right room when the client subscribes
-  // to "queue:lounge:me" – however, the hook is only active when the
-  // user is the lounge owner. We still use the room pattern so that
-  // the server can broadcast to all lounge queue rooms.
-  const rooms = useMemo(() => (enabled ? ["queue:lounge:me"] : []), [enabled])
-  const events = useMemo(
-    () => [{ event: "queue:lounge:updated", handler: invalidate }],
-    [invalidate],
+  // Use the authenticated lounge user's _id as the loungeId for the socket room.
+  // The backend has no "queue:lounge:me" room – the real loungeId is required.
+  const loungeId = user?.type === "lounge" ? user._id : null
+
+  const rooms = useMemo(
+    () => (enabled && loungeId ? `queue:lounge:${loungeId}` : []),
+    [enabled, loungeId],
   )
-  useSocketRoom(rooms, events, enabled)
+  const events = useMemo(
+    () => ({
+      "queue:lounge:updated": () => {
+        console.log(
+          "[socket] queue:lounge:updated → invalidating my lounge queues",
+        )
+        queryClient.invalidateQueries({ queryKey: queueKeys.all })
+      },
+    }),
+    [queryClient],
+  )
+  useSocketRoom(rooms, events)
 
   return useQuery({
     queryKey: queueKeys.myLoungeQueues(date),
@@ -193,13 +213,20 @@ export function useRemovePersonFromQueue() {
       agentId,
       bookingId,
       date,
+      markAbsent,
     }: {
       agentId: string
       bookingId: string
       date?: string
-    }) => queueService.removePersonFromQueue(agentId, bookingId, date),
-    onSuccess: () => {
-      toast.success("Person removed from queue")
+      markAbsent?: boolean
+    }) =>
+      queueService.removePersonFromQueue(agentId, bookingId, date, markAbsent),
+    onSuccess: (_, variables) => {
+      toast.success(
+        variables.markAbsent
+          ? "Person marked absent and removed"
+          : "Person removed from queue",
+      )
       queryClient.invalidateQueries({ queryKey: queueKeys.all })
     },
     onError: (error: any) => {
@@ -207,6 +234,34 @@ export function useRemovePersonFromQueue() {
       const message =
         error?.message || error?.error || "Failed to remove person"
       toast.error(message)
+    },
+  })
+}
+
+/** Reorder a person's position in the queue */
+export function useReorderPerson() {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: ({
+      agentId,
+      bookingId,
+      newPosition,
+    }: {
+      agentId: string
+      bookingId: string
+      newPosition: number
+    }) => queueService.reorderPerson(agentId, bookingId, newPosition),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queueKeys.all })
+    },
+    onError: (error: any) => {
+      if (isAuthError(error)) return
+      const message =
+        error?.message || error?.error || "Failed to reorder queue"
+      toast.error(message)
+      // Refetch to revert optimistic UI
+      queryClient.invalidateQueries({ queryKey: queueKeys.all })
     },
   })
 }
@@ -225,6 +280,64 @@ export function usePopulateDailyQueues() {
       if (isAuthError(error)) return
       const message =
         error?.message || error?.error || "Failed to populate queues"
+      toast.error(message)
+    },
+  })
+}
+
+/** Book from queue — creates a booking (status: inQueue) and adds to the agent's queue in one step */
+export function useBookFromQueue() {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: (input: {
+      clientId: string
+      loungeId: string
+      agentId: string
+      loungeServiceIds: string[]
+      notes?: string
+    }) => bookingService.bookFromQueue(input),
+    onSuccess: () => {
+      toast.success("Booked and added to queue!")
+      queryClient.invalidateQueries({ queryKey: queueKeys.all })
+      queryClient.invalidateQueries({ queryKey: ["bookings"] })
+    },
+    onError: (error: any) => {
+      if (isAuthError(error)) return
+      const message =
+        error?.message || error?.error || "Failed to book from queue"
+      toast.error(message)
+    },
+  })
+}
+
+/** Toggle acceptQueueBooking for an agent */
+export function useToggleQueueBooking() {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: ({
+      agentId,
+      acceptQueueBooking,
+    }: {
+      agentId: string
+      acceptQueueBooking: boolean
+    }) => agentService.updateQueueBooking(agentId, acceptQueueBooking),
+    onSuccess: (_data, variables) => {
+      toast.success(
+        variables.acceptQueueBooking
+          ? "Queue booking enabled for agent"
+          : "Queue booking disabled for agent",
+      )
+      // Invalidate loungeAgents query so the UI picks up the new value
+      queryClient.invalidateQueries({ queryKey: ["loungeAgents"] })
+    },
+    onError: (error: any) => {
+      if (isAuthError(error)) return
+      const message =
+        error?.message ||
+        error?.error ||
+        "Failed to update queue booking setting"
       toast.error(message)
     },
   })

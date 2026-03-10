@@ -456,12 +456,26 @@ export default function LoungeServiceManagementPage() {
 
   if (isLoading || loading) {
     return (
-      <div className="from-background via-background to-muted/20 flex min-h-screen items-center justify-center bg-gradient-to-br">
-        <div className="text-center">
-          <div className="border-primary mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-b-2"></div>
-          <p className="text-muted-foreground">
-            Loading lounge service management...
-          </p>
+      <div className="from-background via-background to-muted/20 min-h-screen bg-gradient-to-br">
+        <div className="mx-auto max-w-7xl p-5 lg:px-8 lg:py-12">
+          <div className="space-y-6">
+            <div className="bg-primary/10 h-8 w-64 animate-pulse rounded" />
+            <div className="space-y-3">
+              {[...Array(4)].map((_, i) => (
+                <div
+                  key={i}
+                  className="flex items-center gap-4 rounded-lg border p-4"
+                >
+                  <div className="bg-primary/10 h-16 w-16 animate-pulse rounded-lg" />
+                  <div className="flex-1 space-y-2">
+                    <div className="bg-primary/10 h-4 w-40 animate-pulse rounded" />
+                    <div className="bg-primary/10 h-3 w-24 animate-pulse rounded" />
+                  </div>
+                  <div className="bg-primary/10 h-8 w-16 animate-pulse rounded" />
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
       </div>
     )
@@ -702,17 +716,12 @@ export default function LoungeServiceManagementPage() {
                   <div className="flex justify-end space-x-2">
                     <Button
                       type="button"
-                      variant="outline"
+                      variant="destructive"
                       onClick={() => setDialogOpen(false)}
-                      className="border-red-500 text-red-600 hover:bg-red-50 hover:text-red-700"
                     >
                       Cancel
                     </Button>
-                    <Button
-                      type="submit"
-                      variant="outline"
-                      className="border-green-500 text-green-600 hover:bg-green-50 hover:text-green-700"
-                    >
+                    <Button type="submit" variant="success">
                       {editingService ? "Update" : "Create"}
                     </Button>
                   </div>
@@ -828,11 +837,7 @@ export default function LoungeServiceManagementPage() {
                               </Button>
                               <AlertDialog>
                                 <AlertDialogTrigger asChild>
-                                  <Button
-                                    size="sm"
-                                    variant="outline"
-                                    className="border-red-500 text-red-600 hover:bg-red-50 hover:text-red-700"
-                                  >
+                                  <Button size="sm" variant="destructive">
                                     <Trash2 className="h-4 w-4" />
                                   </Button>
                                 </AlertDialogTrigger>

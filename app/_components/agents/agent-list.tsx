@@ -380,21 +380,28 @@ export function AgentList({
                     )}
                     <TableCell>
                       <div className="flex items-center gap-3">
-                        <Avatar className="h-8 w-8">
-                          {agent.profileImage ? (
-                            <AvatarImage
-                              src={
-                                typeof agent.profileImage === "string"
-                                  ? agent.profileImage
-                                  : agent.profileImage.url
-                              }
-                              alt={agent.agentName}
-                            />
-                          ) : null}
-                          <AvatarFallback>
-                            {getInitials(agent.agentName || "Agent")}
-                          </AvatarFallback>
-                        </Avatar>
+                        <button
+                          type="button"
+                          className="shrink-0 cursor-pointer"
+                          onClick={() => onViewClick(agent)}
+                          aria-label={`View ${agent.agentName || "agent"} details`}
+                        >
+                          <Avatar className="h-8 w-8 transition-opacity hover:opacity-80">
+                            {agent.profileImage ? (
+                              <AvatarImage
+                                src={
+                                  typeof agent.profileImage === "string"
+                                    ? agent.profileImage
+                                    : agent.profileImage.url
+                                }
+                                alt={agent.agentName}
+                              />
+                            ) : null}
+                            <AvatarFallback>
+                              {getInitials(agent.agentName || "Agent")}
+                            </AvatarFallback>
+                          </Avatar>
+                        </button>
                         <div>
                           <p className="font-medium">
                             {agent.agentName || "Unnamed Agent"}

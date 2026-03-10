@@ -168,12 +168,25 @@ export default function ServiceCategoryManagementPage() {
 
   if (isLoading || loading) {
     return (
-      <div className="from-background via-background to-muted/20 flex min-h-screen items-center justify-center bg-gradient-to-br">
-        <div className="text-center">
-          <div className="border-primary mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-b-2"></div>
-          <p className="text-muted-foreground">
-            Loading service category management...
-          </p>
+      <div className="from-background via-background to-muted/20 min-h-screen bg-gradient-to-br">
+        <div className="mx-auto max-w-7xl p-5 lg:px-8 lg:py-12">
+          <div className="space-y-6">
+            <div className="bg-primary/10 h-8 w-64 animate-pulse rounded" />
+            <div className="space-y-3">
+              {[...Array(5)].map((_, i) => (
+                <div
+                  key={i}
+                  className="flex items-center justify-between rounded-lg border p-4"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="bg-primary/10 h-10 w-10 animate-pulse rounded" />
+                    <div className="bg-primary/10 h-4 w-32 animate-pulse rounded" />
+                  </div>
+                  <div className="bg-primary/10 h-8 w-16 animate-pulse rounded" />
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
       </div>
     )
@@ -255,17 +268,12 @@ export default function ServiceCategoryManagementPage() {
                   <div className="flex justify-end space-x-2">
                     <Button
                       type="button"
-                      variant="outline"
+                      variant="destructive"
                       onClick={() => setDialogOpen(false)}
-                      className="border-red-500 text-red-600 hover:bg-red-50 hover:text-red-700"
                     >
                       Cancel
                     </Button>
-                    <Button
-                      type="submit"
-                      variant="outline"
-                      className="border-green-500 text-green-600 hover:bg-green-50 hover:text-green-700"
-                    >
+                    <Button type="submit" variant="success">
                       {editingCategory ? "Update" : "Create"}
                     </Button>
                   </div>
