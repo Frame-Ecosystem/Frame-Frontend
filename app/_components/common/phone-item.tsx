@@ -9,9 +9,40 @@ interface PhoneItemProps {
 }
 
 const PhoneItem = ({ phone }: PhoneItemProps) => {
-  const handleCopyPhoneClick = (phone: string) => {
-    navigator.clipboard.writeText(phone)
-    toast.success("Phone copied successfully!")
+  const handleCopyPhoneClick = async (phone: string) => {
+    try {
+      // Modern Clipboard API (requires HTTPS)
+      if (navigator.clipboard && window.isSecureContext) {
+        await navigator.clipboard.writeText(phone)
+        toast.success("Phone copied successfully!")
+        return
+      }
+
+      // Fallback for older browsers or non-HTTPS contexts
+      const textArea = document.createElement("textarea")
+      textArea.value = phone
+      textArea.style.position = "fixed"
+      textArea.style.left = "-999999px"
+      textArea.style.top = "-999999px"
+      document.body.appendChild(textArea)
+      textArea.focus()
+      textArea.select()
+
+      try {
+        const successful = document.execCommand("copy")
+        if (successful) {
+          toast.success("Phone copied successfully!")
+        } else {
+          throw new Error("Copy command failed")
+        }
+      } finally {
+        document.body.removeChild(textArea)
+      }
+    } catch (error) {
+      console.error("Failed to copy phone number:", error)
+      // Fallback: show the number in an alert
+      toast.error("Copy not supported. Phone: " + phone)
+    }
   }
 
   const handleCallClick = (phone: string) => {

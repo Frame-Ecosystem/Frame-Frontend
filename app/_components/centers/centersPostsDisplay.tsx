@@ -59,7 +59,7 @@ const MOCK_POSTS: Post[] = [
     authorRole: "Senior Stylist",
     content:
       "Just finished this amazing transformation! From dark brown to platinum blonde in one session. The client is absolutely thrilled with the results! ✨💇‍♀️",
-    imageUrl: "/images/lookisiLightPng.png",
+    imageUrl: "/images/frameLight.png",
     timestamp: "5 hours ago",
     likes: 289,
     comments: 45,
@@ -151,7 +151,7 @@ export default function PostsDisplay({
   }
 
   return (
-    <div className="space-y-4 xl:mx-auto xl:w-3/5">
+    <div className="mb-6 space-y-4 xl:mx-auto xl:w-3/5">
       {/* Header */}
       <div className="mb-6 flex items-center justify-between">
         <div className="flex items-center gap-3">

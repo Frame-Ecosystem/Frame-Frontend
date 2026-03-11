@@ -31,14 +31,14 @@ export const metadata: Metadata = {
   metadataBase: new URL("https://lookisi.vercel.app/"),
 
   // Primary title shown in browser tab and search results
-  title: "Lookisi",
+  title: "Frame",
 
   // Description for search engine results
   description:
-    "Lookisi est le système idéal pour les salons. Réservez des rendez-vous en ligne, trouvez des salons proches et gérez vos réservations facilement.",
+    "Frame est le système idéal pour les salons. Réservez des rendez-vous en ligne, trouvez des salons proches et gérez vos réservations facilement.",
   // Keywords for SEO (helps search engines categorize the site)
   keywords: [
-    "Lookisi",
+    "Frame",
     "système de gestion salon",
     "réservation salon",
     "salon en ligne",
@@ -58,42 +58,22 @@ export const metadata: Metadata = {
   icons: {
     icon: [
       {
-        url: "/images/lookisiLightPng.png",
+        url: "/images/favicon.png",
         sizes: "192x192",
         type: "image/png",
-        media: "(prefers-color-scheme: light)",
-      },
-      {
-        url: "/images/lookisiDarkPng.png",
-        sizes: "192x192",
-        type: "image/png",
-        media: "(prefers-color-scheme: dark)",
       },
     ],
     shortcut: [
       {
-        url: "/images/lookisiLightPng.png",
+        url: "/images/favicon.png",
         type: "image/png",
-        media: "(prefers-color-scheme: light)",
-      },
-      {
-        url: "/images/lookisiDarkPng.png",
-        type: "image/png",
-        media: "(prefers-color-scheme: dark)",
       },
     ],
     apple: [
       {
-        url: "/images/lookisiLightPng.png",
+        url: "/images/favicon.png",
         sizes: "180x180",
         type: "image/png",
-        media: "(prefers-color-scheme: light)",
-      },
-      {
-        url: "/images/lookisiDarkPng.png",
-        sizes: "180x180",
-        type: "image/png",
-        media: "(prefers-color-scheme: dark)",
       },
     ],
   },
@@ -103,17 +83,17 @@ export const metadata: Metadata = {
 
   // Open Graph metadata for social media sharing (Facebook, LinkedIn, etc.)
   openGraph: {
-    title: "Lookisi - Système de Gestion des Centres",
+    title: "Frame - Système de Gestion des Centres",
     description:
-      "Trouvez et réservez dans les meilleurs centres avec Lookisi. Plateforme complète pour les clients et les coiffeurs.",
+      "Trouvez et réservez dans les meilleurs centres avec Frame. Plateforme complète pour les clients et les coiffeurs.",
     url: "https://lookisi.vercel.app/",
-    siteName: "Lookisi",
+    siteName: "Frame",
     images: [
       {
         url: "/mobile-banner.png",
         width: 1200,
         height: 630,
-        alt: "Lookisi - Système de Gestion des Centres",
+        alt: "Frame - Système de Gestion des Centres",
       },
     ],
     locale: "fr_TN",
@@ -131,31 +111,10 @@ export default function RootLayout({
     <html lang="fr" suppressHydrationWarning>
       <head>
         {/* Theme-based favicon */}
-        <link
-          rel="icon"
-          href="/images/lookisiLightPng.png"
-          media="(prefers-color-scheme: light)"
-        />
-        <link
-          rel="icon"
-          href="/images/lookisiDarkPng.png"
-          media="(prefers-color-scheme: dark)"
-        />
-        {/* Fallback for browsers that don't support prefers-color-scheme */}
-        <link rel="icon" href="/images/lookisiLightPng.png" />
+        <link rel="icon" href="/images/favicon.png" />
 
         {/* Apple touch icons */}
-        <link
-          rel="apple-touch-icon"
-          href="/images/lookisiLightPng.png"
-          media="(prefers-color-scheme: light)"
-        />
-        <link
-          rel="apple-touch-icon"
-          href="/images/lookisiDarkPng.png"
-          media="(prefers-color-scheme: dark)"
-        />
-        <link rel="apple-touch-icon" href="/images/lookisiLightPng.png" />
+        <link rel="apple-touch-icon" href="/images/favicon.png" />
       </head>
       <body className={inter.className}>
         {/* PROVIDER HIERARCHY */}
@@ -173,13 +132,13 @@ export default function RootLayout({
                   <ServiceWorkerRegister />
                   {/* MAIN LAYOUT STRUCTURE */}
                   {/* Uses flexbox to keep footer at bottom of viewport */}
-                  <div className="flex h-full flex-col">
+                  <div className="flex min-h-screen flex-col">
                     {/* Header handles top bars and navigation visibility */}
                     <ConditionalHeader />
-                    {/* Main content area - auth-guarded (except root) */}
-                    <AuthGuard>
-                      <MainContentWrapper>{children}</MainContentWrapper>
-                    </AuthGuard>
+                    {/* Main content area - flex-1 always reserves space */}
+                    <MainContentWrapper>
+                      <AuthGuard>{children}</AuthGuard>
+                    </MainContentWrapper>
                     {/* Footer - always at the bottom for desktop */}
                     <ConditionalFooter />
                   </div>

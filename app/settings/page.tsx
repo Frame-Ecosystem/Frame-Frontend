@@ -1,6 +1,6 @@
 "use client"
 
-import { ChevronRightIcon, Layers, Shield } from "lucide-react"
+import { ChevronRightIcon, Layers, Users } from "lucide-react"
 import Link from "next/link"
 // import Image from "next/image"
 import { Avatar, AvatarImage, AvatarFallback } from "../_components/ui/avatar"
@@ -42,7 +42,7 @@ export default function SettingsPage() {
   return (
     <ErrorBoundary>
       <div className="from-background via-background to-muted/20 min-h-screen bg-linear-to-br pb-24 lg:pb-0">
-        <div className="mx-auto max-w-7xl">
+        <div className="mx-auto mt-6 max-w-7xl">
           <div className="space-y-6 p-5 pb-32 lg:px-8 lg:py-12 lg:pb-6">
             {/* === USER SECTION === */}
             {/* Clickable card that links to profile (if authenticated) or shows sign-in */}
@@ -111,7 +111,7 @@ export default function SettingsPage() {
                 <Link href="/lounge/agents">
                   <div className="border-border hover:bg-card/50 mt-6 flex w-full cursor-pointer items-center justify-between rounded-lg border p-4 transition-colors">
                     <div className="flex items-center gap-3">
-                      <Shield className="text-muted-foreground h-5 w-5" />
+                      <Users className="text-muted-foreground h-5 w-5" />
                       <span className="font-medium">Agent Management</span>
                     </div>
                     <ChevronRightIcon className="text-muted-foreground h-5 w-5" />

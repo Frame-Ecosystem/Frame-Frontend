@@ -26,15 +26,15 @@ const TopBar: React.FC<TopBarProps> = ({
   isLoading: externalIsLoading,
 }) => {
   const { resolvedTheme } = useTheme()
-  const [logoSrc, setLogoSrc] = useState("/images/lookisiDarkPng.png")
+  const [logoSrc, setLogoSrc] = useState("/images/frameDark.png")
   const { user } = useAuth()
   const router = useRouter()
 
   useEffect(() => {
     if (resolvedTheme) {
       const newSrc = resolvedTheme.includes("light")
-        ? "/images/lookisiLightPng.png"
-        : "/images/lookisiDarkPng.png"
+        ? "/images/frameLight.png"
+        : "/images/frameDark.png"
       setLogoSrc(newSrc)
     }
   }, [resolvedTheme])
@@ -49,7 +49,7 @@ const TopBar: React.FC<TopBarProps> = ({
           className="flex items-center gap-2 transition-opacity duration-200 hover:opacity-75 lg:ml-20"
         >
           <Image
-            alt="Lookisi"
+            alt="Frame"
             src={logoSrc}
             priority
             height={60}

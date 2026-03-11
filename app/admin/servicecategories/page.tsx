@@ -23,6 +23,7 @@ import {
 import { Plus, Edit, Trash2, ArrowLeft } from "lucide-react"
 import { toast } from "sonner"
 import { serviceCategoryService } from "../../_services"
+import { isAuthError } from "../../_services/api"
 import type { ServiceCategory } from "../../_types"
 
 export default function ServiceCategoryManagementPage() {
@@ -54,6 +55,7 @@ export default function ServiceCategoryManagementPage() {
       const data = await serviceCategoryService.getAll()
       setCategories(Array.isArray(data) ? data : [])
     } catch (error) {
+      if (isAuthError(error)) return
       console.error("Failed to load categories:", error)
       setCategories([])
     } finally {
@@ -99,6 +101,7 @@ export default function ServiceCategoryManagementPage() {
       resetForm()
       loadCategories()
     } catch (error) {
+      if (isAuthError(error)) return
       console.error("Failed to save category:", error)
       if (error instanceof Error) {
         toast.error(error.message)
@@ -139,6 +142,7 @@ export default function ServiceCategoryManagementPage() {
       loadCategories()
       toast.success("Category deleted successfully")
     } catch (error) {
+      if (isAuthError(error)) return
       console.error("Failed to delete category:", error)
       if (error instanceof Error) {
         toast.error(error.message)
@@ -253,10 +257,15 @@ export default function ServiceCategoryManagementPage() {
                       type="button"
                       variant="outline"
                       onClick={() => setDialogOpen(false)}
+                      className="border-red-500 text-red-600 hover:bg-red-50 hover:text-red-700"
                     >
                       Cancel
                     </Button>
-                    <Button type="submit">
+                    <Button
+                      type="submit"
+                      variant="outline"
+                      className="border-green-500 text-green-600 hover:bg-green-50 hover:text-green-700"
+                    >
                       {editingCategory ? "Update" : "Create"}
                     </Button>
                   </div>

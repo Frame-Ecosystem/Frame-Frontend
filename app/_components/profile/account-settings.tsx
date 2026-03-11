@@ -18,6 +18,7 @@ import { Label } from "../ui/label"
 import { Textarea } from "../ui/textarea"
 import { useAuth } from "../../_providers/auth"
 import { toast } from "sonner"
+import { isAuthError } from "../../_services/api"
 import { useRouter } from "next/navigation"
 import { useChangePassword, useLogoutAll } from "../../_hooks/queries"
 import {
@@ -178,6 +179,7 @@ export function AccountSettings({
         setIsPasswordSectionOpen(false)
       }
     } catch (error: any) {
+      if (isAuthError(error)) return
       console.error("Failed to change password:", error)
       toast.error(error.message || "Failed to change password")
     } finally {
@@ -243,6 +245,7 @@ export function AccountSettings({
         setIsNameSectionOpen(false)
       }
     } catch (error: any) {
+      if (isAuthError(error)) return
       console.error("Failed to update profile:", error)
       toast.error(error.message || "Failed to update profile")
     }
@@ -266,6 +269,7 @@ export function AccountSettings({
       await updatePhoneMutation.mutateAsync(fullPhoneNumber)
       toast.success("Phone number updated successfully")
     } catch (error: any) {
+      if (isAuthError(error)) return
       console.error("Failed to update phone number:", error)
       if (
         error.message &&
@@ -297,6 +301,7 @@ export function AccountSettings({
       await logoutAllMutation.mutateAsync()
       router.push("/")
     } catch (error: any) {
+      if (isAuthError(error)) return
       console.error("Failed to logout from all sessions:", error)
       toast.error(error.message || "Failed to logout from all sessions")
     }
@@ -314,13 +319,14 @@ export function AccountSettings({
       toast.success("Bio updated successfully")
       setIsBioSectionOpen(false)
     } catch (error: any) {
+      if (isAuthError(error)) return
       console.error("Failed to update bio:", error)
       toast.error(error.message || "Failed to update bio")
     }
   }
 
   return (
-    <div className="space-y-2">
+    <div className="mb-6 space-y-2">
       <button
         onClick={() => setIsOpen(!isOpen)}
         className="border-border hover:bg-card/50 w-full rounded-lg border p-4 text-left transition-colors"

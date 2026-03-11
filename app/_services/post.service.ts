@@ -137,9 +137,7 @@ export class PostService {
       return response
     } catch {
       // Return mock data filtered by user
-      const userPosts = mockPosts.filter(
-        (post) => post.author.id === userId || post.author._id === userId,
-      )
+      const userPosts = mockPosts.filter((post) => post.author._id === userId)
       const startIndex = (page - 1) * limit
       const endIndex = startIndex + limit
       const paginatedPosts = userPosts.slice(startIndex, endIndex)

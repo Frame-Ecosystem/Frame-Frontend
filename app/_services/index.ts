@@ -11,6 +11,7 @@ export { adminService } from "./admin.service"
 export { agentService } from "./agent.service"
 export { PostService } from "./post.service"
 export { default as clientService } from "./client.service"
+export { queueService } from "./queue.service"
 export type {
   Center,
   Booking,
@@ -31,4 +32,7 @@ export type {
   CreateCommentInput,
   LikePostInput,
   LikeCommentInput,
+  Queue,
+  QueuePerson,
+  QueuePersonStatus,
 } from "../_types"

@@ -3,7 +3,13 @@
 import { useState } from "react"
 import Image from "next/image"
 import { formatDistanceToNow } from "date-fns"
-import { Heart, MessageCircle, Trash2 } from "lucide-react"
+import {
+  Heart,
+  MessageCircle,
+  Trash2,
+  ChevronLeft,
+  ChevronRight,
+} from "lucide-react"
 import { Button } from "../ui/button"
 import { Card, CardContent, CardHeader } from "../ui/card"
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar"
@@ -23,6 +29,24 @@ export function PostCard({ post }: PostCardProps) {
   const [showComments, setShowComments] = useState(false)
   const [commentText, setCommentText] = useState("")
   const [showCommentForm, setShowCommentForm] = useState(false)
+  const [currentImageIndex, setCurrentImageIndex] = useState(0)
+
+  // Image navigation functions
+  const nextImage = () => {
+    if (post.images && currentImageIndex < post.images.length - 1) {
+      setCurrentImageIndex(currentImageIndex + 1)
+    }
+  }
+
+  const prevImage = () => {
+    if (currentImageIndex > 0) {
+      setCurrentImageIndex(currentImageIndex - 1)
+    }
+  }
+
+  const goToImage = (index: number) => {
+    setCurrentImageIndex(index)
+  }
 
   // Like post mutation
   const likePostMutation = useMutation({
@@ -67,14 +91,13 @@ export function PostCard({ post }: PostCardProps) {
   }
 
   const handleDelete = () => {
-    if (user && (user.id === post.author.id || user._id === post.author._id)) {
+    if (user && user._id === post.author._id) {
       deletePostMutation.mutate(post.id)
     }
   }
 
-  const isLiked = user ? post.likes.includes(user.id || user._id || "") : false
-  const canDelete =
-    user && (user.id === post.author.id || user._id === post.author._id)
+  const isLiked = user ? post.likes.includes(user._id || "") : false
+  const canDelete = user && user._id === post.author._id
 
   return (
     <Card className="w-full">
@@ -88,19 +111,27 @@ export function PostCard({ post }: PostCardProps) {
                     ? post.author.profileImage
                     : post.author.profileImage?.url
                 }
-                alt={post.author.firstName || post.author.email}
+                alt={
+                  post.author.firstName ||
+                  post.author.loungeTitle ||
+                  post.author.email
+                }
               />
               <AvatarFallback>
-                {(post.author.firstName || post.author.email)
+                {(
+                  post.author.firstName ||
+                  post.author.loungeTitle ||
+                  post.author.email
+                )
                   .charAt(0)
                   .toUpperCase()}
               </AvatarFallback>
             </Avatar>
             <div>
               <p className="text-sm font-semibold">
-                {post.author.firstName
-                  ? `${post.author.firstName} ${post.author.lastName || ""}`.trim()
-                  : post.author.loungeTitle || post.author.email}
+                {post.author.firstName ||
+                  post.author.loungeTitle ||
+                  post.author.email}
               </p>
               <p className="text-muted-foreground text-xs">
                 {formatDistanceToNow(new Date(post.createdAt), {
@@ -129,17 +160,53 @@ export function PostCard({ post }: PostCardProps) {
 
           {/* Post images */}
           {post.images && post.images.length > 0 && (
-            <div className="grid grid-cols-1 gap-2 overflow-hidden rounded-lg">
-              {post.images.map((image, index) => (
-                <div key={index} className="relative aspect-video">
-                  <Image
-                    src={image}
-                    alt={`Post image ${index + 1}`}
-                    fill
-                    className="object-cover"
-                  />
+            <div className="relative overflow-hidden rounded-lg">
+              {/* Main image display */}
+              <div className="relative aspect-video">
+                <Image
+                  src={post.images[currentImageIndex]}
+                  alt={`Post image ${currentImageIndex + 1}`}
+                  fill
+                  className="object-cover"
+                />
+
+                {/* Navigation arrows - only show if more than 1 image */}
+                {post.images.length > 1 && (
+                  <>
+                    <button
+                      onClick={prevImage}
+                      disabled={currentImageIndex === 0}
+                      className="absolute top-1/2 left-2 -translate-y-1/2 rounded-full bg-black/50 p-1 text-white transition-colors hover:bg-black/70 disabled:cursor-not-allowed disabled:opacity-30"
+                    >
+                      <ChevronLeft className="h-4 w-4" />
+                    </button>
+                    <button
+                      onClick={nextImage}
+                      disabled={currentImageIndex === post.images.length - 1}
+                      className="absolute top-1/2 right-2 -translate-y-1/2 rounded-full bg-black/50 p-1 text-white transition-colors hover:bg-black/70 disabled:cursor-not-allowed disabled:opacity-30"
+                    >
+                      <ChevronRight className="h-4 w-4" />
+                    </button>
+                  </>
+                )}
+              </div>
+
+              {/* Image indicators - only show if more than 1 image */}
+              {post.images.length > 1 && (
+                <div className="mt-2 flex justify-center space-x-1">
+                  {post.images.map((_, index) => (
+                    <button
+                      key={index}
+                      onClick={() => goToImage(index)}
+                      className={`h-2 w-2 rounded-full transition-colors ${
+                        index === currentImageIndex
+                          ? "bg-primary"
+                          : "bg-muted-foreground/30 hover:bg-muted-foreground/50"
+                      }`}
+                    />
+                  ))}
                 </div>
-              ))}
+              )}
             </div>
           )}
 
@@ -223,10 +290,18 @@ export function PostCard({ post }: PostCardProps) {
                           ? comment.author.profileImage
                           : comment.author.profileImage?.url
                       }
-                      alt={comment.author.firstName || comment.author.email}
+                      alt={
+                        comment.author.firstName ||
+                        comment.author.loungeTitle ||
+                        comment.author.email
+                      }
                     />
                     <AvatarFallback className="text-xs">
-                      {(comment.author.firstName || comment.author.email)
+                      {(
+                        comment.author.firstName ||
+                        comment.author.loungeTitle ||
+                        comment.author.email
+                      )
                         .charAt(0)
                         .toUpperCase()}
                     </AvatarFallback>
@@ -234,9 +309,9 @@ export function PostCard({ post }: PostCardProps) {
                   <div className="flex-1">
                     <div className="bg-muted rounded-lg px-3 py-2">
                       <p className="text-xs font-medium">
-                        {comment.author.firstName
-                          ? `${comment.author.firstName} ${comment.author.lastName || ""}`.trim()
-                          : comment.author.loungeTitle || comment.author.email}
+                        {comment.author.firstName ||
+                          comment.author.loungeTitle ||
+                          comment.author.email}
                       </p>
                       <p className="text-sm">{comment.content}</p>
                     </div>

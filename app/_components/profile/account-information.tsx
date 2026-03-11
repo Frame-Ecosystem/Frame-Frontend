@@ -22,14 +22,10 @@ export function AccountInformation({
   setOpenPhoneSection,
   setOpenSettings,
 }: AccountInformationProps) {
-  const displayName =
-    user?.loungeTitle ||
-    (user?.firstName || user?.lastName
-      ? `${user?.firstName ?? ""} ${user?.lastName ?? ""}`.trim()
-      : user?.email)
+  const displayName = user?.loungeTitle || user?.firstName || user?.email
 
   return (
-    <div className="space-y-2">
+    <div className="mb-6 space-y-2">
       <button
         onClick={() => setIsAccountInfoOpen(!isAccountInfoOpen)}
         className="border-border hover:bg-card/50 w-full rounded-lg border p-4 text-left transition-colors"
@@ -65,9 +61,8 @@ export function AccountInformation({
                   <h3 className="mt-1 text-lg font-semibold">
                     {user?.type === "lounge"
                       ? user?.loungeTitle || displayName
-                      : user?.firstName || user?.lastName
-                        ? `${user?.firstName ?? ""} ${user?.lastName ?? ""}`.trim()
-                        : displayName}
+                      : `${user?.firstName || ""} ${user?.lastName || ""}`.trim() ||
+                        displayName}
                   </h3>
                   {user?.type && (
                     <p className="text-muted-foreground mt-1 text-sm">
@@ -87,7 +82,10 @@ export function AccountInformation({
                             <button
                               onClick={() => {
                                 const mapsUrl = `https://www.google.com/maps?q=${user.location?.latitude},${user.location?.longitude}`
-                                window.open(mapsUrl, "_blank")
+                                const newWindow = window.open(mapsUrl, "_blank")
+                                if (!newWindow) {
+                                  window.location.href = mapsUrl
+                                }
                               }}
                               className="text-primary hover:text-primary/80 mt-1 text-sm transition-colors"
                             >

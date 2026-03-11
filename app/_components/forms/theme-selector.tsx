@@ -5,6 +5,7 @@ import { useTheme } from "next-themes"
 import { useLayoutEffect, useState } from "react"
 import { themes } from "../../_constants/themes"
 import { authService } from "../../_services/auth.service"
+import { isAuthError } from "../../_services/api"
 import { useAuth } from "../../_providers/auth"
 import { toast } from "sonner"
 
@@ -32,6 +33,7 @@ export function ThemeSelector() {
         toast.success("Theme updated successfully")
       }
     } catch (error) {
+      if (isAuthError(error)) return
       console.error("Failed to update theme:", error)
       toast.error("Failed to save theme preference")
       // Revert to previous theme on error

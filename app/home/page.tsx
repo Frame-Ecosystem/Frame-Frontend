@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation"
 import { useAuth } from "../_providers/auth"
 import { ErrorBoundary } from "../_components/common/errorBoundary"
 import { PostFeed } from "../_components/posts/post-feed"
+import { HomeIcon } from "lucide-react"
 
 const Home = () => {
   const { user, isLoading } = useAuth()
@@ -50,15 +51,14 @@ const Home = () => {
         {/* MAIN CONTENT CONTAINER */}
         <div className="mx-auto max-w-7xl lg:pt-0">
           <div className="p-5 lg:px-8 lg:py-12">
-            {/* HEADER */}
-            <div className="mb-8 text-center">
-              <h1 className="mb-2 text-3xl font-bold lg:text-4xl">
-                Welcome to Lookisi Community
-              </h1>
-              <p className="text-muted-foreground text-lg">
-                {user ? `Hello ${user.firstName || user.email}! ` : ""}
-                Share your thoughts, connect with others, and discover amazing
-                content
+            {/* Page Header */}
+            <div className="mb-8 lg:mb-12">
+              <div className="mt-6 mb-4 flex items-center gap-3">
+                <HomeIcon className="text-primary h-8 w-8 lg:h-10 lg:w-10" />
+                <h1 className="text-3xl font-bold lg:text-4xl">Home</h1>
+              </div>
+              <p className="text-muted-foreground lg:text-lg">
+                Connect with the community and share your thoughts
               </p>
             </div>
 

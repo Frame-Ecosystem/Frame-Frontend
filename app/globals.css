@@ -1,4 +1,4 @@
-@import 'tailwindcss';
+@import "tailwindcss";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -56,8 +56,8 @@
   --emerald-primary: hsl(140 65% 55%);
   --emerald-primary-foreground: hsl(0 0% 100%);
   /* Header offsets used by sticky tab navs */
-  --header-offset: 73px;       /* mobile / small screens - increased to sit below top bars */
-  --header-offset-lg: 96px;   /* desktop / large screens - increased to sit below desktop nav */
+  --header-offset: 73px; /* mobile / small screens - increased to sit below top bars */
+  --header-offset-lg: 96px; /* desktop / large screens - increased to sit below desktop nav */
 }
 
 @layer base {
@@ -78,48 +78,48 @@
   :root,
   .monochrome-light {
     /* Base Colors - Page background and text */
-    --background: 0 0% 100%;        /* Pure white background */
-    --foreground: 225 9% 9%;        /* Dark gray text for contrast */
+    --background: 0 0% 100%; /* Pure white background */
+    --foreground: 225 9% 9%; /* Dark gray text for contrast */
 
     /* Component Colors - Cards, dialogs, popovers */
-    --card: 0 0% 100%;              /* White card backgrounds */
-    --card-foreground: 225 9% 9%;   /* Dark text on cards */
+    --card: 0 0% 100%; /* White card backgrounds */
+    --card-foreground: 225 9% 9%; /* Dark text on cards */
 
-    --popover: 0 0% 100%;           /* White popover backgrounds */
+    --popover: 0 0% 100%; /* White popover backgrounds */
     --popover-foreground: 225 9% 9%; /* Dark text in popovers */
 
     /* Brand Colors - Primary theme colors */
-    --primary: 0 0% 9%;             /* Black primary color for monochrome design */
+    --primary: 0 0% 9%; /* Black primary color for monochrome design */
     --primary-foreground: 0 0% 100%; /* White text on primary elements */
 
     /* Secondary Colors - Supporting elements */
-    --secondary: 0 0% 96%;          /* Very light gray for secondary elements */
+    --secondary: 0 0% 96%; /* Very light gray for secondary elements */
     --secondary-foreground: 0 0% 9%; /* Black text on secondary elements */
 
     /* Neutral Colors - Subtle backgrounds and muted text */
-    --muted: 0 0% 96%;              /* Very light gray background */
-    --muted-foreground: 0 0% 45%;   /* Medium gray text for muted content */
+    --muted: 0 0% 96%; /* Very light gray background */
+    --muted-foreground: 0 0% 45%; /* Medium gray text for muted content */
 
     /* Accent Colors - Highlights and focus states */
-    --accent: 0 0% 96%;             /* Light gray for accents */
-    --accent-foreground: 0 0% 9%;   /* Black text on accents */
+    --accent: 0 0% 96%; /* Light gray for accents */
+    --accent-foreground: 0 0% 9%; /* Black text on accents */
 
     /* Status Colors - Errors, warnings, success */
-    --destructive: 0 84% 60%;       /* Red for errors/danger (H:0° = red) */
+    --destructive: 0 84% 60%; /* Red for errors/danger (H:0° = red) */
     --destructive-foreground: 0 0% 100%; /* White text on destructive elements */
 
     /* Form Elements - Borders, inputs, focus rings */
-    --border: 0 0% 90%;             /* Light gray borders */
-    --input: 0 0% 100%;             /* White input backgrounds */
-    --ring: 0 0% 45%;               /* Medium gray focus rings */
+    --border: 0 0% 90%; /* Light gray borders */
+    --input: 0 0% 100%; /* White input backgrounds */
+    --ring: 0 0% 45%; /* Medium gray focus rings */
 
     /* Additional Utility Colors - For specific UI elements */
-    --gray-400: 215 14% 34%;        /* Medium gray for secondary text */
-    --gray-500: 215 14% 46%;        /* Medium-dark gray for descriptions */
-    --green-500: 142 76% 36%;       /* Success green for status indicators */
+    --gray-400: 215 14% 34%; /* Medium gray for secondary text */
+    --gray-500: 215 14% 46%; /* Medium-dark gray for descriptions */
+    --green-500: 142 76% 36%; /* Success green for status indicators */
 
     /* Border Radius - Component corner rounding */
-    --radius: 0.5rem;               /* 8px border radius for components */
+    --radius: 0.5rem; /* 8px border radius for components */
   }
 
   /* =============================================================================
@@ -129,48 +129,48 @@
   .dark,
   .monochrome-dark {
     /* Base Colors - Dark theme backgrounds and text */
-    --background: 225 9% 9%;        /* Very dark blue-gray background */
-    --foreground: 210 40% 98%;      /* Light gray text for contrast */
+    --background: 225 9% 9%; /* Very dark blue-gray background */
+    --foreground: 210 40% 98%; /* Light gray text for contrast */
 
     /* Component Colors - Dark cards and popovers */
-    --card: 228 9% 11%;             /* Slightly lighter dark background for cards */
+    --card: 228 9% 11%; /* Slightly lighter dark background for cards */
     --card-foreground: 210 40% 98%; /* Light text on dark cards */
 
-    --popover: 0 0% 14%;            /* Dark gray background for popovers */
+    --popover: 0 0% 14%; /* Dark gray background for popovers */
     --popover-foreground: 0 0% 98%; /* Light gray text in popovers */
 
     /* Brand Colors - Same primary colors in dark mode */
-    --primary: 0 0% 70%;            /* Clear gray primary for dark mode contrast */
-    --primary-foreground: 0 0% 9%;  /* Black text on primary elements */
+    --primary: 0 0% 70%; /* Clear gray primary for dark mode contrast */
+    --primary-foreground: 0 0% 9%; /* Black text on primary elements */
 
     /* Secondary Colors - Adjusted for dark backgrounds */
-    --secondary: 0 0% 15%;          /* Dark gray for secondary elements */
+    --secondary: 0 0% 15%; /* Dark gray for secondary elements */
     --secondary-foreground: 0 0% 98%; /* Light gray text on secondary */
 
     /* Neutral Colors - Dark theme muted elements */
-    --muted: 0 0% 15%;              /* Dark gray muted backgrounds */
-    --muted-foreground: 0 0% 64%;   /* Medium gray text */
+    --muted: 0 0% 15%; /* Dark gray muted backgrounds */
+    --muted-foreground: 0 0% 64%; /* Medium gray text */
 
     /* Accent Colors - Dark theme highlights */
-    --accent: 0 0% 15%;             /* Dark gray accents */
-    --accent-foreground: 0 0% 98%;  /* Light gray text on accents */
+    --accent: 0 0% 15%; /* Dark gray accents */
+    --accent-foreground: 0 0% 98%; /* Light gray text on accents */
 
     /* Status Colors - Same destructive colors */
-    --destructive: 0 84% 60%;       /* Same red for errors (consistent) */
+    --destructive: 0 84% 60%; /* Same red for errors (consistent) */
     --destructive-foreground: 0 0% 98%; /* Light gray text on destructive */
 
     /* Form Elements - Dark theme borders and inputs */
-    --border: 0 0% 20%;             /* Dark gray borders */
-    --input: 0 0% 15%;              /* Dark gray input backgrounds */
-    --ring: 0 0% 70%;               /* Light gray focus rings for dark mode */
+    --border: 0 0% 20%; /* Dark gray borders */
+    --input: 0 0% 15%; /* Dark gray input backgrounds */
+    --ring: 0 0% 70%; /* Light gray focus rings for dark mode */
 
     /* Additional Utility Colors - Dark mode variants */
-    --gray-400: 215 14% 65%;        /* Light gray for secondary text in dark mode */
-    --gray-500: 215 14% 55%;        /* Medium gray for descriptions in dark mode */
-    --green-500: 142 76% 65%;       /* Bright success green for dark mode */
+    --gray-400: 215 14% 65%; /* Light gray for secondary text in dark mode */
+    --gray-500: 215 14% 55%; /* Medium gray for descriptions in dark mode */
+    --green-500: 142 76% 65%; /* Bright success green for dark mode */
 
     /* Border Radius - Same as light mode */
-    --radius: 0.5rem;               /* Consistent 8px border radius */
+    --radius: 0.5rem; /* Consistent 8px border radius */
   }
 
   /* =============================================================================
@@ -348,7 +348,6 @@
   }
 }
 
-
 /* =============================================================================
    GLOBAL BASE STYLES
    Applied to all elements using Tailwind's @layer base
@@ -370,14 +369,14 @@
      GLOBAL ELEMENT STYLES
      ============================================================================= */
   * {
-    @apply border-border antialiased;  /* Apply theme border color and smooth fonts */
+    @apply border-border antialiased; /* Apply theme border color and smooth fonts */
   }
 
   html {
-    @apply h-full;  /* Full height for proper layout */
+    @apply h-full; /* Full height for proper layout */
   }
 
   body {
-    @apply h-full bg-background text-foreground;  /* Theme-aware background and text colors */
+    @apply bg-background text-foreground h-full; /* Theme-aware background and text colors */
   }
 }

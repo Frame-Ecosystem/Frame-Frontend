@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { useAgent } from "../../_providers/agent"
+import { isAuthError } from "../../_services/api"
 import { Agent } from "../../_types"
 import { Button } from "../ui/button"
 import { Input } from "../ui/input"
@@ -124,7 +125,7 @@ export function AgentList({
     if (!agentToDelete) return
 
     // Validate that the agent has a valid ID
-    const agentId = agentToDelete._id || agentToDelete.id
+    const agentId = agentToDelete._id
     if (!agentId) {
       console.error("Agent has no valid ID")
       alert("Cannot delete agent: Invalid agent data")
@@ -138,6 +139,7 @@ export function AgentList({
       // Refresh the list after successful deletion
       fetchAgents(pagination.page, pagination.limit)
     } catch (error: any) {
+      if (isAuthError(error)) return
       console.error("Delete failed:", error)
       console.error("Error code:", error.code)
       console.error("Error message:", error.message)
@@ -314,17 +316,38 @@ export function AgentList({
             </TableHeader>
             <TableBody>
               {loading ? (
-                <TableRow key="loading">
-                  <TableCell
-                    colSpan={isAdmin ? 6 : 5}
-                    className="py-8 text-center"
-                  >
-                    <div className="flex items-center justify-center">
-                      <div className="border-primary h-6 w-6 animate-spin rounded-full border-b-2"></div>
-                      <span className="ml-2">Loading agents...</span>
-                    </div>
-                  </TableCell>
-                </TableRow>
+                // Skeleton loading rows
+                [...Array(5)].map((_, index) => (
+                  <TableRow key={`skeleton-${index}`}>
+                    {isAdmin && (
+                      <TableCell>
+                        <div className="bg-muted-foreground/10 h-4 w-4 animate-pulse rounded"></div>
+                      </TableCell>
+                    )}
+                    <TableCell>
+                      <div className="flex items-center gap-3">
+                        <div className="bg-muted-foreground/10 h-8 w-8 animate-pulse rounded-full"></div>
+                        <div>
+                          <div className="bg-muted-foreground/10 mb-1 h-4 w-32 animate-pulse rounded"></div>
+                        </div>
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <div className="bg-muted-foreground/10 h-6 w-16 animate-pulse rounded-full"></div>
+                    </TableCell>
+                    <TableCell>
+                      <div className="bg-muted-foreground/10 h-4 w-20 animate-pulse rounded"></div>
+                    </TableCell>
+                    {isAdmin && (
+                      <TableCell>
+                        <div className="bg-muted-foreground/10 h-4 w-24 animate-pulse rounded"></div>
+                      </TableCell>
+                    )}
+                    <TableCell>
+                      <div className="bg-muted-foreground/10 h-8 w-8 animate-pulse rounded"></div>
+                    </TableCell>
+                  </TableRow>
+                ))
               ) : agents.length === 0 ? (
                 <TableRow key="empty">
                   <TableCell
@@ -344,7 +367,7 @@ export function AgentList({
                 </TableRow>
               ) : (
                 agents.map((agent, index) => (
-                  <TableRow key={agent._id || agent.id || `agent-${index}`}>
+                  <TableRow key={agent._id || `agent-${index}`}>
                     {isAdmin && (
                       <TableCell>
                         <Checkbox

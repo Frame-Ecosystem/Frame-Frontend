@@ -1,7 +1,7 @@
 "use client"
 
 import { Booking } from "../../_types"
-import { Avatar, AvatarImage } from "../ui/avatar"
+import { Avatar, AvatarImage, AvatarFallback } from "../ui/avatar"
 import { Badge } from "../ui/badge"
 import { Card, CardContent } from "../ui/card"
 import { format, isFuture } from "date-fns"
@@ -30,6 +30,7 @@ import {
 import { DialogClose } from "@radix-ui/react-dialog"
 import { toast } from "sonner"
 import { useState } from "react"
+import { Building } from "lucide-react"
 import BookingSummary from "./booking-summary"
 
 interface BookingItemProps {
@@ -41,8 +42,28 @@ const BookingItem = ({ booking }: BookingItemProps) => {
   const [isSheetOpen, setIsSheetOpen] = useState(false)
 
   // ===== DERIVED DATA =====
-  // Extract nested service and center safely
-  const service = booking.service
+  // Handle both old and new booking structures
+  const service =
+    booking.service ||
+    (booking.loungeService && booking.loungeService.length > 0
+      ? {
+          name:
+            typeof booking.loungeService[0].serviceId === "object"
+              ? booking.loungeService[0].serviceId.name
+              : booking.loungeService[0].serviceId,
+          price: booking.loungeService[0].price,
+          center: {
+            id: booking.loungeId || "",
+            name:
+              (typeof booking.lounge === "object"
+                ? booking.lounge.loungeTitle
+                : undefined) || "Lounge Service",
+            address: "",
+            imageUrl: "/images/placeholder.png",
+            phones: [],
+          },
+        }
+      : undefined)
   const center = service?.center ?? {
     id: "",
     name: "Unknown",
@@ -52,7 +73,10 @@ const BookingItem = ({ booking }: BookingItemProps) => {
   }
 
   // Determine if booking is in the future (confirmed) or past (completed)
-  const isConfirmed = isFuture(booking.date)
+  const bookingDate =
+    booking.date ||
+    (booking.bookingDate ? new Date(booking.bookingDate) : new Date())
+  const isConfirmed = isFuture(bookingDate)
 
   // ===== EVENT HANDLERS =====
   const handleCancelBooking = async () => {
@@ -82,7 +106,7 @@ const BookingItem = ({ booking }: BookingItemProps) => {
       {/* Clickable card that opens the booking details sheet */}
       <SheetTrigger className="w-full min-w-[90%]">
         <Card
-          id={booking.id}
+          id={booking._id}
           className="hover:bg-card/20 min-w-[90%] transition-shadow hover:scale-[1.03] hover:cursor-pointer hover:shadow-md"
         >
           <CardContent className="flex justify-between p-0">
@@ -99,6 +123,9 @@ const BookingItem = ({ booking }: BookingItemProps) => {
               <div className="flex items-center gap-2">
                 <Avatar className="h-6 w-6">
                   <AvatarImage src={center.imageUrl} />
+                  <AvatarFallback>
+                    <Building className="h-4 w-4" />
+                  </AvatarFallback>
                 </Avatar>
                 <p className="text-sm">{center.name}</p>
               </div>
@@ -107,13 +134,13 @@ const BookingItem = ({ booking }: BookingItemProps) => {
             {/* RIGHT SECTION: Date and time display */}
             <div className="flex flex-col items-center justify-center border-l-2 border-solid px-5">
               <p className="text-sm capitalize">
-                {format(booking.date, "MMMM", { locale: enUS })}
+                {format(bookingDate, "MMMM", { locale: enUS })}
               </p>
               <p className="text-2xl">
-                {format(booking.date, "dd", { locale: enUS })}
+                {format(bookingDate, "dd", { locale: enUS })}
               </p>
               <p className="text-sm">
-                {format(booking.date, "HH:mm", { locale: enUS })}
+                {format(bookingDate, "HH:mm", { locale: enUS })}
               </p>
             </div>
           </CardContent>
@@ -142,6 +169,9 @@ const BookingItem = ({ booking }: BookingItemProps) => {
             <CardContent className="flex items-center gap-3 px-5 py-3">
               <Avatar>
                 <AvatarImage src={center.imageUrl} />
+                <AvatarFallback>
+                  <Building className="h-4 w-4" />
+                </AvatarFallback>
               </Avatar>
               <div>
                 <h3 className="font-bold">{center.name}</h3>
@@ -165,7 +195,7 @@ const BookingItem = ({ booking }: BookingItemProps) => {
             <BookingSummary
               center={center}
               service={service ?? { name: "Service", price: 0 }}
-              selectedDate={booking.date}
+              selectedDate={bookingDate}
             />
           </div>
 

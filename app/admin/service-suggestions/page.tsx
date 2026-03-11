@@ -15,6 +15,7 @@ import { ArrowLeft, CheckCircle, XCircle } from "lucide-react"
 import { toast } from "sonner"
 import { loungeService, serviceCategoryService } from "../../_services"
 import { serviceSuggestionsService } from "../../_services"
+import { isAuthError } from "../../_services/api"
 import {
   Dialog,
   DialogContent,
@@ -68,6 +69,7 @@ export default function AdminServiceSuggestionsPage() {
       const { suggestions } = await loungeService.getServiceSuggestions()
       setSuggestions(suggestions)
     } catch (err) {
+      if (isAuthError(err)) return
       console.error("Failed to load suggestions", err)
       toast.error("Failed to load suggestions")
       setSuggestions([])
@@ -81,6 +83,7 @@ export default function AdminServiceSuggestionsPage() {
       const data = await serviceCategoryService.getAll()
       setCategories(Array.isArray(data) ? data : [])
     } catch (err) {
+      if (isAuthError(err)) return
       console.error("Failed to load categories:", err)
       setCategories([])
     }
@@ -114,6 +117,7 @@ export default function AdminServiceSuggestionsPage() {
       toast.success("Suggestion rejected successfully")
       loadSuggestions() // Refresh the list
     } catch (err) {
+      if (isAuthError(err)) return
       console.error("Failed to reject suggestion", err)
       toast.error("Failed to reject suggestion")
     }
@@ -155,6 +159,7 @@ export default function AdminServiceSuggestionsPage() {
       setApproveDialog({ open: false, suggestion: null })
       loadSuggestions() // Refresh the list
     } catch (err) {
+      if (isAuthError(err)) return
       console.error("Failed to approve suggestion", err)
       toast.error("Failed to approve suggestion")
     }
@@ -225,7 +230,7 @@ export default function AdminServiceSuggestionsPage() {
                       <td className="p-4">{s.description || "-"}</td>
                       <td className="p-4">{s.category || "-"}</td>
                       <td className="p-4">
-                        {s.estimatedPrice ? `${s.estimatedPrice} dinar` : "-"}
+                        {s.estimatedPrice ? `${s.estimatedPrice} dt` : "-"}
                       </td>
                       <td className="p-4">
                         {s.estimatedDuration
@@ -329,7 +334,7 @@ export default function AdminServiceSuggestionsPage() {
             </div>
 
             <div>
-              <Label htmlFor="price">Price (dinar)</Label>
+              <Label htmlFor="price">Price (dt)</Label>
               <Input
                 id="price"
                 type="number"
@@ -406,7 +411,11 @@ export default function AdminServiceSuggestionsPage() {
             </div>
 
             <div className="flex gap-2 pt-4">
-              <Button type="submit" className="flex-1">
+              <Button
+                type="submit"
+                variant="outline"
+                className="flex-1 border-green-500 text-green-600 hover:bg-green-50 hover:text-green-700"
+              >
                 Approve & Create Service
               </Button>
               <Button
@@ -415,6 +424,7 @@ export default function AdminServiceSuggestionsPage() {
                 onClick={() =>
                   setApproveDialog({ open: false, suggestion: null })
                 }
+                className="border-red-500 text-red-600 hover:bg-red-50 hover:text-red-700"
               >
                 Cancel
               </Button>

@@ -21,8 +21,8 @@ const BookingSummary = ({
         <div className="flex items-center justify-between">
           <h2 className="font-bold">{service.name}</h2>
           <p className="text-sm font-bold">
-            {/* Format price in dinar */}
-            {service.price} dinar
+            {/* Format price in dt */}
+            {service.price} dt
           </p>
         </div>
 

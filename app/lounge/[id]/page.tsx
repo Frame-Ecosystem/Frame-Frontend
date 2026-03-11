@@ -27,6 +27,7 @@ import { useAuth } from "@/app/_providers/auth"
 import { useEffect, useState } from "react"
 import { useParams, useRouter } from "next/navigation"
 import { clientService } from "@/app/_services"
+import { isAuthError } from "@/app/_services/api"
 
 export default function LoungePage() {
   const params = useParams()
@@ -73,8 +74,8 @@ export default function LoungePage() {
             description: service.serviceId?.description || "",
             imageUrl:
               service.image ||
-              service.serviceId?.imageUrl ||
-              "/images/placeholder.png",
+              service.serviceId?.image ||
+              "/images/placeholder.svg",
             price: service.price || 0,
             durationMinutes: service.duration || 0,
             centerId: service.loungeId,
@@ -101,7 +102,7 @@ export default function LoungePage() {
             loungeData.location?.placeName ||
             loungeData.location?.address ||
             "No location available",
-          imageUrl: loungeData.profileImage?.url || "/images/placeholder.png",
+          imageUrl: loungeData.profileImage?.url || "/images/placeholder.svg",
           description: loungeData.bio || "No description available",
           phones: loungeData.phoneNumber ? [loungeData.phoneNumber] : [],
           services: transformedServices,
@@ -113,6 +114,7 @@ export default function LoungePage() {
 
         setCenter(transformedCenter)
       } catch (err: any) {
+        if (isAuthError(err)) return
         console.error("Error fetching lounge:", err)
         setError(err?.message || "Failed to load lounge details")
       } finally {
@@ -130,10 +132,76 @@ export default function LoungePage() {
     return (
       <div className="from-background via-background to-muted/20 min-h-screen bg-linear-to-br">
         <div className="mx-auto max-w-7xl p-5 lg:px-8 lg:py-12">
-          <div className="flex min-h-[400px] items-center justify-center">
-            <div className="text-center">
-              <div className="border-primary mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-b-2"></div>
-              <p className="text-muted-foreground">Loading lounge details...</p>
+          <div className="space-y-6">
+            {/* Header Skeleton */}
+            <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+              <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:gap-6">
+                <div className="bg-muted-foreground/10 aspect-square w-full max-w-32 animate-pulse rounded-lg sm:max-w-40"></div>
+                <div className="flex-1 space-y-3">
+                  <div className="bg-muted-foreground/10 h-8 w-3/4 animate-pulse rounded"></div>
+                  <div className="bg-muted-foreground/10 h-4 w-1/2 animate-pulse rounded"></div>
+                  <div className="flex gap-2">
+                    <div className="bg-muted-foreground/10 h-6 w-16 animate-pulse rounded-full"></div>
+                    <div className="bg-muted-foreground/10 h-6 w-20 animate-pulse rounded-full"></div>
+                  </div>
+                  <div className="bg-muted-foreground/10 h-4 w-2/3 animate-pulse rounded"></div>
+                </div>
+              </div>
+              <div className="flex gap-2">
+                <div className="bg-muted-foreground/10 h-10 w-24 animate-pulse rounded"></div>
+                <div className="bg-muted-foreground/10 h-10 w-20 animate-pulse rounded"></div>
+              </div>
+            </div>
+
+            {/* Tabs Skeleton */}
+            <div className="flex gap-2 border-b">
+              {[...Array(4)].map((_, i) => (
+                <div
+                  key={i}
+                  className="bg-muted-foreground/10 h-10 w-20 animate-pulse rounded"
+                ></div>
+              ))}
+            </div>
+
+            {/* Content Skeleton */}
+            <div className="grid gap-6 lg:grid-cols-3">
+              {/* Main Content */}
+              <div className="space-y-6 lg:col-span-2">
+                {/* Info Tab Content Skeleton */}
+                <div className="space-y-4">
+                  <div className="bg-muted-foreground/10 h-6 w-32 animate-pulse rounded"></div>
+                  <div className="space-y-2">
+                    <div className="bg-muted-foreground/10 h-4 w-full animate-pulse rounded"></div>
+                    <div className="bg-muted-foreground/10 h-4 w-4/5 animate-pulse rounded"></div>
+                    <div className="bg-muted-foreground/10 h-4 w-3/4 animate-pulse rounded"></div>
+                  </div>
+                </div>
+
+                {/* Services Skeleton */}
+                <div className="space-y-4">
+                  <div className="bg-muted-foreground/10 h-6 w-28 animate-pulse rounded"></div>
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    {[...Array(4)].map((_, i) => (
+                      <div
+                        key={i}
+                        className="bg-muted-foreground/10 h-24 w-full animate-pulse rounded-lg"
+                      ></div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              {/* Sidebar */}
+              <div className="space-y-6">
+                {/* Contact Info Skeleton */}
+                <div className="bg-muted-foreground/10 h-32 w-full animate-pulse rounded-lg"></div>
+
+                {/* Opening Hours Skeleton */}
+                <div className="bg-muted-foreground/10 h-40 w-full animate-pulse rounded-lg"></div>
+
+                {/* Location Skeleton */}
+                <div className="bg-muted-foreground/10 h-24 w-full animate-pulse rounded-lg"></div>
+              </div>
             </div>
           </div>
         </div>
@@ -259,7 +327,7 @@ export default function LoungePage() {
               fill
               sizes="100vw"
               className="object-cover"
-              src={center.imageUrl || "/images/placeholder.png"}
+              src={center.imageUrl || "/images/placeholder.svg"}
               priority
             />
 

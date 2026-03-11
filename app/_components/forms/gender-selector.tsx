@@ -3,6 +3,7 @@
 import { Check, Users, ChevronDown } from "lucide-react"
 import { useState } from "react"
 import { useAuth } from "../../_providers/auth"
+import { isAuthError } from "../../_services/api"
 import { toast } from "sonner"
 import {
   clientGenderOptions,
@@ -38,6 +39,7 @@ export function GenderSelector() {
       toast.success("Gender preference updated successfully")
       setIsOpen(false)
     } catch (error) {
+      if (isAuthError(error)) return
       console.error("Failed to update gender preference:", error)
       toast.error("Failed to update gender preference")
     }

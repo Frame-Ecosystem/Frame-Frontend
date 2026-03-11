@@ -20,13 +20,13 @@ export async function GET(
         100,
       ) // Get up to 100 agents
       loungeAgents = agentsResponse.data.map((agent) => ({
-        _id: agent._id || agent.id || "",
+        _id: agent._id || "",
         agentName: agent.agentName,
         loungeId:
           typeof agent.loungeId === "string"
             ? agent.loungeId
             : agent.loungeId._id,
-        profileImage: agent.profileImage || "/images/placeholder.png",
+        profileImage: agent.profileImage || "/images/placeholder.svg",
         isBlocked: agent.isBlocked,
         createdAt: agent.createdAt,
         updatedAt: agent.updatedAt,

@@ -25,8 +25,30 @@ import { Badge } from "../../_components/ui/badge"
 import { Plus, Edit, Trash2, ArrowLeft } from "lucide-react"
 import { toast } from "sonner"
 import { loungeService, serviceService } from "../../_services"
+import { isAuthError } from "../../_services/api"
 import SuggestService from "../../_components/services/SuggestService"
 import type { Service, LoungeServiceItem } from "../../_types"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "../../_components/ui/alert-dialog"
+
+// Helper function to get image URL from different formats
+const getImageUrl = (
+  image: string | { url: string; publicId: string } | undefined,
+): string | null => {
+  if (!image) return null
+  if (typeof image === "string") return image
+  if (typeof image === "object" && image.url) return image.url
+  return null
+}
 
 export default function LoungeServiceManagementPage() {
   const { user, isLoading } = useAuth()
@@ -47,8 +69,9 @@ export default function LoungeServiceManagementPage() {
     baseDuration: "",
     gender: "unisex",
     status: "active",
-    image: "",
+    image: undefined as string | undefined,
     imageFile: null as File | null,
+    cancelledBy: "",
   })
 
   useEffect(() => {
@@ -67,6 +90,7 @@ export default function LoungeServiceManagementPage() {
       const data = await serviceService.getAll()
       setGlobalServices(Array.isArray(data) ? data : [])
     } catch (error) {
+      if (isAuthError(error)) return
       console.error("Failed to load global services:", error)
       setGlobalServices([])
     }
@@ -99,6 +123,7 @@ export default function LoungeServiceManagementPage() {
       }
       setServiceNames(names)
     } catch (error) {
+      if (isAuthError(error)) return
       console.error("Failed to load lounge services:", error)
       setServices([])
     } finally {
@@ -205,9 +230,9 @@ export default function LoungeServiceManagementPage() {
       return
     }
     if (price > 1000000) {
-      // 1 million dinar max
-      setError("Price cannot exceed 1,000,000 dinar")
-      toast.error("Price cannot exceed 1,000,000 dinar")
+      // 1 million dt max
+      setError("Price cannot exceed 1,000,000 dt")
+      toast.error("Price cannot exceed 1,000,000 dt")
       return
     }
     // Check for reasonable decimal places (max 2)
@@ -282,15 +307,22 @@ export default function LoungeServiceManagementPage() {
     }
 
     // Status validation
-    if (!["active", "inactive"].includes(formData.status)) {
+    if (!["active", "inactive", "cancelled"].includes(formData.status)) {
       setError("Invalid status selected")
       toast.error("Invalid status selected")
       return
     }
 
+    // CancelledBy validation if status is cancelled
+    if (formData.status === "cancelled" && !formData.cancelledBy.trim()) {
+      setError("Cancelled By is required when status is cancelled")
+      toast.error("Cancelled By is required when status is cancelled")
+      return
+    }
+
     try {
       if (editingService) {
-        const serviceData = {
+        const serviceData: any = {
           price: formData.price ? parseFloat(formData.price) : undefined,
           duration: formData.baseDuration
             ? parseInt(formData.baseDuration)
@@ -298,22 +330,43 @@ export default function LoungeServiceManagementPage() {
           gender: (formData.gender as any) || undefined,
           description: trimmedDescription || undefined,
           isActive: formData.status === "active",
-          image: formData.image || undefined,
+          status: formData.status || undefined,
+          cancelledBy: formData.cancelledBy || undefined,
         }
+
+        // Only include image if user selected a new one (data URL)
+        if (
+          formData.image &&
+          typeof formData.image === "string" &&
+          formData.image.startsWith("data:image/")
+        ) {
+          serviceData.image = formData.image
+        }
+
         await loungeService.update((editingService as any)._id, serviceData)
         toast.success("Service updated successfully")
       } else {
-        const payload = {
-          loungeId: (user as any)?._id || user?.id || "",
+        const payload: any = {
+          loungeId: user?._id || "",
           serviceId: formData.selectedServiceId,
           price: formData.price ? parseFloat(formData.price) : undefined,
           duration: formData.baseDuration
             ? parseInt(formData.baseDuration)
             : undefined,
-          description: trimmedDescription || undefined,
           gender: (formData.gender as any) || undefined,
+          description: trimmedDescription || undefined,
           isActive: formData.status === "active",
-          image: formData.image || undefined,
+          status: formData.status || undefined,
+          cancelledBy: formData.cancelledBy || undefined,
+        }
+
+        // Only include image if user selected one (data URL)
+        if (
+          formData.image &&
+          typeof formData.image === "string" &&
+          formData.image.startsWith("data:image/")
+        ) {
+          payload.image = formData.image
         }
 
         await loungeService.createLoungeService(payload)
@@ -324,6 +377,7 @@ export default function LoungeServiceManagementPage() {
       resetForm()
       loadServices()
     } catch (error) {
+      if (isAuthError(error)) return
       console.error("Failed to save lounge service:", error)
       if (error instanceof Error) {
         setError(error.message)
@@ -348,9 +402,10 @@ export default function LoungeServiceManagementPage() {
       description: service.description || "",
       baseDuration: service.duration?.toString() || "",
       gender: (service as any).gender || "",
-      status: service.isActive ? "active" : "inactive",
-      image: service.image || "",
+      status: (service as any).status || "active",
+      image: undefined, // Don't pre-populate - only send when user selects new image
       imageFile: null,
+      cancelledBy: (service as any).cancelledBy || "",
     })
     setError(null)
     setDialogOpen(true)
@@ -361,13 +416,13 @@ export default function LoungeServiceManagementPage() {
       toast.error("Cannot delete service: Invalid ID")
       return
     }
-    if (!confirm("Are you sure you want to delete this service?")) return
 
     try {
       await loungeService.delete(id)
       loadServices()
       toast.success("Service deleted successfully")
     } catch (error) {
+      if (isAuthError(error)) return
       console.error("Failed to delete lounge service:", error)
       if (error instanceof Error) {
         toast.error(error.message)
@@ -386,8 +441,9 @@ export default function LoungeServiceManagementPage() {
       baseDuration: "",
       gender: "unisex",
       status: "active",
-      image: "",
+      image: undefined,
       imageFile: null,
+      cancelledBy: "",
     })
     setEditingService(null)
   }
@@ -416,7 +472,7 @@ export default function LoungeServiceManagementPage() {
   }
 
   return (
-    <div className="from-background via-background to-muted/20 min-h-screen bg-gradient-to-br">
+    <div className="from-background via-background to-muted/20 mb-24 min-h-screen bg-gradient-to-br">
       <div className="mx-auto max-w-7xl p-5 lg:px-8 lg:py-12">
         <div className="mb-8">
           <Button
@@ -445,7 +501,7 @@ export default function LoungeServiceManagementPage() {
                   Add Service
                 </Button>
               </DialogTrigger>
-              <DialogContent>
+              <DialogContent className="max-h-[100vh] overflow-y-auto py-16 md:max-h-[80vh]">
                 <DialogHeader>
                   <DialogTitle>
                     {editingService ? "Edit Service" : "Add New Service"}
@@ -533,27 +589,30 @@ export default function LoungeServiceManagementPage() {
                         onChange={handleImageFileChange}
                         className="cursor-pointer"
                       />
-                      {formData.image && (
-                        <div className="flex items-center space-x-2">
-                          <Image
-                            src={formData.image}
-                            alt="Service preview"
-                            width={60}
-                            height={60}
-                            className="rounded object-cover"
-                          />
-                          <span className="text-muted-foreground text-sm">
-                            {formData.imageFile?.name || "Selected image"}
-                          </span>
-                        </div>
-                      )}
+                      {formData.image &&
+                        typeof formData.image === "string" &&
+                        formData.image.trim() !== "" &&
+                        formData.image.startsWith("data:image/") && (
+                          <div className="flex items-center space-x-2">
+                            <Image
+                              src={formData.image}
+                              alt="Service preview"
+                              width={60}
+                              height={60}
+                              className="rounded object-cover"
+                            />
+                            <span className="text-muted-foreground text-sm">
+                              {formData.imageFile?.name || "Selected image"}
+                            </span>
+                          </div>
+                        )}
                       <p className="text-muted-foreground text-xs">
                         Select an image file (max 5MB, JPG, PNG, GIF, WebP)
                       </p>
                     </div>
                   </div>
                   <div>
-                    <Label htmlFor="price">Price (dinar) *</Label>
+                    <Label htmlFor="price">Price (dt) *</Label>
                     <Input
                       id="price"
                       type="number"
@@ -621,17 +680,39 @@ export default function LoungeServiceManagementPage() {
                     >
                       <option value="active">Active</option>
                       <option value="inactive">Inactive</option>
+                      <option value="cancelled">Cancelled</option>
                     </select>
                   </div>
+                  {formData.status === "cancelled" && (
+                    <div>
+                      <Label htmlFor="cancelledBy">Cancelled By</Label>
+                      <Input
+                        id="cancelledBy"
+                        value={formData.cancelledBy}
+                        onChange={(e) =>
+                          setFormData((prev) => ({
+                            ...prev,
+                            cancelledBy: e.target.value,
+                          }))
+                        }
+                        placeholder="Who cancelled this service?"
+                      />
+                    </div>
+                  )}
                   <div className="flex justify-end space-x-2">
                     <Button
                       type="button"
                       variant="outline"
                       onClick={() => setDialogOpen(false)}
+                      className="border-red-500 text-red-600 hover:bg-red-50 hover:text-red-700"
                     >
                       Cancel
                     </Button>
-                    <Button type="submit">
+                    <Button
+                      type="submit"
+                      variant="outline"
+                      className="border-green-500 text-green-600 hover:bg-green-50 hover:text-green-700"
+                    >
                       {editingService ? "Update" : "Create"}
                     </Button>
                   </div>
@@ -653,8 +734,7 @@ export default function LoungeServiceManagementPage() {
               <table className="w-full border-collapse">
                 <thead>
                   <tr className="border-b">
-                    <th className="p-4 text-left font-medium">Image</th>
-                    <th className="p-4 text-left font-medium">Service Name</th>
+                    <th className="p-4 text-left font-medium">Service</th>
                     <th className="p-4 text-left font-medium">Description</th>
                     <th className="p-4 text-left font-medium">Price</th>
                     <th className="p-4 text-left font-medium">Duration</th>
@@ -676,27 +756,31 @@ export default function LoungeServiceManagementPage() {
                           className="hover:bg-muted/50 border-b"
                         >
                           <td className="p-4">
-                            {(service as any).image ? (
-                              <Image
-                                src={(service as any).image}
-                                alt={serviceName}
-                                width={40}
-                                height={40}
-                                className="h-10 w-10 rounded object-cover"
-                              />
-                            ) : (
-                              <div className="bg-muted flex h-10 w-10 items-center justify-center rounded">
-                                <span className="text-muted-foreground text-xs">
-                                  No image
-                                </span>
-                              </div>
-                            )}
+                            <div className="flex items-center gap-3">
+                              {getImageUrl((service as any).image) ? (
+                                <Image
+                                  src={getImageUrl((service as any).image)!}
+                                  alt={serviceName}
+                                  width={40}
+                                  height={40}
+                                  className="h-10 w-10 rounded object-cover"
+                                />
+                              ) : (
+                                <div className="bg-muted flex h-10 w-10 items-center justify-center rounded">
+                                  <span className="text-muted-foreground text-xs">
+                                    {serviceName.charAt(0).toUpperCase()}
+                                  </span>
+                                </div>
+                              )}
+                              <span className="text-center font-medium">
+                                {serviceName}
+                              </span>
+                            </div>
                           </td>
-                          <td className="p-4 font-medium">{serviceName}</td>
                           <td className="p-4">{service.description || "-"}</td>
                           <td className="p-4">
                             {(service as any).price
-                              ? `${(service as any).price} dinar`
+                              ? `${(service as any).price} dt`
                               : "-"}
                           </td>
                           <td className="p-4">
@@ -708,17 +792,30 @@ export default function LoungeServiceManagementPage() {
                             {(service as any).gender || "-"}
                           </td>
                           <td className="p-4">
-                            <Badge
-                              variant={
-                                (service as any).isActive
-                                  ? "default"
-                                  : "secondary"
-                              }
-                            >
-                              {(service as any).isActive
-                                ? "Active"
-                                : "Inactive"}
-                            </Badge>
+                            <div className="flex flex-col items-start space-y-1">
+                              <Badge
+                                variant={
+                                  (service as any).status === "active"
+                                    ? "default"
+                                    : (service as any).status === "cancelled"
+                                      ? "destructive"
+                                      : "secondary"
+                                }
+                              >
+                                {(service as any).status === "active"
+                                  ? "Active"
+                                  : (service as any).status === "cancelled"
+                                    ? "Cancelled"
+                                    : "Inactive"}
+                              </Badge>
+                              {(service as any).status === "cancelled" &&
+                                (service as any).cancelledBy && (
+                                  <div className="text-muted-foreground flex w-full items-center justify-between text-xs">
+                                    <span>Cancelled by:</span>
+                                    <span>{(service as any).cancelledBy}</span>
+                                  </div>
+                                )}
+                            </div>
                           </td>
                           <td className="p-4">
                             <div className="flex space-x-2">
@@ -729,15 +826,42 @@ export default function LoungeServiceManagementPage() {
                               >
                                 <Edit className="h-4 w-4" />
                               </Button>
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                onClick={() =>
-                                  handleDelete((service as any)._id)
-                                }
-                              >
-                                <Trash2 className="h-4 w-4" />
-                              </Button>
+                              <AlertDialog>
+                                <AlertDialogTrigger asChild>
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
+                                    className="border-red-500 text-red-600 hover:bg-red-50 hover:text-red-700"
+                                  >
+                                    <Trash2 className="h-4 w-4" />
+                                  </Button>
+                                </AlertDialogTrigger>
+                                <AlertDialogContent>
+                                  <AlertDialogHeader>
+                                    <AlertDialogTitle>
+                                      Delete Service
+                                    </AlertDialogTitle>
+                                    <AlertDialogDescription>
+                                      Are you sure you want to delete this
+                                      service? This action cannot be undone and
+                                      will remove the service from your lounge.
+                                    </AlertDialogDescription>
+                                  </AlertDialogHeader>
+                                  <AlertDialogFooter>
+                                    <AlertDialogCancel>
+                                      Cancel
+                                    </AlertDialogCancel>
+                                    <AlertDialogAction
+                                      onClick={() =>
+                                        handleDelete((service as any)._id)
+                                      }
+                                      className="bg-red-600 hover:bg-red-700"
+                                    >
+                                      Delete Service
+                                    </AlertDialogAction>
+                                  </AlertDialogFooter>
+                                </AlertDialogContent>
+                              </AlertDialog>
                             </div>
                           </td>
                         </tr>

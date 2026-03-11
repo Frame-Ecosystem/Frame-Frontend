@@ -16,6 +16,7 @@ import { Textarea } from "../ui/textarea"
 import { Badge } from "../ui/badge"
 import { toast } from "sonner"
 import { apiClient, serviceSuggestionsService } from "../../_services"
+import { isAuthError } from "../../_services/api"
 import { useAuth } from "../../_providers/auth"
 import type { ServiceSuggestion } from "../../_types"
 
@@ -41,11 +42,12 @@ export default function SuggestService() {
 
     setLoadingSuggestions(true)
     try {
-      const loungeId = user._id || user.id
+      const loungeId = user._id
       const suggestions =
         await serviceSuggestionsService.getMySuggestions(loungeId)
       setUserSuggestions(suggestions)
     } catch (error) {
+      if (isAuthError(error)) return
       console.error("Failed to fetch suggestions:", error)
       toast.error("Failed to load your suggestions")
       setUserSuggestions([])
@@ -117,8 +119,8 @@ export default function SuggestService() {
       return
     }
     if (price > 1000000) {
-      // 1 million dinar max
-      toast.error("Estimated price cannot exceed 1,000,000 dinar")
+      // 1 million dt max
+      toast.error("Estimated price cannot exceed 1,000,000 dt")
       return
     }
     // Check for reasonable decimal places (max 2)
@@ -169,14 +171,15 @@ export default function SuggestService() {
         payload.estimatedDuration = Number(form.estimatedDuration)
       if (form.targetGender) payload.targetGender = form.targetGender
       if (user && user.type === "lounge") {
-        payload.loungeId = user._id || user.id
+        payload.loungeId = user._id
       }
 
       await apiClient.post("/v1/service-suggestions", payload)
       toast.success(
         "Service suggestion submitted successfully! It will be reviewed by an administrator and added to available services once approved.",
       )
-      setOpen(false)
+      setShowSuggestions(true)
+      fetchUserSuggestions()
       setForm({
         name: "",
         description: "",
@@ -185,6 +188,7 @@ export default function SuggestService() {
         targetGender: "unisex",
       })
     } catch (err) {
+      if (isAuthError(err)) return
       console.error("Failed to submit suggestion", err)
 
       // Handle specific backend error messages
@@ -221,11 +225,15 @@ export default function SuggestService() {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button type="button" variant="outline">
+        <Button
+          type="button"
+          variant="outline"
+          className="border-blue-500 text-blue-600 hover:bg-blue-50 hover:text-blue-700"
+        >
           Suggest a service
         </Button>
       </DialogTrigger>
-      <DialogContent>
+      <DialogContent className="max-h-[100vh] overflow-y-auto md:max-h-[80vh]">
         <DialogHeader>
           <DialogTitle>
             {showSuggestions
@@ -243,7 +251,12 @@ export default function SuggestService() {
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <p className="text-muted-foreground text-sm"></p>
-              <Button onClick={handleBackToForm} variant="outline" size="sm">
+              <Button
+                onClick={handleBackToForm}
+                variant="outline"
+                size="sm"
+                className="border-blue-500 text-blue-600 hover:bg-blue-50 hover:text-blue-700"
+              >
                 Suggest New Service
               </Button>
             </div>
@@ -260,7 +273,11 @@ export default function SuggestService() {
                 <p className="text-muted-foreground">
                   You haven&apos;t submitted any service suggestions yet.
                 </p>
-                <Button onClick={handleBackToForm} className="mt-4">
+                <Button
+                  onClick={handleBackToForm}
+                  className="mt-4 border-green-500 text-green-600 hover:bg-green-50 hover:text-green-700"
+                  variant="outline"
+                >
                   Suggest Your First Service
                 </Button>
               </div>
@@ -290,7 +307,7 @@ export default function SuggestService() {
                     </p>
                     <div className="text-muted-foreground flex gap-4 text-xs">
                       {suggestion.estimatedPrice && (
-                        <span>Price: {suggestion.estimatedPrice} dinar</span>
+                        <span>Price: {suggestion.estimatedPrice} dt</span>
                       )}
                       {suggestion.estimatedDuration && (
                         <span>
@@ -315,7 +332,12 @@ export default function SuggestService() {
         ) : (
           <>
             <div className="mb-4 flex justify-end">
-              <Button onClick={handleViewSuggestions} variant="ghost" size="sm">
+              <Button
+                onClick={handleViewSuggestions}
+                variant="outline"
+                size="sm"
+                className="border-primary text-primary hover:bg-primary/10 hover:text-primary"
+              >
                 View My Suggestions
               </Button>
             </div>
@@ -348,7 +370,7 @@ export default function SuggestService() {
               </div>
               <div className="grid grid-cols-2 gap-2">
                 <div>
-                  <Label htmlFor="s-price">Estimated Price (dinar) *</Label>
+                  <Label htmlFor="s-price"> Price (dt) *</Label>
                   <Input
                     id="s-price"
                     type="number"
@@ -363,9 +385,7 @@ export default function SuggestService() {
                   />
                 </div>
                 <div>
-                  <Label htmlFor="s-duration">
-                    Estimated Duration (minutes) *
-                  </Label>
+                  <Label htmlFor="s-duration">Duration (minutes) *</Label>
                   <Input
                     id="s-duration"
                     type="number"
@@ -407,10 +427,17 @@ export default function SuggestService() {
                   type="button"
                   variant="outline"
                   onClick={() => setOpen(false)}
+                  className="border-red-500 text-red-600 hover:bg-red-50 hover:text-red-700"
                 >
                   Cancel
                 </Button>
-                <Button type="submit">Submit Suggestion</Button>
+                <Button
+                  type="submit"
+                  variant="outline"
+                  className="border-green-500 text-green-600 hover:bg-green-50 hover:text-green-700"
+                >
+                  Submit Suggestion
+                </Button>
               </div>
             </form>
           </>

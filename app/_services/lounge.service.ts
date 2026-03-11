@@ -254,7 +254,24 @@ class LoungeService {
       const response = await apiClient.get<any>(
         `/v1/lounge-services/lounge/${loungeId}/agents`,
       )
-      return response
+
+      // Handle different response structures
+      let agentsData: LoungeAgentsResponse | null = null
+      if (response && typeof response === "object") {
+        if (response.data) agentsData = response.data
+        else if (response.agents) agentsData = response
+      }
+
+      if (!agentsData) {
+        console.warn("Invalid response structure for agents:", response)
+        return {
+          lounge: { _id: loungeId, loungeTitle: "", email: "" },
+          agents: [],
+          totalAgents: 0,
+        }
+      }
+
+      return agentsData
     } catch (error) {
       console.error("Failed to fetch lounge agents:", error)
       throw error

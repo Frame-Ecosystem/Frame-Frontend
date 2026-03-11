@@ -13,12 +13,14 @@ export default function GoogleDonePage() {
   }, [])
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center p-6">
-      <div className="max-w-md w-full text-center">
-        <div className="bg-card border rounded-lg p-6">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
-          <h2 className="font-semibold mb-2">Finishing up…</h2>
-          <p className="text-muted-foreground text-sm">You can close this window.</p>
+    <div className="bg-background flex min-h-screen items-center justify-center p-6">
+      <div className="w-full max-w-md text-center">
+        <div className="bg-card rounded-lg border p-6">
+          <div className="border-primary mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-b-2"></div>
+          <h2 className="mb-2 font-semibold">Finishing up…</h2>
+          <p className="text-muted-foreground text-sm">
+            You can close this window.
+          </p>
         </div>
       </div>
     </div>

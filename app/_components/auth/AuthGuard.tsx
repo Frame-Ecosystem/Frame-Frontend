@@ -26,7 +26,7 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
 
     // Allow the root path and other public routes to remain accessible
     if (!user && !isPublicRoute) {
-      router.replace("/")
+      router.replace("/?signin=true")
     }
   }, [isLoading, user, pathname, router])
 

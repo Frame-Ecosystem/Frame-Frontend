@@ -11,6 +11,7 @@ import {
 import { Agent, AgentFilters, AgentStats, Paginated } from "../_types"
 import { agentService } from "../_services"
 import { apiClient } from "../_services"
+import { isAuthError } from "../_services/api"
 import { useAuth } from "./auth"
 
 interface AgentState {
@@ -173,6 +174,7 @@ export function AgentProvider({ children }: { children: ReactNode }) {
 
         dispatch({ type: "SET_AGENTS", payload: result })
       } catch (error: any) {
+        if (isAuthError(error)) return
         dispatch({
           type: "SET_ERROR",
           payload: error.message || "Failed to fetch agents",
@@ -190,6 +192,7 @@ export function AgentProvider({ children }: { children: ReactNode }) {
       const agent = await agentService.getAgentById(id)
       dispatch({ type: "SET_CURRENT_AGENT", payload: agent })
     } catch (error: any) {
+      if (isAuthError(error)) return
       dispatch({
         type: "SET_ERROR",
         payload: error.message || "Failed to fetch agent",
@@ -205,6 +208,7 @@ export function AgentProvider({ children }: { children: ReactNode }) {
       const response = await apiClient.get<any>("/v1/admin/lounges/names")
       dispatch({ type: "SET_LOUNGES", payload: response.data || [] })
     } catch (error: any) {
+      if (isAuthError(error)) return
       console.error("Failed to fetch lounges:", error)
       dispatch({ type: "SET_LOUNGES", payload: [] })
     }
@@ -217,6 +221,7 @@ export function AgentProvider({ children }: { children: ReactNode }) {
       // Always refetch to ensure frontend state is in sync with backend
       await fetchAgents(state.pagination.page, state.pagination.limit)
     } catch (error: any) {
+      if (isAuthError(error)) return
       dispatch({
         type: "SET_ERROR",
         payload: error.message || "Failed to create agent",
@@ -233,6 +238,7 @@ export function AgentProvider({ children }: { children: ReactNode }) {
       const agent = await agentService.updateAgent(id, data)
       dispatch({ type: "UPDATE_AGENT", payload: agent })
     } catch (error: any) {
+      if (isAuthError(error)) return
       dispatch({
         type: "SET_ERROR",
         payload: error.message || "Failed to update agent",
@@ -249,6 +255,7 @@ export function AgentProvider({ children }: { children: ReactNode }) {
       await agentService.deleteAgent(id)
       dispatch({ type: "DELETE_AGENT", payload: id })
     } catch (error: any) {
+      if (isAuthError(error)) return
       dispatch({
         type: "SET_ERROR",
         payload: error.message || "Failed to delete agent",
@@ -276,6 +283,7 @@ export function AgentProvider({ children }: { children: ReactNode }) {
       const stats = await agentService.getAgentStats()
       dispatch({ type: "SET_STATS", payload: stats })
     } catch (error: any) {
+      if (isAuthError(error)) return
       console.error("Failed to fetch agent stats:", error)
     }
   }
@@ -288,6 +296,7 @@ export function AgentProvider({ children }: { children: ReactNode }) {
       // Refresh the list
       await fetchAgents(state.pagination.page, state.pagination.limit)
     } catch (error: any) {
+      if (isAuthError(error)) return
       dispatch({
         type: "SET_ERROR",
         payload: error.message || "Failed to block agents",
@@ -306,6 +315,7 @@ export function AgentProvider({ children }: { children: ReactNode }) {
       // Refresh the list
       await fetchAgents(state.pagination.page, state.pagination.limit)
     } catch (error: any) {
+      if (isAuthError(error)) return
       dispatch({
         type: "SET_ERROR",
         payload: error.message || "Failed to unblock agents",
@@ -324,6 +334,7 @@ export function AgentProvider({ children }: { children: ReactNode }) {
       // Refresh the list
       await fetchAgents(state.pagination.page, state.pagination.limit)
     } catch (error: any) {
+      if (isAuthError(error)) return
       dispatch({
         type: "SET_ERROR",
         payload: error.message || "Failed to delete agents",

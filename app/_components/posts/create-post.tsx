@@ -4,7 +4,7 @@ import { useState, useRef } from "react"
 import Image from "next/image"
 import { ImageIcon, X, Loader2 } from "lucide-react"
 import { Button } from "../ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "../ui/card"
+import { Card, CardContent } from "../ui/card"
 import { Textarea } from "../ui/textarea"
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar"
 import { PostService } from "../../_services"
@@ -69,25 +69,24 @@ export function CreatePost() {
   if (!user) return null
 
   return (
-    <Card className="mb-6 w-full">
-      <CardHeader className="pb-3">
-        <CardTitle className="text-lg">Create Post</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <div className="space-y-4">
+    <Card className="mt-8 mb-4 w-full">
+      <CardContent className="pt-4">
+        <div className="space-y-3">
           {/* User info and textarea */}
           <div className="flex space-x-3">
-            <Avatar className="h-10 w-10">
+            <Avatar className="h-8 w-8">
               <AvatarImage
                 src={
                   typeof user.profileImage === "string"
                     ? user.profileImage
                     : user.profileImage?.url
                 }
-                alt={user.firstName || user.email}
+                alt={user.firstName || user.loungeTitle || user.email}
               />
               <AvatarFallback>
-                {(user.firstName || user.email).charAt(0).toUpperCase()}
+                {(user.firstName || user.loungeTitle || user.email)
+                  .charAt(0)
+                  .toUpperCase()}
               </AvatarFallback>
             </Avatar>
             <div className="flex-1">
@@ -95,7 +94,7 @@ export function CreatePost() {
                 placeholder="What's on your mind?"
                 value={content}
                 onChange={(e) => setContent(e.target.value)}
-                className="min-h-[100px] resize-none border-none p-0 text-base shadow-none focus-visible:ring-0"
+                className="min-h-[20px] resize-none border-none p-0 text-base shadow-none focus-visible:ring-0"
               />
             </div>
           </div>
@@ -128,7 +127,7 @@ export function CreatePost() {
           )}
 
           {/* Action buttons */}
-          <div className="flex items-center justify-between border-t pt-3">
+          <div className="flex items-center justify-between border-t pt-2">
             <div className="flex items-center space-x-2">
               <input
                 ref={fileInputRef}

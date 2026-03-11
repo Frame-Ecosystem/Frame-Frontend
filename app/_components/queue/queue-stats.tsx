@@ -3,28 +3,23 @@
 import React from "react"
 import { Card, CardContent } from "../ui/card"
 import { Badge } from "../ui/badge"
-import { Users, Clock, TrendingUp, CheckCircle2 } from "lucide-react"
-
-interface QueueStatsData {
-  totalWaiting: number
-  averageWait: number
-  inService: any[]
-  totalPeople: number
-  completed: number
-}
+import { Users, Clock, TrendingUp, CheckCircle2, UserX } from "lucide-react"
+import type { QueueStats as QueueStatsData } from "./queue-utils"
 
 interface QueueStatsProps {
-  activeQueue: { name?: string } | undefined
+  agentName?: string
   centerName?: string
   stats: QueueStatsData
   isFullScreen: boolean
+  mode?: "client" | "staff"
 }
 
 export default function QueueStats({
-  activeQueue,
+  agentName,
   centerName,
   stats,
   isFullScreen,
+  mode = "client",
 }: QueueStatsProps) {
   return (
     <Card
@@ -38,7 +33,7 @@ export default function QueueStats({
             </div>
             <div>
               <h3 className="text-lg font-semibold">
-                {activeQueue?.name || "Queue"}
+                {agentName ? `${agentName}'s Queue` : "Queue"}
               </h3>
               <p className="text-muted-foreground text-sm">
                 {centerName || "Current status"}
@@ -52,11 +47,20 @@ export default function QueueStats({
 
         {/* Stats Grid */}
         <div
-          className={`grid grid-cols-2 gap-4 ${isFullScreen ? "md:grid-cols-2" : "md:grid-cols-4"}`}
+          className={`grid grid-cols-2 gap-4 ${isFullScreen ? "md:grid-cols-2" : mode === "staff" ? "md:grid-cols-5" : "md:grid-cols-3"}`}
         >
           <div className="bg-card/50 rounded-lg border p-3 backdrop-blur-sm">
             <div className="mb-1 flex items-center gap-2">
-              <Clock className="text-primary h-4 w-4" />
+              <Clock className="h-4 w-4 text-amber-500" />
+              <p className="text-muted-foreground text-xs font-medium">
+                Waiting
+              </p>
+            </div>
+            <p className="text-2xl font-bold">{stats.totalWaiting}</p>
+          </div>
+          <div className="bg-card/50 rounded-lg border p-3 backdrop-blur-sm">
+            <div className="mb-1 flex items-center gap-2">
+              <Clock className="h-4 w-4 text-amber-500" />
               <p className="text-muted-foreground text-xs font-medium">
                 Avg Wait
               </p>
@@ -70,17 +74,19 @@ export default function QueueStats({
                 In Service
               </p>
             </div>
-            <p className="text-2xl font-bold">{stats.inService.length}</p>
+            <p className="text-2xl font-bold">{stats.totalInService}</p>
           </div>
-          <div className="bg-card/50 rounded-lg border p-3 backdrop-blur-sm">
-            <div className="mb-1 flex items-center gap-2">
-              <Users className="h-4 w-4 text-green-500" />
-              <p className="text-muted-foreground text-xs font-medium">
-                Total People
-              </p>
+          {mode === "staff" && (
+            <div className="bg-card/50 rounded-lg border p-3 backdrop-blur-sm">
+              <div className="mb-1 flex items-center gap-2">
+                <Users className="h-4 w-4 text-amber-500" />
+                <p className="text-muted-foreground text-xs font-medium">
+                  Total People
+                </p>
+              </div>
+              <p className="text-2xl font-bold">{stats.totalPeople}</p>
             </div>
-            <p className="text-2xl font-bold">{stats.totalPeople}</p>
-          </div>
+          )}
           <div className="bg-card/50 rounded-lg border p-3 backdrop-blur-sm">
             <div className="mb-1 flex items-center gap-2">
               <CheckCircle2 className="h-4 w-4 text-green-500" />
@@ -88,7 +94,16 @@ export default function QueueStats({
                 Completed
               </p>
             </div>
-            <p className="text-2xl font-bold">{stats.completed}</p>
+            <p className="text-2xl font-bold">{stats.totalCompleted}</p>
+          </div>
+          <div className="bg-card/50 rounded-lg border p-3 backdrop-blur-sm">
+            <div className="mb-1 flex items-center gap-2">
+              <UserX className="h-4 w-4 text-red-500" />
+              <p className="text-muted-foreground text-xs font-medium">
+                Absent
+              </p>
+            </div>
+            <p className="text-2xl font-bold">{stats.totalAbsent}</p>
           </div>
         </div>
       </CardContent>
