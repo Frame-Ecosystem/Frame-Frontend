@@ -30,7 +30,10 @@ const DesktopNavbar = () => {
     }
   }, [resolvedTheme])
   return (
-    <Card className="bg-card border-b-primary fixed top-0 right-0 left-0 z-20 hidden rounded-none border-b shadow-xl transition-all duration-300 lg:block">
+    <Card
+      data-nav-desktop
+      className="bg-card border-b-primary fixed top-0 right-0 left-0 z-20 hidden rounded-none border-b shadow-xl transition-all duration-300 lg:block"
+    >
       <CardContent className="flex flex-row items-center justify-between p-3 md:p-5 lg:px-10 lg:py-5">
         {/* LOGO */}
         <Link
@@ -50,9 +53,13 @@ const DesktopNavbar = () => {
         {/* NAVIGATION LINKS */}
         {!isLoading && user && (
           <nav className="bg-background/50 border-border/30 hidden rounded-full border px-6 py-2 backdrop-blur-sm lg:mb-0 lg:flex lg:items-center lg:gap-2">
-            {NAV_LINKS.filter((link) => {
+            {NAV_LINKS.filter((link: any) => {
               // Hide centers page for lounge users
               if (link.href === "/centers" && user.type === "lounge") {
+                return false
+              }
+              // Show loungeOnly items only for lounge users
+              if (link.loungeOnly && user.type !== "lounge") {
                 return false
               }
               return true
@@ -106,7 +113,7 @@ const DesktopNavbar = () => {
           </nav>
         )}
         {/* ACTION BUTTONS */}
-        <div className="flex items-center gap-2 md:gap-2.5 lg:gap-3">
+        <div className="flex items-center gap-3 md:gap-3.5 lg:gap-10">
           {/* Install App Button */}
           <InstallAppButton />
           {/* Notification Button */}

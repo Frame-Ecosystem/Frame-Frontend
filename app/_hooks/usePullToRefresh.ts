@@ -1,221 +1,188 @@
 "use client"
 
-import { useEffect, useRef, useCallback, useState } from "react"
-import themes from "../_constants/themes"
+import { useEffect, useRef, useCallback } from "react"
 
-const PULL_THRESHOLD = 80 // Minimum distance to trigger refresh
-const PULL_DISTANCE = 120 // Maximum pull distance
+// ── Constants ────────────────────────────────────────────────
+const PULL_THRESHOLD = 150
+const MAX_PULL_DISTANCE = 200
+const MIN_VISIBLE_PULL = 40
+const RELOAD_DELAY_MS = 500
+const MIN_VELOCITY = 0.4 // px/ms — ignore slow/accidental drags
+const INDICATOR_ID = "pull-refresh-indicator"
 
+const REFRESH_SVG = `
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+    stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/>
+    <path d="M21 3v5h-5"/>
+    <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/>
+    <path d="M8 16H3v5"/>
+  </svg>`
+
+const GLOBAL_STYLES = `
+  @keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+  .animate-spin { animation: spin 1s linear infinite; }
+  html, body { overscroll-behavior-y: contain; }
+`
+
+// ── Helpers ──────────────────────────────────────────────────
+function getThemeColor(): string {
+  const className = document.documentElement.className || ""
+  return className.includes("dark") ? "#ffffff" : "#000000"
+}
+
+function getIndicator(): HTMLElement | null {
+  return document.getElementById(INDICATOR_ID)
+}
+
+function createIndicator(): HTMLElement {
+  const color = getThemeColor()
+  const el = document.createElement("div")
+  el.id = INDICATOR_ID
+  Object.assign(el.style, {
+    position: "fixed",
+    top: "-60px",
+    left: "50%",
+    transform: "translateX(-50%)",
+    width: "48px",
+    height: "48px",
+    borderRadius: "50%",
+    background: "transparent",
+    color,
+    border: `2px solid ${color}`,
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    fontSize: "20px",
+    zIndex: "9999",
+    transition: "all 0.3s ease",
+    opacity: "0",
+  })
+  el.innerHTML = REFRESH_SVG
+  return el
+}
+
+function setIndicatorVisibility(visible: boolean, progress = 0) {
+  const el = getIndicator()
+  if (!el) return
+
+  el.style.opacity = visible ? String(Math.min(progress * 1.5, 1)) : "0"
+  el.style.top = visible ? "12px" : "-60px"
+
+  const svg = el.querySelector("svg")
+  if (svg) svg.style.transform = `rotate(${progress * 360}deg)`
+}
+
+function showSpinningIndicator() {
+  const el = getIndicator()
+  if (!el) return
+  el.innerHTML = REFRESH_SVG.replace("<svg", '<svg class="animate-spin"')
+}
+
+// ── Hook ─────────────────────────────────────────────────────
 export function usePullToRefresh() {
-  const touchStartYRef = useRef(0)
-  const isPullingRef = useRef(false)
-  const pullDistanceRef = useRef(0)
-  const [isRefreshing, setIsRefreshing] = useState(false)
-  // eslint-disable-next-line no-unused-vars
-  const [pullProgress, setPullProgress] = useState(0)
+  const startY = useRef(0)
+  const startTime = useRef(0)
+  const pulling = useRef(false)
+  const distance = useRef(0)
+  const refreshing = useRef(false)
 
-  // Create and manage the pull indicator element
+  // Mount indicator element + theme observer
   useEffect(() => {
-    const getThemeColors = () => {
-      const currentTheme =
-        document.documentElement.className || "monochrome-dark"
-      const theme =
-        themes.find((t) => t.name === currentTheme) ||
-        themes.find((t) => t.name === "monochrome-dark")
-      return theme ? theme.colors : ["#000000", "#666666", "#FFFFFF"]
-    }
-
-    const [primaryColor, secondaryColor, backgroundColor] = getThemeColors()
-
-    const indicator = document.createElement("div")
-    indicator.id = "pull-refresh-indicator"
-    indicator.style.cssText = `
-      position: fixed;
-      top: -60px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 48px;
-      height: 48px;
-      border-radius: 50%;
-      background: ${primaryColor}E6;
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
-      color: ${backgroundColor};
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 20px;
-      z-index: 9999;
-      transition: all 0.3s ease;
-      opacity: 0;
-      border: 2px solid ${secondaryColor}40;
-      box-shadow: 0 8px 32px ${primaryColor}30;
-    `
-    indicator.innerHTML = `
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/>
-        <path d="M21 3v5h-5"/>
-        <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/>
-        <path d="M8 16H3v5"/>
-      </svg>
-    `
+    const indicator = createIndicator()
     document.body.appendChild(indicator)
 
-    // Update indicator colors when theme changes
-    const updateThemeColors = () => {
-      const [primaryColor, secondaryColor, backgroundColor] = getThemeColors()
-      indicator.style.background = `${primaryColor}E6`
-      indicator.style.color = backgroundColor
-      indicator.style.border = `2px solid ${secondaryColor}40`
-      indicator.style.boxShadow = `0 8px 32px ${primaryColor}30`
-    }
-
-    // Watch for theme changes
-    const observer = new MutationObserver((mutations) => {
-      mutations.forEach((mutation) => {
-        if (
-          mutation.type === "attributes" &&
-          mutation.attributeName === "class"
-        ) {
-          updateThemeColors()
-        }
-      })
+    const observer = new MutationObserver(() => {
+      const color = getThemeColor()
+      indicator.style.color = color
+      indicator.style.borderColor = color
     })
-
     observer.observe(document.documentElement, {
       attributes: true,
       attributeFilter: ["class"],
     })
 
     return () => {
-      document.body.removeChild(indicator)
+      indicator.remove()
       observer.disconnect()
     }
   }, [])
 
-  const updateIndicator = useCallback((progress: number, visible: boolean) => {
-    const indicator = document.getElementById("pull-refresh-indicator")
-    if (indicator) {
-      indicator.style.opacity = visible ? "1" : "0"
-      indicator.style.top = visible ? "20px" : "-60px"
-      // Apply rotation to the icon inside, not the container
-      const icon = indicator.querySelector("svg")
-      if (icon) {
-        icon.style.transform = `rotate(${progress * 360}deg)`
-      }
+  // Inject global styles + register touch listeners
+  useEffect(() => {
+    const style = document.createElement("style")
+    style.textContent = GLOBAL_STYLES
+    document.head.appendChild(style)
+
+    return () => {
+      style.remove()
     }
   }, [])
 
-  const handleTouchStart = useCallback(
-    (e: TouchEvent) => {
-      // Only allow pull-to-refresh when at the very top of the page
-      // and not already refreshing
-      if (window.scrollY === 0 && !isRefreshing) {
-        const touch = e.touches[0]
-        touchStartYRef.current = touch.clientY
-        isPullingRef.current = true
-        pullDistanceRef.current = 0
-        setPullProgress(0)
-      }
-    },
-    [isRefreshing],
-  )
+  const resetPullState = useCallback(() => {
+    pulling.current = false
+    distance.current = 0
+    setIndicatorVisibility(false)
+  }, [])
+
+  const handleTouchStart = useCallback((e: TouchEvent) => {
+    if (window.scrollY !== 0 || refreshing.current) return
+    startY.current = e.touches[0].clientY
+    startTime.current = Date.now()
+    pulling.current = true
+    distance.current = 0
+  }, [])
 
   const handleTouchMove = useCallback(
     (e: TouchEvent) => {
-      if (!isPullingRef.current || isRefreshing) return
+      if (!pulling.current || refreshing.current) return
 
-      const touch = e.touches[0]
-      const currentY = touch.clientY
-      const deltaY = currentY - touchStartYRef.current
+      const deltaY = e.touches[0].clientY - startY.current
 
-      if (deltaY > 0) {
-        // Only allow downward pull
-        pullDistanceRef.current = Math.min(deltaY, PULL_DISTANCE)
-        const progress = Math.min(pullDistanceRef.current / PULL_THRESHOLD, 1)
-        setPullProgress(progress)
+      if (deltaY <= 0) {
+        resetPullState()
+        return
+      }
 
-        // Show indicator when pulling significantly
-        if (pullDistanceRef.current > 20) {
-          updateIndicator(progress, true)
-        }
+      distance.current = Math.min(deltaY, MAX_PULL_DISTANCE)
+      const progress = Math.min(distance.current / PULL_THRESHOLD, 1)
 
-        // IMPORTANT: Do NOT call preventDefault here
-        // This prevents black space during normal scrolling
-      } else {
-        // Cancel pull if user moves up
-        isPullingRef.current = false
-        pullDistanceRef.current = 0
-        setPullProgress(0)
-        updateIndicator(0, false)
+      if (distance.current > MIN_VISIBLE_PULL) {
+        setIndicatorVisibility(true, progress)
       }
     },
-    [isRefreshing, updateIndicator],
+    [resetPullState],
   )
 
   const handleTouchEnd = useCallback(
     (e: TouchEvent) => {
-      if (!isPullingRef.current || isRefreshing) return
+      if (!pulling.current || refreshing.current) return
 
-      if (pullDistanceRef.current >= PULL_THRESHOLD) {
-        // Only prevent default when we're actually refreshing
+      const elapsed = Date.now() - startTime.current
+      const velocity = elapsed > 0 ? distance.current / elapsed : 0
+
+      if (distance.current >= PULL_THRESHOLD && velocity >= MIN_VELOCITY) {
         e.preventDefault()
-
-        // Trigger refresh
-        setIsRefreshing(true)
-        updateIndicator(1, true)
-
-        // Show loading state
-        const indicator = document.getElementById("pull-refresh-indicator")
-        if (indicator) {
-          indicator.innerHTML = `
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="animate-spin">
-              <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/>
-              <path d="M21 3v5h-5"/>
-              <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/>
-              <path d="M8 16H3v5"/>
-            </svg>
-          `
-        }
-
-        // Trigger refresh after a short delay
-        setTimeout(() => {
-          window.location.reload()
-        }, 500)
-      } else {
-        // Hide indicator if not enough pull
-        updateIndicator(0, false)
+        refreshing.current = true
+        setIndicatorVisibility(true, 1)
+        showSpinningIndicator()
+        setTimeout(() => window.location.reload(), RELOAD_DELAY_MS)
       }
 
-      isPullingRef.current = false
-      pullDistanceRef.current = 0
-      setPullProgress(0)
+      resetPullState()
     },
-    [isRefreshing, updateIndicator],
+    [resetPullState],
   )
 
   useEffect(() => {
-    // Add CSS animation for spinning
-    const style = document.createElement("style")
-    style.textContent = `
-      @keyframes spin {
-        from { transform: rotate(0deg); }
-        to { transform: rotate(360deg); }
-      }
-      .animate-spin {
-        animation: spin 1s linear infinite;
-      }
-    `
-    document.head.appendChild(style)
-
-    // Add listeners to document for better mobile support
-    // Use passive: true for touchmove to avoid interfering with scrolling
     document.addEventListener("touchstart", handleTouchStart, { passive: true })
     document.addEventListener("touchmove", handleTouchMove, { passive: true })
     document.addEventListener("touchend", handleTouchEnd, { passive: false })
 
     return () => {
-      document.head.removeChild(style)
       document.removeEventListener("touchstart", handleTouchStart)
       document.removeEventListener("touchmove", handleTouchMove)
       document.removeEventListener("touchend", handleTouchEnd)

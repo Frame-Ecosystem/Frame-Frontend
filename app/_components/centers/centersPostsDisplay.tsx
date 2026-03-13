@@ -43,7 +43,7 @@ const MOCK_POSTS: Post[] = [
     authorRole: "Official",
     content:
       "New summer hairstyles are here! 🌞 Check out our latest collection featuring modern cuts and vibrant colors. Book your appointment today and get 10% off your first visit this month!",
-    imageUrl: "/images/bgHome.png",
+    imageUrl: "/images/frameDark.png",
     timestamp: "2 hours ago",
     likes: 145,
     comments: 23,
@@ -184,7 +184,7 @@ export default function PostsDisplay({
         </Card>
       ) : (
         <div className="space-y-4">
-          {posts.map((post) => {
+          {posts.map((post, postIndex) => {
             const state = postStates.get(post.id)!
 
             return (
@@ -260,6 +260,8 @@ export default function PostsDisplay({
                         fill
                         className="object-cover transition-transform duration-500 hover:scale-105"
                         sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                        priority={postIndex === 0}
+                        loading={postIndex === 0 ? "eager" : undefined}
                       />
                     </div>
                   )}

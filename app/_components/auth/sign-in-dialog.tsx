@@ -1,13 +1,14 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import { Button } from "../ui/button"
 import { Input } from "../ui/input"
 import { Label } from "../ui/label"
 import { DialogDescription, DialogHeader, DialogTitle } from "../ui/dialog"
-import { authService } from "../../_services/auth.service"
-import { GOOGLE_AUTH_BASE_URL, apiClient } from "../../_services/api"
-import openGoogleOAuthPopup from "../../_lib/googlePopup"
+import { GOOGLE_AUTH_BASE_URL } from "../../_services/api"
+import openGoogleOAuthPopup, {
+  handleGoogleAuthResult,
+} from "../../_lib/googlePopup"
 import { getLoginRedirectPath } from "../../_lib/profile"
 import { useAuth } from "../../_providers/auth"
 import { useRouter } from "next/navigation"
@@ -35,70 +36,27 @@ const SignInDialog = ({
   const { setAuth } = useAuth()
   const signInMutation = useSignIn()
 
-  // Listen for messages from Google auth error page
-  useEffect(() => {
-    const handleMessage = (event: MessageEvent) => {
-      if (event.origin !== window.location.origin) return
-
-      if (event.data.type === "GOOGLE_AUTH_ERROR") {
-        setLoading(false)
-        setError(event.data.message || "Authentication failed")
-      } else if (event.data.type === "GOOGLE_AUTH_SIGNUP") {
-        setLoading(false)
-        setError("Account not found. Please use the sign up option instead.")
-      }
-    }
-
-    window.addEventListener("message", handleMessage)
-    return () => window.removeEventListener("message", handleMessage)
-  }, [])
-
   // === EVENT HANDLERS ===
 
   /**
-   * Handles Google OAuth sign-in
+   * Handles Google OAuth sign-in.
+   * All postMessage + polling error handling lives inside openGoogleOAuthPopup.
    */
   const handleGoogleSignIn = async () => {
     setError("")
     setLoading(true)
-    const url = `${GOOGLE_AUTH_BASE_URL}/v1/auth/google/login`
     try {
-      const result = await openGoogleOAuthPopup(url)
-      const newToken = result.token
-      const popupUser = result.user
-
-      if (!newToken) throw new Error("Sign-in failed. Please try again.")
-
-      if (popupUser) {
-        if (popupUser.type) {
-          setAuth(popupUser, newToken)
-          onSuccess?.()
-          onClose?.()
-          router.push(getLoginRedirectPath())
-        } else {
-          throw new Error(
-            "Account found but type not set. Please contact support.",
-          )
-        }
-      } else {
-        // Ensure apiClient uses the new token then fetch user
-        apiClient.setAccessTokenGetter(() => newToken)
-        const userData = await authService.getCurrentUser()
-        if (userData) {
-          if (userData.type) {
-            setAuth(userData, newToken)
-            onSuccess?.()
-            onClose?.()
-            router.push(getLoginRedirectPath())
-          } else {
-            throw new Error(
-              "Account found but type not set. Please contact support.",
-            )
-          }
-        } else {
-          throw new Error("Sign-in failed. Please try again.")
-        }
-      }
+      const result = await openGoogleOAuthPopup({
+        url: `${GOOGLE_AUTH_BASE_URL}/v1/auth/google/login`,
+        mode: "signin",
+      })
+      await handleGoogleAuthResult(result, {
+        setAuth,
+        onSuccess,
+        onClose,
+        redirect: (path) => router.push(path),
+        getRedirectPath: getLoginRedirectPath,
+      })
     } catch (err) {
       setError(err instanceof Error ? err.message : String(err))
     } finally {

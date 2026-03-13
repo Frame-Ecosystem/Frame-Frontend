@@ -1,11 +1,11 @@
 "use client"
 
 import { useState } from "react"
-import { UserIcon } from "lucide-react"
+import { UserIcon, X } from "lucide-react"
 import SignInDialog from "../auth/sign-in-dialog"
 import { Button } from "../ui/button"
 import { Popover, PopoverTrigger, PopoverContent } from "../ui/popover"
-import { Dialog, DialogTrigger, DialogContent } from "../ui/dialog"
+import { Dialog, DialogContent } from "../ui/dialog"
 import UserInfo from "./user-info"
 import SignupFlow from "../auth/signup-flow"
 import { useAuth } from "../../_providers/auth"
@@ -15,25 +15,28 @@ import {
   getUserInitials,
 } from "../../_services/auth.service"
 
+/** Prevent Radix events from closing dialogs. */
+const prevent = (e: Event) => e.preventDefault()
+
+/** Noop — Radix cannot change dialog state, only our callbacks can. */
+const noop = () => {}
+
 const UserSession = ({ compact }: { compact?: boolean } = {}) => {
   // ===== STATE =====
   const { user, isLoading } = useAuth()
-  // Track dialog open state
   const [dialogOpen, setDialogOpen] = useState(false)
   const [signupOpen, setSignupOpen] = useState(false)
   const [popoverOpen, setPopoverOpen] = useState(false)
   const isLoggedIn = !!user
 
-  // ===== EARLY RETURNS =====
-  // Return null during loading to prevent hydration mismatch
-  if (isLoading) {
-    return null
-  }
+  // ===== CLOSE HELPERS (the ONLY way dialogs can close) =====
+  const closeSignIn = () => setDialogOpen(false)
+  const closeSignUp = () => setSignupOpen(false)
 
   // ===== EVENT HANDLERS =====
   const handleAddAccount = () => {
-    setPopoverOpen(false) // Close the popover
-    setDialogOpen(true) // Open the sign-in dialog
+    setPopoverOpen(false)
+    setDialogOpen(true)
   }
 
   // ===== SHARED UI ELEMENTS =====
@@ -81,95 +84,80 @@ const UserSession = ({ compact }: { compact?: boolean } = {}) => {
     </Button>
   )
 
-  // ===== RENDER: LOGGED IN STATE =====
-  // Show popover with user info when clicked
-  if (isLoggedIn) {
-    return (
-      <>
-        <Popover open={popoverOpen} onOpenChange={setPopoverOpen}>
-          <PopoverTrigger asChild>{userButton}</PopoverTrigger>
-          <PopoverContent className="mt-2 w-72 p-0" align="end">
-            <UserInfo
-              user={user}
-              onAddAccount={handleAddAccount}
-              onClose={() => setPopoverOpen(false)}
-            />
-          </PopoverContent>
-        </Popover>
-
-        {/* Sign-in dialog for adding another account */}
-        <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-          <DialogContent
-            className="max-h-[90vh] w-[90%] overflow-y-auto"
-            onInteractOutside={(e) => e.preventDefault()}
-          >
-            <SignInDialog
-              onSuccess={() => {
-                setDialogOpen(false)
-              }}
-              onClose={() => setDialogOpen(false)}
-              onOpenSignUpFlow={() => {
-                setDialogOpen(false)
-                setSignupOpen(true)
-              }}
-            />
-          </DialogContent>
-        </Dialog>
-
-        <Dialog open={signupOpen} onOpenChange={setSignupOpen}>
-          <DialogContent
-            className="w-[90%]"
-            onInteractOutside={(e) => e.preventDefault()}
-          >
-            <SignupFlow
-              onSuccess={() => {
-                setSignupOpen(false)
-              }}
-              onOpenSignInFlow={() => {
-                setSignupOpen(false)
-                setDialogOpen(true)
-              }}
-            />
-          </DialogContent>
-        </Dialog>
-      </>
-    )
-  }
-
-  // ===== RENDER: LOGGED OUT STATE =====
-  // Show sign-in dialog when clicked
+  // ===== RENDER =====
+  // CRITICAL: NO early returns — dialogs must ALWAYS stay in the React tree.
+  // The trigger area is hidden during loading, but dialogs are never unmounted.
   return (
     <>
-      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogTrigger asChild>{userButton}</DialogTrigger>
+      {/* ── Trigger area — hidden while auth is loading ── */}
+      {!isLoading &&
+        (isLoggedIn ? (
+          <Popover open={popoverOpen} onOpenChange={setPopoverOpen}>
+            <PopoverTrigger asChild>{userButton}</PopoverTrigger>
+            <PopoverContent className="mt-2 w-72 p-0" align="end">
+              <UserInfo
+                user={user}
+                onAddAccount={handleAddAccount}
+                onClose={() => setPopoverOpen(false)}
+              />
+            </PopoverContent>
+          </Popover>
+        ) : (
+          <span onClick={() => setDialogOpen(true)}>{userButton}</span>
+        ))}
+
+      {/* ── Sign-in dialog (always mounted, fully controlled) ── */}
+      {/* onOpenChange={noop} → Radix can NEVER close this dialog.            */}
+      {/* [&>button:last-child]:hidden → hides broken built-in X button.      */}
+      {/* Our own <button> calls closeSignIn() which is the ONLY close path.  */}
+      <Dialog open={dialogOpen} onOpenChange={noop}>
         <DialogContent
-          className="max-h-[90vh] w-[90%] overflow-y-auto"
-          onInteractOutside={(e) => e.preventDefault()}
+          className="max-h-[90vh] w-[90%] overflow-y-auto [&>button:last-child]:hidden"
+          onInteractOutside={prevent}
+          onFocusOutside={prevent}
+          onEscapeKeyDown={prevent}
+          onPointerDownOutside={prevent}
         >
+          <button
+            type="button"
+            onClick={closeSignIn}
+            className="ring-offset-background focus:ring-ring absolute top-4 right-4 z-10 rounded-sm opacity-70 transition-opacity hover:opacity-100 focus:ring-2 focus:ring-offset-2 focus:outline-hidden"
+          >
+            <X className="h-4 w-4" />
+            <span className="sr-only">Close</span>
+          </button>
           <SignInDialog
-            onSuccess={() => {
-              setDialogOpen(false)
-            }}
-            onClose={() => setDialogOpen(false)}
+            onSuccess={closeSignIn}
+            onClose={closeSignIn}
             onOpenSignUpFlow={() => {
-              setDialogOpen(false)
+              closeSignIn()
               setSignupOpen(true)
             }}
           />
         </DialogContent>
       </Dialog>
 
-      <Dialog open={signupOpen} onOpenChange={setSignupOpen}>
+      {/* ── Sign-up dialog (always mounted, fully controlled) ── */}
+      <Dialog open={signupOpen} onOpenChange={noop}>
         <DialogContent
-          className="w-[90%]"
-          onInteractOutside={(e) => e.preventDefault()}
+          className="w-[90%] [&>button:last-child]:hidden"
+          onInteractOutside={prevent}
+          onFocusOutside={prevent}
+          onEscapeKeyDown={prevent}
+          onPointerDownOutside={prevent}
         >
+          <button
+            type="button"
+            onClick={closeSignUp}
+            className="ring-offset-background focus:ring-ring absolute top-4 right-4 z-10 rounded-sm opacity-70 transition-opacity hover:opacity-100 focus:ring-2 focus:ring-offset-2 focus:outline-hidden"
+          >
+            <X className="h-4 w-4" />
+            <span className="sr-only">Close</span>
+          </button>
           <SignupFlow
-            onSuccess={() => {
-              setSignupOpen(false)
-            }}
+            onSuccess={closeSignUp}
             onOpenSignInFlow={() => {
-              setSignupOpen(false)
+              closeSignUp()
               setDialogOpen(true)
             }}
           />

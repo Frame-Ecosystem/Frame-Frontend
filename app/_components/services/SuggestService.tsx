@@ -19,6 +19,7 @@ import { apiClient, serviceSuggestionsService } from "../../_services"
 import { isAuthError } from "../../_services/api"
 import { useAuth } from "../../_providers/auth"
 import type { ServiceSuggestion } from "../../_types"
+import { validateSuggestionForm } from "./_lib/validate-suggestion"
 
 export default function SuggestService() {
   const { user } = useAuth()
@@ -68,97 +69,14 @@ export default function SuggestService() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
-    // Name validation
+    const validationError = validateSuggestionForm(form)
+    if (validationError) {
+      toast.error(validationError)
+      return
+    }
+
     const trimmedName = form.name.trim()
-    if (!trimmedName) {
-      toast.error("Service name is required")
-      return
-    }
-    if (trimmedName.length < 2) {
-      toast.error("Service name must be at least 2 characters long")
-      return
-    }
-    if (trimmedName.length > 100) {
-      toast.error("Service name must be less than 100 characters")
-      return
-    }
-    // Check for potentially harmful characters
-    if (/[<>\"'&]/.test(trimmedName)) {
-      toast.error("Service name contains invalid characters")
-      return
-    }
-
-    // Description validation
     const trimmedDescription = form.description.trim()
-    if (!trimmedDescription) {
-      toast.error("Description is required")
-      return
-    }
-    if (trimmedDescription.length < 10) {
-      toast.error("Description must be at least 10 characters long")
-      return
-    }
-    if (trimmedDescription.length > 500) {
-      toast.error("Description must be less than 500 characters")
-      return
-    }
-    // Check for potentially harmful characters
-    if (/[<>\"'&]/.test(trimmedDescription)) {
-      toast.error("Description contains invalid characters")
-      return
-    }
-
-    // Estimated Price validation (now required)
-    if (!form.estimatedPrice || !form.estimatedPrice.trim()) {
-      toast.error("Estimated price is required")
-      return
-    }
-    const price = parseFloat(form.estimatedPrice)
-    if (isNaN(price) || price < 0) {
-      toast.error("Estimated price must be a non-negative number")
-      return
-    }
-    if (price > 1000000) {
-      // 1 million dt max
-      toast.error("Estimated price cannot exceed 1,000,000 dt")
-      return
-    }
-    // Check for reasonable decimal places (max 2)
-    if (!/^\d+(\.\d{1,2})?$/.test(form.estimatedPrice)) {
-      toast.error("Estimated price can have at most 2 decimal places")
-      return
-    }
-
-    // Estimated Duration validation (now required)
-    if (!form.estimatedDuration || !form.estimatedDuration.trim()) {
-      toast.error("Estimated duration is required")
-      return
-    }
-    const duration = parseInt(form.estimatedDuration)
-    if (isNaN(duration) || duration <= 0) {
-      toast.error("Estimated duration must be a positive whole number")
-      return
-    }
-    if (duration > 1440) {
-      // 24 hours max
-      toast.error("Estimated duration cannot exceed 24 hours (1440 minutes)")
-      return
-    }
-    // Ensure it's a whole number
-    if (!Number.isInteger(Number(form.estimatedDuration))) {
-      toast.error("Estimated duration must be a whole number")
-      return
-    }
-
-    // Target Gender validation (now required)
-    if (!form.targetGender) {
-      toast.error("Target gender is required")
-      return
-    }
-    if (!["men", "women", "unisex", "kids"].includes(form.targetGender)) {
-      toast.error("Invalid target gender selected")
-      return
-    }
 
     try {
       const payload: any = {
@@ -225,11 +143,7 @@ export default function SuggestService() {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button
-          type="button"
-          variant="outline"
-          className="border-blue-500 text-blue-600 hover:bg-blue-50 hover:text-blue-700"
-        >
+        <Button type="button" variant="default">
           Suggest a service
         </Button>
       </DialogTrigger>
@@ -251,22 +165,25 @@ export default function SuggestService() {
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <p className="text-muted-foreground text-sm"></p>
-              <Button
-                onClick={handleBackToForm}
-                variant="outline"
-                size="sm"
-                className="border-blue-500 text-blue-600 hover:bg-blue-50 hover:text-blue-700"
-              >
+              <Button onClick={handleBackToForm} variant="default" size="sm">
                 Suggest New Service
               </Button>
             </div>
 
             {loadingSuggestions ? (
-              <div className="py-8 text-center">
-                <div className="border-primary mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-b-2"></div>
-                <p className="text-muted-foreground">
-                  Loading your suggestions...
-                </p>
+              <div className="space-y-3 py-8">
+                {[...Array(2)].map((_, i) => (
+                  <div
+                    key={i}
+                    className="flex items-center gap-3 rounded-lg border p-3"
+                  >
+                    <div className="bg-primary/10 h-8 w-8 animate-pulse rounded" />
+                    <div className="flex-1 space-y-2">
+                      <div className="bg-primary/10 h-4 w-40 animate-pulse rounded" />
+                      <div className="bg-primary/10 h-3 w-24 animate-pulse rounded" />
+                    </div>
+                  </div>
+                ))}
               </div>
             ) : userSuggestions.length === 0 ? (
               <div className="py-8 text-center">
@@ -275,8 +192,8 @@ export default function SuggestService() {
                 </p>
                 <Button
                   onClick={handleBackToForm}
-                  className="mt-4 border-green-500 text-green-600 hover:bg-green-50 hover:text-green-700"
-                  variant="outline"
+                  className="mt-4"
+                  variant="default"
                 >
                   Suggest Your First Service
                 </Button>
@@ -425,17 +342,12 @@ export default function SuggestService() {
               <div className="flex justify-end space-x-2">
                 <Button
                   type="button"
-                  variant="outline"
+                  variant="destructive"
                   onClick={() => setOpen(false)}
-                  className="border-red-500 text-red-600 hover:bg-red-50 hover:text-red-700"
                 >
                   Cancel
                 </Button>
-                <Button
-                  type="submit"
-                  variant="outline"
-                  className="border-green-500 text-green-600 hover:bg-green-50 hover:text-green-700"
-                >
+                <Button type="submit" variant="success">
                   Submit Suggestion
                 </Button>
               </div>

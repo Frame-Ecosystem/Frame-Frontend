@@ -11,7 +11,7 @@ import {
 import { Button } from "../ui/button"
 import { Input } from "../ui/input"
 import { Label } from "../ui/label"
-import { Loader2, Search } from "lucide-react"
+import { Search } from "lucide-react"
 
 interface AddToQueueDialogProps {
   open: boolean
@@ -97,7 +97,9 @@ export default function AddToQueueDialog({
               Cancel
             </Button>
             <Button type="submit" disabled={!bookingId.trim() || isLoading}>
-              {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              {isLoading && (
+                <div className="bg-primary/20 mr-2 h-4 w-4 animate-pulse rounded-full" />
+              )}
               Add to Queue
             </Button>
           </div>

@@ -118,15 +118,40 @@ class QueueService {
     agentId: string,
     bookingId: string,
     date?: string,
+    markAbsent?: boolean,
   ): Promise<boolean> {
     try {
-      const endpoint = date
-        ? `${QUEUE_BASE}/agent/${agentId}/persons/${bookingId}?date=${date}`
+      const params = new URLSearchParams()
+      if (date) params.set("date", date)
+      if (markAbsent) params.set("markAbsent", "true")
+      const query = params.toString()
+      const endpoint = query
+        ? `${QUEUE_BASE}/agent/${agentId}/persons/${bookingId}?${query}`
         : `${QUEUE_BASE}/agent/${agentId}/persons/${bookingId}`
       await apiClient.delete(endpoint)
       return true
     } catch (error) {
       console.error("QueueService.removePersonFromQueue error:", error)
+      throw error
+    }
+  }
+
+  /**
+   * Reorder a person's position in the queue
+   */
+  async reorderPerson(
+    agentId: string,
+    bookingId: string,
+    newPosition: number,
+  ): Promise<Queue | null> {
+    try {
+      const endpoint = `${QUEUE_BASE}/agent/${agentId}/persons/${bookingId}/reorder`
+      const response = await apiClient.put<QueueResponse>(endpoint, {
+        newPosition,
+      })
+      return response?.data ?? null
+    } catch (error) {
+      console.error("QueueService.reorderPerson error:", error)
       throw error
     }
   }

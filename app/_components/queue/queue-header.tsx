@@ -17,7 +17,7 @@ export default function QueueHeader({
 }: QueueHeaderProps) {
   return (
     <div
-      className="mb-4 flex items-center justify-between"
+      className="m-4 mb-4 flex items-center justify-between"
       style={
         isFullScreen || isPseudoFullScreen
           ? { paddingTop: "env(safe-area-inset-top, 1rem)" }
@@ -37,7 +37,7 @@ export default function QueueHeader({
         onClick={onToggleFullscreen}
         className="flex items-center gap-2"
       >
-        {isFullScreen ? (
+        {isFullScreen || isPseudoFullScreen ? (
           <>
             <Minimize2 className="h-4 w-4" />
             Exit Full Screen

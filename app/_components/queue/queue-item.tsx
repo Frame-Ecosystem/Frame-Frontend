@@ -1,9 +1,20 @@
 "use client"
 
-import React from "react"
+import { useRouter } from "next/navigation"
 import { Badge } from "../ui/badge"
 import { Button } from "../ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "../ui/alert-dialog"
 import {
   TrendingUp,
   Clock,
@@ -13,8 +24,10 @@ import {
   Play,
   UserX,
   RotateCcw,
-  Trash2,
+  X,
+  Armchair,
 } from "lucide-react"
+import { DotLottieReact } from "@lottiefiles/dotlottie-react"
 import { useSortable } from "@dnd-kit/sortable"
 import { CSS } from "@dnd-kit/utilities"
 import type { QueuePerson } from "../../_types"
@@ -29,7 +42,54 @@ import {
   getValidTransitions,
 } from "./queue-utils"
 import { format } from "date-fns"
-import CountdownTimer from "./countdown-timer"
+
+// ── Constants ────────────────────────────────────────────────
+
+const STATUS_ICONS: Record<string, React.ReactNode> = {
+  inService: <TrendingUp className="h-3 w-3" />,
+  waiting: <Armchair className="h-3 w-3" />,
+  completed: <CheckCircle2 className="h-3 w-3" />,
+  absent: <AlertCircle className="h-3 w-3" />,
+}
+
+const CARD_STYLES: Record<string, string> = {
+  inService: "border-blue-500/30 bg-blue-500/5",
+  absent: "border-red-500/30 bg-red-500/5",
+  completed: "border-green-500/30 bg-green-500/5",
+}
+
+const ACTION_CONFIG = [
+  {
+    key: "inService",
+    variant: "info" as const,
+    icon: Play,
+    label: "Start",
+    status: QueuePersonStatus.IN_SERVICE,
+  },
+  {
+    key: "absent",
+    variant: "destructive" as const,
+    icon: UserX,
+    label: "Mark Absent",
+    status: QueuePersonStatus.ABSENT,
+  },
+  {
+    key: "completed",
+    variant: "success" as const,
+    icon: CheckCircle2,
+    label: "Mark Completed",
+    status: QueuePersonStatus.COMPLETED,
+  },
+  {
+    key: "waiting",
+    variant: "outline" as const,
+    icon: RotateCcw,
+    label: "Back to Waiting",
+    status: QueuePersonStatus.WAITING,
+  },
+]
+
+// ── Types ────────────────────────────────────────────────────
 
 interface QueueItemProps {
   person: QueuePerson
@@ -38,9 +98,11 @@ interface QueueItemProps {
   // eslint-disable-next-line no-unused-vars
   onStatusChange?: (bookingId: string, status: QueuePersonStatus) => void
   // eslint-disable-next-line no-unused-vars
-  onRemove?: (bookingId: string) => void
+  onRemove?: (bookingId: string, markAbsent?: boolean) => void
   isUpdating?: boolean
 }
+
+// ── Component ────────────────────────────────────────────────
 
 export default function QueueItem({
   person,
@@ -50,10 +112,22 @@ export default function QueueItem({
   onRemove,
   isUpdating = false,
 }: QueueItemProps) {
-  const isDragEnabled = mode === "staff"
+  const router = useRouter()
+  const isStaff = mode === "staff"
   const bookingId = person.bookingId?._id
   const client = person.clientId
-  const validTransitions = getValidTransitions(person.status)
+  const clientId = client?._id
+  const isVisitor = !client && !!person.visitorName
+  const status = person.status
+  const isInService = status === "inService"
+  const validTransitions = getValidTransitions(status)
+  const clientName = client
+    ? getClientFullName(client.firstName, client.lastName)
+    : person.visitorName || "Visitor"
+  const serviceDuration = person.bookingId?.totalDuration ?? 0
+  const joinedTime = person.joinedAt
+    ? format(new Date(person.joinedAt), "h:mm a")
+    : "—"
 
   const {
     attributes,
@@ -62,231 +136,219 @@ export default function QueueItem({
     transform,
     transition,
     isDragging,
-  } = useSortable({ id: bookingId, disabled: !isDragEnabled })
+  } = useSortable({ id: bookingId, disabled: !isStaff })
 
-  const style = isDragEnabled
+  const style = isStaff
     ? {
-        transform: transform ? CSS.Transform.toString(transform) : undefined,
+        transform: transform ? CSS.Translate.toString(transform) : undefined,
         transition,
+        zIndex: isDragging ? 50 : undefined,
       }
-    : {}
+    : undefined
 
-  const getStatusIcon = (status: string) => {
-    switch (status) {
-      case "inService":
-        return <TrendingUp className="h-3 w-3" />
-      case "waiting":
-        return <Clock className="h-3 w-3" />
-      case "completed":
-        return <CheckCircle2 className="h-3 w-3" />
-      case "absent":
-        return <AlertCircle className="h-3 w-3" />
-      default:
-        return <AlertCircle className="h-3 w-3" />
-    }
-  }
-
-  const waitTime = estimatedWaitTime(person, allPersons)
   const avatarUrl =
     typeof client?.profileImage === "object"
       ? client.profileImage?.url
       : undefined
 
+  const cardStyle = CARD_STYLES[status] ?? "bg-card hover:border-primary/30"
+  const draggingStyle =
+    isDragging && isStaff
+      ? "ring-primary/20 z-50 scale-[0.98] opacity-40 shadow-lg ring-2"
+      : ""
+
+  // ── Shared sub-components ──────────────────────────────────
+
+  const avatarElement = (
+    <Avatar className="border-primary/20 h-8 w-8 shrink-0 border-2 transition-opacity hover:opacity-80">
+      <AvatarImage src={avatarUrl} alt={clientName} />
+      <AvatarFallback className="bg-primary/10 text-primary text-xs font-semibold">
+        {getClientInitials(client?.firstName, client?.lastName)}
+      </AvatarFallback>
+    </Avatar>
+  )
+
   return (
     <div
-      ref={isDragEnabled ? setNodeRef : undefined}
+      ref={isStaff ? setNodeRef : undefined}
       style={style}
-      className={`group relative rounded-xl border p-4 transition-all hover:shadow-md ${
-        isDragging && isDragEnabled ? "opacity-50 shadow-lg" : ""
-      } ${
-        person.status === "inService"
-          ? "border-blue-500/30 bg-blue-500/5"
-          : person.status === "absent"
-            ? "border-red-500/30 bg-red-500/5"
-            : person.status === "completed"
-              ? "border-green-500/30 bg-green-500/5"
-              : "bg-card hover:border-primary/30"
-      }`}
+      className={`group relative rounded-xl border px-2 py-1.5 transition-all hover:shadow-md ${cardStyle} ${draggingStyle}`}
     >
       {/* Position Badge */}
-      <div className="bg-primary text-primary-foreground absolute -top-2 -left-2 flex h-8 w-8 items-center justify-center rounded-full text-sm font-bold shadow-lg">
+      <div className="bg-primary text-primary-foreground absolute -top-2 -left-2 flex h-6 w-6 items-center justify-center rounded-full text-xs font-bold shadow-lg">
         #{person.position}
       </div>
 
-      {/* Drag Handle - Only visible for staff mode */}
-      {mode === "staff" && (
+      {/* Remove (Mark Absent) button — staff only */}
+      {isStaff && (
+        <AlertDialog>
+          <AlertDialogTrigger asChild>
+            <button
+              className="absolute -top-2 -right-2 z-10 flex h-6 w-6 items-center justify-center rounded-full bg-red-500 text-white shadow-md transition-colors hover:bg-red-600 disabled:opacity-50"
+              disabled={isUpdating}
+            >
+              <X className="h-3.5 w-3.5" />
+            </button>
+          </AlertDialogTrigger>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Mark Absent</AlertDialogTitle>
+              <AlertDialogDescription>
+                Are you sure you want to mark{" "}
+                <span className="font-semibold">{clientName}</span> as absent
+                and remove them from the queue?
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter className="flex-col gap-2 sm:flex-row">
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction
+                className="bg-red-600 hover:bg-red-700"
+                onClick={() => onRemove?.(bookingId, true)}
+              >
+                Mark Absent & Remove
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+      )}
+
+      {/* Drag Handle — staff only */}
+      {isStaff && (
         <div
           {...attributes}
           {...listeners}
-          className="hover:bg-muted/50 active:bg-muted absolute top-4 right-4 -m-3 cursor-grab touch-manipulation rounded-lg p-3 transition-opacity active:scale-95 active:cursor-grabbing md:opacity-0 md:group-hover:opacity-100"
+          className="hover:bg-muted/50 active:bg-muted absolute top-1/2 right-4 -m-3 -translate-y-1/2 cursor-grab touch-manipulation rounded-lg p-3 transition-opacity active:scale-95 active:cursor-grabbing md:opacity-0 md:group-hover:opacity-100"
         >
           <GripVertical className="text-muted-foreground h-5 w-5" />
         </div>
       )}
 
-      <div className="flex items-center gap-4">
-        {/* Avatar */}
-        <Avatar className="border-primary/20 h-12 w-12 border-2">
-          <AvatarImage
-            src={avatarUrl}
-            alt={getClientFullName(client?.firstName, client?.lastName)}
-          />
-          <AvatarFallback className="bg-primary/10 text-primary font-semibold">
-            {getClientInitials(client?.firstName, client?.lastName)}
-          </AvatarFallback>
-        </Avatar>
+      {/* Status Badge */}
+      <div className="mb-1 flex items-center justify-end gap-2">
+        <Badge
+          variant="outline"
+          className={`shrink-0 ${getStatusColor(status)}`}
+        >
+          {STATUS_ICONS[status] ?? <AlertCircle className="h-3 w-3" />}
+          <span className="ml-1">{getStatusLabel(status)}</span>
+        </Badge>
+      </div>
 
-        {/* Info */}
+      {/* Avatar + Name + Service */}
+      <div className="flex items-center gap-2">
+        {isStaff && clientId ? (
+          <button
+            type="button"
+            className="shrink-0 cursor-pointer"
+            onClick={(e) => {
+              e.stopPropagation()
+              router.push(`/clients/${clientId}`)
+            }}
+            aria-label="View client profile"
+          >
+            {avatarElement}
+          </button>
+        ) : (
+          avatarElement
+        )}
+
         <div className="min-w-0 flex-1">
-          <div className="mb-1 flex items-start justify-between gap-2">
-            <div className="min-w-0 flex-1">
-              <h4 className="truncate font-semibold">
-                {getClientFullName(client?.firstName, client?.lastName)}
-              </h4>
-              <p className="text-muted-foreground truncate text-sm">
-                {getServicesSummary(person)}
-              </p>
-            </div>
-            <Badge
-              variant="outline"
-              className={`shrink-0 ${getStatusColor(person.status)}`}
-            >
-              {getStatusIcon(person.status)}
-              <span className="ml-1">{getStatusLabel(person.status)}</span>
-            </Badge>
-          </div>
-
-          {/* Countdown Timer — shown for inService */}
-          {person.status === "inService" && (
-            <div className="mt-3 flex items-center gap-3">
-              <CountdownTimer
-                totalDuration={person.bookingId?.totalDuration ?? 30}
-                startedAt={person.inServiceAt}
-              />
-              <div className="flex flex-col">
-                <span className="text-sm font-semibold text-blue-600 dark:text-blue-400">
-                  In Progress
-                </span>
-                <span className="text-muted-foreground text-xs">
-                  {person.bookingId?.totalDuration ?? 0} min service
-                </span>
-              </div>
-            </div>
-          )}
-
-          {/* Duration, Wait Time & Joined */}
-          <div className="mt-2 flex flex-wrap items-center gap-3">
-            {person.status !== "inService" && (
-              <div className="text-muted-foreground flex items-center gap-1.5 text-xs">
-                <Clock className="h-3.5 w-3.5" />
-                <span className="font-medium">
-                  {person.status === "completed"
-                    ? "Done"
-                    : person.status === "absent"
-                      ? "Absent"
-                      : `~${waitTime} min wait`}
-                </span>
-              </div>
-            )}
-            {person.status !== "inService" && (
-              <div className="text-muted-foreground text-xs">
-                {person.bookingId?.totalDuration ?? 0} min service
-              </div>
-            )}
-            <div className="text-muted-foreground text-xs">
-              Joined{" "}
-              {person.joinedAt
-                ? format(new Date(person.joinedAt), "h:mm a")
-                : "—"}
-            </div>
-            {mode === "staff" && person.bookingId?.totalPrice != null && (
-              <div className="text-muted-foreground text-xs font-medium">
-                ${person.bookingId.totalPrice}
-              </div>
-            )}
-          </div>
-
-          {/* Action Buttons — staff mode only */}
-          {mode === "staff" && validTransitions.length > 0 && (
-            <div className="mt-3 flex flex-wrap gap-2">
-              {validTransitions.includes("inService") && (
-                <Button
-                  size="sm"
-                  variant="default"
-                  className="h-7 gap-1 px-2 text-xs"
-                  disabled={isUpdating}
-                  onClick={() =>
-                    onStatusChange?.(bookingId, QueuePersonStatus.IN_SERVICE)
-                  }
-                >
-                  <Play className="h-3 w-3" />
-                  Start Service
-                </Button>
-              )}
-              {validTransitions.includes("absent") && (
-                <Button
-                  size="sm"
-                  variant="outline"
-                  className="h-7 gap-1 px-2 text-xs text-red-600 hover:bg-red-50 hover:text-red-700"
-                  disabled={isUpdating}
-                  onClick={() =>
-                    onStatusChange?.(bookingId, QueuePersonStatus.ABSENT)
-                  }
-                >
-                  <UserX className="h-3 w-3" />
-                  Mark Absent
-                </Button>
-              )}
-              {validTransitions.includes("completed") && (
-                <Button
-                  size="sm"
-                  variant="default"
-                  className="h-7 gap-1 bg-green-600 px-2 text-xs hover:bg-green-700"
-                  disabled={isUpdating}
-                  onClick={() =>
-                    onStatusChange?.(bookingId, QueuePersonStatus.COMPLETED)
-                  }
-                >
-                  <CheckCircle2 className="h-3 w-3" />
-                  Complete
-                </Button>
-              )}
-              {validTransitions.includes("waiting") && (
-                <Button
-                  size="sm"
-                  variant="outline"
-                  className="h-7 gap-1 px-2 text-xs"
-                  disabled={isUpdating}
-                  onClick={() =>
-                    onStatusChange?.(bookingId, QueuePersonStatus.WAITING)
-                  }
-                >
-                  <RotateCcw className="h-3 w-3" />
-                  Returned
-                </Button>
-              )}
-              {/* Remove from queue — always available in staff mode */}
-              <Button
-                size="sm"
-                variant="ghost"
-                className="h-7 gap-1 px-2 text-xs text-red-500 hover:bg-red-50 hover:text-red-600"
-                disabled={isUpdating}
-                onClick={() => onRemove?.(bookingId)}
+          <div className="flex items-center gap-1.5">
+            <h4 className="truncate text-xs font-semibold">{clientName}</h4>
+            {isVisitor && (
+              <Badge
+                variant="outline"
+                className="shrink-0 border-amber-500/40 bg-amber-500/10 px-1.5 py-0 text-[10px] text-amber-600 dark:text-amber-400"
               >
-                <Trash2 className="h-3 w-3" />
-                Remove
-              </Button>
-            </div>
-          )}
-
-          {/* Completed badge — shown for completed persons */}
-          {person.status === "completed" && (
-            <div className="mt-2 flex items-center gap-1 text-xs font-medium text-green-600">
-              <CheckCircle2 className="h-3.5 w-3.5" />
-              Service completed
-            </div>
-          )}
+                Visitor
+              </Badge>
+            )}
+          </div>
+          <p className="text-muted-foreground truncate text-[11px]">
+            {getServicesSummary(person)}
+          </p>
         </div>
+      </div>
+
+      {/* Details */}
+      <div className="mt-1">
+        {isInService ? (
+          <div className="mt-1 flex items-end justify-between gap-2">
+            <div className="flex flex-col">
+              <span className="text-s flex items-center gap-0 font-semibold text-blue-600 dark:text-blue-400">
+                In Progress
+                <span className="-m-8 inline-block h-24 w-24">
+                  <DotLottieReact
+                    src="https://lottie.host/14342ff1-b9f0-4fb9-bd2c-d5bff0b4f9b9/tCpt5cQuSm.lottie"
+                    loop
+                    autoplay
+                  />
+                </span>
+              </span>
+              <span className="text-muted-foreground text-xs">
+                Service duration {serviceDuration} min
+              </span>
+              <span className="text-muted-foreground text-xs">
+                Joined {joinedTime}
+              </span>
+            </div>
+          </div>
+        ) : (
+          <div className="mt-0.5 flex flex-col gap-0.5">
+            <div className="text-muted-foreground flex items-center gap-1 text-xs">
+              <Clock className="h-3.5 w-3.5" />
+              <span className="font-medium">
+                {status === "completed"
+                  ? "Done"
+                  : status === "absent"
+                    ? "Absent"
+                    : `~${estimatedWaitTime(person, allPersons)} min average waiting`}
+              </span>
+            </div>
+            <div className="text-muted-foreground text-[11px]">
+              Service duration {serviceDuration} min
+            </div>
+            <div className="text-muted-foreground text-[11px]">
+              Joined {joinedTime}
+            </div>
+            {isStaff && person.bookingId?.totalPrice != null && (
+              <div className="text-muted-foreground text-[11px] font-medium">
+                {person.bookingId.totalPrice} dt
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Action Buttons — staff only */}
+        {isStaff && validTransitions.length > 0 && (
+          <div className="mt-2 flex flex-wrap gap-1.5">
+            {ACTION_CONFIG.filter(({ key }) =>
+              validTransitions.includes(key),
+            ).map(
+              ({ key, variant, icon: Icon, label, status: targetStatus }) => (
+                <Button
+                  key={key}
+                  size="sm"
+                  variant={variant}
+                  className="h-7 gap-1 px-2 text-xs"
+                  disabled={isUpdating}
+                  onClick={() => onStatusChange?.(bookingId, targetStatus)}
+                >
+                  <Icon className="h-3 w-3" />
+                  {label}
+                </Button>
+              ),
+            )}
+          </div>
+        )}
+
+        {/* Completed indicator */}
+        {status === "completed" && (
+          <div className="mt-2 flex items-center gap-1 text-xs font-medium text-green-600">
+            <CheckCircle2 className="h-3.5 w-3.5" />
+            Service completed
+          </div>
+        )}
       </div>
     </div>
   )

@@ -2,7 +2,7 @@
 
 import { Suspense, useEffect, useState } from "react"
 import { useSearchParams } from "next/navigation"
-import { BookingWizard } from "../_components/bookings/booking-wizard"
+import { BookingWizard } from "../_components/bookings/wizard/booking-wizard"
 import { CenterService } from "../_types"
 import { useRouter } from "next/navigation"
 import { loungeService } from "../_services"
@@ -85,9 +85,19 @@ function BookPageContent() {
   if (isLoadingServices) {
     return (
       <div className="flex min-h-screen items-center justify-center">
-        <div className="text-center">
-          <div className="border-primary mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-b-2"></div>
-          <p className="text-muted-foreground">Loading services...</p>
+        <div className="w-full max-w-4xl space-y-6 px-4">
+          <div className="space-y-2 text-center">
+            <div className="bg-primary/10 mx-auto h-7 w-64 animate-pulse rounded" />
+            <div className="bg-primary/10 mx-auto h-4 w-80 animate-pulse rounded" />
+          </div>
+          <div className="space-y-4 rounded-lg border p-6">
+            <div className="bg-primary/10 h-5 w-32 animate-pulse rounded" />
+            <div className="bg-primary/10 h-48 w-full animate-pulse rounded-lg" />
+            <div className="flex justify-between">
+              <div className="bg-primary/10 h-10 w-24 animate-pulse rounded-lg" />
+              <div className="bg-primary/10 h-10 w-24 animate-pulse rounded-lg" />
+            </div>
+          </div>
         </div>
       </div>
     )

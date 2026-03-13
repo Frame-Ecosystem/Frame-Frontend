@@ -1,15 +1,35 @@
 "use client"
 
-import { CalendarIcon } from "lucide-react"
+import { useState, useEffect } from "react"
+import { CalendarIcon, History } from "lucide-react"
 import { Button } from "../_components/ui/button"
 import Link from "next/link"
+import { useSearchParams, useRouter } from "next/navigation"
 import { Card, CardContent } from "../_components/ui/card"
 import { ErrorBoundary } from "../_components/common/errorBoundary"
 import { useAuth } from "../_providers/auth"
-import { BookingList } from "../_components/bookings/booking-list"
+import { BookingList } from "../_components/bookings/list/booking-list"
 
 export default function BookingsPage() {
   const { user, isLoading } = useAuth()
+  const searchParams = useSearchParams()
+  const router = useRouter()
+  const [showHistory, setShowHistory] = useState(
+    searchParams.get("view") === "history",
+  )
+
+  // Sync state when search param changes (e.g. from notification click)
+  useEffect(() => {
+    setShowHistory(searchParams.get("view") === "history")
+  }, [searchParams])
+
+  const toggleHistory = () => {
+    const next = !showHistory
+    setShowHistory(next)
+    router.replace(next ? "/bookings?view=history" : "/bookings", {
+      scroll: false,
+    })
+  }
 
   // Show loading state while checking authentication
   if (isLoading) {
@@ -18,9 +38,28 @@ export default function BookingsPage() {
         <div className="from-background via-background to-muted/20 min-h-screen bg-linear-to-br">
           <div className="mx-auto max-w-7xl p-5 lg:px-8 lg:py-12">
             <div className="flex min-h-[400px] items-center justify-center">
-              <div className="text-center">
-                <div className="border-primary mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-b-2"></div>
-                <p className="text-muted-foreground">Loading...</p>
+              <div className="w-full max-w-2xl space-y-4">
+                <div className="bg-primary/10 h-8 w-48 animate-pulse rounded" />
+                <div className="flex gap-2">
+                  {[...Array(3)].map((_, i) => (
+                    <div
+                      key={i}
+                      className="bg-primary/10 h-9 w-20 animate-pulse rounded-full"
+                    />
+                  ))}
+                </div>
+                <div className="space-y-3">
+                  {[...Array(3)].map((_, i) => (
+                    <div key={i} className="space-y-2 rounded-lg border p-4">
+                      <div className="flex items-center justify-between">
+                        <div className="bg-primary/10 h-4 w-32 animate-pulse rounded" />
+                        <div className="bg-primary/10 h-5 w-16 animate-pulse rounded-full" />
+                      </div>
+                      <div className="bg-primary/10 h-3 w-full animate-pulse rounded" />
+                      <div className="bg-primary/10 h-3 w-2/3 animate-pulse rounded" />
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
           </div>
@@ -52,16 +91,16 @@ export default function BookingsPage() {
                   <div className="flex flex-col justify-center gap-4 sm:flex-row">
                     <Button
                       size="lg"
-                      variant="outline"
-                      className="border-blue-500 text-blue-600 shadow-lg hover:bg-blue-50 hover:text-blue-700"
+                      variant="default"
+                      className="shadow-lg"
                       asChild
                     >
                       <Link href="/">Sign In</Link>
                     </Button>
                     <Button
                       size="lg"
-                      variant="outline"
-                      className="border-green-500 text-green-600 shadow-lg hover:bg-green-50 hover:text-green-700"
+                      variant="default"
+                      className="shadow-lg"
                       asChild
                     >
                       <Link href="/centers">
@@ -80,8 +119,8 @@ export default function BookingsPage() {
   }
 
   // === AUTHENTICATED STATE ===
-  const canUpdateStatus = user.type === "lounge" // Only lounges can update status
-  const canCancelBookings = user.type === "client" || user.type === "lounge" // Only clients and lounges can cancel
+  const canUpdateStatus = user.type === "lounge"
+  const canCancelBookings = user.type === "client" || user.type === "lounge"
 
   return (
     <ErrorBoundary>
@@ -89,31 +128,56 @@ export default function BookingsPage() {
         <div className="mx-auto max-w-7xl p-5 lg:px-8 lg:py-12">
           {/* Page Header */}
           <div className="mb-8 lg:mb-12">
-            <div className="mt-6 mb-4 flex items-center gap-3">
-              <CalendarIcon className="text-primary h-8 w-8 lg:h-10 lg:w-10" />
-              <h1 className="text-3xl font-bold lg:text-4xl">
-                {user.type === "lounge"
-                  ? "Bookings Management"
-                  : user.type === "admin"
-                    ? "All Bookings"
-                    : "My Bookings"}
-              </h1>
+            <div className="mt-6 mb-4 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <CalendarIcon className="text-primary h-8 w-8 lg:h-10 lg:w-10" />
+                <h1 className="text-3xl font-bold lg:text-4xl">
+                  {showHistory
+                    ? "Booking History"
+                    : user.type === "lounge"
+                      ? "Bookings Management"
+                      : user.type === "admin"
+                        ? "All Bookings"
+                        : "My Bookings"}
+                </h1>
+              </div>
+              <Button
+                variant={showHistory ? "default" : "outline"}
+                size="sm"
+                onClick={toggleHistory}
+                className="gap-2"
+              >
+                <History className="h-4 w-4" />
+                {showHistory ? "Back" : "History"}
+              </Button>
             </div>
             <p className="text-muted-foreground lg:text-lg">
-              {user.type === "lounge"
-                ? "Manage bookings for your lounge services"
-                : user.type === "admin"
-                  ? "View and manage all bookings in the system"
-                  : "View and manage your appointments"}
+              {showHistory
+                ? "View your completed bookings"
+                : user.type === "lounge"
+                  ? "Manage bookings for your lounge services"
+                  : user.type === "admin"
+                    ? "View and manage all bookings in the system"
+                    : "View and manage your appointments"}
             </p>
           </div>
 
           {/* Bookings List */}
-          <BookingList
-            showActions={true}
-            allowStatusUpdate={canUpdateStatus}
-            allowCancel={canCancelBookings}
-          />
+          {showHistory ? (
+            <BookingList
+              showActions={false}
+              allowStatusUpdate={false}
+              allowCancel={false}
+              mode="history"
+            />
+          ) : (
+            <BookingList
+              showActions={true}
+              allowStatusUpdate={canUpdateStatus}
+              allowCancel={canCancelBookings}
+              mode="active"
+            />
+          )}
         </div>
       </div>
     </ErrorBoundary>

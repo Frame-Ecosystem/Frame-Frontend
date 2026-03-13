@@ -63,10 +63,20 @@ export default function AdminDashboard() {
 
   if (isLoading) {
     return (
-      <div className="from-background via-background to-muted/20 flex min-h-screen items-center justify-center bg-gradient-to-br">
-        <div className="text-center">
-          <div className="border-primary mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-b-2"></div>
-          <p className="text-muted-foreground">Loading admin dashboard...</p>
+      <div className="from-background via-background to-muted/20 min-h-screen bg-gradient-to-br">
+        <div className="mx-auto max-w-7xl p-5 lg:px-8 lg:py-12">
+          <div className="space-y-6">
+            <div className="bg-primary/10 h-9 w-56 animate-pulse rounded" />
+            <div className="bg-primary/10 h-4 w-80 animate-pulse rounded" />
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+              {[...Array(4)].map((_, i) => (
+                <div key={i} className="space-y-3 rounded-lg border p-6">
+                  <div className="bg-primary/10 h-4 w-20 animate-pulse rounded" />
+                  <div className="bg-primary/10 h-8 w-16 animate-pulse rounded" />
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
       </div>
     )

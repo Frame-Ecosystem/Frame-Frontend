@@ -1,4 +1,4 @@
-import { apiClient } from "./api"
+import { apiClient, isAuthError } from "./api"
 import type {
   Booking,
   CreateBookingInput,
@@ -180,7 +180,38 @@ class BookingService {
 
       return mapped as Booking[]
     } catch (error) {
+      if (isAuthError(error)) throw error // let the caller handle auth failures
       console.error("Failed to fetch bookings:", error)
+      return []
+    }
+  }
+
+  // Get history bookings (cancelled + completed)
+  async getHistory(): Promise<Booking[]> {
+    try {
+      const response = await apiClient.get<any>("/v1/bookings/history")
+      const bookings = this.extractArray(response, [
+        "data",
+        "bookings",
+        "items",
+      ])
+
+      const mapped = await Promise.all(
+        bookings.map(async (booking) => ({
+          ...booking,
+          _id: booking._id,
+          loungeServiceIds: booking.loungeServiceIds || [],
+          loungeService: booking.loungeService || [],
+          agents: await this.processBookingAgents(booking),
+          client: this.processBookingClient(booking),
+          lounge: this.processBookingLounge(booking),
+        })),
+      )
+
+      return mapped as Booking[]
+    } catch (error) {
+      if (isAuthError(error)) throw error
+      console.error("Failed to fetch history bookings:", error)
       return []
     }
   }
@@ -288,14 +319,49 @@ class BookingService {
     }
   }
 
-  // Cancel booking (for clients)
-  async cancel(id: string, cancelledBy?: string): Promise<boolean> {
+  // Book from queue — creates a booking with status "inQueue" and adds to agent's queue in one step
+  async bookFromQueue(input: {
+    clientId: string
+    loungeId: string
+    agentId: string
+    loungeServiceIds: string[]
+    notes?: string
+  }): Promise<Booking | null> {
     try {
-      const updateData: any = { status: "cancelled" }
-      if (cancelledBy) {
-        updateData.cancelledBy = cancelledBy
-      }
-      await this.update(id, updateData)
+      const data = await apiClient.post<Booking>("/v1/bookings/queue", input)
+      return data
+    } catch (error) {
+      console.error("Failed to book from queue:", error)
+      throw error
+    }
+  }
+
+  // Lounge queue booking — visitor or client mode (uses dedicated lounge endpoint)
+  async loungeBookFromQueue(input: {
+    loungeId: string
+    agentId: string
+    visitorName?: string
+    clientPhone?: string
+    clientEmail?: string
+    loungeServiceIds?: string[]
+    notes?: string
+  }): Promise<Booking | null> {
+    try {
+      const data = await apiClient.post<Booking>(
+        "/v1/bookings/queue/lounge",
+        input,
+      )
+      return data
+    } catch (error) {
+      console.error("Failed to create lounge queue booking:", error)
+      throw error
+    }
+  }
+
+  // Cancel booking — backend auto-populates cancelledBy from session
+  async cancel(id: string): Promise<boolean> {
+    try {
+      await this.update(id, { status: "cancelled" })
       return true
     } catch (error) {
       console.error("Failed to cancel booking:", error)

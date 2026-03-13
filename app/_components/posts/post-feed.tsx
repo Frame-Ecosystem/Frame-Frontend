@@ -141,15 +141,15 @@ export function PostFeed() {
         </div>
       ) : (
         <div className="space-y-4">
-          {allPosts.map((post) => (
-            <PostCard key={post.id} post={post} />
+          {allPosts.map((post, index) => (
+            <PostCard key={post.id} post={post} priority={index === 0} />
           ))}
 
           {/* Load more trigger */}
           <div ref={ref} className="flex justify-center py-4">
             {isFetchingNextPage && (
               <div className="flex items-center space-x-2">
-                <Loader2 className="h-4 w-4 animate-spin" />
+                <Loader2 className="h-4 w-4 animate-pulse" />
                 <span className="text-muted-foreground text-sm">
                   Loading more posts...
                 </span>

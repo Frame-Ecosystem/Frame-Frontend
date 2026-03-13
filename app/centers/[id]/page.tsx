@@ -18,6 +18,7 @@ import {
   AvatarImage,
   AvatarFallback,
 } from "@/app/_components/ui/avatar"
+import { ImageLightbox } from "@/app/_components/common/images/image-lightbox"
 import RatingDialog from "@/app/_components/forms/rating-dialog"
 import InfoDisplay from "@/app/_components/centers/info-display"
 import OurServices from "@/app/_components/services/our-services"
@@ -27,9 +28,11 @@ import { Button } from "@/app/_components/ui/button"
 
 import { Center, CenterService } from "@/app/_types"
 import { useAuth } from "@/app/_providers/auth"
-import { useEffect, useRef, useState } from "react"
+import { useCallback, useEffect, useRef, useState } from "react"
 import { useParams, useRouter, useSearchParams } from "next/navigation"
+import { isLoungeCurrentlyOpen } from "@/app/_components/bookings/booking-utils"
 import { clientService } from "@/app/_services"
+import { toast } from "sonner"
 
 export default function CenterPage() {
   const params = useParams()
@@ -53,9 +56,28 @@ export default function CenterPage() {
   const [error, setError] = useState<string | null>(null)
   const [activeTab, setActiveTab] = useState<
     "info" | "posts" | "services" | "queue"
-  >(
-    (searchParams.get("tab") as "info" | "posts" | "services" | "queue") ||
-      "info",
+  >(() => {
+    const tab = searchParams.get("tab")
+    if (tab === "posts" || tab === "services" || tab === "queue") return tab
+    return "info"
+  })
+
+  // Sync tab when searchParams change (e.g. navigating to same page via router.push)
+  useEffect(() => {
+    const tab = searchParams.get("tab")
+    if (tab === "posts" || tab === "services" || tab === "queue") {
+      setActiveTab(tab)
+    }
+  }, [searchParams])
+
+  const handleTabChange = useCallback(
+    (tab: "info" | "posts" | "services" | "queue") => {
+      setActiveTab(tab)
+      const url = new URL(window.location.href)
+      url.searchParams.set("tab", tab)
+      window.history.replaceState({}, "", url.toString())
+    },
+    [],
   )
   const [isMobile, setIsMobile] = useState(false)
   const [isBioExpanded, setIsBioExpanded] = useState(false)
@@ -64,6 +86,8 @@ export default function CenterPage() {
   const [isRated, setIsRated] = useState(false)
   const [showRatingPopup, setShowRatingPopup] = useState(false)
   const [userRating, setUserRating] = useState(0)
+  const [lightboxSrc, setLightboxSrc] = useState<string | null>(null)
+  const [lightboxAlt, setLightboxAlt] = useState("")
   const postsCount = 4 // Mock data has 4 posts
   const tabsScrollRef = useRef<HTMLDivElement>(null)
 
@@ -253,9 +277,28 @@ export default function CenterPage() {
       <div className="from-background via-background to-muted/20 min-h-screen bg-linear-to-br">
         <div className="mx-auto max-w-7xl p-5 lg:px-8 lg:py-12">
           <div className="flex min-h-[400px] items-center justify-center">
-            <div className="text-center">
-              <div className="border-primary mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-b-2"></div>
-              <p className="text-muted-foreground">Loading lounge details...</p>
+            <div className="w-full max-w-5xl space-y-6">
+              <div className="bg-primary/10 h-[200px] w-full animate-pulse rounded-lg md:h-[280px]" />
+              <div className="-mt-16 flex items-end gap-4 px-4">
+                <div className="bg-primary/10 ring-background h-32 w-32 animate-pulse rounded-full ring-4" />
+                <div className="flex-1 space-y-2 pb-2">
+                  <div className="bg-primary/10 h-6 w-48 animate-pulse rounded" />
+                  <div className="bg-primary/10 h-4 w-32 animate-pulse rounded" />
+                </div>
+              </div>
+              <div className="flex gap-2 px-4">
+                {[...Array(4)].map((_, i) => (
+                  <div
+                    key={i}
+                    className="bg-primary/10 h-9 w-20 animate-pulse rounded-lg"
+                  />
+                ))}
+              </div>
+              <div className="space-y-3 px-4">
+                <div className="bg-primary/10 h-4 w-full animate-pulse rounded" />
+                <div className="bg-primary/10 h-4 w-3/4 animate-pulse rounded" />
+                <div className="bg-primary/10 h-4 w-1/2 animate-pulse rounded" />
+              </div>
             </div>
           </div>
         </div>
@@ -292,6 +335,12 @@ export default function CenterPage() {
     )
   }
 
+  // Check if the lounge is currently open based on opening hours
+  // If openingHours is null/undefined, treat as closed (not open)
+  const isOpen = center?.openingHours
+    ? isLoungeCurrentlyOpen(center.openingHours)
+    : false
+
   // Format opening hours from the center data
   const openingHours = formatOpeningHours(center.openingHours)
 
@@ -307,55 +356,99 @@ export default function CenterPage() {
 
   return (
     <ErrorBoundary>
+      {/* Fullscreen lightbox */}
+      <ImageLightbox
+        src={lightboxSrc ?? ""}
+        alt={lightboxAlt}
+        open={!!lightboxSrc}
+        onClose={() => setLightboxSrc(null)}
+      />
+
       <div className="from-background via-background to-muted/20 min-h-screen bg-linear-to-br pb-24 lg:pb-0">
         {/* Facebook-style Cover Image */}
         <div className="relative w-full">
           <div className="relative h-[200px] w-full overflow-hidden bg-gradient-to-r from-blue-600/20 via-purple-600/20 to-pink-600/20 md:h-[280px] lg:h-[320px]">
             {center.coverImageUrl ? (
-              <Image
-                src={center.coverImageUrl}
-                alt={`${center.name} cover`}
-                fill
-                sizes="100vw"
-                quality={80}
-                className="object-cover"
-                priority
-              />
+              <button
+                type="button"
+                className="relative h-full w-full cursor-pointer"
+                onClick={() => {
+                  setLightboxSrc(center.coverImageUrl!)
+                  setLightboxAlt(`${center.name} cover`)
+                }}
+                aria-label="View cover photo"
+              >
+                <Image
+                  src={center.coverImageUrl}
+                  alt={`${center.name} cover`}
+                  fill
+                  sizes="100vw"
+                  quality={80}
+                  className="object-cover"
+                  priority
+                />
+              </button>
             ) : center.imageUrl &&
               center.imageUrl !== "/images/placeholder.svg" ? (
-              <Image
-                src={center.imageUrl}
-                alt={`${center.name} cover`}
-                fill
-                sizes="100vw"
-                quality={80}
-                className="object-cover"
-                priority
-              />
+              <button
+                type="button"
+                className="relative h-full w-full cursor-pointer"
+                onClick={() => {
+                  setLightboxSrc(center.imageUrl!)
+                  setLightboxAlt(`${center.name} cover`)
+                }}
+                aria-label="View cover photo"
+              >
+                <Image
+                  src={center.imageUrl}
+                  alt={`${center.name} cover`}
+                  fill
+                  sizes="100vw"
+                  quality={80}
+                  className="object-cover"
+                  priority
+                />
+              </button>
             ) : (
               <div className="from-primary/15 via-primary/5 absolute inset-0 bg-gradient-to-br to-transparent" />
             )}
             {/* Gradient overlay at bottom */}
-            <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
+            <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
           </div>
 
           {/* Profile Image — overlapping the cover */}
           <div className="relative mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
             <div className="relative -mt-16 flex items-end gap-4 md:-mt-20">
               <div className="relative shrink-0">
-                <Avatar className="ring-background h-32 w-32 ring-4 md:h-40 md:w-40">
-                  {center.imageUrl &&
-                    center.imageUrl !== "/images/placeholder.svg" && (
-                      <AvatarImage
-                        src={center.imageUrl}
-                        alt={center.name}
-                        className="object-cover"
-                      />
-                    )}
-                  <AvatarFallback className="bg-primary/10 text-primary text-3xl font-bold md:text-4xl">
-                    {getInitials(center.name)}
-                  </AvatarFallback>
-                </Avatar>
+                <button
+                  type="button"
+                  className="cursor-pointer"
+                  onClick={() => {
+                    const url =
+                      center.imageUrl !== "/images/placeholder.svg"
+                        ? center.imageUrl
+                        : null
+                    if (url) {
+                      setLightboxSrc(url)
+                      setLightboxAlt(center.name)
+                    }
+                  }}
+                  aria-label="View profile photo"
+                >
+                  <Avatar className="ring-background h-32 w-32 ring-4 md:h-40 md:w-40">
+                    {center.imageUrl &&
+                      center.imageUrl !== "/images/placeholder.svg" && (
+                        <AvatarImage
+                          src={center.imageUrl}
+                          alt={center.name}
+                          className="object-cover"
+                        />
+                      )}
+                    <AvatarFallback className="bg-primary/10 text-primary text-3xl font-bold md:text-4xl">
+                      {getInitials(center.name)}
+                    </AvatarFallback>
+                  </Avatar>
+                </button>
               </div>
 
               {/* Name beside avatar */}
@@ -465,7 +558,10 @@ export default function CenterPage() {
         </div>
 
         {/* Sticky Tab Navigation */}
-        <div className="to-background/95 sticky top-[var(--header-offset)] z-50 mt-4 bg-gradient-to-b from-transparent shadow-sm backdrop-blur-md lg:top-[var(--header-offset-lg)]">
+        <div
+          data-nav-tabs
+          className="to-background/95 sticky top-[var(--header-offset)] z-50 mt-4 bg-gradient-to-b from-transparent shadow-sm backdrop-blur-md lg:top-[var(--header-offset-lg)]"
+        >
           <div
             ref={tabsScrollRef}
             className="mx-auto flex w-full max-w-5xl gap-3 overflow-x-auto px-4 py-3 sm:px-6 lg:justify-evenly lg:px-8 [&::-webkit-scrollbar]:hidden"
@@ -474,7 +570,7 @@ export default function CenterPage() {
               variant="ghost"
               size="sm"
               className={`shrink-0 rounded-lg border px-3 py-2 text-sm font-medium transition-all duration-300 ${activeTab === "info" ? "border-primary bg-primary/10 text-primary" : "border-border text-foreground hover:border-primary/50 hover:text-primary hover:bg-primary/5"}`}
-              onClick={() => setActiveTab("info")}
+              onClick={() => handleTabChange("info")}
             >
               <InfoIcon className="h-4 w-4" />
               Info
@@ -483,7 +579,7 @@ export default function CenterPage() {
               variant="ghost"
               size="sm"
               className={`shrink-0 rounded-lg border px-3 py-2 text-sm font-medium transition-all duration-300 ${activeTab === "posts" ? "border-primary bg-primary/10 text-primary" : "border-border text-foreground hover:border-primary/50 hover:text-primary hover:bg-primary/5"}`}
-              onClick={() => setActiveTab("posts")}
+              onClick={() => handleTabChange("posts")}
             >
               <FileText className="h-4 w-4" />
               Posts ({postsCount})
@@ -492,7 +588,7 @@ export default function CenterPage() {
               variant="ghost"
               size="sm"
               className={`shrink-0 rounded-lg border px-3 py-2 text-sm font-medium transition-all duration-300 ${activeTab === "services" ? "border-primary bg-primary/10 text-primary" : "border-border text-foreground hover:border-primary/50 hover:text-primary hover:bg-primary/5"}`}
-              onClick={() => setActiveTab("services")}
+              onClick={() => handleTabChange("services")}
             >
               <CalendarIcon className="h-4 w-4" />
               Services
@@ -500,8 +596,17 @@ export default function CenterPage() {
             <Button
               variant="ghost"
               size="sm"
-              className={`shrink-0 rounded-lg border px-3 py-2 text-sm font-medium transition-all duration-300 ${activeTab === "queue" ? "border-primary bg-primary/10 text-primary" : "border-border text-foreground hover:border-primary/50 hover:text-primary hover:bg-primary/5"}`}
-              onClick={() => setActiveTab("queue")}
+              className={`shrink-0 rounded-lg border px-3 py-2 text-sm font-medium transition-all duration-300 ${!isOpen ? "border-border text-muted-foreground/50 opacity-60" : activeTab === "queue" ? "border-primary bg-primary/10 text-primary" : "border-border text-foreground hover:border-primary/50 hover:text-primary hover:bg-primary/5"}`}
+              onClick={() => {
+                if (!isOpen) {
+                  toast.info(
+                    "Center is currently closed and can't accept bookings now. Go to the Services tab to book for another date.",
+                    { duration: 4000 },
+                  )
+                  return
+                }
+                handleTabChange("queue")
+              }}
             >
               <Users className="h-4 w-4" />
               Queue
@@ -535,6 +640,7 @@ export default function CenterPage() {
                   centerName={center.name}
                   mode="client"
                   loungeId={id}
+                  initialAgentId={searchParams.get("agentId")}
                 />
               )}
             </CardContent>

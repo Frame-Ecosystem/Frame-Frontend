@@ -64,12 +64,7 @@ export default function BookingCTA({
         <Button
           onClick={handleBookNow}
           disabled={!hasSelectedServices}
-          variant="outline"
-          className={`${
-            hasSelectedServices
-              ? "border-green-500 bg-green-500 text-white hover:border-green-600 hover:bg-green-600"
-              : `cursor-not-allowed ${isDark ? "border-neutral-600 bg-neutral-700 text-neutral-300" : "border-neutral-400 bg-neutral-400 text-black"}`
-          }`}
+          variant={hasSelectedServices ? "success" : "outline"}
           size="sm"
         >
           {hasSelectedServices ? "Book Now" : "Select Services First"}

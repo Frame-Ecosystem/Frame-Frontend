@@ -158,7 +158,7 @@ export default function VerifyPage() {
           <div className="flex h-16 w-16 items-center justify-center rounded-full bg-blue-50">
             {/* Simple CSS spinner */}
             {status === "loading" ? (
-              <div className="h-8 w-8 animate-spin rounded-full border-4 border-blue-500 border-t-transparent" />
+              <div className="h-8 w-8 animate-pulse rounded-full bg-blue-200" />
             ) : status === "success" ? (
               <svg
                 xmlns="http://www.w3.org/2000/svg"

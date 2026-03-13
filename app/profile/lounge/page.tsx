@@ -1,19 +1,20 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
+import { useSearchParams } from "next/navigation"
 import { Button } from "../../_components/ui/button"
-import { Pencil, StarIcon, User, FileText, Users, Heart } from "lucide-react"
+import { Pencil, StarIcon, User, FileText, Heart } from "lucide-react"
 import { ErrorBoundary } from "../../_components/common/errorBoundary"
 import { useAuth } from "../../_providers/auth"
 import { authService, getUserDisplayName } from "../../_services/auth.service"
 import { PostService } from "../../_services/post.service"
-import { ProfileCover } from "../../_components/common/profile-cover"
+import { ProfileCover } from "../../_components/common/profile-display/profile-cover"
 import { AccountSettings } from "../../_components/profile/account-settings"
 import { AccountInformation } from "../../_components/profile/account-information"
 import { OpeningHoursDisplay } from "../../_components/forms/opening-hours-display"
 import PostsDisplay from "../../_components/centers/centersPostsDisplay"
-import QueueDisplay from "../../_components/queue/queue-display"
 import { Card, CardContent } from "../../_components/ui/card"
+import { LoungeProfileSkeleton } from "./_components/lounge-profile-skeleton"
 
 // Helper function to format bio text with line breaks
 const formatBioText = (text: string, isMobile: boolean = false) => {
@@ -26,7 +27,8 @@ const formatBioText = (text: string, isMobile: boolean = false) => {
 }
 
 export default function LoungeProfilePage() {
-  const { user, isLoading, setAuth } = useAuth()
+  const { user, isLoading, setAuth, accessToken } = useAuth()
+  const searchParams = useSearchParams()
   const [updating, setUpdating] = useState(false)
   const [updatingCover, setUpdatingCover] = useState(false)
   const [openNameSection, setOpenNameSection] = useState(false)
@@ -35,9 +37,18 @@ export default function LoungeProfilePage() {
   const [openBioSection, setOpenBioSection] = useState(false)
   const [isAccountInfoOpen, setIsAccountInfoOpen] = useState(true)
   const [isBioExpanded, setIsBioExpanded] = useState(false)
-  const [activeTab, setActiveTab] = useState<"account" | "posts" | "queue">(
-    "account",
-  )
+  const [activeTab, setActiveTab] = useState<"account" | "posts">(() => {
+    const tab = searchParams.get("tab")
+    if (tab === "posts") return tab
+    return "account"
+  })
+
+  const handleTabChange = useCallback((tab: "account" | "posts") => {
+    setActiveTab(tab)
+    const url = new URL(window.location.href)
+    url.searchParams.set("tab", tab)
+    window.history.replaceState({}, "", url.toString())
+  }, [])
   const [isMobile, setIsMobile] = useState(false)
   const [showFullHours, setShowFullHours] = useState(false)
   const [postsCount, setPostsCount] = useState(0)
@@ -109,10 +120,14 @@ export default function LoungeProfilePage() {
     try {
       const updatedUser = await authService.updateProfileImage(formData)
       if (updatedUser) {
-        setAuth(updatedUser, null) // Update the auth context
+        setAuth(updatedUser, accessToken) // Update the auth context, preserve token
       }
-    } catch {
-      // handled silently
+    } catch (error) {
+      const message =
+        error instanceof Error
+          ? error.message
+          : "Failed to update profile image"
+      alert(message)
     } finally {
       setUpdating(false)
     }
@@ -129,140 +144,19 @@ export default function LoungeProfilePage() {
     try {
       const updatedUser = await authService.updateCoverImage(formData)
       if (updatedUser) {
-        setAuth(updatedUser, null)
+        setAuth(updatedUser, accessToken)
       }
-    } catch {
-      // handled silently
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : "Failed to update cover image"
+      alert(message)
     } finally {
       setUpdatingCover(false)
     }
   }
 
   if (isLoading) {
-    return (
-      <ErrorBoundary>
-        <div className="from-background via-background to-muted/20 min-h-screen bg-linear-to-br">
-          <div className="mx-auto max-w-7xl p-5 lg:px-8 lg:py-12">
-            <div className="w-full">
-              <div className="space-y-6 p-0 lg:px-0 lg:py-0">
-                <div className="px-0 py-0 lg:px-0 lg:py-0">
-                  <div className="m-4 md:m-6 lg:m-8">
-                    {/* Header Skeleton */}
-                    <div className="mb-6 flex items-start gap-4">
-                      <div className="relative">
-                        <div className="bg-muted-foreground/10 border-primary h-32 w-32 animate-pulse rounded-full border-2 lg:h-40 lg:w-40"></div>
-                        <div className="bg-muted-foreground/10 absolute right-0 bottom-0 h-9 w-9 animate-pulse rounded-full"></div>
-                      </div>
-
-                      <div className="mt-8 flex-1 pt-4 lg:pt-8">
-                        <div className="bg-muted-foreground/10 mb-2 ml-4 h-8 w-48 animate-pulse rounded lg:mb-4 lg:ml-6"></div>
-                      </div>
-                    </div>
-
-                    {/* Bio Skeleton */}
-                    <div className="mt-6 ml-4 lg:ml-6">
-                      <div className="bg-muted-foreground/10 mb-1 h-4 w-full animate-pulse rounded"></div>
-                      <div className="bg-muted-foreground/10 mb-1 h-4 w-3/4 animate-pulse rounded"></div>
-                      <div className="bg-muted-foreground/10 h-4 w-1/2 animate-pulse rounded"></div>
-                    </div>
-
-                    {/* Tabs Skeleton */}
-                    <div className="mt-8 flex gap-2 border-b">
-                      <div className="bg-muted-foreground/10 h-10 w-20 animate-pulse rounded"></div>
-                      <div className="bg-muted-foreground/10 h-10 w-16 animate-pulse rounded"></div>
-                      <div className="bg-muted-foreground/10 h-10 w-16 animate-pulse rounded"></div>
-                    </div>
-
-                    {/* Content Skeleton */}
-                    <div className="mt-6 space-y-6">
-                      {/* Account Info Card Skeleton */}
-                      <div className="bg-card rounded-lg border p-6 shadow-sm">
-                        <div className="bg-muted-foreground/10 mb-4 h-6 w-32 animate-pulse rounded"></div>
-                        <div className="space-y-3">
-                          <div className="bg-muted-foreground/10 h-4 w-full animate-pulse rounded"></div>
-                          <div className="bg-muted-foreground/10 h-4 w-3/4 animate-pulse rounded"></div>
-                          <div className="bg-muted-foreground/10 h-4 w-1/2 animate-pulse rounded"></div>
-                        </div>
-                      </div>
-
-                      {/* Opening Hours Skeleton */}
-                      <div className="bg-card rounded-lg border p-6 shadow-sm">
-                        <div className="bg-muted-foreground/10 mb-4 h-6 w-28 animate-pulse rounded"></div>
-                        <div className="grid gap-2">
-                          {[...Array(7)].map((_, i) => (
-                            <div
-                              key={i}
-                              className="flex items-center justify-between"
-                            >
-                              <div className="bg-muted-foreground/10 h-4 w-16 animate-pulse rounded"></div>
-                              <div className="bg-muted-foreground/10 h-4 w-24 animate-pulse rounded"></div>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-
-                      {/* Queue Section Skeleton */}
-                      <div className="space-y-4">
-                        <div className="bg-muted-foreground/10 h-6 w-20 animate-pulse rounded"></div>
-                        <div className="bg-card rounded-lg border p-4 shadow-sm">
-                          <div className="space-y-3">
-                            {[...Array(3)].map((_, i) => (
-                              <div
-                                key={i}
-                                className="flex items-center justify-between"
-                              >
-                                <div className="flex items-center gap-3">
-                                  <div className="bg-muted-foreground/10 h-8 w-8 animate-pulse rounded-full"></div>
-                                  <div>
-                                    <div className="bg-muted-foreground/10 mb-1 h-4 w-32 animate-pulse rounded"></div>
-                                    <div className="bg-muted-foreground/10 h-3 w-20 animate-pulse rounded"></div>
-                                  </div>
-                                </div>
-                                <div className="bg-muted-foreground/10 h-6 w-16 animate-pulse rounded-full"></div>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Posts Section Skeleton */}
-                      <div className="space-y-4">
-                        <div className="bg-muted-foreground/10 h-6 w-24 animate-pulse rounded"></div>
-                        <div className="space-y-4">
-                          {[...Array(2)].map((_, i) => (
-                            <div
-                              key={i}
-                              className="bg-card rounded-lg border p-4 shadow-sm"
-                            >
-                              <div className="mb-3 flex items-center gap-3">
-                                <div className="bg-muted-foreground/10 h-8 w-8 animate-pulse rounded-full"></div>
-                                <div>
-                                  <div className="bg-muted-foreground/10 mb-1 h-4 w-24 animate-pulse rounded"></div>
-                                  <div className="bg-muted-foreground/10 h-3 w-16 animate-pulse rounded"></div>
-                                </div>
-                              </div>
-                              <div className="mb-3 space-y-2">
-                                <div className="bg-muted-foreground/10 h-4 w-full animate-pulse rounded"></div>
-                                <div className="bg-muted-foreground/10 h-4 w-3/4 animate-pulse rounded"></div>
-                              </div>
-                              <div className="bg-muted-foreground/10 aspect-video w-full animate-pulse rounded-lg"></div>
-                              <div className="mt-3 flex items-center gap-4">
-                                <div className="bg-muted-foreground/10 h-8 w-16 animate-pulse rounded"></div>
-                                <div className="bg-muted-foreground/10 h-8 w-20 animate-pulse rounded"></div>
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </ErrorBoundary>
-    )
+    return <LoungeProfileSkeleton />
   }
 
   // AuthGuard in layout handles unauthenticated users; render lounge profile when `user` exists
@@ -419,13 +313,16 @@ export default function LoungeProfilePage() {
         </div>
 
         {/* Tabbed Content (single responsive nav) */}
-        <div className="to-background/95 sticky top-[var(--header-offset)] z-50 mt-4 bg-gradient-to-b from-transparent shadow-sm backdrop-blur-md lg:top-[var(--header-offset-lg)]">
+        <div
+          data-nav-tabs
+          className="to-background/95 sticky top-[var(--header-offset)] z-50 mt-4 bg-gradient-to-b from-transparent shadow-sm backdrop-blur-md lg:top-[var(--header-offset-lg)]"
+        >
           <div className="mx-auto flex w-full max-w-5xl justify-evenly px-4 py-3 sm:px-6 lg:px-8">
             <Button
               variant="ghost"
               size="sm"
               className={`rounded-lg border px-3 py-2 text-sm font-medium transition-all duration-300 ${activeTab === "account" ? "border-primary bg-primary/10 text-primary" : "border-border text-foreground hover:border-primary/50 hover:text-primary hover:bg-primary/5"}`}
-              onClick={() => setActiveTab("account")}
+              onClick={() => handleTabChange("account")}
             >
               <User className="h-4 w-4" />
               Account
@@ -434,19 +331,10 @@ export default function LoungeProfilePage() {
               variant="ghost"
               size="sm"
               className={`rounded-lg border px-3 py-2 text-sm font-medium transition-all duration-300 ${activeTab === "posts" ? "border-primary bg-primary/10 text-primary" : "border-border text-foreground hover:border-primary/50 hover:text-primary hover:bg-primary/5"}`}
-              onClick={() => setActiveTab("posts")}
+              onClick={() => handleTabChange("posts")}
             >
               <FileText className="h-4 w-4" />
               Posts {postsCount > 0 && `(${postsCount})`}
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              className={`rounded-lg border px-3 py-2 text-sm font-medium transition-all duration-300 ${activeTab === "queue" ? "border-primary bg-primary/10 text-primary" : "border-border text-foreground hover:border-primary/50 hover:text-primary hover:bg-primary/5"}`}
-              onClick={() => setActiveTab("queue")}
-            >
-              <Users className="h-4 w-4" />
-              Queue
             </Button>
           </div>
         </div>
@@ -476,13 +364,6 @@ export default function LoungeProfilePage() {
               {activeTab === "posts" && (
                 <PostsDisplay
                   centerName={user?.loungeTitle || getUserDisplayName(user)}
-                />
-              )}
-              {activeTab === "queue" && (
-                <QueueDisplay
-                  centerName={user?.loungeTitle || getUserDisplayName(user)}
-                  mode="staff"
-                  loungeId={user?._id}
                 />
               )}
             </CardContent>

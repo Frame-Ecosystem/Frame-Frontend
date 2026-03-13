@@ -45,12 +45,12 @@ export function AgentDetails({
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="max-h-[85vh] overflow-y-auto sm:max-w-md">
         <DialogHeader>
           <DialogTitle>Agent Details</DialogTitle>
         </DialogHeader>
 
-        <div className="space-y-6">
+        <div className="space-y-6 pb-4">
           {/* Agent Avatar and Basic Info */}
           <div className="flex flex-col items-center text-center">
             <Avatar className="mb-4 h-24 w-24">
@@ -179,7 +179,7 @@ export function AgentDetails({
           )}
         </div>
 
-        <div className="flex justify-end pt-4">
+        <div className="flex justify-end pt-4 pb-2">
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             Close
           </Button>

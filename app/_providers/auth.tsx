@@ -14,6 +14,7 @@ import React, {
   useContext,
   useState,
   useEffect,
+  useLayoutEffect,
   useCallback,
   useRef,
 } from "react"
@@ -21,6 +22,7 @@ import { useRouter } from "next/navigation"
 import { authService } from "../_services/auth.service"
 import type { User } from "../_types"
 import { apiClient } from "../_services/api"
+import { getSocket, disconnectSocket } from "../_services/socket"
 import { useTheme } from "next-themes"
 
 interface AuthContextType {
@@ -121,6 +123,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           }
         }
         setSessionFlag(true)
+        // Establish Socket.IO connection now that we have a token
+        getSocket()
       } else {
         // Clear token from localStorage when logging out
         if (typeof window !== "undefined") {
@@ -141,6 +145,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setUser(null)
     setAccessToken(null)
     setSessionFlag(false)
+    // Disconnect Socket.IO
+    disconnectSocket()
     // Clear token from localStorage
     if (typeof window !== "undefined") {
       try {
@@ -186,7 +192,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [setUser, setAccessToken, setSessionFlag, applyUserTheme])
 
   // Update API client when access token changes
-  useEffect(() => {
+  // useLayoutEffect ensures the getter is set synchronously before any
+  // child useEffect (e.g. push-notification auto-subscribe) fires.
+  useLayoutEffect(() => {
     apiClient.setAccessTokenGetter(() => accessToken)
   }, [accessToken])
 
@@ -213,6 +221,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
               setUser(userData)
               applyUserTheme(userData)
               setSessionFlag(true)
+              getSocket() // Connect socket on session restore
               setIsLoading(false)
               return
             } else {
@@ -254,6 +263,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
               if (userData) {
                 setUser(userData)
                 applyUserTheme(userData)
+                getSocket() // Connect socket after refresh-token restore
               } else {
                 setSessionFlag(false)
               }

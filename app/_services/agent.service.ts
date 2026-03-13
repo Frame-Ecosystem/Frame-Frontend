@@ -124,6 +124,19 @@ class AgentService {
     const response = await apiClient.get<AgentStats>("/v1/agents/stats")
     return response
   }
+
+  // Queue booking toggle
+  async updateQueueBooking(
+    agentId: string,
+    acceptQueueBooking: boolean,
+  ): Promise<{ agentId: string; acceptQueueBooking: boolean }> {
+    const response = await apiClient.patch<{
+      data: { agentId: string; acceptQueueBooking: boolean }
+    }>(`/v1/lounge/agents/${agentId}/queue-booking`, {
+      acceptQueueBooking,
+    })
+    return response.data
+  }
 }
 
 export const agentService = new AgentService()

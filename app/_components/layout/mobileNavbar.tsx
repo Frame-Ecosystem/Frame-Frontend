@@ -18,9 +18,13 @@ const MobileNavbar = () => {
   if (isLoading || !user) return null
 
   // Filter navigation links based on user type
-  const filteredNavLinks = NAV_LINKS.filter((link) => {
+  const filteredNavLinks = NAV_LINKS.filter((link: any) => {
     // Hide centers page for lounge users
     if (link.href === "/centers" && user.type === "lounge") {
+      return false
+    }
+    // Show loungeOnly items only for lounge users
+    if (link.loungeOnly && user.type !== "lounge") {
       return false
     }
     return true
@@ -29,6 +33,7 @@ const MobileNavbar = () => {
   return (
     <>
       <nav
+        data-nav-mobile
         className={`bg-card/95 border-border fixed right-0 bottom-0 left-0 z-20 h-[85px] border-t shadow-[0_-2px_12px_0_rgba(0,0,0,0.04)] backdrop-blur-sm lg:hidden`}
       >
         <div className="relative flex h-full items-center justify-between gap-1 px-2 py-3 pb-6">

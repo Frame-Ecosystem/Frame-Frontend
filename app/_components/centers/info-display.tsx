@@ -1,6 +1,6 @@
 "use client"
 
-import ContactInfo from "../common/contact-info"
+import ContactInfo from "../common/profile-display/contact-info"
 import DisplayLocation from "./display-location"
 import OpeningHours from "../forms/opening-hours"
 import Extras from "../common/extras"

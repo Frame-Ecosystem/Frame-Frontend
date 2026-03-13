@@ -70,7 +70,7 @@ const mockPosts: Post[] = [
     author: mockUsers[1],
     content:
       "Excited to announce that we've expanded our services! Now offering premium spa treatments and wellness packages. Book your appointment today! 🧖‍♀️💆‍♀️",
-    images: ["/images/bgHome.png"],
+    images: ["/images/frameLight.png"],
     likes: ["1", "3"],
     comments: [],
     createdAt: new Date(Date.now() - 6 * 60 * 60 * 1000).toISOString(), // 6 hours ago

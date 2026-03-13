@@ -21,9 +21,11 @@ import { useMutation, useQueryClient } from "@tanstack/react-query"
 
 interface PostCardProps {
   post: Post
+  /** Mark the post image as high-priority (LCP candidate). */
+  priority?: boolean
 }
 
-export function PostCard({ post }: PostCardProps) {
+export function PostCard({ post, priority = false }: PostCardProps) {
   const { user } = useAuth()
   const queryClient = useQueryClient()
   const [showComments, setShowComments] = useState(false)
@@ -167,7 +169,10 @@ export function PostCard({ post }: PostCardProps) {
                   src={post.images[currentImageIndex]}
                   alt={`Post image ${currentImageIndex + 1}`}
                   fill
+                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                   className="object-cover"
+                  priority={priority}
+                  loading={priority ? "eager" : undefined}
                 />
 
                 {/* Navigation arrows - only show if more than 1 image */}
