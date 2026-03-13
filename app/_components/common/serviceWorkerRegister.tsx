@@ -1,42 +1,37 @@
+/**
+ * @file serviceWorkerRegister.tsx
+ * @description Manages the caching service worker (sw.js).
+ *
+ * Currently disabled. When enabled, registers /sw.js for offline caching.
+ * Always preserves the Firebase messaging service worker.
+ */
+
 "use client"
+
 import { useEffect } from "react"
 
-const ServiceWorkerRegister = () => {
+const CACHING_SW_ENABLED = false
+
+export default function ServiceWorkerRegister() {
   useEffect(() => {
-    // Skip service worker registration in development or when API calls are failing
-    const shouldRegister = false // Temporarily disable service worker
+    if (!("serviceWorker" in navigator)) return
 
-    if ("serviceWorker" in navigator && shouldRegister) {
-      // Unregister any existing service workers first
-      navigator.serviceWorker.getRegistrations().then((registrations) => {
-        registrations.forEach((registration) => {
-          registration.unregister()
-        })
-      })
-
+    if (CACHING_SW_ENABLED) {
       window.addEventListener("load", () => {
-        navigator.serviceWorker
-          .register("/sw.js")
-          .then(() => {
-            // Service worker registered successfully
-          })
-          .catch(() => {
-            // Service worker registration failed
-          })
+        navigator.serviceWorker.register("/sw.js").catch(() => {})
       })
     } else {
-      // Unregister service worker if it exists
-      if ("serviceWorker" in navigator) {
-        navigator.serviceWorker.getRegistrations().then((registrations) => {
-          registrations.forEach((registration) => {
-            registration.unregister()
-          })
-        })
-      }
+      // Clean up stale caching SW registrations (preserve Firebase SW)
+      navigator.serviceWorker.getRegistrations().then((registrations) => {
+        for (const reg of registrations) {
+          const url = reg.active?.scriptURL ?? ""
+          if (url.includes("/sw.js") && !url.includes("firebase")) {
+            reg.unregister()
+          }
+        }
+      })
     }
   }, [])
 
   return null
 }
-
-export default ServiceWorkerRegister

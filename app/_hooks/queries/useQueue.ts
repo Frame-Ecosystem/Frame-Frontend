@@ -51,7 +51,10 @@ export function useAgentQueue(agentId: string | null, date?: string) {
 
   return useQuery({
     queryKey: queueKeys.agentQueue(agentId ?? "", date),
-    queryFn: () => queueService.getAgentQueue(agentId!, date),
+    queryFn: () => {
+      if (!agentId) return Promise.resolve(null)
+      return queueService.getAgentQueue(agentId, date)
+    },
     enabled: !!agentId,
   })
 }
@@ -79,7 +82,10 @@ export function useLoungeQueues(loungeId: string | null, date?: string) {
 
   return useQuery({
     queryKey: queueKeys.loungeQueues(loungeId ?? "", date),
-    queryFn: () => queueService.getLoungeQueues(loungeId!, date),
+    queryFn: () => {
+      if (!loungeId) return Promise.resolve([])
+      return queueService.getLoungeQueues(loungeId, date)
+    },
     enabled: !!loungeId,
   })
 }
@@ -307,6 +313,45 @@ export function useBookFromQueue() {
       const message =
         error?.message || error?.error || "Failed to book from queue"
       toast.error(message)
+    },
+  })
+}
+
+/** Lounge queue booking — visitor or client mode */
+export function useLoungeBookFromQueue() {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: (input: {
+      loungeId: string
+      agentId: string
+      visitorName?: string
+      clientPhone?: string
+      clientEmail?: string
+      loungeServiceIds?: string[]
+      notes?: string
+    }) => bookingService.loungeBookFromQueue(input),
+    onSuccess: () => {
+      toast.success("Added to queue!")
+      queryClient.invalidateQueries({ queryKey: queueKeys.all })
+      queryClient.invalidateQueries({ queryKey: ["bookings"] })
+    },
+    onError: (error: any) => {
+      if (isAuthError(error)) return
+      const code = (error as any)?.code
+      const message = error?.message || "Failed to add to queue"
+
+      if (code === "CLIENT_NOT_FOUND") {
+        toast.error(
+          "No client found with this phone number. Try a different number or switch to Visitor mode.",
+        )
+      } else if (code === "AMBIGUOUS_CLIENT_VISITOR") {
+        toast.error("Please choose either Visitor or Client mode, not both.")
+      } else if (code === "MISSING_CLIENT_OR_VISITOR") {
+        toast.error("Please provide a visitor name or client phone number.")
+      } else {
+        toast.error(message)
+      }
     },
   })
 }

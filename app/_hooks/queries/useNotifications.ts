@@ -45,6 +45,8 @@ export function useNotifications() {
       lastPage.page < lastPage.totalPages ? lastPage.page + 1 : undefined,
     initialPageParam: 1,
     enabled: isAuthenticated,
+    staleTime: 30_000,
+    refetchOnMount: "always",
     retry: false,
   })
 }
@@ -52,8 +54,7 @@ export function useNotifications() {
 // ── Mutations (shared invalidation) ─────────────────────────
 function useInvalidateNotifications() {
   const queryClient = useQueryClient()
-  return () =>
-    queryClient.invalidateQueries({ queryKey: notificationKeys.all })
+  return () => queryClient.invalidateQueries({ queryKey: notificationKeys.all })
 }
 
 export function useMarkNotificationsRead() {

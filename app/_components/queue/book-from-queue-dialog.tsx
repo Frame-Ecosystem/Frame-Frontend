@@ -11,16 +11,30 @@ import {
 import { Button } from "../ui/button"
 import { Checkbox } from "../ui/checkbox"
 import { Textarea } from "../ui/textarea"
+import { Input } from "../ui/input"
 import { Label } from "../ui/label"
 import { Badge } from "../ui/badge"
 import { Skeleton } from "../ui/skeleton"
-import { Scissors, Clock, Loader2, AlertCircle } from "lucide-react"
+import {
+  Scissors,
+  Clock,
+  Loader2,
+  AlertCircle,
+  UserPlus,
+  Search,
+} from "lucide-react"
 import { useQuery } from "@tanstack/react-query"
 import { loungeService } from "../../_services/lounge.service"
 import clientService from "../../_services/client.service"
 import { useAuth } from "../../_providers/auth"
-import { useBookFromQueue } from "../../_hooks/queries/useQueue"
+import {
+  useBookFromQueue,
+  useLoungeBookFromQueue,
+} from "../../_hooks/queries/useQueue"
 import type { LoungeServiceItem } from "../../_types"
+
+// ── Booking mode for lounge staff ────────────────────────────
+type BookingMode = "visitor" | "client"
 
 interface BookFromQueueDialogProps {
   open: boolean
@@ -47,6 +61,13 @@ export default function BookFromQueueDialog({
   const [notes, setNotes] = useState("")
   const { user } = useAuth()
   const bookFromQueue = useBookFromQueue()
+  const loungeBookFromQueue = useLoungeBookFromQueue()
+
+  // ── Lounge staff mode fields ───────────────────────────────
+  const [bookingMode, setBookingMode] = useState<BookingMode>("visitor")
+  const [visitorName, setVisitorName] = useState("")
+  const [clientPhone, setClientPhone] = useState("")
+  const [clientEmail, setClientEmail] = useState("")
 
   // ── Fetch lounge services ──────────────────────────────────
   // For lounge owners we use their own endpoint; for clients we use the public endpoint
@@ -103,52 +124,190 @@ export default function BookFromQueueDialog({
   }
 
   const handleSubmit = () => {
-    if (selectedServiceIds.length === 0) return
+    if (mode === "staff") {
+      // ── Lounge staff: use dedicated lounge endpoint ─────────
+      if (bookingMode === "visitor") {
+        if (!visitorName.trim()) return
+        loungeBookFromQueue.mutate(
+          {
+            loungeId,
+            agentId,
+            visitorName: visitorName.trim(),
+            loungeServiceIds:
+              selectedServiceIds.length > 0 ? selectedServiceIds : undefined,
+            notes: notes.trim() || undefined,
+          },
+          { onSuccess: resetForm },
+        )
+      } else {
+        if (!clientPhone.trim()) return
+        loungeBookFromQueue.mutate(
+          {
+            loungeId,
+            agentId,
+            clientPhone: clientPhone.trim(),
+            clientEmail: clientEmail.trim() || undefined,
+            loungeServiceIds:
+              selectedServiceIds.length > 0 ? selectedServiceIds : undefined,
+            notes: notes.trim() || undefined,
+          },
+          { onSuccess: resetForm },
+        )
+      }
+    } else {
+      // ── Client self-booking ─────────────────────────────────
+      if (selectedServiceIds.length === 0) return
+      const clientId = user?._id
+      if (!clientId) return
 
-    const clientId = user?._id
-    if (!clientId) return
-
-    bookFromQueue.mutate(
-      {
-        clientId,
-        loungeId,
-        agentId,
-        loungeServiceIds: selectedServiceIds,
-        notes: notes.trim() || undefined,
-      },
-      {
-        onSuccess: () => {
-          setSelectedServiceIds([])
-          setNotes("")
-          onOpenChange(false)
+      bookFromQueue.mutate(
+        {
+          clientId,
+          loungeId,
+          agentId,
+          loungeServiceIds: selectedServiceIds,
+          notes: notes.trim() || undefined,
         },
-      },
-    )
+        { onSuccess: resetForm },
+      )
+    }
+  }
+
+  const resetForm = () => {
+    setSelectedServiceIds([])
+    setNotes("")
+    setVisitorName("")
+    setClientPhone("")
+    setClientEmail("")
+    setBookingMode("visitor")
+    onOpenChange(false)
   }
 
   const resetAndClose = () => {
-    setSelectedServiceIds([])
-    setNotes("")
-    onOpenChange(false)
+    resetForm()
   }
+
+  const isPending = bookFromQueue.isPending || loungeBookFromQueue.isPending
+
+  // Staff mode: allow submit without services (they're optional for lounge)
+  const isSubmitDisabled =
+    mode === "staff"
+      ? bookingMode === "visitor"
+        ? !visitorName.trim() || isPending
+        : !clientPhone.trim() || isPending
+      : selectedServiceIds.length === 0 || isPending
 
   return (
     <Dialog open={open} onOpenChange={resetAndClose}>
       <DialogContent className="max-h-[85vh] overflow-y-auto sm:max-w-lg">
         <DialogHeader>
           <DialogTitle>
-            {mode === "staff" ? "Add Client to Queue" : "Join the Queue"}
+            {mode === "staff" ? "Add to Queue" : "Join the Queue"}
           </DialogTitle>
           <DialogDescription>
             {agentName
-              ? `Select services for ${agentName}'s queue`
+              ? mode === "staff"
+                ? `Add a visitor or existing client to ${agentName}'s queue`
+                : `Select services for ${agentName}'s queue`
               : "Select services and join the queue"}
           </DialogDescription>
         </DialogHeader>
 
-        {/* Service List */}
         <div className="space-y-4">
-          <Label className="text-sm font-semibold">Select Services</Label>
+          {/* ── Booking Mode Toggle (staff only) ────────────── */}
+          {mode === "staff" && (
+            <div className="space-y-3">
+              <Label className="text-sm font-semibold">Booking Type</Label>
+              <div className="flex gap-2">
+                <Button
+                  type="button"
+                  size="sm"
+                  variant={bookingMode === "visitor" ? "default" : "outline"}
+                  className="flex-1 gap-2"
+                  onClick={() => {
+                    setBookingMode("visitor")
+                    setClientPhone("")
+                    setClientEmail("")
+                  }}
+                >
+                  <UserPlus className="h-4 w-4" />
+                  Visitor
+                </Button>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant={bookingMode === "client" ? "default" : "outline"}
+                  className="flex-1 gap-2"
+                  onClick={() => {
+                    setBookingMode("client")
+                    setVisitorName("")
+                  }}
+                >
+                  <Search className="h-4 w-4" />
+                  Existing Client
+                </Button>
+              </div>
+
+              {/* Visitor fields */}
+              {bookingMode === "visitor" && (
+                <div className="space-y-2">
+                  <Label htmlFor="visitorName" className="text-sm">
+                    Visitor Name <span className="text-destructive">*</span>
+                  </Label>
+                  <Input
+                    id="visitorName"
+                    placeholder="Enter visitor's name"
+                    value={visitorName}
+                    onChange={(e) => setVisitorName(e.target.value)}
+                    maxLength={100}
+                  />
+                </div>
+              )}
+
+              {/* Client fields */}
+              {bookingMode === "client" && (
+                <div className="space-y-2">
+                  <div>
+                    <Label htmlFor="clientPhone" className="text-sm">
+                      Phone Number <span className="text-destructive">*</span>
+                    </Label>
+                    <Input
+                      id="clientPhone"
+                      type="tel"
+                      placeholder="Enter client's phone number"
+                      value={clientPhone}
+                      onChange={(e) => setClientPhone(e.target.value)}
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="clientEmail" className="text-sm">
+                      Email{" "}
+                      <span className="text-muted-foreground text-xs font-normal">
+                        (optional)
+                      </span>
+                    </Label>
+                    <Input
+                      id="clientEmail"
+                      type="email"
+                      placeholder="Enter client's email"
+                      value={clientEmail}
+                      onChange={(e) => setClientEmail(e.target.value)}
+                    />
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Service List */}
+          <Label className="text-sm font-semibold">
+            Select Services
+            {mode === "staff" && (
+              <span className="text-muted-foreground ml-1 text-xs font-normal">
+                (optional)
+              </span>
+            )}
+          </Label>
 
           {servicesLoading ? (
             <div className="space-y-2">
@@ -267,15 +426,8 @@ export default function BookFromQueueDialog({
             <Button type="button" variant="outline" onClick={resetAndClose}>
               Cancel
             </Button>
-            <Button
-              onClick={handleSubmit}
-              disabled={
-                selectedServiceIds.length === 0 || bookFromQueue.isPending
-              }
-            >
-              {bookFromQueue.isPending && (
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              )}
+            <Button onClick={handleSubmit} disabled={isSubmitDisabled}>
+              {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               {mode === "staff" ? "Add to Queue" : "Join Queue"}
             </Button>
           </div>

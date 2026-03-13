@@ -19,6 +19,7 @@ import { apiClient, serviceSuggestionsService } from "../../_services"
 import { isAuthError } from "../../_services/api"
 import { useAuth } from "../../_providers/auth"
 import type { ServiceSuggestion } from "../../_types"
+import { validateSuggestionForm } from "./_lib/validate-suggestion"
 
 export default function SuggestService() {
   const { user } = useAuth()
@@ -68,97 +69,14 @@ export default function SuggestService() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
-    // Name validation
+    const validationError = validateSuggestionForm(form)
+    if (validationError) {
+      toast.error(validationError)
+      return
+    }
+
     const trimmedName = form.name.trim()
-    if (!trimmedName) {
-      toast.error("Service name is required")
-      return
-    }
-    if (trimmedName.length < 2) {
-      toast.error("Service name must be at least 2 characters long")
-      return
-    }
-    if (trimmedName.length > 100) {
-      toast.error("Service name must be less than 100 characters")
-      return
-    }
-    // Check for potentially harmful characters
-    if (/[<>\"'&]/.test(trimmedName)) {
-      toast.error("Service name contains invalid characters")
-      return
-    }
-
-    // Description validation
     const trimmedDescription = form.description.trim()
-    if (!trimmedDescription) {
-      toast.error("Description is required")
-      return
-    }
-    if (trimmedDescription.length < 10) {
-      toast.error("Description must be at least 10 characters long")
-      return
-    }
-    if (trimmedDescription.length > 500) {
-      toast.error("Description must be less than 500 characters")
-      return
-    }
-    // Check for potentially harmful characters
-    if (/[<>\"'&]/.test(trimmedDescription)) {
-      toast.error("Description contains invalid characters")
-      return
-    }
-
-    // Estimated Price validation (now required)
-    if (!form.estimatedPrice || !form.estimatedPrice.trim()) {
-      toast.error("Estimated price is required")
-      return
-    }
-    const price = parseFloat(form.estimatedPrice)
-    if (isNaN(price) || price < 0) {
-      toast.error("Estimated price must be a non-negative number")
-      return
-    }
-    if (price > 1000000) {
-      // 1 million dt max
-      toast.error("Estimated price cannot exceed 1,000,000 dt")
-      return
-    }
-    // Check for reasonable decimal places (max 2)
-    if (!/^\d+(\.\d{1,2})?$/.test(form.estimatedPrice)) {
-      toast.error("Estimated price can have at most 2 decimal places")
-      return
-    }
-
-    // Estimated Duration validation (now required)
-    if (!form.estimatedDuration || !form.estimatedDuration.trim()) {
-      toast.error("Estimated duration is required")
-      return
-    }
-    const duration = parseInt(form.estimatedDuration)
-    if (isNaN(duration) || duration <= 0) {
-      toast.error("Estimated duration must be a positive whole number")
-      return
-    }
-    if (duration > 1440) {
-      // 24 hours max
-      toast.error("Estimated duration cannot exceed 24 hours (1440 minutes)")
-      return
-    }
-    // Ensure it's a whole number
-    if (!Number.isInteger(Number(form.estimatedDuration))) {
-      toast.error("Estimated duration must be a whole number")
-      return
-    }
-
-    // Target Gender validation (now required)
-    if (!form.targetGender) {
-      toast.error("Target gender is required")
-      return
-    }
-    if (!["men", "women", "unisex", "kids"].includes(form.targetGender)) {
-      toast.error("Invalid target gender selected")
-      return
-    }
 
     try {
       const payload: any = {

@@ -30,6 +30,7 @@ class LoungeService {
           typeof service.serviceId === "object"
             ? service.serviceId._id
             : service.serviceId,
+        agentIds: service.agentIds ?? [],
         image: service.image,
       })) as LoungeServiceItem[]
 
@@ -99,13 +100,15 @@ class LoungeService {
       const response = await apiClient.post<any>(`/v1/lounge-services`, payload)
 
       // Normalize response to LoungeServiceItem
-      const created = response && typeof response === "object" ? response : null
+      const raw = response && typeof response === "object" ? response : null
+      const created = raw?.data ?? raw
       if (created) {
         return {
           _id: created._id || created.id,
           id: created.id || created._id,
           loungeId: created.loungeId,
           serviceId: created.serviceId,
+          agentIds: created.agentIds,
           price: created.price,
           duration: created.duration,
           description: created.description,

@@ -16,23 +16,7 @@ import { toast } from "sonner"
 import { loungeService, serviceCategoryService } from "../../_services"
 import { serviceSuggestionsService } from "../../_services"
 import { isAuthError } from "../../_services/api"
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-} from "../../_components/ui/dialog"
-import { Input } from "../../_components/ui/input"
-import { Label } from "../../_components/ui/label"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "../../_components/ui/select"
-import { Textarea } from "../../_components/ui/textarea"
+import { ApprovalDialog } from "./_components/approval-dialog"
 
 export default function AdminServiceSuggestionsPage() {
   const { user, isLoading } = useAuth()
@@ -282,150 +266,15 @@ export default function AdminServiceSuggestionsPage() {
       </div>
 
       {/* Approval Dialog */}
-      <Dialog
+      <ApprovalDialog
         open={approveDialog.open}
-        onOpenChange={(open) => setApproveDialog({ open, suggestion: null })}
-      >
-        <DialogContent className="max-w-md">
-          <DialogHeader>
-            <DialogTitle>Approve Service Suggestion</DialogTitle>
-            <DialogDescription>
-              Approve &quot;{approveDialog.suggestion?.name}&quot; and create
-              the service
-            </DialogDescription>
-          </DialogHeader>
-
-          <form onSubmit={handleApprovalSubmit} className="space-y-4">
-            <div>
-              <Label htmlFor="name">Service Name *</Label>
-              <Input
-                id="name"
-                type="text"
-                placeholder="Enter service name"
-                value={approvalForm.name}
-                onChange={(e) =>
-                  setApprovalForm((prev) => ({ ...prev, name: e.target.value }))
-                }
-                required
-              />
-            </div>
-
-            <div>
-              <Label htmlFor="category">Category *</Label>
-              <Select
-                value={approvalForm.categoryId}
-                onValueChange={(value) =>
-                  setApprovalForm((prev) => ({ ...prev, categoryId: value }))
-                }
-                required
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select a category" />
-                </SelectTrigger>
-                <SelectContent>
-                  {categories.map((category) => (
-                    <SelectItem key={category.id} value={category.id}>
-                      {category.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div>
-              <Label htmlFor="price">Price (dt)</Label>
-              <Input
-                id="price"
-                type="number"
-                placeholder={
-                  approveDialog.suggestion?.estimatedPrice?.toString() ||
-                  "Enter price"
-                }
-                value={approvalForm.price}
-                onChange={(e) =>
-                  setApprovalForm((prev) => ({
-                    ...prev,
-                    price: e.target.value,
-                  }))
-                }
-              />
-            </div>
-
-            <div>
-              <Label htmlFor="duration">Duration (minutes)</Label>
-              <Input
-                id="duration"
-                type="number"
-                placeholder={
-                  approveDialog.suggestion?.estimatedDuration?.toString() ||
-                  "Enter duration"
-                }
-                value={approvalForm.duration}
-                onChange={(e) =>
-                  setApprovalForm((prev) => ({
-                    ...prev,
-                    duration: e.target.value,
-                  }))
-                }
-              />
-            </div>
-
-            <div>
-              <Label htmlFor="gender">Gender</Label>
-              <Select
-                value={approvalForm.gender}
-                onValueChange={(value) =>
-                  setApprovalForm((prev) => ({ ...prev, gender: value }))
-                }
-              >
-                <SelectTrigger>
-                  <SelectValue
-                    placeholder={
-                      approveDialog.suggestion?.targetGender || "Select gender"
-                    }
-                  />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="men">Men</SelectItem>
-                  <SelectItem value="women">Women</SelectItem>
-                  <SelectItem value="unisex">Unisex</SelectItem>
-                  <SelectItem value="kids">Kids</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div>
-              <Label htmlFor="adminNote">Admin Note</Label>
-              <Textarea
-                id="adminNote"
-                placeholder="Optional admin notes..."
-                value={approvalForm.adminNote}
-                onChange={(e) =>
-                  setApprovalForm((prev) => ({
-                    ...prev,
-                    adminNote: e.target.value,
-                  }))
-                }
-              />
-            </div>
-
-            <div className="flex gap-2 pt-4">
-              <Button type="submit" variant="success" className="flex-1">
-                Approve & Create Service
-              </Button>
-              <Button
-                type="button"
-                variant="destructive"
-                onClick={() =>
-                  setApproveDialog({ open: false, suggestion: null })
-                }
-              >
-                Cancel
-              </Button>
-            </div>
-          </form>
-        </DialogContent>
-      </Dialog>
+        suggestion={approveDialog.suggestion}
+        categories={categories}
+        approvalForm={approvalForm}
+        onFormChange={setApprovalForm}
+        onSubmit={handleApprovalSubmit}
+        onClose={() => setApproveDialog({ open: false, suggestion: null })}
+      />
     </div>
   )
 }

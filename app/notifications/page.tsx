@@ -1,10 +1,11 @@
 "use client"
 
 import { useCallback, useEffect, useMemo, useRef } from "react"
-import { Bell, Trash2, CheckCheck, Loader2, ArrowLeft } from "lucide-react"
+import { Bell, Trash2, CheckCheck, ArrowLeft } from "lucide-react"
 import { Button } from "../_components/ui/button"
 import { Badge } from "../_components/ui/badge"
 import { Card, CardContent } from "../_components/ui/card"
+import { Skeleton } from "../_components/ui/skeleton"
 import Link from "next/link"
 import { ErrorBoundary } from "../_components/common/errorBoundary"
 import { useAuth } from "../_providers/auth"
@@ -87,6 +88,21 @@ function NotificationRow({
   )
 }
 
+// ── Skeleton for a single notification row ───────────────────
+function NotificationRowSkeleton() {
+  return (
+    <div className="flex items-start gap-3 rounded-lg border p-4">
+      <Skeleton className="mt-0.5 h-5 w-5 shrink-0 rounded-full" />
+      <div className="min-w-0 flex-1 space-y-2">
+        <Skeleton className="h-4 w-3/5" />
+        <Skeleton className="h-3.5 w-full" />
+        <Skeleton className="h-3 w-16" />
+      </div>
+      <Skeleton className="h-8 w-8 shrink-0 rounded-md" />
+    </div>
+  )
+}
+
 // ── Page ─────────────────────────────────────────────────────
 export default function NotificationsPage() {
   const { user, isLoading: authLoading } = useAuth()
@@ -145,9 +161,21 @@ export default function NotificationsPage() {
     return (
       <ErrorBoundary>
         <div className="from-background via-background to-muted/20 min-h-screen bg-linear-to-br">
-          <div className="mx-auto max-w-7xl p-5 lg:px-8 lg:py-12">
-            <div className="flex min-h-[400px] items-center justify-center">
-              <Loader2 className="text-primary h-8 w-8 animate-spin" />
+          <div className="mx-auto max-w-3xl p-5 lg:px-8 lg:py-12">
+            {/* Header skeleton */}
+            <div className="mb-8 lg:mb-12">
+              <div className="mt-6 mb-4 flex items-center gap-3">
+                <Skeleton className="h-9 w-9 rounded-md" />
+                <Skeleton className="h-8 w-8 rounded-full lg:h-10 lg:w-10" />
+                <Skeleton className="h-8 w-48 lg:h-10" />
+              </div>
+              <Skeleton className="h-5 w-72" />
+            </div>
+            {/* Row skeletons */}
+            <div className="space-y-2">
+              {Array.from({ length: 5 }).map((_, i) => (
+                <NotificationRowSkeleton key={i} />
+              ))}
             </div>
           </div>
         </div>
@@ -257,8 +285,10 @@ export default function NotificationsPage() {
             className="max-h-[calc(100vh-280px)] space-y-2 overflow-y-auto lg:max-h-[calc(100vh-320px)]"
           >
             {listLoading ? (
-              <div className="flex items-center justify-center py-20">
-                <Loader2 className="text-primary h-8 w-8 animate-spin" />
+              <div className="space-y-2">
+                {Array.from({ length: 5 }).map((_, i) => (
+                  <NotificationRowSkeleton key={i} />
+                ))}
               </div>
             ) : notifications.length === 0 ? (
               <div className="py-20 text-center">
@@ -281,8 +311,10 @@ export default function NotificationsPage() {
                   />
                 ))}
                 {isFetchingNextPage && (
-                  <div className="flex justify-center py-4">
-                    <Loader2 className="text-muted-foreground h-5 w-5 animate-spin" />
+                  <div className="space-y-2 py-2">
+                    {Array.from({ length: 2 }).map((_, i) => (
+                      <NotificationRowSkeleton key={i} />
+                    ))}
                   </div>
                 )}
                 {!hasNextPage && notifications.length > 0 && (

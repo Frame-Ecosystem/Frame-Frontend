@@ -1,12 +1,13 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { authService } from "../../_services/auth.service"
 import { useAuth } from "../../_providers/auth"
+import { usePushNotificationContext } from "../../_providers/push-notification"
 
 /**
  * Hook for signing in with email/password
  */
 export function useSignIn() {
-  const { setAuth, clearAuth } = useAuth()
+  const { setAuth } = useAuth()
   const queryClient = useQueryClient()
 
   return useMutation({
@@ -19,8 +20,6 @@ export function useSignIn() {
     }) => authService.signIn(emailOrPhone, password),
     onSuccess: (data) => {
       if (data) {
-        // Clear any existing auth before setting new one
-        clearAuth()
         setAuth(data.data, data.token)
         queryClient.invalidateQueries({ queryKey: ["currentUser"] })
       }
@@ -47,11 +46,13 @@ export function useSignUp() {
  */
 export function useSignOut() {
   const { clearAuth } = useAuth()
+  const { unregisterPush } = usePushNotificationContext()
   const queryClient = useQueryClient()
 
   return useMutation({
     mutationFn: () => authService.signOut(),
-    onSuccess: () => {
+    onSuccess: async () => {
+      await unregisterPush()
       clearAuth()
       queryClient.clear()
     },
@@ -63,11 +64,13 @@ export function useSignOut() {
  */
 export function useLogoutAll() {
   const { clearAuth } = useAuth()
+  const { unregisterPush } = usePushNotificationContext()
   const queryClient = useQueryClient()
 
   return useMutation({
     mutationFn: () => authService.logoutAll(),
-    onSuccess: () => {
+    onSuccess: async () => {
+      await unregisterPush()
       clearAuth()
       queryClient.clear()
     },

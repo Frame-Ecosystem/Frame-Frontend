@@ -8,6 +8,7 @@ import QueueDisplay from "../_components/queue/queue-display"
 export default function QueuePage() {
   const searchParams = useSearchParams()
   const agentId = searchParams.get("agent")
+  const loungeIdParam = searchParams.get("lounge")
   const { user } = useAuth()
 
   const isLounge = user?.type === "lounge"
@@ -22,7 +23,7 @@ export default function QueuePage() {
             : "Salon Center"
         }
         mode={isLounge ? "staff" : "client"}
-        loungeId={isLounge ? user?._id : undefined}
+        loungeId={isLounge ? user?._id : (loungeIdParam ?? undefined)}
         initialAgentId={agentId}
       />
     </div>

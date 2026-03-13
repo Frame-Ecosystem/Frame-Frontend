@@ -3,6 +3,7 @@
 import React, { createContext, useContext, useMemo, useCallback } from "react"
 import { useQueryClient } from "@tanstack/react-query"
 import { toast } from "sonner"
+import { useRouter } from "next/navigation"
 
 import { useAuth } from "./auth"
 import { useSocketRoom } from "../_hooks/useSocketRoom"
@@ -10,6 +11,8 @@ import {
   notificationKeys,
   useUnreadNotificationCount,
 } from "../_hooks/queries/useNotifications"
+import { useBadge } from "../_hooks/useBadge"
+import { getNotificationEngine } from "../_lib/notification-engine"
 import type { AppNotification } from "../_types"
 import { NotificationType } from "../_types"
 
@@ -17,6 +20,7 @@ import { NotificationType } from "../_types"
 const HIGH_PRIORITY_TYPES: ReadonlySet<string> = new Set([
   NotificationType.QUEUE_IN_SERVICE,
   NotificationType.QUEUE_REMINDER,
+  NotificationType.QUEUE_POSITION_CHANGED,
 ])
 
 const TOAST_TYPES: ReadonlySet<string> = new Set([
@@ -25,10 +29,43 @@ const TOAST_TYPES: ReadonlySet<string> = new Set([
   NotificationType.BOOKING_CONFIRMED,
   NotificationType.BOOKING_CANCELLED,
   NotificationType.BOOKING_ABSENT,
+  NotificationType.BOOKING_IN_QUEUE,
+  NotificationType.QUEUE_COMPLETED,
   NotificationType.QUEUE_ABSENT,
   NotificationType.QUEUE_AUTO_CANCELLED,
   NotificationType.QUEUE_BACK_IN_QUEUE,
+  NotificationType.QUEUE_POSITION_CHANGED,
 ])
+
+// Booking types that belong to the "history" tab
+const HISTORY_BOOKING_TYPES: ReadonlySet<string> = new Set([
+  NotificationType.BOOKING_CANCELLED,
+  NotificationType.BOOKING_COMPLETED,
+  NotificationType.BOOKING_ABSENT,
+])
+
+// Booking types that belong to the "upcoming" tab
+const UPCOMING_BOOKING_TYPES: ReadonlySet<string> = new Set([
+  NotificationType.BOOKING_CREATED,
+  NotificationType.BOOKING_CONFIRMED,
+])
+
+/** Returns the redirect path for a notification, or null if no redirect. */
+function getRedirectPath(notification: AppNotification): string | null {
+  const { type, metadata } = notification
+  if (HISTORY_BOOKING_TYPES.has(type)) return "/bookings?view=history"
+  if (UPCOMING_BOOKING_TYPES.has(type)) return "/bookings"
+  // booking:inQueue + all queue:* types → center queue page with agent tab
+  if (type === NotificationType.BOOKING_IN_QUEUE || type.startsWith("queue:")) {
+    if (metadata?.loungeId) {
+      const params = new URLSearchParams({ tab: "queue" })
+      if (metadata.agentId) params.set("agentId", metadata.agentId)
+      return `/centers/${metadata.loungeId}?${params}`
+    }
+    return "/queue"
+  }
+  return null
+}
 
 // ── Context ──────────────────────────────────────────────────
 interface NotificationContextValue {
@@ -68,7 +105,11 @@ function AuthenticatedNotifications({
 }) {
   const { user } = useAuth()
   const queryClient = useQueryClient()
+  const router = useRouter()
   const { data: unreadCount = 0 } = useUnreadNotificationCount()
+
+  // Sync badge count to favicon + PWA home-screen icon
+  useBadge(unreadCount)
 
   // Socket room
   const rooms = useMemo(
@@ -89,14 +130,31 @@ function AuthenticatedNotifications({
         queryKey: notificationKeys.infinite(),
       })
 
-      // Show toast
+      // Play notification sound
+      getNotificationEngine().handle(type)
+
+      // Show toast with optional redirect action
       if (TOAST_TYPES.has(type)) {
         const duration = HIGH_PRIORITY_TYPES.has(type) ? 8000 : 5000
         const show = HIGH_PRIORITY_TYPES.has(type) ? toast.success : toast
-        show(title, { description: body, duration })
+        const redirectPath = getRedirectPath(payload.data)
+
+        const id = show(title, {
+          description: body,
+          duration,
+          ...(redirectPath && {
+            action: {
+              label: "View",
+              onClick: () => {
+                toast.dismiss(id)
+                router.push(redirectPath)
+              },
+            },
+          }),
+        })
       }
     },
-    [queryClient],
+    [queryClient, router],
   )
 
   const socketEvents = useMemo(

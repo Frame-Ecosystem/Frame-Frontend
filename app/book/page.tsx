@@ -2,7 +2,7 @@
 
 import { Suspense, useEffect, useState } from "react"
 import { useSearchParams } from "next/navigation"
-import { BookingWizard } from "../_components/bookings/booking-wizard"
+import { BookingWizard } from "../_components/bookings/wizard/booking-wizard"
 import { CenterService } from "../_types"
 import { useRouter } from "next/navigation"
 import { loungeService } from "../_services"

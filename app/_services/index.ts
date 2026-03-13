@@ -14,6 +14,7 @@ export { default as clientService } from "./client.service"
 export { queueService } from "./queue.service"
 export { getSocket, disconnectSocket } from "./socket"
 export { notificationService } from "./notification.service"
+export { pushNotificationService } from "./push-notification.service"
 export type {
   Center,
   Booking,

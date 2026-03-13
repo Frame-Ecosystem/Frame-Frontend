@@ -1,13 +1,12 @@
 "use client"
 
-import { useState, useRef, useMemo, useCallback, useEffect } from "react"
+import { useState, useRef, useMemo, useCallback } from "react"
 import { Button } from "../ui/button"
 import { CalendarDays, RefreshCw } from "lucide-react"
 
 import { format } from "date-fns"
 import { useQuery } from "@tanstack/react-query"
 
-import { arrayMove } from "@dnd-kit/sortable"
 import { calculateQueueStats } from "./queue-utils"
 import {
   usePseudoFullscreen,
@@ -51,7 +50,17 @@ export default function QueueDisplay({
   loungeId,
   initialAgentId,
 }: QueueDisplayProps) {
-  const [activeQueueIndex, setActiveQueueIndex] = useState(0)
+  const [activeAgentId, setActiveAgentId] = useState<string | null>(
+    initialAgentId ?? null,
+  )
+
+  // Sync when initialAgentId prop changes (e.g. same-page navigation via router.push)
+  const [prevInitialAgentId, setPrevInitialAgentId] = useState(initialAgentId)
+  if (initialAgentId !== prevInitialAgentId) {
+    setPrevInitialAgentId(initialAgentId)
+    if (initialAgentId) setActiveAgentId(initialAgentId)
+  }
+
   const [isExpanded, setIsExpanded] = useState(true)
   const [isPseudoFullScreen, setIsPseudoFullScreen] = useState(false)
   const [selectedDate, setSelectedDate] = useState<string | undefined>(
@@ -90,7 +99,13 @@ export default function QueueDisplay({
   const effectiveLoungeId = loungeId ?? (isOwner ? user?._id : undefined)
   const { data: agentsResponse } = useQuery({
     queryKey: ["loungeAgents", effectiveLoungeId],
-    queryFn: () => loungeService.getAgentsByLoungeId(effectiveLoungeId!),
+    queryFn: () => {
+      if (!effectiveLoungeId)
+        return Promise.resolve(
+          {} as Awaited<ReturnType<typeof loungeService.getAgentsByLoungeId>>,
+        )
+      return loungeService.getAgentsByLoungeId(effectiveLoungeId)
+    },
     enabled: !!effectiveLoungeId,
     staleTime: 60_000,
   })
@@ -127,18 +142,20 @@ export default function QueueDisplay({
     })
   }, [agentsResponse, apiQueues, selectedDate])
 
-  // ── Auto-select agent tab from initialAgentId (once queues are available) ──
-  const appliedInitialAgent = useRef(false)
-  useEffect(() => {
-    if (appliedInitialAgent.current || !initialAgentId || queues.length === 0)
-      return
-    const idx = queues.findIndex((q) => q.agentId?._id === initialAgentId)
-    if (idx !== -1) {
-      setActiveQueueIndex(idx)
-    }
-    appliedInitialAgent.current = true
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [queues])
+  // ── Resolve active queue by agent ID (falls back to first queue) ──
+  const activeQueueIndex = useMemo(() => {
+    if (!activeAgentId || queues.length === 0) return 0
+    const idx = queues.findIndex((q) => q.agentId?._id === activeAgentId)
+    return idx !== -1 ? idx : 0
+  }, [activeAgentId, queues])
+
+  const setActiveQueueIndex = useCallback(
+    (index: number) => {
+      const queue = queues[index]
+      setActiveAgentId(queue?.agentId?._id ?? null)
+    },
+    [queues],
+  )
 
   // ── Mutations ──────────────────────────────────────────────
   const updateStatus = useUpdatePersonStatus()

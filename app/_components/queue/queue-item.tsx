@@ -117,10 +117,13 @@ export default function QueueItem({
   const bookingId = person.bookingId?._id
   const client = person.clientId
   const clientId = client?._id
+  const isVisitor = !client && !!person.visitorName
   const status = person.status
   const isInService = status === "inService"
   const validTransitions = getValidTransitions(status)
-  const clientName = getClientFullName(client?.firstName, client?.lastName)
+  const clientName = client
+    ? getClientFullName(client.firstName, client.lastName)
+    : person.visitorName || "Visitor"
   const serviceDuration = person.bookingId?.totalDuration ?? 0
   const joinedTime = person.joinedAt
     ? format(new Date(person.joinedAt), "h:mm a")
@@ -250,7 +253,17 @@ export default function QueueItem({
         )}
 
         <div className="min-w-0 flex-1">
-          <h4 className="truncate text-xs font-semibold">{clientName}</h4>
+          <div className="flex items-center gap-1.5">
+            <h4 className="truncate text-xs font-semibold">{clientName}</h4>
+            {isVisitor && (
+              <Badge
+                variant="outline"
+                className="shrink-0 border-amber-500/40 bg-amber-500/10 px-1.5 py-0 text-[10px] text-amber-600 dark:text-amber-400"
+              >
+                Visitor
+              </Badge>
+            )}
+          </div>
           <p className="text-muted-foreground truncate text-[11px]">
             {getServicesSummary(person)}
           </p>

@@ -59,9 +59,18 @@ class ApiClient {
     }
 
     // Add CSRF header for state-changing requests (POST/PUT/DELETE/PATCH)
-    // Skip CSRF for signup endpoint as it works on Swagger
     const method = (options.method || "GET").toString().toUpperCase()
-    if (isStateChanging(method) && !endpoint.includes("/v1/auth/signup")) {
+
+    // Unauthenticated endpoints — skip CSRF, 401 refresh, and auth-failure redirect
+    const isPublicAuth =
+      endpoint.includes("/v1/auth/login") ||
+      endpoint.includes("/v1/auth/signup") ||
+      endpoint.includes("/v1/auth/refresh-token") ||
+      endpoint.includes("/v1/auth/forgot-password") ||
+      endpoint.includes("/v1/auth/reset-password") ||
+      endpoint.includes("/v1/auth/google")
+
+    if (isStateChanging(method) && !isPublicAuth) {
       headers = withCsrfHeader(headers, method)
     }
 
@@ -72,20 +81,22 @@ class ApiClient {
         credentials: "include", // Include HttpOnly cookies for refresh token
       })
 
-      // If 401 and we have a refresh callback, try to refresh and retry
-      if (response.status === 401 && this.refreshTokenCallback) {
+      // For authenticated endpoints, try token refresh on 401
+      if (
+        response.status === 401 &&
+        this.refreshTokenCallback &&
+        !isPublicAuth
+      ) {
         const hasSessionFlag =
           typeof window !== "undefined" &&
           localStorage.getItem("hasRefreshToken") === "true"
         if (!hasSessionFlag && !token) {
-          // No session at all — redirect to sign-in
           this.authFailureCallback?.()
           throw new Error("AUTH_FAILURE")
         } else {
           const newToken = await this.refreshTokenCallback()
 
           if (newToken) {
-            // Retry request with new token
             headers = {
               ...headers,
               Authorization: newToken,
@@ -97,15 +108,14 @@ class ApiClient {
               credentials: "include",
             })
           } else {
-            // Token refresh failed - authentication has failed
             this.authFailureCallback?.()
             throw new Error("AUTH_FAILURE")
           }
         }
       }
 
-      // If still 401 after refresh attempt, authentication has failed
-      if (response.status === 401) {
+      // Still 401 after refresh — auth failure (skip for public auth endpoints)
+      if (response.status === 401 && !isPublicAuth) {
         this.authFailureCallback?.()
         throw new Error("AUTH_FAILURE")
       }
@@ -115,12 +125,17 @@ class ApiClient {
         const message = error.message || `API Error: ${response.statusText}`
 
         // Catch auth-related errors from non-401 responses (e.g. 403)
-        const isAuthError =
-          response.status === 403 ||
-          /authenticat|unauthori|token.*expired|session.*expired/i.test(message)
-        if (isAuthError) {
-          this.authFailureCallback?.()
-          throw new Error("AUTH_FAILURE")
+        // but NOT for public auth endpoints (login, signup, etc.)
+        if (!isPublicAuth) {
+          const isAuthError =
+            response.status === 403 ||
+            /authenticat|unauthori|token.*expired|session.*expired/i.test(
+              message,
+            )
+          if (isAuthError) {
+            this.authFailureCallback?.()
+            throw new Error("AUTH_FAILURE")
+          }
         }
 
         const err = new Error(message)
@@ -159,8 +174,11 @@ class ApiClient {
     })
   }
 
-  async delete<T>(endpoint: string): Promise<T> {
-    return this.request<T>(endpoint, { method: "DELETE" })
+  async delete<T>(endpoint: string, data?: unknown): Promise<T> {
+    return this.request<T>(endpoint, {
+      method: "DELETE",
+      ...(data !== undefined && { body: JSON.stringify(data) }),
+    })
   }
 
   async patch<T>(endpoint: string, data?: unknown): Promise<T> {

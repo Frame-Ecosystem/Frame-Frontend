@@ -12,6 +12,7 @@ import CenterItem from "../_components/centers/center-item"
 import ServiceCategoriesSection from "../_components/centers/service-categories-section"
 import PopularServicesSection from "../_components/centers/popular-services-section"
 import { ErrorBoundary } from "../_components/common/errorBoundary"
+import { isCurrentlyOpen } from "./_lib/opening-hours-utils"
 
 interface LoungeUser {
   _id: string
@@ -242,54 +243,6 @@ export default function CentersPage() {
 
   if (!user) {
     return null
-  }
-
-  // Helper function to convert time string to minutes since midnight
-  const timeToMinutes = (timeStr: string): number => {
-    // Handle both "HH:MM" and "H:MM AM/PM" formats
-    const time = timeStr.toLowerCase().trim()
-    let hours: number, minutes: number
-
-    if (time.includes("am") || time.includes("pm")) {
-      // 12-hour format
-      const [timePart, period] = time.split(" ")
-      const [h, m] = timePart.split(":").map(Number)
-      hours =
-        h === 12 ? (period === "am" ? 0 : 12) : period === "pm" ? h + 12 : h
-      minutes = m || 0
-    } else {
-      // 24-hour format
-      const [h, m] = time.split(":").map(Number)
-      hours = h
-      minutes = m || 0
-    }
-
-    return hours * 60 + minutes
-  }
-
-  // Helper function to check if lounge is currently open
-  const isCurrentlyOpen = (openingHours: any): boolean => {
-    if (!openingHours) return false
-
-    const now = new Date()
-    const dayOfWeek = now
-      .toLocaleDateString("en-US", { weekday: "long" })
-      .toLowerCase()
-    const currentMinutes = now.getHours() * 60 + now.getMinutes()
-
-    const todayHours = openingHours[dayOfWeek]
-    if (!todayHours) return false
-
-    // Check if open and close times are defined (try both formats)
-    const openTime = todayHours.open || todayHours.from
-    const closeTime = todayHours.close || todayHours.to
-
-    if (!openTime || !closeTime) return false
-
-    const openMinutes = timeToMinutes(openTime)
-    const closeMinutes = timeToMinutes(closeTime)
-
-    return currentMinutes >= openMinutes && currentMinutes <= closeMinutes
   }
 
   const transformedLounges = lounges.map((lounge) => ({

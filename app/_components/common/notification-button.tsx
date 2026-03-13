@@ -12,6 +12,7 @@ import {
   Slash,
   RefreshCw,
   Timer,
+  ArrowUpDown,
   ChevronRight,
   Users,
   type LucideIcon,
@@ -19,6 +20,7 @@ import {
 import { Button } from "../ui/button"
 import { Badge } from "../ui/badge"
 import { Popover, PopoverTrigger, PopoverContent } from "../ui/popover"
+import { Skeleton } from "../ui/skeleton"
 import { useAuth } from "../../_providers/auth"
 import { useNotificationContext } from "../../_providers/notification"
 import {
@@ -88,6 +90,10 @@ const NOTIFICATION_META: Record<string, NotificationMeta> = {
   [NotificationType.QUEUE_REMINDER]: {
     Icon: Timer,
     color: "text-orange-500",
+  },
+  [NotificationType.QUEUE_POSITION_CHANGED]: {
+    Icon: ArrowUpDown,
+    color: "text-indigo-500",
   },
 }
 
@@ -186,7 +192,11 @@ const NotificationButton = ({ compact }: NotificationButtonProps) => {
   const [isOpen, setIsOpen] = useState(false)
   const router = useRouter()
 
-  const { data, isLoading: listLoading } = useNotifications()
+  const {
+    data,
+    isLoading: listLoading,
+    isPending: listPending,
+  } = useNotifications()
 
   const markRead = useMarkNotificationsRead()
 
@@ -256,7 +266,12 @@ const NotificationButton = ({ compact }: NotificationButtonProps) => {
         </Button>
       </PopoverTrigger>
 
-      <PopoverContent className="mt-2 w-72 p-0" align="end">
+      <PopoverContent
+        className="mt-2 w-[calc(100vw-2rem)] p-0 sm:w-72"
+        align="end"
+        sideOffset={8}
+        collisionPadding={16}
+      >
         <div className="flex flex-col gap-3 p-2">
           {/* Header */}
           <div className="flex items-center justify-between px-1 pt-1">
@@ -271,9 +286,21 @@ const NotificationButton = ({ compact }: NotificationButtonProps) => {
           </div>
 
           {/* Preview list (3 latest) */}
-          {listLoading ? (
-            <div className="flex items-center justify-center py-6">
-              <div className="border-primary h-5 w-5 animate-spin rounded-full border-2 border-t-transparent" />
+          {listLoading || (listPending && !data) ? (
+            <div className="flex flex-col gap-1">
+              {Array.from({ length: PREVIEW_COUNT }).map((_, i) => (
+                <div
+                  key={i}
+                  className="flex items-center gap-3 rounded-lg border p-3"
+                >
+                  <Skeleton className="h-4 w-4 shrink-0 rounded-full" />
+                  <div className="min-w-0 flex-1 space-y-2">
+                    <Skeleton className="h-3.5 w-3/4" />
+                    <Skeleton className="h-3 w-full" />
+                    <Skeleton className="h-2.5 w-12" />
+                  </div>
+                </div>
+              ))}
             </div>
           ) : previewNotifications.length === 0 ? (
             <div className="py-6 text-center">

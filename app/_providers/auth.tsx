@@ -14,6 +14,7 @@ import React, {
   useContext,
   useState,
   useEffect,
+  useLayoutEffect,
   useCallback,
   useRef,
 } from "react"
@@ -191,7 +192,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [setUser, setAccessToken, setSessionFlag, applyUserTheme])
 
   // Update API client when access token changes
-  useEffect(() => {
+  // useLayoutEffect ensures the getter is set synchronously before any
+  // child useEffect (e.g. push-notification auto-subscribe) fires.
+  useLayoutEffect(() => {
     apiClient.setAccessTokenGetter(() => accessToken)
   }, [accessToken])
 

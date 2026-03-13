@@ -18,7 +18,7 @@ import {
   AvatarImage,
   AvatarFallback,
 } from "@/app/_components/ui/avatar"
-import { ImageLightbox } from "@/app/_components/common/image-lightbox"
+import { ImageLightbox } from "@/app/_components/common/images/image-lightbox"
 import RatingDialog from "@/app/_components/forms/rating-dialog"
 import InfoDisplay from "@/app/_components/centers/info-display"
 import OurServices from "@/app/_components/services/our-services"
@@ -61,6 +61,14 @@ export default function CenterPage() {
     if (tab === "posts" || tab === "services" || tab === "queue") return tab
     return "info"
   })
+
+  // Sync tab when searchParams change (e.g. navigating to same page via router.push)
+  useEffect(() => {
+    const tab = searchParams.get("tab")
+    if (tab === "posts" || tab === "services" || tab === "queue") {
+      setActiveTab(tab)
+    }
+  }, [searchParams])
 
   const handleTabChange = useCallback(
     (tab: "info" | "posts" | "services" | "queue") => {

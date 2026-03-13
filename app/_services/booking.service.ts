@@ -336,6 +336,28 @@ class BookingService {
     }
   }
 
+  // Lounge queue booking — visitor or client mode (uses dedicated lounge endpoint)
+  async loungeBookFromQueue(input: {
+    loungeId: string
+    agentId: string
+    visitorName?: string
+    clientPhone?: string
+    clientEmail?: string
+    loungeServiceIds?: string[]
+    notes?: string
+  }): Promise<Booking | null> {
+    try {
+      const data = await apiClient.post<Booking>(
+        "/v1/bookings/queue/lounge",
+        input,
+      )
+      return data
+    } catch (error) {
+      console.error("Failed to create lounge queue booking:", error)
+      throw error
+    }
+  }
+
   // Cancel booking — backend auto-populates cancelledBy from session
   async cancel(id: string): Promise<boolean> {
     try {

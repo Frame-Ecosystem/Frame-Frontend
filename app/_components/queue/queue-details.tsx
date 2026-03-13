@@ -19,7 +19,6 @@ import {
   SortableContext,
   sortableKeyboardCoordinates,
   verticalListSortingStrategy,
-  arrayMove,
 } from "@dnd-kit/sortable"
 import {
   restrictToVerticalAxis,
@@ -68,9 +67,9 @@ export default function QueueDetails({
   onToggleAcceptBooking,
   isTogglingBooking = false,
 }: QueueDetailsProps) {
-  // Filter out completed persons from the queue display
+  // Filter out completed persons (status or position === 0) from the queue display
   const persons = rawPersons.filter(
-    (p) => p.status !== QueuePersonStatus.COMPLETED,
+    (p) => p.status !== QueuePersonStatus.COMPLETED && p.position >= 1,
   )
 
   const [activeId, setActiveId] = useState<string | null>(null)

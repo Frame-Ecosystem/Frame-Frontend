@@ -1,17 +1,35 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { CalendarIcon, History } from "lucide-react"
 import { Button } from "../_components/ui/button"
 import Link from "next/link"
+import { useSearchParams, useRouter } from "next/navigation"
 import { Card, CardContent } from "../_components/ui/card"
 import { ErrorBoundary } from "../_components/common/errorBoundary"
 import { useAuth } from "../_providers/auth"
-import { BookingList } from "../_components/bookings/booking-list"
+import { BookingList } from "../_components/bookings/list/booking-list"
 
 export default function BookingsPage() {
   const { user, isLoading } = useAuth()
-  const [showHistory, setShowHistory] = useState(false)
+  const searchParams = useSearchParams()
+  const router = useRouter()
+  const [showHistory, setShowHistory] = useState(
+    searchParams.get("view") === "history",
+  )
+
+  // Sync state when search param changes (e.g. from notification click)
+  useEffect(() => {
+    setShowHistory(searchParams.get("view") === "history")
+  }, [searchParams])
+
+  const toggleHistory = () => {
+    const next = !showHistory
+    setShowHistory(next)
+    router.replace(next ? "/bookings?view=history" : "/bookings", {
+      scroll: false,
+    })
+  }
 
   // Show loading state while checking authentication
   if (isLoading) {
@@ -126,7 +144,7 @@ export default function BookingsPage() {
               <Button
                 variant={showHistory ? "default" : "outline"}
                 size="sm"
-                onClick={() => setShowHistory(!showHistory)}
+                onClick={toggleHistory}
                 className="gap-2"
               >
                 <History className="h-4 w-4" />

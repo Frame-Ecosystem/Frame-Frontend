@@ -21,7 +21,7 @@ import {
   AvatarImage,
   AvatarFallback,
 } from "@/app/_components/ui/avatar"
-import { ImageLightbox } from "@/app/_components/common/image-lightbox"
+import { ImageLightbox } from "@/app/_components/common/images/image-lightbox"
 import PostsDisplay from "@/app/_components/centers/centersPostsDisplay"
 import type { User } from "@/app/_types"
 
