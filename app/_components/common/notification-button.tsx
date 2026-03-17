@@ -20,7 +20,6 @@ import {
 import { Button } from "../ui/button"
 import { Badge } from "../ui/badge"
 import { Popover, PopoverTrigger, PopoverContent } from "../ui/popover"
-import { Skeleton } from "../ui/skeleton"
 import { useAuth } from "../../_providers/auth"
 import { useNotificationContext } from "../../_providers/notification"
 import {
@@ -30,6 +29,7 @@ import {
 import { NotificationType } from "../../_types"
 import type { AppNotification } from "../../_types"
 import { useRouter } from "next/navigation"
+import { NotificationDropdownSkeleton } from "../skeletons/notifications"
 
 // ── Icon / colour mapping per notification type ──────────────
 interface NotificationMeta {
@@ -297,21 +297,7 @@ const NotificationButton = ({ compact }: NotificationButtonProps) => {
 
           {/* Preview list (3 latest) */}
           {listLoading || (listPending && !data) ? (
-            <div className="flex flex-col gap-1">
-              {Array.from({ length: PREVIEW_COUNT }).map((_, i) => (
-                <div
-                  key={i}
-                  className="flex items-center gap-3 rounded-lg border p-3"
-                >
-                  <Skeleton className="h-4 w-4 shrink-0 rounded-full" />
-                  <div className="min-w-0 flex-1 space-y-2">
-                    <Skeleton className="h-3.5 w-3/4" />
-                    <Skeleton className="h-3 w-full" />
-                    <Skeleton className="h-2.5 w-12" />
-                  </div>
-                </div>
-              ))}
-            </div>
+            <NotificationDropdownSkeleton count={PREVIEW_COUNT} />
           ) : previewNotifications.length === 0 ? (
             <div className="py-6 text-center">
               <Bell className="text-muted-foreground mx-auto mb-2 h-8 w-8 opacity-40" />

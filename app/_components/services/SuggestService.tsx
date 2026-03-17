@@ -20,6 +20,7 @@ import { isAuthError } from "../../_services/api"
 import { useAuth } from "../../_providers/auth"
 import type { ServiceSuggestion } from "../../_types"
 import { validateSuggestionForm } from "./_lib/validate-suggestion"
+import { SuggestServiceSkeleton } from "../skeletons/services"
 
 export default function SuggestService() {
   const { user } = useAuth()
@@ -171,20 +172,7 @@ export default function SuggestService() {
             </div>
 
             {loadingSuggestions ? (
-              <div className="space-y-3 py-8">
-                {[...Array(2)].map((_, i) => (
-                  <div
-                    key={i}
-                    className="flex items-center gap-3 rounded-lg border p-3"
-                  >
-                    <div className="bg-primary/10 h-8 w-8 animate-pulse rounded" />
-                    <div className="flex-1 space-y-2">
-                      <div className="bg-primary/10 h-4 w-40 animate-pulse rounded" />
-                      <div className="bg-primary/10 h-3 w-24 animate-pulse rounded" />
-                    </div>
-                  </div>
-                ))}
-              </div>
+              <SuggestServiceSkeleton count={2} />
             ) : userSuggestions.length === 0 ? (
               <div className="py-8 text-center">
                 <p className="text-muted-foreground">

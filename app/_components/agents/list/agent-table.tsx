@@ -21,6 +21,7 @@ import {
 import { MoreHorizontal, Edit, Trash2, Eye, UserX } from "lucide-react"
 import { Avatar, AvatarImage, AvatarFallback } from "../../ui/avatar"
 import { Checkbox } from "../../ui/checkbox"
+import { AgentTableRowsSkeleton } from "../../skeletons/agents"
 
 interface AgentTableProps {
   agents: Agent[]
@@ -83,35 +84,7 @@ export function AgentTable({
       </TableHeader>
       <TableBody>
         {loading ? (
-          [...Array(5)].map((_, index) => (
-            <TableRow key={`skeleton-${index}`}>
-              {isAdmin && (
-                <TableCell>
-                  <div className="bg-muted-foreground/10 h-4 w-4 animate-pulse rounded"></div>
-                </TableCell>
-              )}
-              <TableCell>
-                <div className="flex items-center gap-3">
-                  <div className="bg-muted-foreground/10 h-8 w-8 animate-pulse rounded-full"></div>
-                  <div className="bg-muted-foreground/10 mb-1 h-4 w-32 animate-pulse rounded"></div>
-                </div>
-              </TableCell>
-              <TableCell>
-                <div className="bg-muted-foreground/10 h-6 w-16 animate-pulse rounded-full"></div>
-              </TableCell>
-              <TableCell>
-                <div className="bg-muted-foreground/10 h-4 w-20 animate-pulse rounded"></div>
-              </TableCell>
-              {isAdmin && (
-                <TableCell>
-                  <div className="bg-muted-foreground/10 h-4 w-24 animate-pulse rounded"></div>
-                </TableCell>
-              )}
-              <TableCell>
-                <div className="bg-muted-foreground/10 h-8 w-8 animate-pulse rounded"></div>
-              </TableCell>
-            </TableRow>
-          ))
+          <AgentTableRowsSkeleton count={5} isAdmin={isAdmin} />
         ) : agents.length === 0 ? (
           <TableRow key="empty">
             <TableCell colSpan={isAdmin ? 6 : 5} className="py-8 text-center">

@@ -7,6 +7,7 @@ import { serviceCategoryService } from "../../_services"
 import { isAuthError } from "../../_services/api"
 import { quickSearchOptions } from "../../_constants/search"
 import type { Service, ServiceCategory } from "../../_types"
+import { PopularServicesSkeleton } from "../skeletons/lounges"
 
 interface PopularServicesSectionProps {
   className?: string
@@ -162,12 +163,7 @@ export default function PopularServicesSection({
       >
         {loadingServices ? (
           // Loading skeleton
-          Array.from({ length: 6 }).map((_, i) => (
-            <div
-              key={i}
-              className="popular-services-btn bg-muted h-10 w-24 shrink-0 animate-pulse rounded-lg lg:h-12 lg:w-auto lg:shrink"
-            />
-          ))
+          <PopularServicesSkeleton count={6} />
         ) : services.length > 0 ? (
           <>
             {/* Original services */}

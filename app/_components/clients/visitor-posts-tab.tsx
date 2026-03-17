@@ -8,21 +8,12 @@ import { PaginationControls } from "@/app/_components/common/pagination-controls
 import { useQuery } from "@tanstack/react-query"
 import { PostService } from "@/app/_services/post.service"
 import type { Post } from "@/app/_types"
+import { SimpleListSkeleton } from "@/app/_components/skeletons/clients"
 
 interface VisitorPostsTabProps {
   clientId: string
   // eslint-disable-next-line no-unused-vars
   onImageClick: (src: string, alt: string) => void
-}
-
-function ListSkeleton() {
-  return (
-    <div className="space-y-3">
-      {[...Array(3)].map((_, i) => (
-        <div key={i} className="bg-primary/10 h-24 animate-pulse rounded-lg" />
-      ))}
-    </div>
-  )
 }
 
 function PostCard({
@@ -97,7 +88,7 @@ export function VisitorPostsTab({
     enabled: !!clientId,
   })
 
-  if (isLoading) return <ListSkeleton />
+  if (isLoading) return <SimpleListSkeleton />
 
   if (!data?.data?.length) {
     return (

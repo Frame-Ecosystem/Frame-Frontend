@@ -28,6 +28,7 @@ import OurServices from "@/app/_components/services/our-services"
 import QueueDisplay from "@/app/_components/queue/queue-display"
 import PostsDisplay from "@/app/_components/lounges/lounge-posts-display"
 import { Button } from "@/app/_components/ui/button"
+import { LoungeDetailSkeleton } from "@/app/_components/skeletons/lounges"
 
 import { Lounge, LoungeService } from "@/app/_types"
 import { useAuth } from "@/app/_providers/auth"
@@ -277,37 +278,7 @@ export default function LoungePage() {
 
   // Show loading state while checking authentication or fetching data
   if (authLoading || loading) {
-    return (
-      <div className="from-background via-background to-muted/20 min-h-screen bg-linear-to-br">
-        <div className="mx-auto max-w-7xl p-5 lg:px-8 lg:py-12">
-          <div className="flex min-h-[400px] items-center justify-center">
-            <div className="w-full max-w-5xl space-y-6">
-              <div className="bg-primary/10 h-[200px] w-full animate-pulse rounded-lg md:h-[280px]" />
-              <div className="-mt-16 flex items-end gap-4 px-4">
-                <div className="bg-primary/10 ring-background h-32 w-32 animate-pulse rounded-full ring-4" />
-                <div className="flex-1 space-y-2 pb-2">
-                  <div className="bg-primary/10 h-6 w-48 animate-pulse rounded" />
-                  <div className="bg-primary/10 h-4 w-32 animate-pulse rounded" />
-                </div>
-              </div>
-              <div className="flex gap-2 px-4">
-                {[...Array(4)].map((_, i) => (
-                  <div
-                    key={i}
-                    className="bg-primary/10 h-9 w-20 animate-pulse rounded-lg"
-                  />
-                ))}
-              </div>
-              <div className="space-y-3 px-4">
-                <div className="bg-primary/10 h-4 w-full animate-pulse rounded" />
-                <div className="bg-primary/10 h-4 w-3/4 animate-pulse rounded" />
-                <div className="bg-primary/10 h-4 w-1/2 animate-pulse rounded" />
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    )
+    return <LoungeDetailSkeleton />
   }
 
   // Redirect to sign-in if not authenticated

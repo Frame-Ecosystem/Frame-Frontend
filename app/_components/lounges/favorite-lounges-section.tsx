@@ -7,6 +7,7 @@ import { useMyLikes } from "../../_hooks/queries"
 import { useAuth } from "../../_providers/auth"
 import type { LikedLounge } from "../../_types"
 import { cn } from "../../_lib/utils"
+import { FavoriteLoungesSkeleton } from "../skeletons/lounges"
 
 interface FavoriteLoungesSectionProps {
   className?: string
@@ -67,30 +68,7 @@ export default function FavoriteLoungesSection({
   // Only show for clients who have at least one favorite
   if (!user || user.type !== "client") return null
   if (isLoading) {
-    return (
-      <div className={cn("my-2 lg:my-6", className)}>
-        <div className="mb-2 flex items-center gap-3 lg:mb-3">
-          <Heart
-            size={20}
-            className="fill-primary text-primary lg:h-6 lg:w-6"
-          />
-          <h2 className="text-muted-foreground lg:text-foreground text-xs font-bold uppercase lg:text-lg lg:font-semibold lg:normal-case">
-            Favorites
-          </h2>
-        </div>
-        <div className="flex gap-3">
-          {[...Array(4)].map((_, i) => (
-            <div
-              key={i}
-              className="flex w-20 shrink-0 flex-col items-center gap-1.5"
-            >
-              <div className="bg-primary/10 h-[65px] w-[65px] animate-pulse rounded-full" />
-              <div className="bg-primary/10 h-3 w-14 animate-pulse rounded" />
-            </div>
-          ))}
-        </div>
-      </div>
-    )
+    return <FavoriteLoungesSkeleton className={className} />
   }
   if (allLikes.length === 0) return null
 

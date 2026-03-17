@@ -25,6 +25,7 @@ import { toast } from "sonner"
 import { serviceCategoryService } from "../../_services"
 import { isAuthError } from "../../_services/api"
 import type { ServiceCategory } from "../../_types"
+import { AdminServiceCategoriesSkeleton } from "../../_components/skeletons/admin"
 
 export default function ServiceCategoryManagementPage() {
   const { user, isLoading } = useAuth()
@@ -167,29 +168,7 @@ export default function ServiceCategoryManagementPage() {
   }
 
   if (isLoading || loading) {
-    return (
-      <div className="from-background via-background to-muted/20 min-h-screen bg-gradient-to-br">
-        <div className="mx-auto max-w-7xl p-5 lg:px-8 lg:py-12">
-          <div className="space-y-6">
-            <div className="bg-primary/10 h-8 w-64 animate-pulse rounded" />
-            <div className="space-y-3">
-              {[...Array(5)].map((_, i) => (
-                <div
-                  key={i}
-                  className="flex items-center justify-between rounded-lg border p-4"
-                >
-                  <div className="flex items-center gap-3">
-                    <div className="bg-primary/10 h-10 w-10 animate-pulse rounded" />
-                    <div className="bg-primary/10 h-4 w-32 animate-pulse rounded" />
-                  </div>
-                  <div className="bg-primary/10 h-8 w-16 animate-pulse rounded" />
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </div>
-    )
+    return <AdminServiceCategoriesSkeleton />
   }
 
   if (!user || user.type !== "admin") {

@@ -15,6 +15,7 @@ import PopularServicesSection from "../_components/lounges/popular-services-sect
 import FavoriteLoungesSection from "../_components/lounges/favorite-lounges-section"
 import { ErrorBoundary } from "../_components/common/errorBoundary"
 import { isCurrentlyOpen } from "./_lib/opening-hours-utils"
+import { LoungesListSkeleton } from "../_components/skeletons/lounges"
 
 interface LoungeUser {
   _id: string
@@ -223,25 +224,7 @@ export default function LoungesPage() {
   if (isLoading) {
     return (
       <ErrorBoundary>
-        <div className="from-background via-background to-muted/20 min-h-screen bg-linear-to-br">
-          <div className="mx-auto max-w-7xl p-5 lg:px-8 lg:py-12">
-            <div className="flex min-h-[400px] items-center justify-center">
-              <div className="w-full max-w-4xl space-y-6">
-                <div className="bg-primary/10 h-8 w-40 animate-pulse rounded" />
-                <div className="bg-primary/10 h-10 w-full animate-pulse rounded-lg" />
-                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                  {[...Array(6)].map((_, i) => (
-                    <div key={i} className="space-y-3 rounded-lg border p-4">
-                      <div className="bg-primary/10 h-32 w-full animate-pulse rounded-lg" />
-                      <div className="bg-primary/10 h-4 w-3/4 animate-pulse rounded" />
-                      <div className="bg-primary/10 h-3 w-1/2 animate-pulse rounded" />
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+        <LoungesListSkeleton />
       </ErrorBoundary>
     )
   }

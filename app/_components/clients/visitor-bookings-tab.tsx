@@ -13,19 +13,10 @@ import { StatusBadge } from "@/app/_components/common/status-badge"
 import { PaginationControls } from "@/app/_components/common/pagination-controls"
 import { useClientBookings } from "@/app/_hooks/queries/useClientVisitorProfile"
 import type { ClientBookingItem } from "@/app/_types"
+import { SimpleListSkeleton } from "@/app/_components/skeletons/clients"
 
 interface VisitorBookingsTabProps {
   clientId: string
-}
-
-function ListSkeleton() {
-  return (
-    <div className="space-y-3">
-      {[...Array(3)].map((_, i) => (
-        <div key={i} className="bg-primary/10 h-24 animate-pulse rounded-lg" />
-      ))}
-    </div>
-  )
 }
 
 function BookingRow({ booking }: { booking: ClientBookingItem }) {
@@ -79,7 +70,7 @@ export function VisitorBookingsTab({ clientId }: VisitorBookingsTabProps) {
 
   const { data, isLoading } = useClientBookings(clientId, page)
 
-  if (isLoading) return <ListSkeleton />
+  if (isLoading) return <SimpleListSkeleton />
 
   if (!data?.bookings?.length) {
     return (

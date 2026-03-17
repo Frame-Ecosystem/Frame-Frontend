@@ -11,6 +11,7 @@ import { Button } from "@/app/_components/ui/button"
 import { StarRating } from "@/app/_components/common/star-rating"
 import { useLoungeRatings } from "@/app/_hooks/queries"
 import type { Rating, PopulatedClient } from "@/app/_types"
+import { ReviewsListSkeleton } from "@/app/_components/skeletons/reviews"
 
 function isPopulatedClient(c: string | PopulatedClient): c is PopulatedClient {
   return typeof c === "object" && "_id" in c
@@ -77,20 +78,7 @@ export default function ReviewsList({ loungeId }: ReviewsListProps) {
   const total = data?.pages[0]?.total ?? 0
 
   if (isLoading) {
-    return (
-      <div className="space-y-4 py-4">
-        {Array.from({ length: 3 }, (_, i) => (
-          <div key={i} className="flex gap-3">
-            <div className="bg-muted h-10 w-10 animate-pulse rounded-full" />
-            <div className="flex-1 space-y-2">
-              <div className="bg-muted h-4 w-32 animate-pulse rounded" />
-              <div className="bg-muted h-3 w-20 animate-pulse rounded" />
-              <div className="bg-muted h-3 w-full animate-pulse rounded" />
-            </div>
-          </div>
-        ))}
-      </div>
-    )
+    return <ReviewsListSkeleton />
   }
 
   if (ratings.length === 0) {

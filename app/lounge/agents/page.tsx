@@ -8,37 +8,11 @@ import { AgentList } from "../../_components/agents/list/agent-list"
 import { AgentForm } from "../../_components/agents/form/agent-form"
 import { AgentDetails } from "../../_components/agents/agent-details"
 import type { Agent } from "../../_types"
+import { AgentListSkeleton } from "../../_components/skeletons/agents"
 
 /* ------------------------------------------------------------------ */
 /* Skeleton shown while auth is resolving                              */
 /* ------------------------------------------------------------------ */
-const SKELETON_COUNT = 3
-
-function AgentListSkeleton() {
-  return (
-    <div className="from-background via-background to-muted/20 min-h-screen bg-gradient-to-br">
-      <div className="mx-auto max-w-7xl p-5 lg:px-8 lg:py-12">
-        <div className="space-y-6">
-          <div className="bg-primary/10 h-8 w-56 animate-pulse rounded" />
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {Array.from({ length: SKELETON_COUNT }, (_, i) => (
-              <div key={i} className="space-y-3 rounded-lg border p-4">
-                <div className="flex items-center gap-3">
-                  <div className="bg-primary/10 h-10 w-10 animate-pulse rounded-full" />
-                  <div className="flex-1 space-y-2">
-                    <div className="bg-primary/10 h-4 w-28 animate-pulse rounded" />
-                    <div className="bg-primary/10 h-3 w-20 animate-pulse rounded" />
-                  </div>
-                </div>
-                <div className="bg-primary/10 h-3 w-full animate-pulse rounded" />
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-    </div>
-  )
-}
 
 /* ------------------------------------------------------------------ */
 /* Main content                                                        */

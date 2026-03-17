@@ -5,7 +5,6 @@ import { Bell, Trash2, CheckCheck, ArrowLeft } from "lucide-react"
 import { Button } from "../_components/ui/button"
 import { Badge } from "../_components/ui/badge"
 import { Card, CardContent } from "../_components/ui/card"
-import { Skeleton } from "../_components/ui/skeleton"
 import Link from "next/link"
 import { ErrorBoundary } from "../_components/common/errorBoundary"
 import { useAuth } from "../_providers/auth"
@@ -22,6 +21,10 @@ import {
 } from "../_components/common/notification-button"
 import type { AppNotification } from "../_types"
 import { useRouter } from "next/navigation"
+import {
+  NotificationsPageSkeleton,
+  NotificationRowSkeleton,
+} from "../_components/skeletons/notifications"
 
 // ── Full notification row (with delete) ──────────────────────
 function NotificationRow({
@@ -84,21 +87,6 @@ function NotificationRow({
       >
         <Trash2 className="text-muted-foreground h-4 w-4" />
       </Button>
-    </div>
-  )
-}
-
-// ── Skeleton for a single notification row ───────────────────
-function NotificationRowSkeleton() {
-  return (
-    <div className="flex items-start gap-3 rounded-lg border p-4">
-      <Skeleton className="mt-0.5 h-5 w-5 shrink-0 rounded-full" />
-      <div className="min-w-0 flex-1 space-y-2">
-        <Skeleton className="h-4 w-3/5" />
-        <Skeleton className="h-3.5 w-full" />
-        <Skeleton className="h-3 w-16" />
-      </div>
-      <Skeleton className="h-8 w-8 shrink-0 rounded-md" />
     </div>
   )
 }
@@ -170,25 +158,7 @@ export default function NotificationsPage() {
   if (authLoading) {
     return (
       <ErrorBoundary>
-        <div className="from-background via-background to-muted/20 min-h-screen bg-linear-to-br">
-          <div className="mx-auto max-w-3xl p-5 lg:px-8 lg:py-12">
-            {/* Header skeleton */}
-            <div className="mb-8 lg:mb-12">
-              <div className="mt-6 mb-4 flex items-center gap-3">
-                <Skeleton className="h-9 w-9 rounded-md" />
-                <Skeleton className="h-8 w-8 rounded-full lg:h-10 lg:w-10" />
-                <Skeleton className="h-8 w-48 lg:h-10" />
-              </div>
-              <Skeleton className="h-5 w-72" />
-            </div>
-            {/* Row skeletons */}
-            <div className="space-y-2">
-              {Array.from({ length: 5 }).map((_, i) => (
-                <NotificationRowSkeleton key={i} />
-              ))}
-            </div>
-          </div>
-        </div>
+        <NotificationsPageSkeleton />
       </ErrorBoundary>
     )
   }

@@ -5,6 +5,7 @@ import { Button } from "../ui/button"
 import { serviceCategoryService } from "../../_services"
 import { isAuthError } from "../../_services/api"
 import type { ServiceCategory } from "../../_types"
+import { ServiceCategoriesSkeleton } from "../skeletons/lounges"
 
 interface ServiceCategoriesSectionProps {
   className?: string
@@ -124,12 +125,7 @@ export default function ServiceCategoriesSection({
       >
         {loadingCategories ? (
           // Loading skeleton
-          Array.from({ length: 6 }).map((_, i) => (
-            <div
-              key={i}
-              className="bg-muted h-10 w-24 shrink-0 animate-pulse rounded-lg lg:h-12 lg:w-auto lg:shrink"
-            />
-          ))
+          <ServiceCategoriesSkeleton count={6} />
         ) : serviceCategories.length > 0 ? (
           <>
             <Button

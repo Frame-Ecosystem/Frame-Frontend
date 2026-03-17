@@ -8,6 +8,7 @@ import { useRouter } from "next/navigation"
 import { loungeService } from "../_services"
 import { serviceService } from "../_services"
 import { isAuthError } from "../_services/api"
+import { BookPageSkeleton } from "../_components/skeletons/bookings"
 
 // Helper function to get valid image URL
 const getValidImageUrl = (image: any): string => {
@@ -83,24 +84,7 @@ function BookPageContent() {
   }, [servicesParam, loungeId])
 
   if (isLoadingServices) {
-    return (
-      <div className="flex min-h-screen items-center justify-center">
-        <div className="w-full max-w-4xl space-y-6 px-4">
-          <div className="space-y-2 text-center">
-            <div className="bg-primary/10 mx-auto h-7 w-64 animate-pulse rounded" />
-            <div className="bg-primary/10 mx-auto h-4 w-80 animate-pulse rounded" />
-          </div>
-          <div className="space-y-4 rounded-lg border p-6">
-            <div className="bg-primary/10 h-5 w-32 animate-pulse rounded" />
-            <div className="bg-primary/10 h-48 w-full animate-pulse rounded-lg" />
-            <div className="flex justify-between">
-              <div className="bg-primary/10 h-10 w-24 animate-pulse rounded-lg" />
-              <div className="bg-primary/10 h-10 w-24 animate-pulse rounded-lg" />
-            </div>
-          </div>
-        </div>
-      </div>
-    )
+    return <BookPageSkeleton />
   }
 
   return (
