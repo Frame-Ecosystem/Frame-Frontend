@@ -55,7 +55,7 @@ function resolveRoute(type: string, data?: Record<string, string>): string {
   if (HISTORY_TYPES.has(type)) return "/bookings?view=history"
   if (UPCOMING_TYPES.has(type)) return "/bookings"
   if (type === "booking:inQueue" || type.startsWith("queue:")) {
-    return data?.loungeId ? `/centers/${data.loungeId}?tab=queue` : "/queue"
+    return data?.loungeId ? `/lounges/${data.loungeId}?tab=queue` : "/queue"
   }
   return "/notifications"
 }

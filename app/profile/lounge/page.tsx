@@ -3,7 +3,14 @@
 import { useState, useEffect, useCallback } from "react"
 import { useSearchParams } from "next/navigation"
 import { Button } from "../../_components/ui/button"
-import { Pencil, StarIcon, User, FileText, Heart } from "lucide-react"
+import {
+  Pencil,
+  StarIcon,
+  User,
+  FileText,
+  Heart,
+  MessageSquare,
+} from "lucide-react"
 import { ErrorBoundary } from "../../_components/common/errorBoundary"
 import { useAuth } from "../../_providers/auth"
 import { authService, getUserDisplayName } from "../../_services/auth.service"
@@ -12,9 +19,12 @@ import { ProfileCover } from "../../_components/common/profile-display/profile-c
 import { AccountSettings } from "../../_components/profile/account-settings"
 import { AccountInformation } from "../../_components/profile/account-information"
 import { OpeningHoursDisplay } from "../../_components/forms/opening-hours-display"
-import PostsDisplay from "../../_components/centers/centersPostsDisplay"
+import PostsDisplay from "../../_components/lounges/lounge-posts-display"
+import { RatingSummaryBadge } from "../../_components/common/star-rating"
+import ReviewsList from "../../_components/common/reviews-list"
 import { Card, CardContent } from "../../_components/ui/card"
 import { LoungeProfileSkeleton } from "./_components/lounge-profile-skeleton"
+import { FollowStats } from "../../_components/common/follow-stats"
 
 // Helper function to format bio text with line breaks
 const formatBioText = (text: string, isMobile: boolean = false) => {
@@ -37,18 +47,23 @@ export default function LoungeProfilePage() {
   const [openBioSection, setOpenBioSection] = useState(false)
   const [isAccountInfoOpen, setIsAccountInfoOpen] = useState(true)
   const [isBioExpanded, setIsBioExpanded] = useState(false)
-  const [activeTab, setActiveTab] = useState<"account" | "posts">(() => {
-    const tab = searchParams.get("tab")
-    if (tab === "posts") return tab
-    return "account"
-  })
+  const [activeTab, setActiveTab] = useState<"account" | "posts" | "reviews">(
+    () => {
+      const tab = searchParams.get("tab")
+      if (tab === "posts" || tab === "reviews") return tab
+      return "account"
+    },
+  )
 
-  const handleTabChange = useCallback((tab: "account" | "posts") => {
-    setActiveTab(tab)
-    const url = new URL(window.location.href)
-    url.searchParams.set("tab", tab)
-    window.history.replaceState({}, "", url.toString())
-  }, [])
+  const handleTabChange = useCallback(
+    (tab: "account" | "posts" | "reviews") => {
+      setActiveTab(tab)
+      const url = new URL(window.location.href)
+      url.searchParams.set("tab", tab)
+      window.history.replaceState({}, "", url.toString())
+    },
+    [],
+  )
   const [isMobile, setIsMobile] = useState(false)
   const [showFullHours, setShowFullHours] = useState(false)
   const [postsCount, setPostsCount] = useState(0)
@@ -262,28 +277,33 @@ export default function LoungeProfilePage() {
             {/* Stats Section */}
             <div className="flex flex-col items-start justify-between gap-4 text-sm md:flex-row md:items-center md:gap-0">
               <div className="flex items-center gap-4">
-                <button className="hover:text-primary flex cursor-pointer items-center gap-2 transition-colors">
+                <button
+                  onClick={() => handleTabChange("reviews")}
+                  className="hover:text-primary flex cursor-pointer items-center gap-2 transition-colors"
+                >
                   <StarIcon
                     size={14}
                     className="fill-yellow-500 text-yellow-500"
                   />
-                  <span className="text-muted-foreground text-sm">4.9</span>
+                  <span className="text-muted-foreground text-sm">
+                    {(user?.ratingCount ?? 0) > 0
+                      ? (user?.averageRating ?? 0).toFixed(1)
+                      : "—"}
+                  </span>
+                  {(user?.ratingCount ?? 0) > 0 && (
+                    <span className="text-muted-foreground text-sm">
+                      ({user?.ratingCount} rating
+                      {user?.ratingCount !== 1 ? "s" : ""})
+                    </span>
+                  )}
                 </button>
                 <button className="hover:text-primary flex cursor-pointer items-center gap-2 transition-colors">
                   <Heart size={14} className="fill-red-500 text-red-500" />
-                  <span className="text-muted-foreground text-sm">2.5k</span>
-                </button>
-                <button className="hover:text-primary flex cursor-pointer items-center gap-2 transition-colors">
-                  <span className="text-muted-foreground text-sm">1.2k</span>
                   <span className="text-muted-foreground text-sm">
-                    followers
-                  </span>
-                  <span className="text-muted-foreground text-sm">•</span>
-                  <span className="text-muted-foreground text-sm">850</span>
-                  <span className="text-muted-foreground text-sm">
-                    following
+                    {user?.likeCount ?? 0}
                   </span>
                 </button>
+                {user?._id && <FollowStats userId={user._id} />}
               </div>
             </div>
 
@@ -336,6 +356,16 @@ export default function LoungeProfilePage() {
               <FileText className="h-4 w-4" />
               Posts {postsCount > 0 && `(${postsCount})`}
             </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              className={`rounded-lg border px-3 py-2 text-sm font-medium transition-all duration-300 ${activeTab === "reviews" ? "border-primary bg-primary/10 text-primary" : "border-border text-foreground hover:border-primary/50 hover:text-primary hover:bg-primary/5"}`}
+              onClick={() => handleTabChange("reviews")}
+            >
+              <MessageSquare className="h-4 w-4" />
+              Reviews
+              {(user?.ratingCount ?? 0) > 0 ? ` (${user?.ratingCount})` : ""}
+            </Button>
           </div>
         </div>
 
@@ -365,6 +395,15 @@ export default function LoungeProfilePage() {
                 <PostsDisplay
                   centerName={user?.loungeTitle || getUserDisplayName(user)}
                 />
+              )}
+              {activeTab === "reviews" && user?._id && (
+                <div className="space-y-4">
+                  <RatingSummaryBadge
+                    averageRating={user?.averageRating ?? 0}
+                    ratingCount={user?.ratingCount ?? 0}
+                  />
+                  <ReviewsList loungeId={user._id} />
+                </div>
               )}
             </CardContent>
           </Card>

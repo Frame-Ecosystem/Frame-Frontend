@@ -6,11 +6,10 @@ import {
   StarIcon,
   InfoIcon,
   Heart,
-  UserPlus,
-  UserCheck,
   FileText,
   Users,
   CalendarIcon,
+  MessageSquare,
 } from "lucide-react"
 import { Card, CardContent } from "@/app/_components/ui/card"
 import {
@@ -20,13 +19,18 @@ import {
 } from "@/app/_components/ui/avatar"
 import { ImageLightbox } from "@/app/_components/common/images/image-lightbox"
 import RatingDialog from "@/app/_components/forms/rating-dialog"
-import InfoDisplay from "@/app/_components/centers/info-display"
+import { RatingSummaryBadge } from "@/app/_components/common/star-rating"
+import ReviewsList from "@/app/_components/common/reviews-list"
+import { useMyRating, useCheckLiked, useToggleLike } from "@/app/_hooks/queries"
+import { FollowButton } from "@/app/_components/common/follow-button"
+import InfoDisplay from "@/app/_components/lounges/info-display"
 import OurServices from "@/app/_components/services/our-services"
 import QueueDisplay from "@/app/_components/queue/queue-display"
-import PostsDisplay from "@/app/_components/centers/centersPostsDisplay"
+import PostsDisplay from "@/app/_components/lounges/lounge-posts-display"
 import { Button } from "@/app/_components/ui/button"
+import { LoungeDetailSkeleton } from "@/app/_components/skeletons/lounges"
 
-import { Center, CenterService } from "@/app/_types"
+import { Lounge, LoungeService } from "@/app/_types"
 import { useAuth } from "@/app/_providers/auth"
 import { useCallback, useEffect, useRef, useState } from "react"
 import { useParams, useRouter, useSearchParams } from "next/navigation"
@@ -34,7 +38,7 @@ import { isLoungeCurrentlyOpen } from "@/app/_components/bookings/booking-utils"
 import { clientService } from "@/app/_services"
 import { toast } from "sonner"
 
-export default function CenterPage() {
+export default function LoungePage() {
   const params = useParams()
   const id = params.id as string
   const { user, isLoading: authLoading } = useAuth()
@@ -43,8 +47,8 @@ export default function CenterPage() {
   const searchParams = useSearchParams()
 
   const [center, setCenter] = useState<
-    | (Center & {
-        services: CenterService[]
+    | (Lounge & {
+        services: LoungeService[]
         openingHours?: any
         latitude?: number
         longitude?: number
@@ -54,38 +58,36 @@ export default function CenterPage() {
   >(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [activeTab, setActiveTab] = useState<
-    "info" | "posts" | "services" | "queue"
-  >(() => {
-    const tab = searchParams.get("tab")
-    if (tab === "posts" || tab === "services" || tab === "queue") return tab
+  type Tab = "info" | "posts" | "services" | "queue" | "reviews"
+  const [activeTab, setActiveTab] = useState<Tab>(() => {
+    const tab = searchParams.get("tab") as Tab
+    if (["posts", "services", "queue", "reviews"].includes(tab)) return tab
     return "info"
   })
 
   // Sync tab when searchParams change (e.g. navigating to same page via router.push)
   useEffect(() => {
-    const tab = searchParams.get("tab")
-    if (tab === "posts" || tab === "services" || tab === "queue") {
+    const tab = searchParams.get("tab") as Tab
+    if (["posts", "services", "queue", "reviews"].includes(tab)) {
       setActiveTab(tab)
     }
   }, [searchParams])
 
-  const handleTabChange = useCallback(
-    (tab: "info" | "posts" | "services" | "queue") => {
-      setActiveTab(tab)
-      const url = new URL(window.location.href)
-      url.searchParams.set("tab", tab)
-      window.history.replaceState({}, "", url.toString())
-    },
-    [],
-  )
+  const handleTabChange = useCallback((tab: Tab) => {
+    setActiveTab(tab)
+    const url = new URL(window.location.href)
+    url.searchParams.set("tab", tab)
+    window.history.replaceState({}, "", url.toString())
+  }, [])
   const [isMobile, setIsMobile] = useState(false)
   const [isBioExpanded, setIsBioExpanded] = useState(false)
-  const [isLiked, setIsLiked] = useState(false)
-  const [isFollowing, setIsFollowing] = useState(false)
-  const [isRated, setIsRated] = useState(false)
   const [showRatingPopup, setShowRatingPopup] = useState(false)
-  const [userRating, setUserRating] = useState(0)
+  const { data: liked = false } = useCheckLiked(
+    user?.type === "client" ? id : undefined,
+  )
+  const toggleLike = useToggleLike(id)
+  const { data: myRating } = useMyRating(id)
+  const isRated = !!myRating
   const [lightboxSrc, setLightboxSrc] = useState<string | null>(null)
   const [lightboxAlt, setLightboxAlt] = useState("")
   const postsCount = 4 // Mock data has 4 posts
@@ -196,7 +198,7 @@ export default function CenterPage() {
         ])
 
         // Transform services data to match ServiceItem interface
-        const transformedServices: CenterService[] = servicesData.map(
+        const transformedServices: LoungeService[] = servicesData.map(
           (service: any) => {
             // Helper function to get valid image URL
             const getValidImageUrl = (image: any): string => {
@@ -216,7 +218,7 @@ export default function CenterPage() {
                 "/images/placeholder.svg",
               price: service.price || 0,
               durationMinutes: service.duration || 0,
-              centerId: service.loungeId,
+              loungeId: service.loungeId,
             }
           },
         )
@@ -224,9 +226,9 @@ export default function CenterPage() {
         // Determine lounge email (no verification gating)
         const displayEmail = loungeData?.email ?? undefined
 
-        // Transform lounge data to match Center interface
-        const transformedCenter: Center & {
-          services: CenterService[]
+        // Transform lounge data to match Lounge interface
+        const transformedCenter: Lounge & {
+          services: LoungeService[]
           openingHours?: any
           latitude?: number
           longitude?: number
@@ -254,6 +256,9 @@ export default function CenterPage() {
           longitude: loungeData.location?.longitude,
           // only expose lounge.email when explicitly verified in object shape
           email: displayEmail,
+          averageRating: loungeData.averageRating ?? 0,
+          ratingCount: loungeData.ratingCount ?? 0,
+          likeCount: loungeData.likeCount ?? 0,
         }
 
         setCenter(transformedCenter)
@@ -273,37 +278,7 @@ export default function CenterPage() {
 
   // Show loading state while checking authentication or fetching data
   if (authLoading || loading) {
-    return (
-      <div className="from-background via-background to-muted/20 min-h-screen bg-linear-to-br">
-        <div className="mx-auto max-w-7xl p-5 lg:px-8 lg:py-12">
-          <div className="flex min-h-[400px] items-center justify-center">
-            <div className="w-full max-w-5xl space-y-6">
-              <div className="bg-primary/10 h-[200px] w-full animate-pulse rounded-lg md:h-[280px]" />
-              <div className="-mt-16 flex items-end gap-4 px-4">
-                <div className="bg-primary/10 ring-background h-32 w-32 animate-pulse rounded-full ring-4" />
-                <div className="flex-1 space-y-2 pb-2">
-                  <div className="bg-primary/10 h-6 w-48 animate-pulse rounded" />
-                  <div className="bg-primary/10 h-4 w-32 animate-pulse rounded" />
-                </div>
-              </div>
-              <div className="flex gap-2 px-4">
-                {[...Array(4)].map((_, i) => (
-                  <div
-                    key={i}
-                    className="bg-primary/10 h-9 w-20 animate-pulse rounded-lg"
-                  />
-                ))}
-              </div>
-              <div className="space-y-3 px-4">
-                <div className="bg-primary/10 h-4 w-full animate-pulse rounded" />
-                <div className="bg-primary/10 h-4 w-3/4 animate-pulse rounded" />
-                <div className="bg-primary/10 h-4 w-1/2 animate-pulse rounded" />
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    )
+    return <LoungeDetailSkeleton />
   }
 
   // Redirect to sign-in if not authenticated
@@ -323,10 +298,10 @@ export default function CenterPage() {
                 {error || "Lounge not found"}
               </p>
               <button
-                onClick={() => router.push("/centers")}
+                onClick={() => router.push("/lounges")}
                 className="text-primary hover:underline"
               >
-                Back to Centers
+                Back to Lounges
               </button>
             </div>
           </div>
@@ -468,7 +443,7 @@ export default function CenterPage() {
             {center.description &&
               center.description !== "No description available" && (
                 <div>
-                  <p className="text-muted-foreground text-sm leading-relaxed whitespace-pre-line">
+                  <p className="text-foreground text-base leading-relaxed font-semibold whitespace-pre-line">
                     {isBioExpanded
                       ? center.description
                       : center.description.length > (isMobile ? 25 : 55)
@@ -500,7 +475,10 @@ export default function CenterPage() {
             <div className="flex flex-col items-start justify-between gap-4 text-sm md:flex-row md:items-center md:gap-0">
               <div className="flex items-center gap-2">
                 <button
-                  onClick={() => setShowRatingPopup(true)}
+                  onClick={() => {
+                    if (user?.type === "client") setShowRatingPopup(true)
+                    else handleTabChange("reviews")
+                  }}
                   className={`mx-1 mb-0 flex cursor-pointer items-center gap-1.5 rounded-full px-2 py-1 backdrop-blur-sm transition-colors ${
                     isRated
                       ? "bg-yellow-500/20 hover:bg-yellow-500/30"
@@ -514,44 +492,49 @@ export default function CenterPage() {
                     }`}
                   />
                   <span className="text-sm font-medium text-yellow-500">
-                    4.9
+                    {(center.ratingCount ?? 0) > 0
+                      ? (center.averageRating ?? 0).toFixed(1)
+                      : "—"}
                   </span>
                 </button>
 
                 {/* Heart / Likes */}
                 <button
-                  onClick={() => setIsLiked(!isLiked)}
-                  className="bg-muted/50 hover:bg-muted flex items-center gap-1.5 rounded-full px-2 py-1 transition-colors"
+                  onClick={() => {
+                    if (user?.type === "client") {
+                      toggleLike.mutate({
+                        onSuccess: (result) => {
+                          setCenter((prev) =>
+                            prev
+                              ? {
+                                  ...prev,
+                                  likeCount: Math.max(
+                                    0,
+                                    (prev.likeCount ?? 0) +
+                                      (result.liked ? 1 : -1),
+                                  ),
+                                }
+                              : prev,
+                          )
+                        },
+                      })
+                    }
+                  }}
+                  disabled={toggleLike.isRateLimited || toggleLike.isPending}
+                  className="bg-muted/50 hover:bg-muted flex items-center gap-1.5 rounded-full px-2 py-1 transition-colors disabled:pointer-events-none disabled:opacity-50"
                   aria-label="Like"
                 >
                   <Heart
                     size={14}
-                    className={`transition-colors ${isLiked ? "fill-red-500 text-red-500" : "text-muted-foreground"}`}
+                    className={`transition-colors ${liked ? "fill-red-500 text-red-500" : "text-muted-foreground"}`}
                   />
                   <span className="text-muted-foreground text-sm font-medium">
-                    1.2k
+                    {center.likeCount ?? 0}
                   </span>
                 </button>
 
                 {/* Follow */}
-                <button
-                  onClick={() => setIsFollowing(!isFollowing)}
-                  className={`flex items-center gap-1.5 rounded-full px-2 py-1 transition-colors ${
-                    isFollowing
-                      ? "bg-primary/10 text-primary hover:bg-primary/20"
-                      : "bg-muted/50 text-muted-foreground hover:bg-muted"
-                  }`}
-                  aria-label={isFollowing ? "Following" : "Follow"}
-                >
-                  {isFollowing ? (
-                    <UserCheck size={14} className="text-primary" />
-                  ) : (
-                    <UserPlus size={14} />
-                  )}
-                  <span className="text-sm font-medium">
-                    {isFollowing ? "Following" : "Follow"}
-                  </span>
-                </button>
+                {user?.type === "client" && <FollowButton targetId={id} />}
               </div>
             </div>
           </div>
@@ -600,7 +583,7 @@ export default function CenterPage() {
               onClick={() => {
                 if (!isOpen) {
                   toast.info(
-                    "Center is currently closed and can't accept bookings now. Go to the Services tab to book for another date.",
+                    "Lounge is currently closed and can't accept bookings now. Go to the Services tab to book for another date.",
                     { duration: 4000 },
                   )
                   return
@@ -610,6 +593,16 @@ export default function CenterPage() {
             >
               <Users className="h-4 w-4" />
               Queue
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              className={`shrink-0 rounded-lg border px-3 py-2 text-sm font-medium transition-all duration-300 ${activeTab === "reviews" ? "border-primary bg-primary/10 text-primary" : "border-border text-foreground hover:border-primary/50 hover:text-primary hover:bg-primary/5"}`}
+              onClick={() => handleTabChange("reviews")}
+            >
+              <MessageSquare className="h-4 w-4" />
+              Reviews
+              {(center.ratingCount ?? 0) > 0 ? ` (${center.ratingCount})` : ""}
             </Button>
           </div>
         </div>
@@ -641,7 +634,29 @@ export default function CenterPage() {
                   mode="client"
                   loungeId={id}
                   initialAgentId={searchParams.get("agentId")}
+                  highlightBookingId={searchParams.get("bookingId")}
                 />
+              )}
+              {activeTab === "reviews" && id && (
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <RatingSummaryBadge
+                      averageRating={center.averageRating ?? 0}
+                      ratingCount={center.ratingCount ?? 0}
+                    />
+                    {user?.type === "client" && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setShowRatingPopup(true)}
+                      >
+                        <StarIcon className="h-4 w-4" />
+                        {isRated ? "Edit Rating" : "Rate"}
+                      </Button>
+                    )}
+                  </div>
+                  <ReviewsList loungeId={id} />
+                </div>
               )}
             </CardContent>
           </Card>
@@ -651,11 +666,24 @@ export default function CenterPage() {
       <RatingDialog
         isOpen={showRatingPopup}
         onOpenChange={setShowRatingPopup}
-        initialRating={userRating}
-        centerName={center?.name}
-        onConfirm={(rating) => {
-          setUserRating(rating)
-          setIsRated(true)
+        loungeId={id}
+        loungeName={center?.name}
+        onRatingChange={async () => {
+          try {
+            const loungeData = await clientService.getLoungeById(id)
+            setCenter((prev) =>
+              prev
+                ? {
+                    ...prev,
+                    averageRating: loungeData.averageRating ?? 0,
+                    ratingCount: loungeData.ratingCount ?? 0,
+                    likeCount: loungeData.likeCount ?? prev.likeCount ?? 0,
+                  }
+                : prev,
+            )
+          } catch {
+            // silently ignore — stale count is acceptable until next page load
+          }
         }}
       />
     </ErrorBoundary>

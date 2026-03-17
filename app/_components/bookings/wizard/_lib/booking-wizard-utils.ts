@@ -1,11 +1,11 @@
-import type { LoungeAgent, CenterService } from "../../../../_types"
+import type { LoungeAgent, LoungeService } from "../../../../_types"
 
 /**
  * Check if an agent can perform ALL the given services.
  */
 export function canAgentPerformAllServices(
   agent: LoungeAgent,
-  services: CenterService[],
+  services: LoungeService[],
 ): boolean {
   if (!services.length) return true
   if (!agent.idLoungeService || agent.idLoungeService.length === 0) return false
@@ -19,8 +19,8 @@ export function canAgentPerformAllServices(
  */
 export function getUnavailableServices(
   agent: LoungeAgent,
-  services: CenterService[],
-): CenterService[] {
+  services: LoungeService[],
+): LoungeService[] {
   if (!services.length || !agent.idLoungeService) return []
   return services.filter(
     (service) => !agent.idLoungeService!.includes(service.id),

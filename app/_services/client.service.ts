@@ -32,6 +32,9 @@ interface LoungeUser {
   createdAt?: string
   type?: string
   openingHours?: any
+  averageRating?: number
+  ratingCount?: number
+  likeCount?: number
   location?: {
     latitude: number
     longitude: number
@@ -128,6 +131,103 @@ const clientService = {
       console.error(`Error fetching lounge services ${loungeId}:`, error)
       throw error
     }
+  },
+
+  // ── Client Visitor Profile ──────────────────────────────────────
+
+  async getClientProfile(clientId: string): Promise<{
+    profile: import("../_types").ClientProfile
+    stats: import("../_types").ClientStats
+  }> {
+    const response = await apiClient.get<{
+      data: {
+        profile: import("../_types").ClientProfile
+        stats: import("../_types").ClientStats
+      }
+    }>(`/v1/client/profile/${clientId}`)
+    return response.data
+  },
+
+  async getClientBookings(
+    clientId: string,
+    params?: { page?: number; limit?: number; status?: string },
+  ): Promise<{
+    bookings: import("../_types").ClientBookingItem[]
+    pagination: {
+      currentPage: number
+      totalPages: number
+      totalItems: number
+      itemsPerPage: number
+      hasNextPage: boolean
+      hasPrevPage: boolean
+    }
+  }> {
+    const qp = new URLSearchParams()
+    if (params?.page) qp.append("page", params.page.toString())
+    if (params?.limit) qp.append("limit", params.limit.toString())
+    if (params?.status) qp.append("status", params.status)
+    const qs = qp.toString()
+    // bookings & pagination are at top level, not nested under data
+    const response = await apiClient.get<{
+      bookings: import("../_types").ClientBookingItem[]
+      pagination: {
+        currentPage: number
+        totalPages: number
+        totalItems: number
+        itemsPerPage: number
+        hasNextPage: boolean
+        hasPrevPage: boolean
+      }
+    }>(`/v1/client/profile/${clientId}/bookings${qs ? `?${qs}` : ""}`)
+    return response
+  },
+
+  async getClientLikes(
+    clientId: string,
+    params?: { page?: number; limit?: number },
+  ): Promise<{
+    lounges: import("../_types").ClientLikedLounge[]
+    total: number
+    page: number
+    limit: number
+  }> {
+    const qp = new URLSearchParams()
+    if (params?.page) qp.append("page", params.page.toString())
+    if (params?.limit) qp.append("limit", params.limit.toString())
+    const qs = qp.toString()
+    const response = await apiClient.get<{
+      data: {
+        lounges: import("../_types").ClientLikedLounge[]
+        total: number
+        page: number
+        limit: number
+      }
+    }>(`/v1/client/profile/${clientId}/likes${qs ? `?${qs}` : ""}`)
+    return response.data
+  },
+
+  async getClientRatings(
+    clientId: string,
+    params?: { page?: number; limit?: number },
+  ): Promise<{
+    ratings: import("../_types").ClientRatingItem[]
+    total: number
+    page: number
+    limit: number
+  }> {
+    const qp = new URLSearchParams()
+    if (params?.page) qp.append("page", params.page.toString())
+    if (params?.limit) qp.append("limit", params.limit.toString())
+    const qs = qp.toString()
+    const response = await apiClient.get<{
+      data: {
+        ratings: import("../_types").ClientRatingItem[]
+        total: number
+        page: number
+        limit: number
+      }
+    }>(`/v1/client/profile/${clientId}/ratings${qs ? `?${qs}` : ""}`)
+    return response.data
   },
 }
 

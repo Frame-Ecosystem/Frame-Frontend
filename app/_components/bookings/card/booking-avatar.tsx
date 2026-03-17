@@ -86,7 +86,7 @@ export function BookingAvatar({
         : lounge.profileImage?.url
 
     const handleClick = () => {
-      if (lounge._id) router.push(`/centers/${lounge._id}`)
+      if (lounge._id) router.push(`/lounges/${lounge._id}`)
     }
 
     return (

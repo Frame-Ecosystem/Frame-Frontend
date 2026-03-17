@@ -1,30 +1,34 @@
-import { GOOGLE_AUTH_BASE_URL } from "../_services/api"
+import { GOOGLE_AUTH_BASE_URL, apiClient } from "../_services/api"
 import { authService } from "../_services/auth.service"
-import { apiClient } from "../_services/api"
 
 // ── Types ────────────────────────────────────────────────────
+
 export interface GoogleAuthResult {
   token: string
   user?: any
 }
 
-type AuthMode = "signin" | "signup"
-
 interface PopupOptions {
-  /** URL to open – defaults to the sign-in endpoint */
   url?: string
-  /** "signin" skips graceful 401 retries; "signup" waits longer */
-  mode?: AuthMode
-  /** How long before we give up (ms) */
+  mode?: "signin" | "signup"
   timeoutMs?: number
-  /** How often we poll the refresh endpoint (ms) */
   pollIntervalMs?: number
 }
 
+interface ResultHandlers {
+  // eslint-disable-next-line no-unused-vars
+  setAuth: (user: any, token: string) => void
+  onSuccess?: () => void
+  onClose?: () => void
+  // eslint-disable-next-line no-unused-vars
+  redirect: (path: string) => void
+  getRedirectPath: () => string
+}
+
 // ── Helpers ──────────────────────────────────────────────────
+
 const sleep = (ms: number) => new Promise<void>((r) => setTimeout(r, ms))
 
-/** Centre a popup on the current screen. */
 function openCenteredPopup(url: string, name: string, w: number, h: number) {
   const left = window.screenX + (window.outerWidth - w) / 2
   const top = window.screenY + (window.outerHeight - h) / 2
@@ -35,7 +39,6 @@ function openCenteredPopup(url: string, name: string, w: number, h: number) {
   )
 }
 
-/** Try to read the popup URL (fails silently on cross-origin). */
 function readPopupUrl(popup: Window): string | null {
   try {
     return popup.location.href
@@ -44,14 +47,7 @@ function readPopupUrl(popup: Window): string | null {
   }
 }
 
-/** Hit the refresh-token endpoint and return a normalised result. */
-async function tryRefreshToken(): Promise<{
-  ok: boolean
-  status: number
-  token?: string
-  user?: any
-  message?: string
-} | null> {
+async function tryRefreshToken() {
   try {
     const res = await fetch(`${GOOGLE_AUTH_BASE_URL}/v1/auth/refresh-token`, {
       method: "POST",
@@ -59,21 +55,16 @@ async function tryRefreshToken(): Promise<{
       headers: { "Content-Type": "application/json" },
     })
     const body = await res.json().catch(() => null)
-    const token = body?.token || body?.data?.token
-    const user = body?.user || body?.data?.user
     return {
       ok: res.ok,
-      status: res.status,
-      token,
-      user,
-      message: body?.message,
+      token: body?.token || body?.data?.token,
+      user: body?.user || body?.data?.user,
     }
   } catch {
     return null
   }
 }
 
-/** Fetch the current user using a fresh access token. */
 async function fetchCurrentUser(token: string) {
   try {
     apiClient.setAccessTokenGetter(() => token)
@@ -84,14 +75,14 @@ async function fetchCurrentUser(token: string) {
 }
 
 // ── Main ─────────────────────────────────────────────────────
+
 /**
  * Opens Google OAuth in a centred popup, waits for the user to complete the
  * flow, then polls the refresh-token endpoint to exchange the HttpOnly cookie
  * for an access token.
  *
- * Error detection is UNIFIED: both postMessage from the error/callback pages
- * AND polling run inside this function. The callers (sign-in, sign-up) never
- * need their own postMessage listeners — they just await this promise.
+ * Errors are delivered via `postMessage` from the callback page — the polling
+ * loop never guesses based on raw HTTP status codes.
  */
 export async function openGoogleOAuthPopup({
   url,
@@ -99,19 +90,15 @@ export async function openGoogleOAuthPopup({
   timeoutMs = 120_000,
   pollIntervalMs = 3_000,
 }: PopupOptions = {}): Promise<GoogleAuthResult> {
-  if (typeof window === "undefined") {
-    throw new Error("Not in a browser")
-  }
+  if (typeof window === "undefined") throw new Error("Not in a browser")
 
   const targetUrl = url ?? `${GOOGLE_AUTH_BASE_URL}/v1/auth/google/login`
   const popup = openCenteredPopup(targetUrl, "google_oauth", 520, 600)
-
-  if (!popup) {
+  if (!popup)
     throw new Error("Popup blocked. Please allow popups and try again.")
-  }
 
-  // ── postMessage listener (error page sends errors here) ──
   let messageError: Error | null = null
+
   const onMessage = (e: MessageEvent) => {
     if (e.origin !== window.location.origin) return
     const { type, message } = e.data ?? {}
@@ -128,6 +115,7 @@ export async function openGoogleOAuthPopup({
       )
     }
   }
+
   window.addEventListener("message", onMessage)
 
   const deadline = Date.now() + timeoutMs
@@ -138,23 +126,18 @@ export async function openGoogleOAuthPopup({
     while (Date.now() < deadline) {
       await sleep(pollIntervalMs)
 
-      // ── Check for error-page postMessage ──
-      // The error page fires postMessage before it auto-closes.
-      // Only surface the error once the popup has actually closed
-      // so the user sees the error page UI first.
-      if (messageError && popup.closed) {
-        throw messageError
-      }
+      // Surface postMessage errors once the user has seen the error page
+      if (messageError && popup.closed) throw messageError
 
       const popupClosed = popup.closed
       const popupUrl = readPopupUrl(popup)
 
-      // ── Track cross-origin transition ──
+      // Track when the popup leaves our origin (navigated to Google)
       if (!wentCrossOrigin && popupUrl === null && !popupClosed) {
         wentCrossOrigin = true
       }
 
-      // ── Determine if popup has RETURNED from Google ──
+      // Only poll refresh-token once the popup has returned from Google
       const returnedHome = popupClosed || (wentCrossOrigin && popupUrl !== null)
 
       if (returnedHome) {
@@ -166,28 +149,11 @@ export async function openGoogleOAuthPopup({
           return { token: refresh.token, user }
         }
 
-        // Error responses only matter once popup has closed
-        if (popupClosed) {
-          // If the error page already told us what happened, use that
-          if (messageError) throw messageError
-
-          if (refresh?.status === 401 && mode === "signin") {
-            throw new Error(
-              "Account not found. Please sign up with Google to create your account.",
-            )
-          }
-          if (
-            refresh?.message?.includes("Discriminator") &&
-            mode === "signin"
-          ) {
-            throw new Error(
-              "It looks like this is your first time! Please use 'Sign up with Google' to create your account.",
-            )
-          }
-        }
+        // If popup is closed and the callback page sent an error, throw it
+        if (popupClosed && messageError) throw messageError
       }
 
-      // ── Detect user-closed popup ──
+      // Grace period after user closes the popup manually
       if (popupClosed) {
         popupClosedAt ??= Date.now()
         const grace = mode === "signup" ? 15_000 : 10_000
@@ -208,23 +174,15 @@ export async function openGoogleOAuthPopup({
 }
 
 // ── Shared result handler ────────────────────────────────────
+
 /**
- * Common logic used by both sign-in and sign-up after the popup resolves.
- * Resolves the user, sets auth state, fires callbacks, and redirects.
+ * Common post-popup logic: resolve user, set auth state, and redirect.
  */
 export async function handleGoogleAuthResult(
   result: GoogleAuthResult,
-  helpers: {
-    setAuth: (user: any, token: string) => void
-    onSuccess?: () => void
-    onClose?: () => void
-    redirect: (path: string) => void
-    getRedirectPath: () => string
-  },
+  { setAuth, onSuccess, onClose, redirect, getRedirectPath }: ResultHandlers,
 ) {
   const { token, user: popupUser } = result
-  const { setAuth, onSuccess, onClose, redirect, getRedirectPath } = helpers
-
   const user = popupUser ?? (await fetchCurrentUser(token))
 
   if (!user)

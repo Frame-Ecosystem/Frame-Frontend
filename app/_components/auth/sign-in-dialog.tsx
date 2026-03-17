@@ -1,47 +1,60 @@
 "use client"
 
 import { useState } from "react"
+import { useRouter } from "next/navigation"
+import { Eye, EyeOff } from "lucide-react"
 import { Button } from "../ui/button"
 import { Input } from "../ui/input"
 import { Label } from "../ui/label"
-import { DialogDescription, DialogHeader, DialogTitle } from "../ui/dialog"
+import { DialogHeader, DialogTitle } from "../ui/dialog"
 import { GOOGLE_AUTH_BASE_URL } from "../../_services/api"
 import openGoogleOAuthPopup, {
   handleGoogleAuthResult,
 } from "../../_lib/googlePopup"
 import { getLoginRedirectPath } from "../../_lib/profile"
 import { useAuth } from "../../_providers/auth"
-import { useRouter } from "next/navigation"
-import { Eye, EyeOff } from "lucide-react"
 import { useSignIn } from "../../_hooks/queries"
 import GoogleButton from "./google-button"
+
+const MAX_PHONE_DIGITS = 8
+const EMAIL_CHAR_PATTERN = /[a-zA-Z._-]/
+
+/** True when the value looks like a phone number (pure digits, ≤ 8 chars). */
+function isPhoneInput(value: string): boolean {
+  if (!value || value.includes("@") || EMAIL_CHAR_PATTERN.test(value))
+    return false
+  return value.replace(/\D/g, "").length <= MAX_PHONE_DIGITS
+}
+
+/** Strips non-digits for phone numbers; returns the value as-is for emails. */
+function formatCredential(value: string): string {
+  const digits = value.replace(/\D/g, "")
+  return digits.length === MAX_PHONE_DIGITS ? digits : value
+}
+
+interface SignInDialogProps {
+  onSuccess?: () => void
+  onClose?: () => void
+  onOpenSignUpFlow?: () => void
+}
 
 const SignInDialog = ({
   onSuccess,
   onClose,
   onOpenSignUpFlow,
-}: {
-  onSuccess?: () => void
-  onClose?: () => void
-  onOpenSignUpFlow?: () => void
-}) => {
-  // === STATE ===
+}: SignInDialogProps) => {
   const router = useRouter()
+  const { setAuth } = useAuth()
+  const signInMutation = useSignIn()
+
   const [emailOrPhone, setEmailOrPhone] = useState("")
   const [password, setPassword] = useState("")
   const [error, setError] = useState("")
   const [loading, setLoading] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
 
-  const { setAuth } = useAuth()
-  const signInMutation = useSignIn()
+  const isPhone = isPhoneInput(emailOrPhone)
 
-  // === EVENT HANDLERS ===
-
-  /**
-   * Handles Google OAuth sign-in.
-   * All postMessage + polling error handling lives inside openGoogleOAuthPopup.
-   */
   const handleGoogleSignIn = async () => {
     setError("")
     setLoading(true)
@@ -64,29 +77,14 @@ const SignInDialog = ({
     }
   }
 
-  /**
-   * Handles form submission for both sign-in and sign-up
-   */
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError("")
     setLoading(true)
 
     try {
-      // Check if emailOrPhone looks like a phone number (8 digits)
-      let formattedEmailOrPhone = emailOrPhone
-      const cleanPhone = emailOrPhone.replace(/\D/g, "")
-
-      if (
-        cleanPhone.length === 8 &&
-        cleanPhone === emailOrPhone.replace(/\D/g, "")
-      ) {
-        // It's a phone number, send just the 8 digits (country code is visual only)
-        formattedEmailOrPhone = cleanPhone
-      }
-
       const response = await signInMutation.mutateAsync({
-        emailOrPhone: formattedEmailOrPhone,
+        emailOrPhone: formatCredential(emailOrPhone),
         password,
       })
       if (response) {
@@ -100,93 +98,72 @@ const SignInDialog = ({
     }
   }
 
-  // Handle email/phone input - allow emails or restrict phone numbers to 8 digits
   const handleEmailOrPhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value
+    const { value } = e.target
 
-    // Check if the input contains @ symbol (definitely an email)
-    if (value.includes("@")) {
-      // Allow all email characters
+    if (value.includes("@") || EMAIL_CHAR_PATTERN.test(value)) {
       setEmailOrPhone(value)
-    } else {
-      // Check if it contains email-like characters (letters, dots, hyphens, underscores)
-      const hasEmailChars = /[a-zA-Z._-]/.test(value)
-
-      if (hasEmailChars) {
-        // Allow email characters (likely building an email)
-        setEmailOrPhone(value)
-      } else {
-        // Treat as phone number - only allow numbers and limit to 8 digits
-        const numericValue = value.replace(/\D/g, "")
-        const limitedValue = numericValue.slice(0, 8)
-        setEmailOrPhone(limitedValue)
-      }
+      return
     }
+
+    setEmailOrPhone(value.replace(/\D/g, "").slice(0, MAX_PHONE_DIGITS))
   }
 
-  // === RENDER ===
+  const handleForgotPassword = () => {
+    setError("")
+    onClose?.()
+    router.push("/auth/forgot-password")
+  }
+
+  const handleSignUp = () => {
+    setError("")
+    onClose?.()
+    onOpenSignUpFlow ? onOpenSignUpFlow() : router.push("/choose-type")
+  }
 
   return (
     <>
-      {/* Desktop Style - Centered layout */}
+      {/* Desktop header */}
       <div className="hidden w-full items-center justify-center p-5 md:flex">
         <DialogHeader className="flex w-full flex-col items-center">
           <DialogTitle className="w-full text-center text-lg font-bold">
-            Sign In to the platform
+            Sign In to Frame
           </DialogTitle>
-          <DialogDescription className="text-muted-foreground w-full text-center text-sm">
-            Sign in with your email or phone number
-          </DialogDescription>
         </DialogHeader>
       </div>
 
-      {/* Mobile Style - Compact layout */}
+      {/* Mobile header */}
       <DialogHeader className="md:hidden">
-        <DialogTitle>Sign In to the platform</DialogTitle>
-        <DialogDescription>
-          Sign in with your email or phone number
-        </DialogDescription>
+        <DialogTitle>Sign In to Frame</DialogTitle>
       </DialogHeader>
 
-      {/* Authentication Form */}
       <div className="space-y-4">
-        {/* Email/Password Form */}
         <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Email/Phone field */}
+          {/* Email / Phone */}
           <div className="space-y-2">
             <Label htmlFor="emailOrPhone">Email or Phone Number</Label>
             <div className="relative">
-              {emailOrPhone &&
-                !emailOrPhone.includes("@") &&
-                !/[a-zA-Z._-]/.test(emailOrPhone) &&
-                emailOrPhone.replace(/\D/g, "").length <= 8 && (
-                  <div className="text-muted-foreground pointer-events-none absolute top-1/2 left-3 z-10 flex -translate-y-1/2 items-center gap-1 text-sm">
-                    <span className="font-medium">+216</span>
-                    <span className="bg-muted text-muted-foreground rounded px-1 py-0.5 text-xs">
-                      TN
-                    </span>
-                  </div>
-                )}
+              {isPhone && (
+                <div className="text-muted-foreground pointer-events-none absolute top-1/2 left-3 z-10 flex -translate-y-1/2 items-center gap-1 text-sm">
+                  <span className="font-medium">+216</span>
+                  <span className="bg-muted text-muted-foreground rounded px-1 py-0.5 text-xs">
+                    TN
+                  </span>
+                </div>
+              )}
               <Input
                 id="emailOrPhone"
                 type="text"
                 placeholder="you@example.com or 50123456"
                 value={emailOrPhone}
                 onChange={handleEmailOrPhoneChange}
-                className={
-                  emailOrPhone &&
-                  !emailOrPhone.includes("@") &&
-                  !/[a-zA-Z._-]/.test(emailOrPhone) &&
-                  emailOrPhone.replace(/\D/g, "").length <= 8
-                    ? "pl-20"
-                    : ""
-                }
+                className={isPhone ? "pl-20" : ""}
                 required
               />
             </div>
           </div>
 
-          {/* Password field */}
+          {/* Password */}
           <div className="space-y-2">
             <Label htmlFor="password">Password</Label>
             <div className="relative">
@@ -202,7 +179,7 @@ const SignInDialog = ({
               />
               <button
                 type="button"
-                onClick={() => setShowPassword(!showPassword)}
+                onClick={() => setShowPassword((prev) => !prev)}
                 className="text-muted-foreground hover:text-foreground absolute inset-y-0 right-0 flex items-center pr-3"
               >
                 {showPassword ? (
@@ -214,23 +191,16 @@ const SignInDialog = ({
             </div>
           </div>
 
-          {/* Error message */}
           {error && <p className="text-destructive text-sm">{error}</p>}
 
-          {/* Submit button */}
           <Button type="submit" className="w-full" disabled={loading}>
             {loading ? "Loading..." : "Sign In"}
           </Button>
 
-          {/* Forgot password link */}
           <div className="text-center">
             <button
               type="button"
-              onClick={() => {
-                setError("")
-                onClose?.()
-                router.push("/auth/forgot-password")
-              }}
+              onClick={handleForgotPassword}
               className="text-primary text-sm hover:underline"
             >
               Forgot your password?
@@ -239,21 +209,10 @@ const SignInDialog = ({
 
           <GoogleButton onClick={handleGoogleSignIn} />
 
-          {/* Signup link: always redirect to type selection first */}
           <div className="text-center text-sm">
             <button
               type="button"
-              onClick={() => {
-                setError("")
-                // Close dialog and open signup flow dialog if provided
-                onClose?.()
-                if (onOpenSignUpFlow) {
-                  onOpenSignUpFlow()
-                } else {
-                  // Fallback: navigate to type selection page
-                  router.push("/choose-type")
-                }
-              }}
+              onClick={handleSignUp}
               className="text-primary hover:underline"
             >
               Don&apos;t have an account? Sign up

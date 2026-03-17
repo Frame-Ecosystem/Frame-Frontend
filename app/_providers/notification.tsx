@@ -60,7 +60,7 @@ function getRedirectPath(notification: AppNotification): string | null {
     if (metadata?.loungeId) {
       const params = new URLSearchParams({ tab: "queue" })
       if (metadata.agentId) params.set("agentId", metadata.agentId)
-      return `/centers/${metadata.loungeId}?${params}`
+      return `/lounges/${metadata.loungeId}?${params}`
     }
     return "/queue"
   }

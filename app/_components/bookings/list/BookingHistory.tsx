@@ -77,7 +77,11 @@ export function BookingHistory({
       </div>
 
       {filteredBookings.map((booking) => (
-        <Card key={booking._id} className="overflow-hidden shadow-md">
+        <Card
+          key={booking._id}
+          id={`booking-${booking._id}`}
+          className="overflow-hidden shadow-md"
+        >
           {/* User Avatar Header */}
           <div className="bg-muted/30 border-b px-3 py-2">
             <div className="flex justify-center">
@@ -127,9 +131,23 @@ export function BookingHistory({
             {booking.notes && (
               <div className="mb-2">
                 <div className="flex items-center gap-2">
-                  <span className="text-sm font-medium">Notes:</span>
+                  <span className="text-sm font-medium">Client Notes:</span>
                   <p className="text-muted-foreground text-sm">
                     {booking.notes}
+                  </p>
+                </div>
+              </div>
+            )}
+
+            {/* Cancellation Reason */}
+            {booking.status === "cancelled" && booking.cancelledBy?.note && (
+              <div className="mb-2">
+                <div className="flex items-center gap-2">
+                  <span className="text-sm font-medium">
+                    Cancellation Reason:
+                  </span>
+                  <p className="text-muted-foreground text-sm">
+                    &ldquo;{booking.cancelledBy.note}&rdquo;
                   </p>
                 </div>
               </div>

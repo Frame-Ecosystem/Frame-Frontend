@@ -3,18 +3,18 @@ import { useState } from "react"
 import { Badge } from "../ui/badge"
 import { CalendarIcon } from "lucide-react"
 import ServiceItem from "./service-item"
-import { Center, CenterService } from "@/app/_types"
+import { Lounge, LoungeService } from "@/app/_types"
 import BookingCTA from "../bookings/booking-cta"
 
 interface OurServicesProps {
-  services: CenterService[]
-  center: Center & { services?: CenterService[] }
+  services: LoungeService[]
+  center: Lounge & { services?: LoungeService[] }
 }
 
 export default function OurServices({ services, center }: OurServicesProps) {
-  const [selectedServices, setSelectedServices] = useState<CenterService[]>([])
+  const [selectedServices, setSelectedServices] = useState<LoungeService[]>([])
 
-  const handleServiceSelect = (service: CenterService) => {
+  const handleServiceSelect = (service: LoungeService) => {
     setSelectedServices((prev) => {
       const isSelected = prev.some((s) => s.id === service.id)
       if (isSelected) {

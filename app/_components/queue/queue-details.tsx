@@ -50,6 +50,8 @@ interface QueueDetailsProps {
   onToggleAcceptBooking?: (enabled: boolean) => void
   /** Whether the toggle mutation is in-flight */
   isTogglingBooking?: boolean
+  /** Booking ID to scroll-to and highlight on mount */
+  highlightBookingId?: string | null
 }
 
 export default function QueueDetails({
@@ -66,6 +68,7 @@ export default function QueueDetails({
   acceptQueueBooking = true,
   onToggleAcceptBooking,
   isTogglingBooking = false,
+  highlightBookingId,
 }: QueueDetailsProps) {
   // Filter out completed persons (status or position === 0) from the queue display
   const persons = rawPersons.filter(
@@ -235,6 +238,7 @@ export default function QueueDetails({
                     onStatusChange={onStatusChange}
                     onRemove={onRemove}
                     isUpdating={isUpdating}
+                    highlightBookingId={highlightBookingId}
                   />
                 ))}
               </SortableContext>
@@ -262,6 +266,7 @@ export default function QueueDetails({
                 person={person}
                 allPersons={persons}
                 mode={mode}
+                highlightBookingId={highlightBookingId}
               />
             ))
           )}

@@ -4,12 +4,12 @@
 import { Label } from "../../ui/label"
 import { Textarea } from "../../ui/textarea"
 import { format } from "date-fns"
-import type { CenterService, LoungeAgent } from "../../../_types"
+import type { LoungeService, LoungeAgent } from "../../../_types"
 
 interface BookingPreviewStepProps {
   bookingDate: Date | undefined
   bookingTime: string
-  selectedServices: CenterService[]
+  selectedServices: LoungeService[]
   selectedAgent: LoungeAgent | null
   selectedAgents: { [serviceId: string]: LoungeAgent | undefined }
   useMultipleAgents: boolean

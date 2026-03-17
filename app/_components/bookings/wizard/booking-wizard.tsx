@@ -9,7 +9,7 @@ import { bookingService } from "../../../_services/booking.service"
 import { isAuthError } from "../../../_services/api"
 import type {
   CreateBookingInput,
-  CenterService,
+  LoungeService,
   LoungeAgent,
 } from "../../../_types"
 import { BookingProgress } from "./booking-progress"
@@ -27,7 +27,7 @@ interface BookingWizardProps {
   onSuccess?: () => void
   onCancel?: () => void
   loungeId?: string
-  preSelectedServices?: CenterService[]
+  preSelectedServices?: LoungeService[]
 }
 
 type BookingStep = "datetime" | "agent" | "preview"
@@ -69,7 +69,7 @@ export function BookingWizard({
   const [isLoadingAvailability, setIsLoadingAvailability] = useState(false)
 
   // Services data
-  const [selectedServices, setSelectedServices] = useState<CenterService[]>([])
+  const [selectedServices, setSelectedServices] = useState<LoungeService[]>([])
   const [totalPrice, setTotalPrice] = useState(0)
   const [totalDuration, setTotalDuration] = useState(0)
 

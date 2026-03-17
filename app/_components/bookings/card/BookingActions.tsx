@@ -1,3 +1,6 @@
+"use client"
+
+import { useState } from "react"
 import { Button } from "../../ui/button"
 import {
   AlertDialog,
@@ -10,6 +13,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "../../ui/alert-dialog"
+import { CancelBookingDialog } from "./CancelBookingDialog"
 import type { BookingStatus } from "../../../_types"
 
 interface BookingActionsProps {
@@ -21,7 +25,7 @@ interface BookingActionsProps {
   // eslint-disable-next-line no-unused-vars
   onStatusUpdate?: (bookingId: string, newStatus: BookingStatus) => void
   // eslint-disable-next-line no-unused-vars
-  onCancel?: (bookingId: string) => void
+  onCancel?: (bookingId: string, note?: string) => void
   // eslint-disable-next-line no-unused-vars
   onDelete?: (bookingId: string) => void
 }
@@ -36,6 +40,8 @@ export function BookingActions({
   onCancel,
   onDelete,
 }: BookingActionsProps) {
+  const [cancelDialogOpen, setCancelDialogOpen] = useState(false)
+
   return (
     <div className="flex items-center justify-between border-t pt-2">
       <div className="flex flex-wrap gap-2">
@@ -47,7 +53,7 @@ export function BookingActions({
             <Button
               size="sm"
               variant="destructive"
-              onClick={() => onCancel?.(bookingId)}
+              onClick={() => setCancelDialogOpen(true)}
             >
               Cancel
             </Button>
@@ -82,7 +88,7 @@ export function BookingActions({
                 <Button
                   size="sm"
                   variant="destructive"
-                  onClick={() => onStatusUpdate?.(bookingId, "cancelled")}
+                  onClick={() => setCancelDialogOpen(true)}
                 >
                   Cancel
                 </Button>
@@ -119,6 +125,16 @@ export function BookingActions({
           </AlertDialogContent>
         </AlertDialog>
       )}
+
+      {/* Cancel Booking Dialog with optional note */}
+      <CancelBookingDialog
+        open={cancelDialogOpen}
+        onOpenChange={setCancelDialogOpen}
+        onConfirm={(note) => {
+          setCancelDialogOpen(false)
+          onCancel?.(bookingId, note)
+        }}
+      />
     </div>
   )
 }

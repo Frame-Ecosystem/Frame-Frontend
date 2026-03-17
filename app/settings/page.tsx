@@ -5,7 +5,7 @@ import Link from "next/link"
 // import Image from "next/image"
 import { Avatar, AvatarImage, AvatarFallback } from "../_components/ui/avatar"
 import { useAuth } from "../_providers/auth"
-// import { useRouter } from "next/navigation"
+import { useSearchParams } from "next/navigation"
 import { getProfilePath } from "../_lib/profile"
 // import { authService } from "../_services/auth.service"
 
@@ -14,33 +14,17 @@ import { ThemeSelector } from "../_components/forms/theme-selector"
 import { LocationSelector } from "../_components/forms/LocationSelector"
 import { GenderSelector } from "../_components/forms/gender-selector"
 import { OpeningHoursSelector } from "../_components/forms/opening-hours-selector"
+import { SettingsPageSkeleton } from "../_components/skeletons/settings"
 
 export default function SettingsPage() {
   // === AUTH STATE ===
   const { user, isLoading } = useAuth()
+  const searchParams = useSearchParams()
+  const openLocation = searchParams.get("section") === "location"
 
   // Show loading state while checking authentication
   if (isLoading) {
-    return (
-      <ErrorBoundary>
-        <div className="from-background via-background to-muted/20 min-h-screen bg-linear-to-br pb-24 lg:pb-0">
-          <div className="mx-auto max-w-7xl">
-            <div className="space-y-6 p-5 pb-32 lg:px-8 lg:py-12 lg:pb-6">
-              <div className="flex min-h-[200px] items-center justify-center">
-                <div className="w-full max-w-lg space-y-4">
-                  <div className="bg-primary/10 h-8 w-48 animate-pulse rounded" />
-                  <div className="space-y-3">
-                    <div className="bg-primary/10 h-12 w-full animate-pulse rounded-lg" />
-                    <div className="bg-primary/10 h-12 w-full animate-pulse rounded-lg" />
-                    <div className="bg-primary/10 h-12 w-full animate-pulse rounded-lg" />
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </ErrorBoundary>
-    )
+    return <SettingsPageSkeleton />
   }
 
   return (
@@ -91,7 +75,9 @@ export default function SettingsPage() {
             <ThemeSelector />
 
             {/* === LOCATION SELECTOR === */}
-            {user && user.type !== "admin" && <LocationSelector />}
+            {user && user.type !== "admin" && (
+              <LocationSelector defaultOpen={openLocation} />
+            )}
 
             {/* === OPENING HOURS SELECTOR (lounge users only) === */}
             {user && user.type === "lounge" && <OpeningHoursSelector />}

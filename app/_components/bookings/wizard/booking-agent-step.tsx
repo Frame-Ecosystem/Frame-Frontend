@@ -2,12 +2,12 @@
 
 import { User, Check, CheckCircle } from "lucide-react"
 import { cn } from "@/app/_lib/utils"
-import type { CenterService, LoungeAgent } from "../../../_types"
+import type { LoungeService, LoungeAgent } from "../../../_types"
 import Image from "next/image"
 
 /* eslint-disable no-unused-vars */
 interface BookingAgentStepProps {
-  selectedServices: CenterService[]
+  selectedServices: LoungeService[]
   agents: LoungeAgent[]
   selectedAgent: LoungeAgent | null
   setSelectedAgent: (agent: LoungeAgent | null) => void
@@ -17,7 +17,7 @@ interface BookingAgentStepProps {
   >
   useMultipleAgents: boolean
   canAgentPerformServices: (agent: LoungeAgent) => boolean
-  getUnavailableServices: (agent: LoungeAgent) => CenterService[]
+  getUnavailableServices: (agent: LoungeAgent) => LoungeService[]
   getAvailableAgentsForService: (serviceId: string) => LoungeAgent[]
 }
 /* eslint-enable no-unused-vars */

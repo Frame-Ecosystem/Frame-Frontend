@@ -1,10 +1,13 @@
 "use client"
 
+import { useRouter } from "next/navigation"
+
 interface BookingQueueBannerProps {
   bookingStatus: string
   userType: string
   loungeId?: string
   agentId?: string
+  bookingId?: string
 }
 
 export function BookingQueueBanner({
@@ -12,19 +15,31 @@ export function BookingQueueBanner({
   userType,
   loungeId,
   agentId,
+  bookingId,
 }: BookingQueueBannerProps) {
-  if (userType !== "client" || bookingStatus !== "inQueue" || !loungeId)
-    return null
+  const router = useRouter()
+  if (bookingStatus !== "inQueue" || !loungeId) return null
 
-  const url = agentId
-    ? `/centers/${loungeId}?tab=queue&agentId=${agentId}`
-    : `/centers/${loungeId}?tab=queue`
+  let url: string
+  if (userType === "lounge") {
+    // Lounge accounts use their own staff queue page
+    const params = new URLSearchParams()
+    if (agentId) params.set("agent", agentId)
+    if (bookingId) params.set("bookingId", bookingId)
+    url = `/queue${params.toString() ? `?${params.toString()}` : ""}`
+  } else {
+    // Clients view the public lounge queue tab
+    const params = new URLSearchParams({ tab: "queue" })
+    if (agentId) params.set("agentId", agentId)
+    if (bookingId) params.set("bookingId", bookingId)
+    url = `/lounges/${loungeId}?${params.toString()}`
+  }
 
   return (
     <button
       className="mb-2 flex w-full items-center justify-between rounded-lg bg-gradient-to-r from-blue-500 via-blue-400 to-blue-600 px-4 py-2 text-sm font-semibold text-white transition-opacity hover:opacity-90"
       onClick={() => {
-        window.location.href = url
+        router.push(url)
       }}
     >
       <span>Go to Queue</span>

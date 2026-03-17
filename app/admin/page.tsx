@@ -21,6 +21,7 @@ import {
 } from "lucide-react"
 import { adminService } from "../_services"
 import { isAuthError } from "../_services/api"
+import { AdminDashboardSkeleton } from "../_components/skeletons/admin"
 
 interface AdminStats {
   totalUsers: number
@@ -62,24 +63,7 @@ export default function AdminDashboard() {
   }, [user])
 
   if (isLoading) {
-    return (
-      <div className="from-background via-background to-muted/20 min-h-screen bg-gradient-to-br">
-        <div className="mx-auto max-w-7xl p-5 lg:px-8 lg:py-12">
-          <div className="space-y-6">
-            <div className="bg-primary/10 h-9 w-56 animate-pulse rounded" />
-            <div className="bg-primary/10 h-4 w-80 animate-pulse rounded" />
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-              {[...Array(4)].map((_, i) => (
-                <div key={i} className="space-y-3 rounded-lg border p-6">
-                  <div className="bg-primary/10 h-4 w-20 animate-pulse rounded" />
-                  <div className="bg-primary/10 h-8 w-16 animate-pulse rounded" />
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </div>
-    )
+    return <AdminDashboardSkeleton />
   }
 
   if (!user || user.type !== "admin") {

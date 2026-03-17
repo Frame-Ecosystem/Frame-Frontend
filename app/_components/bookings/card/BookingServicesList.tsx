@@ -16,13 +16,10 @@ export function BookingServicesList({ services }: BookingServicesListProps) {
             <div key={service._id || index} className="flex items-center gap-3">
               <div className="flex flex-1 items-center gap-3">
                 <div className="bg-muted relative flex h-10 w-10 flex-shrink-0 items-center justify-center overflow-hidden rounded-md">
-                  {service.image &&
-                  typeof service.image === "string" &&
-                  service.image.trim() !== "" &&
-                  service.image !== "/images/placeholder.png" ? (
+                  {service.image?.url ? (
                     /* eslint-disable-next-line @next/next/no-img-element */
                     <img
-                      src={service.image}
+                      src={service.image.url}
                       alt={
                         service.serviceId?.name ||
                         service.description ||

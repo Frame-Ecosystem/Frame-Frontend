@@ -12,6 +12,7 @@ import type { LocationData } from "../../_types"
 
 interface LocationSelectorProps {
   onLocationUpdate?: () => void
+  defaultOpen?: boolean
 }
 
 declare global {
@@ -21,7 +22,10 @@ declare global {
   }
 }
 
-export function LocationSelector({ onLocationUpdate }: LocationSelectorProps) {
+export function LocationSelector({
+  onLocationUpdate,
+  defaultOpen = false,
+}: LocationSelectorProps) {
   const { user, setAuth, accessToken } = useAuth()
   const [isUpdating, setIsUpdating] = useState(false)
   const [searchQuery, setSearchQuery] = useState("")
@@ -30,7 +34,7 @@ export function LocationSelector({ onLocationUpdate }: LocationSelectorProps) {
   )
   const isMapInitializedRef = useRef(false)
   const [isScriptLoaded, setIsScriptLoaded] = useState(false)
-  const [isOpen, setIsOpen] = useState(false)
+  const [isOpen, setIsOpen] = useState(defaultOpen)
   const mapRef = useRef<HTMLDivElement>(null)
   const searchInputRef = useRef<HTMLInputElement>(null)
 

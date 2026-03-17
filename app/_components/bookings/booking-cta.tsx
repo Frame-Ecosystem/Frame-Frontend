@@ -2,13 +2,13 @@
 
 import { Button } from "../ui/button"
 import { CalendarIcon, Plus } from "lucide-react"
-import { CenterService } from "../../_types"
+import { LoungeService } from "../../_types"
 import { useRouter } from "next/navigation"
 import { useTheme } from "next-themes"
 
 interface BookingCTAProps {
   loungeId?: string
-  selectedServices?: CenterService[]
+  selectedServices?: LoungeService[]
 }
 
 export default function BookingCTA({

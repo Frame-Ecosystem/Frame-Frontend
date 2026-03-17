@@ -6,7 +6,7 @@ import { getStatusColor } from "../booking-utils"
 interface BookingStatusBadgeProps {
   bookingId: string
   status: string
-  cancelledBy?: { idUser: string; cancelledByName: string }
+  cancelledBy?: { idUser: string; cancelledByName: string; note?: string }
   expandedCancelled: Set<string>
   setExpandedCancelled: React.Dispatch<React.SetStateAction<Set<string>>>
 }

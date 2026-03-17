@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { CalendarIcon, History } from "lucide-react"
 import { Button } from "../_components/ui/button"
 import Link from "next/link"
@@ -9,6 +9,7 @@ import { Card, CardContent } from "../_components/ui/card"
 import { ErrorBoundary } from "../_components/common/errorBoundary"
 import { useAuth } from "../_providers/auth"
 import { BookingList } from "../_components/bookings/list/booking-list"
+import { BookingsPageSkeleton } from "../_components/skeletons/bookings"
 
 export default function BookingsPage() {
   const { user, isLoading } = useAuth()
@@ -23,6 +24,35 @@ export default function BookingsPage() {
     setShowHistory(searchParams.get("view") === "history")
   }, [searchParams])
 
+  // Scroll to and highlight a specific booking card when ?highlight=bookingId is present
+  const scrollToHighlighted = useCallback(() => {
+    const highlightId = searchParams.get("highlight")
+    if (!highlightId) return
+
+    // Small delay to let the list render
+    const timer = setTimeout(() => {
+      const el = document.getElementById(`booking-${highlightId}`)
+      if (el) {
+        el.scrollIntoView({ behavior: "smooth", block: "center" })
+        el.classList.add("booking-highlight")
+        // Clean up class and URL param after animation
+        const cleanup = setTimeout(() => {
+          el.classList.remove("booking-highlight")
+          // Remove highlight param from URL without re-render
+          const url = new URL(window.location.href)
+          url.searchParams.delete("highlight")
+          window.history.replaceState({}, "", url.toString())
+        }, 4000)
+        return () => clearTimeout(cleanup)
+      }
+    }, 600)
+    return () => clearTimeout(timer)
+  }, [searchParams])
+
+  useEffect(() => {
+    scrollToHighlighted()
+  }, [scrollToHighlighted])
+
   const toggleHistory = () => {
     const next = !showHistory
     setShowHistory(next)
@@ -35,35 +65,7 @@ export default function BookingsPage() {
   if (isLoading) {
     return (
       <ErrorBoundary>
-        <div className="from-background via-background to-muted/20 min-h-screen bg-linear-to-br">
-          <div className="mx-auto max-w-7xl p-5 lg:px-8 lg:py-12">
-            <div className="flex min-h-[400px] items-center justify-center">
-              <div className="w-full max-w-2xl space-y-4">
-                <div className="bg-primary/10 h-8 w-48 animate-pulse rounded" />
-                <div className="flex gap-2">
-                  {[...Array(3)].map((_, i) => (
-                    <div
-                      key={i}
-                      className="bg-primary/10 h-9 w-20 animate-pulse rounded-full"
-                    />
-                  ))}
-                </div>
-                <div className="space-y-3">
-                  {[...Array(3)].map((_, i) => (
-                    <div key={i} className="space-y-2 rounded-lg border p-4">
-                      <div className="flex items-center justify-between">
-                        <div className="bg-primary/10 h-4 w-32 animate-pulse rounded" />
-                        <div className="bg-primary/10 h-5 w-16 animate-pulse rounded-full" />
-                      </div>
-                      <div className="bg-primary/10 h-3 w-full animate-pulse rounded" />
-                      <div className="bg-primary/10 h-3 w-2/3 animate-pulse rounded" />
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+        <BookingsPageSkeleton />
       </ErrorBoundary>
     )
   }
@@ -103,9 +105,9 @@ export default function BookingsPage() {
                       className="shadow-lg"
                       asChild
                     >
-                      <Link href="/centers">
+                      <Link href="/lounges">
                         <CalendarIcon className="mr-2 h-5 w-5" />
-                        Explore Centers
+                        Explore Lounges
                       </Link>
                     </Button>
                   </div>
