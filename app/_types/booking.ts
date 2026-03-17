@@ -1,7 +1,7 @@
 // Booking-related types
 
 import type { User } from "./user"
-import type { Center, ServiceItem } from "./center"
+import type { Lounge, ServiceItem } from "./lounge-visitor"
 import type { Service } from "./service"
 import { Agent } from "./agent"
 
@@ -38,7 +38,7 @@ export interface Booking {
     gender: string
     status: string
     description: string
-    image?: string
+    image?: { url: string; publicId: string }
     isActive: boolean
     createdAt: string
     updatedAt: string
@@ -60,12 +60,12 @@ export interface Booking {
     price: number
     duration: number
   }>
-  cancelledBy?: { idUser: string; cancelledByName: string }
+  cancelledBy?: { idUser: string; cancelledByName: string; note?: string }
   loungeServiceId?: string
   userId?: string
   serviceId?: string
   date?: Date
-  service?: ServiceItem & { center: Center }
+  service?: ServiceItem & { lounge: Lounge }
 }
 
 export interface Paginated<T> {
@@ -100,6 +100,7 @@ export interface UpdateBookingInput {
   totalPrice?: number
   totalDuration?: number
   notes?: string
+  cancellationNote?: string
 }
 
 export interface BookingStats {

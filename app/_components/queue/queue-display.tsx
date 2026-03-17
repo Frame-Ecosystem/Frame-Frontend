@@ -42,6 +42,8 @@ interface QueueDisplayProps {
   loungeId?: string
   /** Pre-select a specific agent's queue tab */
   initialAgentId?: string | null
+  /** Booking ID to scroll-to and highlight on mount */
+  highlightBookingId?: string | null
 }
 
 export default function QueueDisplay({
@@ -49,6 +51,7 @@ export default function QueueDisplay({
   mode = "client",
   loungeId,
   initialAgentId,
+  highlightBookingId,
 }: QueueDisplayProps) {
   const [activeAgentId, setActiveAgentId] = useState<string | null>(
     initialAgentId ?? null,
@@ -344,6 +347,7 @@ export default function QueueDisplay({
               onRemove={handleRemove}
               onAddPerson={() => setShowAddDialog(true)}
               isUpdating={isMutating}
+              highlightBookingId={highlightBookingId}
               acceptQueueBooking={activeAgent?.acceptQueueBooking ?? true}
               onToggleAcceptBooking={
                 mode === "staff" && agentId

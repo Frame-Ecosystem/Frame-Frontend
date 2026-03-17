@@ -54,8 +54,8 @@ const DesktopNavbar = () => {
         {!isLoading && user && (
           <nav className="bg-background/50 border-border/30 hidden rounded-full border px-6 py-2 backdrop-blur-sm lg:mb-0 lg:flex lg:items-center lg:gap-2">
             {NAV_LINKS.filter((link: any) => {
-              // Hide centers page for lounge users
-              if (link.href === "/centers" && user.type === "lounge") {
+              // Hide lounges page for lounge users
+              if (link.href === "/lounges" && user.type === "lounge") {
                 return false
               }
               // Show loungeOnly items only for lounge users

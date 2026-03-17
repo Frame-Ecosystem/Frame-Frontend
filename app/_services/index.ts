@@ -1,6 +1,6 @@
 // Export all services from a single entry point
 export { apiClient } from "./api"
-export { centerService } from "./center.service"
+export { loungeVisitorService, centerService } from "./lounge-visitor.service"
 export { bookingService } from "./booking.service"
 export { authService } from "./auth.service"
 export { serviceService } from "./service.service"
@@ -15,7 +15,11 @@ export { queueService } from "./queue.service"
 export { getSocket, disconnectSocket } from "./socket"
 export { notificationService } from "./notification.service"
 export { pushNotificationService } from "./push-notification.service"
+export { ratingService } from "./rating.service"
+export { likeService } from "./like.service"
+export { followService } from "./follow.service"
 export type {
+  Lounge,
   Center,
   Booking,
   CreateBookingInput,

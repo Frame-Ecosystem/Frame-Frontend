@@ -9,9 +9,37 @@ export default function GoogleCallbackPage() {
   const [message, setMessage] = useState("Please wait...")
 
   useEffect(() => {
-    // If opened as a popup, the parent is polling for the refresh cookie.
-    // Just signal success and close — the parent handles the rest.
-    if (window.opener && !window.opener.closed) {
+    const params = new URLSearchParams(window.location.search)
+    const urlStatus = params.get("status")
+    const errorCode = params.get("error")
+    const isPopup = window.opener && !window.opener.closed
+
+    // ── Error redirect from backend (e.g. account_not_found) ──
+    if (urlStatus === "error" && errorCode) {
+      const errorMessages: Record<string, string> = {
+        account_not_found:
+          "Account not found. Please sign up with Google to create your account.",
+        account_exists: "Account already exists. Please sign in instead.",
+        oauth_failed: "Authentication failed. Please try again.",
+      }
+      const friendlyMessage =
+        errorMessages[errorCode] || `Authentication failed: ${errorCode}`
+
+      if (isPopup) {
+        window.opener.postMessage(
+          { type: "GOOGLE_AUTH_ERROR", message: friendlyMessage },
+          window.location.origin,
+        )
+        setTimeout(() => window.close(), 300)
+      } else {
+        setStatus("error") // eslint-disable-line react-hooks/set-state-in-effect
+        setMessage(friendlyMessage)
+      }
+      return
+    }
+
+    // ── Success: popup signals parent and closes ──
+    if (isPopup) {
       setStatus("success")
       setMessage("Authentication successful! Closing...")
       setTimeout(() => window.close(), 500)
@@ -26,7 +54,6 @@ export default function GoogleCallbackPage() {
       } catch {
         /* ignore */
       }
-      // If still open after close attempt, we're in a regular tab
       setTimeout(() => {
         setStatus("error")
         setMessage("Please close this window and return to the main app.")

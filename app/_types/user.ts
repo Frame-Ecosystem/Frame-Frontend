@@ -36,6 +36,9 @@ export interface User {
   verified?: boolean
   email_verified?: boolean
   theme?: string
+  averageRating?: number
+  ratingCount?: number
+  likeCount?: number
 }
 
 export interface AuthResponse {
@@ -43,4 +46,87 @@ export interface AuthResponse {
   token: string
   expiresIn?: number
   message?: string
+}
+
+// ── Client Visitor Profile Types ─────────────────────────────────
+
+export interface ClientProfile {
+  _id: string
+  firstName: string
+  lastName: string
+  profileImage?: string
+  coverImage?: string
+  bio?: string
+  gender?: string
+  // Lounge + Admin viewers only
+  createdAt?: string
+  // Admin only
+  updatedAt?: string
+  email?: string
+  phoneNumber?: string
+  isBlocked?: boolean
+  type?: string
+}
+
+export interface ClientStats {
+  totalBookings: number
+  completedBookings: number
+  cancelledBookings: number
+  absentBookings: number
+  likedLounges: number
+  ratingsGiven: number
+}
+
+export interface ClientProfileResponse {
+  profile: ClientProfile
+  stats: ClientStats
+}
+
+export interface ClientBookingItem {
+  _id: string
+  clientId: string
+  loungeId: {
+    _id: string
+    loungeTitle: string
+    profileImage?: string
+  }
+  loungeServiceIds: {
+    _id: string
+    price: number
+    duration: number
+  }[]
+  status:
+    | "pending"
+    | "confirmed"
+    | "inQueue"
+    | "completed"
+    | "cancelled"
+    | "absent"
+  bookingDate: string
+}
+
+export interface ClientLikedLounge {
+  _id: string
+  loungeTitle: string
+  profileImage?: string
+  coverImage?: string
+  averageRating: number
+  ratingCount: number
+  location?: {
+    type: "Point"
+    coordinates: [number, number]
+  }
+}
+
+export interface ClientRatingItem {
+  _id: string
+  clientId: string
+  loungeId: {
+    _id: string
+    loungeTitle: string
+    profileImage?: string
+  }
+  rating: number
+  comment?: string
+  createdAt: string
 }

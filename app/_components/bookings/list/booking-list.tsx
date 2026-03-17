@@ -96,9 +96,9 @@ export function BookingList({
     }
   }
 
-  const handleCancel = async (bookingId: string) => {
+  const handleCancel = async (bookingId: string, note?: string) => {
     try {
-      await bookingService.cancel(bookingId)
+      await bookingService.cancel(bookingId, note)
       toast.success("Booking cancelled")
       loadBookings()
     } catch (error) {

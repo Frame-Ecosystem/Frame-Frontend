@@ -1,6 +1,6 @@
-// Center / service-item types
+// Lounge visitor & service-item types
 
-export interface Center {
+export interface Lounge {
   id: string
   name: string
   address?: string
@@ -9,9 +9,15 @@ export interface Center {
   imageUrl?: string
   coverImageUrl?: string
   isOpen?: boolean
+  averageRating?: number
+  ratingCount?: number
+  likeCount?: number
   createdAt?: string
   updatedAt?: string
 }
+
+/** @deprecated Use `Lounge` instead */
+export type Center = Lounge
 
 export interface ServiceItem {
   id: string
@@ -20,9 +26,11 @@ export interface ServiceItem {
   imageUrl?: string
   price: number
   durationMinutes?: number
-  centerId: string
-  center?: Center
+  loungeId: string
+  lounge?: Lounge
 }
 
-// Backwards-compatibility: some code expects `CenterService`
+export type LoungeService = ServiceItem
+
+/** @deprecated Use `LoungeService` instead */
 export type CenterService = ServiceItem

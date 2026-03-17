@@ -150,7 +150,17 @@ export default function NotificationsPage() {
   const handleNotificationClick = useCallback(
     (n: AppNotification) => {
       if (n.metadata?.bookingId) {
-        router.push("/bookings")
+        const isHistory =
+          n.type === "booking:cancelled" ||
+          n.type === "booking:completed" ||
+          n.type === "booking:absent" ||
+          n.type === "queue:completed" ||
+          n.type === "queue:absent" ||
+          n.type === "queue:autoCancelled"
+        const params = new URLSearchParams()
+        if (isHistory) params.set("view", "history")
+        params.set("highlight", n.metadata.bookingId)
+        router.push(`/bookings?${params.toString()}`)
       }
     },
     [router],

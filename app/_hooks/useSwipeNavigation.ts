@@ -5,7 +5,9 @@ import { useRouter, usePathname } from "next/navigation"
 import { useAuth } from "../_providers/auth"
 import { getProfilePath, getHomePath } from "../_lib/profile"
 
+// eslint-disable-next-line no-unused-vars
 const SWIPE_THRESHOLD = 80
+// eslint-disable-next-line no-unused-vars
 const DIAGONAL_THRESHOLD = 30
 
 export function useSwipeNavigation() {
@@ -18,9 +20,10 @@ export function useSwipeNavigation() {
   const touchStartElementRef = useRef<EventTarget | null>(null)
 
   // Get navigation routes based on user type
+  // eslint-disable-next-line no-unused-vars
   const getNavigationRoutes = useCallback((): string[] => {
     if (user?.type === "admin") {
-      return ["/home", "/bookings", "/centers", "/store", "/admin"]
+      return ["/home", "/bookings", "/lounges", "/store", "/admin"]
     }
 
     const homeRoute = getHomePath()
@@ -31,10 +34,11 @@ export function useSwipeNavigation() {
       return [homeRoute, "/bookings", "/queue", "/store", profileRoute]
     }
 
-    return [homeRoute, "/bookings", "/centers", "/store", profileRoute]
+    return [homeRoute, "/bookings", "/lounges", "/store", profileRoute]
   }, [user])
 
   // Check if current path is a navigation page
+  // eslint-disable-next-line no-unused-vars
   const isNavigationPage = useCallback(
     (routes: string[]): boolean => {
       return routes.some((route) => {
@@ -46,6 +50,7 @@ export function useSwipeNavigation() {
   )
 
   // Get current navigation index
+  // eslint-disable-next-line no-unused-vars
   const getCurrentNavIndex = useCallback(
     (routes: string[]): number => {
       return routes.findIndex((route) => {
@@ -57,6 +62,7 @@ export function useSwipeNavigation() {
   )
 
   // Check if element allows horizontal scrolling
+  // eslint-disable-next-line no-unused-vars
   const hasHorizontalScroll = useCallback(
     (element: EventTarget | null): boolean => {
       if (!element || !(element instanceof HTMLElement)) return false
@@ -116,6 +122,7 @@ export function useSwipeNavigation() {
 
   // Handle swipe navigation — disabled
   const handleSwipe = useCallback(
+    // eslint-disable-next-line no-unused-vars
     (_deltaX: number, _deltaY: number, _startElement: EventTarget | null) => {
       // Swipe navigation is disabled
       return

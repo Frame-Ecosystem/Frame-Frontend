@@ -183,7 +183,7 @@ export default function PopularServicesSection({
                 onClick={() =>
                   onServiceSelect?.(
                     selectedServiceId === service.id ? null : service.id,
-                    service.name,
+                    selectedServiceId === service.id ? undefined : service.name,
                   )
                 }
               >

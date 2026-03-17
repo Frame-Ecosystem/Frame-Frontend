@@ -5,7 +5,7 @@ import Link from "next/link"
 // import Image from "next/image"
 import { Avatar, AvatarImage, AvatarFallback } from "../_components/ui/avatar"
 import { useAuth } from "../_providers/auth"
-// import { useRouter } from "next/navigation"
+import { useSearchParams } from "next/navigation"
 import { getProfilePath } from "../_lib/profile"
 // import { authService } from "../_services/auth.service"
 
@@ -18,6 +18,8 @@ import { OpeningHoursSelector } from "../_components/forms/opening-hours-selecto
 export default function SettingsPage() {
   // === AUTH STATE ===
   const { user, isLoading } = useAuth()
+  const searchParams = useSearchParams()
+  const openLocation = searchParams.get("section") === "location"
 
   // Show loading state while checking authentication
   if (isLoading) {
@@ -91,7 +93,9 @@ export default function SettingsPage() {
             <ThemeSelector />
 
             {/* === LOCATION SELECTOR === */}
-            {user && user.type !== "admin" && <LocationSelector />}
+            {user && user.type !== "admin" && (
+              <LocationSelector defaultOpen={openLocation} />
+            )}
 
             {/* === OPENING HOURS SELECTOR (lounge users only) === */}
             {user && user.type === "lounge" && <OpeningHoursSelector />}

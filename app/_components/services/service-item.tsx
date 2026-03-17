@@ -1,11 +1,11 @@
 "use client"
 
-import { CenterService } from "../../_types"
+import { LoungeService } from "../../_types"
 import Image from "next/image"
 import { Card, CardContent } from "../ui/card"
 
 interface ServiceItemProps {
-  service: CenterService
+  service: LoungeService
   isSelected?: boolean
   onSelect?: () => void
 }

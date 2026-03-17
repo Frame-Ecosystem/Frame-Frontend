@@ -359,9 +359,13 @@ class BookingService {
   }
 
   // Cancel booking — backend auto-populates cancelledBy from session
-  async cancel(id: string): Promise<boolean> {
+  async cancel(id: string, cancellationNote?: string): Promise<boolean> {
     try {
-      await this.update(id, { status: "cancelled" })
+      const body: UpdateBookingInput = { status: "cancelled" }
+      if (cancellationNote?.trim()) {
+        body.cancellationNote = cancellationNote.trim()
+      }
+      await this.update(id, body)
       return true
     } catch (error) {
       console.error("Failed to cancel booking:", error)

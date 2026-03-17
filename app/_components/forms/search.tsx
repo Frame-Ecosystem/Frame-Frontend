@@ -28,7 +28,7 @@ const Search = () => {
   const router = useRouter()
 
   const handleSubmit = (data: z.infer<typeof formSchema>) => {
-    router.push(`/centers?title=${data.title}`)
+    router.push(`/lounges?title=${data.title}`)
   }
 
   return (

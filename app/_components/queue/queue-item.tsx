@@ -1,6 +1,7 @@
 "use client"
 
 import { useRouter } from "next/navigation"
+import { useRef, useEffect } from "react"
 import { Badge } from "../ui/badge"
 import { Button } from "../ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar"
@@ -100,6 +101,8 @@ interface QueueItemProps {
   // eslint-disable-next-line no-unused-vars
   onRemove?: (bookingId: string, markAbsent?: boolean) => void
   isUpdating?: boolean
+  /** Booking ID to scroll-to and highlight on mount */
+  highlightBookingId?: string | null
 }
 
 // ── Component ────────────────────────────────────────────────
@@ -111,8 +114,27 @@ export default function QueueItem({
   onStatusChange,
   onRemove,
   isUpdating = false,
+  highlightBookingId,
 }: QueueItemProps) {
   const router = useRouter()
+  const highlightRef = useRef<HTMLDivElement>(null)
+  const isHighlighted =
+    !!highlightBookingId && person.bookingId?._id === highlightBookingId
+
+  // Scroll into view and flash-highlight when this card is the target
+  useEffect(() => {
+    if (isHighlighted && highlightRef.current) {
+      // Small delay to let the queue render fully
+      const timer = setTimeout(() => {
+        highlightRef.current?.scrollIntoView({
+          behavior: "smooth",
+          block: "center",
+        })
+      }, 400)
+      return () => clearTimeout(timer)
+    }
+  }, [isHighlighted])
+
   const isStaff = mode === "staff"
   const bookingId = person.bookingId?._id
   const client = person.clientId
@@ -168,11 +190,20 @@ export default function QueueItem({
     </Avatar>
   )
 
+  const highlightStyle = isHighlighted
+    ? "ring-primary/50 ring-2 animate-[queue-highlight_2s_ease-in-out]"
+    : ""
+
   return (
     <div
-      ref={isStaff ? setNodeRef : undefined}
+      ref={(node) => {
+        if (isStaff) setNodeRef(node)
+        ;(
+          highlightRef as React.MutableRefObject<HTMLDivElement | null>
+        ).current = node
+      }}
       style={style}
-      className={`group relative rounded-xl border px-2 py-1.5 transition-all hover:shadow-md ${cardStyle} ${draggingStyle}`}
+      className={`group relative rounded-xl border px-2 py-1.5 transition-all hover:shadow-md ${cardStyle} ${draggingStyle} ${highlightStyle}`}
     >
       {/* Position Badge */}
       <div className="bg-primary text-primary-foreground absolute -top-2 -left-2 flex h-6 w-6 items-center justify-center rounded-full text-xs font-bold shadow-lg">

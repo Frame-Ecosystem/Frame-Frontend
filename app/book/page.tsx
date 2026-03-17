@@ -3,7 +3,7 @@
 import { Suspense, useEffect, useState } from "react"
 import { useSearchParams } from "next/navigation"
 import { BookingWizard } from "../_components/bookings/wizard/booking-wizard"
-import { CenterService } from "../_types"
+import { LoungeService } from "../_types"
 import { useRouter } from "next/navigation"
 import { loungeService } from "../_services"
 import { serviceService } from "../_services"
@@ -21,7 +21,7 @@ function BookPageContent() {
   const searchParams = useSearchParams()
   const router = useRouter()
   const [preSelectedServices, setPreSelectedServices] = useState<
-    CenterService[]
+    LoungeService[]
   >([])
   const [isLoadingServices, setIsLoadingServices] = useState(false)
 
@@ -47,8 +47,8 @@ function BookPageContent() {
           serviceIds.includes(service._id),
         )
 
-        // Convert LoungeServiceItem to CenterService format
-        const services: CenterService[] = selectedLoungeServices.map(
+        // Convert LoungeServiceItem to LoungeService format
+        const services: LoungeService[] = selectedLoungeServices.map(
           (service) => {
             // Find the global service to get the name
             const globalService = globalServices.find(
@@ -62,7 +62,7 @@ function BookPageContent() {
               imageUrl: getValidImageUrl(service.image),
               price: service.price || 0,
               durationMinutes: service.duration || 0,
-              centerId: service.loungeId,
+              loungeId: service.loungeId,
             }
           },
         )

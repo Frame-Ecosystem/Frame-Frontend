@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { CalendarIcon, History } from "lucide-react"
 import { Button } from "../_components/ui/button"
 import Link from "next/link"
@@ -22,6 +22,35 @@ export default function BookingsPage() {
   useEffect(() => {
     setShowHistory(searchParams.get("view") === "history")
   }, [searchParams])
+
+  // Scroll to and highlight a specific booking card when ?highlight=bookingId is present
+  const scrollToHighlighted = useCallback(() => {
+    const highlightId = searchParams.get("highlight")
+    if (!highlightId) return
+
+    // Small delay to let the list render
+    const timer = setTimeout(() => {
+      const el = document.getElementById(`booking-${highlightId}`)
+      if (el) {
+        el.scrollIntoView({ behavior: "smooth", block: "center" })
+        el.classList.add("booking-highlight")
+        // Clean up class and URL param after animation
+        const cleanup = setTimeout(() => {
+          el.classList.remove("booking-highlight")
+          // Remove highlight param from URL without re-render
+          const url = new URL(window.location.href)
+          url.searchParams.delete("highlight")
+          window.history.replaceState({}, "", url.toString())
+        }, 4000)
+        return () => clearTimeout(cleanup)
+      }
+    }, 600)
+    return () => clearTimeout(timer)
+  }, [searchParams])
+
+  useEffect(() => {
+    scrollToHighlighted()
+  }, [scrollToHighlighted])
 
   const toggleHistory = () => {
     const next = !showHistory
@@ -103,9 +132,9 @@ export default function BookingsPage() {
                       className="shadow-lg"
                       asChild
                     >
-                      <Link href="/centers">
+                      <Link href="/lounges">
                         <CalendarIcon className="mr-2 h-5 w-5" />
-                        Explore Centers
+                        Explore Lounges
                       </Link>
                     </Button>
                   </div>

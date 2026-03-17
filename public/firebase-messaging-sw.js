@@ -45,7 +45,7 @@ const ROUTE_MAP = {
   "booking:absent": "/bookings?view=history",
   "booking:inQueue": "/queue",
   "queue:inService": "/queue",
-  "queue:autoCancelled": "/queue",
+  "queue:autoCancelled": "/bookings?view=history",
   "queue:backInQueue": "/queue",
   "queue:reminder": "/queue",
   "queue:positionChanged": "/queue",
@@ -71,8 +71,13 @@ function getOpenWindows() {
   return self.clients.matchAll({ type: "window", includeUncontrolled: true })
 }
 
-function resolveRoute(type) {
-  return ROUTE_MAP[type] || FALLBACK_ROUTE
+function resolveRoute(type, data) {
+  const base = ROUTE_MAP[type] || FALLBACK_ROUTE
+  if (data && data.bookingId && base.startsWith("/bookings")) {
+    const sep = base.includes("?") ? "&" : "?"
+    return `${base}${sep}highlight=${data.bookingId}`
+  }
+  return base
 }
 
 /**
@@ -111,7 +116,7 @@ function parsePushPayload(event) {
       title: notification.title || data.title || "Frame",
       body: notification.body || data.body || "",
       tag: data.notificationId || `fcm-${Date.now()}`,
-      route: resolveRoute(data.type),
+      route: resolveRoute(data.type, data),
       data,
     }
   } catch {

@@ -1,19 +1,19 @@
 import { apiClient } from "./api"
-import type { Center } from "../_types"
+import type { Lounge } from "../_types"
 
-class CenterService {
-  async getAll(): Promise<Center[]> {
+class LoungeVisitorService {
+  async getAll(): Promise<Lounge[]> {
     try {
-      const data = await apiClient.get<Center[]>("/centers")
+      const data = await apiClient.get<Lounge[]>("/centers")
       return data
     } catch {
       return []
     }
   }
 
-  async getById(id: string): Promise<Center | null> {
+  async getById(id: string): Promise<Lounge | null> {
     try {
-      const data = await apiClient.get<Center>(`/centers/${id}`)
+      const data = await apiClient.get<Lounge>(`/centers/${id}`)
       return data
     } catch {
       return null
@@ -24,7 +24,7 @@ class CenterService {
     service?: string
     search?: string
     tag?: string
-  }): Promise<Center[]> {
+  }): Promise<Lounge[]> {
     try {
       const queryString = new URLSearchParams()
       if (params.service) queryString.append("service", params.service)
@@ -32,7 +32,7 @@ class CenterService {
       if (params.tag) queryString.append("tag", params.tag)
 
       const endpoint = `/centers${queryString.toString() ? `?${queryString}` : ""}`
-      const data = await apiClient.get<Center[]>(endpoint)
+      const data = await apiClient.get<Lounge[]>(endpoint)
       return data
     } catch {
       return []
@@ -40,4 +40,7 @@ class CenterService {
   }
 }
 
-export const centerService = new CenterService()
+export const loungeVisitorService = new LoungeVisitorService()
+
+/** @deprecated Use `loungeVisitorService` instead */
+export const centerService = loungeVisitorService

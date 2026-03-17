@@ -66,7 +66,7 @@
   ::before,
   ::backdrop,
   ::file-selector-button {
-    border-color: var(--color-gray-200, currentcolor);
+    border-color: var(--color-border, currentcolor);
   }
 }
 
@@ -410,4 +410,99 @@ body.queue-fullscreen [data-profile-edit] {
   100% {
     transform: rotate(360deg);
   }
+}
+
+/* =============================================================================
+   PREVENT iOS ZOOM ON INPUT FOCUS
+   iOS Safari zooms in when input font-size < 16px. Force 16px on mobile
+   to prevent zoom, horizontal scroll, and layout breakage.
+   ============================================================================= */
+@media screen and (max-width: 768px) {
+  input,
+  textarea,
+  select,
+  input[type="text"],
+  input[type="email"],
+  input[type="password"],
+  input[type="number"],
+  input[type="tel"],
+  input[type="url"],
+  input[type="search"],
+  input[type="date"],
+  input[type="time"],
+  input[type="datetime-local"] {
+    font-size: 16px !important;
+  }
+}
+
+/* =============================================================================
+   BOOKING CARD HIGHLIGHT
+   Pulse animation when redirected from a notification to a specific card.
+   ============================================================================= */
+@keyframes booking-highlight {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 hsl(var(--primary) / 0);
+  }
+  25%,
+  75% {
+    box-shadow: 0 0 0 4px hsl(var(--primary) / 0.35);
+  }
+  50% {
+    box-shadow: 0 0 0 6px hsl(var(--primary) / 0.5);
+  }
+}
+
+.booking-highlight {
+  animation: booking-highlight 1.5s ease-in-out 2;
+}
+
+/* =============================================================================
+   QUEUE CARD HIGHLIGHT
+   Pulse animation when scrolling to a user's queue card (from "Go to Queue").
+   ============================================================================= */
+@keyframes queue-highlight {
+  0% {
+    box-shadow: 0 0 0 0 hsl(var(--primary) / 0);
+    background-color: hsl(var(--primary) / 0);
+  }
+  20%,
+  60% {
+    box-shadow: 0 0 0 5px hsl(var(--primary) / 0.3);
+    background-color: hsl(var(--primary) / 0.07);
+  }
+  40% {
+    box-shadow: 0 0 0 8px hsl(var(--primary) / 0.4);
+    background-color: hsl(var(--primary) / 0.12);
+  }
+  100% {
+    box-shadow: 0 0 0 0 hsl(var(--primary) / 0);
+    background-color: hsl(var(--primary) / 0);
+  }
+}
+
+/* =============================================================================
+   FAVORITE LOUNGE RING
+   Animated gradient border that rotates using the theme primary color.
+   ============================================================================= */
+@keyframes favorite-ring-glow {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 hsl(var(--primary) / 0);
+  }
+  50% {
+    box-shadow: 0 0 8px 2px hsl(var(--primary) / 0.4);
+  }
+}
+
+.favorite-ring {
+  position: relative;
+  border-radius: 9999px;
+  border: 2.5px solid hsl(var(--primary));
+  padding: 2px;
+  animation: favorite-ring-glow 3s ease-in-out infinite;
+}
+
+.favorite-ring > * {
+  position: relative;
 }

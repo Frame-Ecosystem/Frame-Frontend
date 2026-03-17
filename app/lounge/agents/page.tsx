@@ -1,16 +1,49 @@
 "use client"
 
-import { useState } from "react"
+import { useCallback, useEffect, useState } from "react"
+import { useRouter } from "next/navigation"
 import { useAuth } from "../../_providers/auth"
 import { AgentProvider } from "../../_providers/agent"
 import { AgentList } from "../../_components/agents/list/agent-list"
 import { AgentForm } from "../../_components/agents/form/agent-form"
 import { AgentDetails } from "../../_components/agents/agent-details"
-import { Agent } from "../../_types"
-import { useRouter } from "next/navigation"
-import { useEffect } from "react"
+import type { Agent } from "../../_types"
 
-function LoungeAgentManagementContent() {
+/* ------------------------------------------------------------------ */
+/* Skeleton shown while auth is resolving                              */
+/* ------------------------------------------------------------------ */
+const SKELETON_COUNT = 3
+
+function AgentListSkeleton() {
+  return (
+    <div className="from-background via-background to-muted/20 min-h-screen bg-gradient-to-br">
+      <div className="mx-auto max-w-7xl p-5 lg:px-8 lg:py-12">
+        <div className="space-y-6">
+          <div className="bg-primary/10 h-8 w-56 animate-pulse rounded" />
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {Array.from({ length: SKELETON_COUNT }, (_, i) => (
+              <div key={i} className="space-y-3 rounded-lg border p-4">
+                <div className="flex items-center gap-3">
+                  <div className="bg-primary/10 h-10 w-10 animate-pulse rounded-full" />
+                  <div className="flex-1 space-y-2">
+                    <div className="bg-primary/10 h-4 w-28 animate-pulse rounded" />
+                    <div className="bg-primary/10 h-3 w-20 animate-pulse rounded" />
+                  </div>
+                </div>
+                <div className="bg-primary/10 h-3 w-full animate-pulse rounded" />
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+/* ------------------------------------------------------------------ */
+/* Main content                                                        */
+/* ------------------------------------------------------------------ */
+function AgentManagementContent() {
   const { user, isLoading } = useAuth()
   const router = useRouter()
 
@@ -26,58 +59,30 @@ function LoungeAgentManagementContent() {
     }
   }, [user, isLoading, router])
 
-  if (isLoading) {
-    return (
-      <div className="from-background via-background to-muted/20 min-h-screen bg-gradient-to-br">
-        <div className="mx-auto max-w-7xl p-5 lg:px-8 lg:py-12">
-          <div className="space-y-6">
-            <div className="bg-primary/10 h-8 w-56 animate-pulse rounded" />
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {[...Array(3)].map((_, i) => (
-                <div key={i} className="space-y-3 rounded-lg border p-4">
-                  <div className="flex items-center gap-3">
-                    <div className="bg-primary/10 h-10 w-10 animate-pulse rounded-full" />
-                    <div className="flex-1 space-y-2">
-                      <div className="bg-primary/10 h-4 w-28 animate-pulse rounded" />
-                      <div className="bg-primary/10 h-3 w-20 animate-pulse rounded" />
-                    </div>
-                  </div>
-                  <div className="bg-primary/10 h-3 w-full animate-pulse rounded" />
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </div>
-    )
-  }
-
-  if (!user || user.type !== "lounge") {
-    return null
-  }
-
-  const handleCreateClick = () => {
+  const handleCreateClick = useCallback(() => {
     setEditingAgent(null)
     setFormOpen(true)
-  }
+  }, [])
 
-  const handleEditClick = (agent: Agent) => {
+  const handleEditClick = useCallback((agent: Agent) => {
     setEditingAgent(agent)
     setFormOpen(true)
-  }
+  }, [])
 
-  const handleViewClick = (agent: Agent) => {
+  const handleViewClick = useCallback((agent: Agent) => {
     setSelectedAgent(agent)
     setFormOpen(false)
     setDetailsOpen(true)
-  }
+  }, [])
 
-  const handleFormSuccess = () => {
+  const handleFormSuccess = useCallback(() => {
     setFormOpen(false)
     setEditingAgent(null)
-    // Trigger refresh of the agent list
     setRefreshTrigger((prev) => prev + 1)
-  }
+  }, [])
+
+  if (isLoading) return <AgentListSkeleton />
+  if (!user || user.type !== "lounge") return null
 
   return (
     <div className="from-background via-background to-muted/20 min-h-screen bg-gradient-to-br">
@@ -119,10 +124,13 @@ function LoungeAgentManagementContent() {
   )
 }
 
+/* ------------------------------------------------------------------ */
+/* Page export                                                         */
+/* ------------------------------------------------------------------ */
 export default function LoungeAgentManagementPage() {
   return (
     <AgentProvider>
-      <LoungeAgentManagementContent />
+      <AgentManagementContent />
     </AgentProvider>
   )
 }
