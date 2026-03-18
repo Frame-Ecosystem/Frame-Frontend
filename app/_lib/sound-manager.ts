@@ -8,7 +8,6 @@
  * SSR-safe: all browser APIs are guarded behind `typeof window` checks.
  */
 
-/* eslint-disable no-unused-vars */
 export enum SoundId {
   BOOKING_CREATED = "booking_created",
   BOOKING_CONFIRMED = "booking_confirmed",
@@ -22,7 +21,6 @@ export enum SoundId {
   QUEUE_REMINDER = "queue_reminder",
   DEFAULT = "default",
 }
-/* eslint-enable no-unused-vars */
 
 const ALL_SOUND_IDS = Object.values(SoundId)
 const toPath = (id: SoundId) => `/sounds/${id}.wav`

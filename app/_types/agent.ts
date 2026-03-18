@@ -2,7 +2,8 @@
 
 import type { ProfileImage } from "./user"
 
-export interface Lounge {
+/** Minimal lounge reference used in Agent relations (not the full Lounge type) */
+interface AgentLounge {
   _id: string
   email: string
   loungeTitle: string
@@ -11,7 +12,7 @@ export interface Lounge {
 export interface Agent {
   _id: string
   agentName: string
-  loungeId: string | Lounge
+  loungeId: string | AgentLounge
   isBlocked: boolean
   profileImage?: string | { url: string; publicId: string }
   idLoungeService?: string[]

@@ -96,9 +96,7 @@ interface QueueItemProps {
   person: QueuePerson
   allPersons: QueuePerson[]
   mode?: "client" | "staff"
-  // eslint-disable-next-line no-unused-vars
   onStatusChange?: (bookingId: string, status: QueuePersonStatus) => void
-  // eslint-disable-next-line no-unused-vars
   onRemove?: (bookingId: string, markAbsent?: boolean) => void
   isUpdating?: boolean
   /** Booking ID to scroll-to and highlight on mount */

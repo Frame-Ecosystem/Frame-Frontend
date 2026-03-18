@@ -1,13 +1,9 @@
 // Queue management types
 
 export enum QueuePersonStatus {
-  // eslint-disable-next-line no-unused-vars
   WAITING = "waiting",
-  // eslint-disable-next-line no-unused-vars
   IN_SERVICE = "inService",
-  // eslint-disable-next-line no-unused-vars
   COMPLETED = "completed",
-  // eslint-disable-next-line no-unused-vars
   ABSENT = "absent",
 }
 

@@ -1,4 +1,3 @@
-/* eslint-disable no-unused-vars */
 import { Card, CardContent } from "../../ui/card"
 import { BookingAvatar } from "./booking-avatar"
 import { BookingStatusBadge } from "./BookingStatusBadge"

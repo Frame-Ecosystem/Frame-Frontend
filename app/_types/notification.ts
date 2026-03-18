@@ -1,6 +1,5 @@
 // Notification types
 
-/* eslint-disable no-unused-vars */
 export enum NotificationType {
   BOOKING_CREATED = "booking:created",
   BOOKING_CONFIRMED = "booking:confirmed",
@@ -16,7 +15,6 @@ export enum NotificationType {
   QUEUE_REMINDER = "queue:reminder",
   QUEUE_POSITION_CHANGED = "queue:positionChanged",
 }
-/* eslint-enable no-unused-vars */
 
 export interface NotificationMetadata {
   bookingId?: string

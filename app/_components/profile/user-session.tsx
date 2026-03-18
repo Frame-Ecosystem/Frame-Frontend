@@ -43,8 +43,7 @@ const UserSession = ({ compact }: { compact?: boolean } = {}) => {
   const userButton = (
     <Button
       variant="ghost"
-      size="icon"
-      className="hover:bg-primary/10 relative flex items-center gap-2 rounded-full"
+      className="hover:bg-primary/10 relative flex h-auto w-auto items-center gap-2 rounded-full p-0.5"
     >
       {isLoggedIn ? (
         <div className="relative">

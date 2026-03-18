@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useCallback } from "react"
+import { useState, useEffect, useCallback, useRef } from "react"
 import { useSearchParams } from "next/navigation"
 import { Button } from "../../_components/ui/button"
 import {
@@ -8,18 +8,21 @@ import {
   StarIcon,
   User,
   FileText,
+  Film,
   Heart,
   MessageSquare,
+  Bookmark,
 } from "lucide-react"
 import { ErrorBoundary } from "../../_components/common/errorBoundary"
 import { useAuth } from "../../_providers/auth"
-import { authService, getUserDisplayName } from "../../_services/auth.service"
-import { PostService } from "../../_services/post.service"
+import { authService } from "../../_services/auth.service"
 import { ProfileCover } from "../../_components/common/profile-display/profile-cover"
 import { AccountSettings } from "../../_components/profile/account-settings"
 import { AccountInformation } from "../../_components/profile/account-information"
 import { OpeningHoursDisplay } from "../../_components/forms/opening-hours-display"
-import PostsDisplay from "../../_components/lounges/lounge-posts-display"
+import { UserPostsTab } from "../../_components/profile/user-posts-tab"
+import { UserReelsTab } from "../../_components/profile/user-reels-tab"
+import { SavedContentTab } from "../../_components/content/saved-content-tab"
 import { RatingSummaryBadge } from "../../_components/common/star-rating"
 import ReviewsList from "../../_components/common/reviews-list"
 import { Card, CardContent } from "../../_components/ui/card"
@@ -47,16 +50,22 @@ export default function LoungeProfilePage() {
   const [openBioSection, setOpenBioSection] = useState(false)
   const [isAccountInfoOpen, setIsAccountInfoOpen] = useState(true)
   const [isBioExpanded, setIsBioExpanded] = useState(false)
-  const [activeTab, setActiveTab] = useState<"account" | "posts" | "reviews">(
-    () => {
-      const tab = searchParams.get("tab")
-      if (tab === "posts" || tab === "reviews") return tab
-      return "account"
-    },
-  )
+  const [activeTab, setActiveTab] = useState<
+    "account" | "posts" | "reels" | "reviews" | "saved"
+  >(() => {
+    const tab = searchParams.get("tab")
+    if (
+      tab === "posts" ||
+      tab === "reels" ||
+      tab === "reviews" ||
+      tab === "saved"
+    )
+      return tab
+    return "account"
+  })
 
   const handleTabChange = useCallback(
-    (tab: "account" | "posts" | "reviews") => {
+    (tab: "account" | "posts" | "reels" | "reviews" | "saved") => {
       setActiveTab(tab)
       const url = new URL(window.location.href)
       url.searchParams.set("tab", tab)
@@ -66,7 +75,7 @@ export default function LoungeProfilePage() {
   )
   const [isMobile, setIsMobile] = useState(false)
   const [showFullHours, setShowFullHours] = useState(false)
-  const [postsCount, setPostsCount] = useState(0)
+  const tabsScrollRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     const checkMobile = () => {
@@ -110,19 +119,49 @@ export default function LoungeProfilePage() {
     }
   }, [openBioSection])
 
+  // Auto-scroll tabs from start to end on load
   useEffect(() => {
-    const fetchPostsCount = async () => {
-      if (user?._id) {
-        try {
-          const posts = await PostService.getUserPosts(user._id, 1, 1)
-          setPostsCount(posts.total)
-        } catch {
-          setPostsCount(0)
+    const container = tabsScrollRef.current
+    if (!container) return
+
+    let scrollInterval: NodeJS.Timeout
+    let isPaused = false
+
+    const startAutoScroll = () => {
+      container.scrollLeft = 0
+      scrollInterval = setInterval(() => {
+        if (!isPaused && container) {
+          container.scrollLeft += 1
+          const maxScroll = container.scrollWidth - container.clientWidth
+          if (container.scrollLeft >= maxScroll) {
+            clearInterval(scrollInterval)
+          }
         }
-      }
+      }, 40)
     }
-    fetchPostsCount()
-  }, [user?._id])
+
+    startAutoScroll()
+
+    const pause = () => {
+      isPaused = true
+    }
+    const resume = () => {
+      isPaused = false
+    }
+
+    container.addEventListener("mouseenter", pause)
+    container.addEventListener("mouseleave", resume)
+    container.addEventListener("touchstart", pause)
+    container.addEventListener("touchend", resume)
+
+    return () => {
+      clearInterval(scrollInterval)
+      container.removeEventListener("mouseenter", pause)
+      container.removeEventListener("mouseleave", resume)
+      container.removeEventListener("touchstart", pause)
+      container.removeEventListener("touchend", resume)
+    }
+  }, [])
 
   const handleUpdateProfileImage = async (file: File) => {
     if (file.size > 5 * 1024 * 1024) {
@@ -337,11 +376,14 @@ export default function LoungeProfilePage() {
           data-nav-tabs
           className="to-background/95 sticky top-[var(--header-offset)] z-50 mt-4 bg-gradient-to-b from-transparent shadow-sm backdrop-blur-md lg:top-[var(--header-offset-lg)]"
         >
-          <div className="mx-auto flex w-full max-w-5xl justify-evenly px-4 py-3 sm:px-6 lg:px-8">
+          <div
+            ref={tabsScrollRef}
+            className="mx-auto flex w-full max-w-5xl gap-2 overflow-x-auto px-4 py-3 sm:px-6 lg:px-8 [&::-webkit-scrollbar]:hidden"
+          >
             <Button
               variant="ghost"
               size="sm"
-              className={`rounded-lg border px-3 py-2 text-sm font-medium transition-all duration-300 ${activeTab === "account" ? "border-primary bg-primary/10 text-primary" : "border-border text-foreground hover:border-primary/50 hover:text-primary hover:bg-primary/5"}`}
+              className={`shrink-0 rounded-lg border px-3 py-2 text-sm font-medium transition-all duration-300 ${activeTab === "account" ? "border-primary bg-primary/10 text-primary" : "border-border text-foreground hover:border-primary/50 hover:text-primary hover:bg-primary/5"}`}
               onClick={() => handleTabChange("account")}
             >
               <User className="h-4 w-4" />
@@ -350,21 +392,39 @@ export default function LoungeProfilePage() {
             <Button
               variant="ghost"
               size="sm"
-              className={`rounded-lg border px-3 py-2 text-sm font-medium transition-all duration-300 ${activeTab === "posts" ? "border-primary bg-primary/10 text-primary" : "border-border text-foreground hover:border-primary/50 hover:text-primary hover:bg-primary/5"}`}
+              className={`shrink-0 rounded-lg border px-3 py-2 text-sm font-medium transition-all duration-300 ${activeTab === "posts" ? "border-primary bg-primary/10 text-primary" : "border-border text-foreground hover:border-primary/50 hover:text-primary hover:bg-primary/5"}`}
               onClick={() => handleTabChange("posts")}
             >
               <FileText className="h-4 w-4" />
-              Posts {postsCount > 0 && `(${postsCount})`}
+              Posts
             </Button>
             <Button
               variant="ghost"
               size="sm"
-              className={`rounded-lg border px-3 py-2 text-sm font-medium transition-all duration-300 ${activeTab === "reviews" ? "border-primary bg-primary/10 text-primary" : "border-border text-foreground hover:border-primary/50 hover:text-primary hover:bg-primary/5"}`}
+              className={`shrink-0 rounded-lg border px-3 py-2 text-sm font-medium transition-all duration-300 ${activeTab === "reels" ? "border-primary bg-primary/10 text-primary" : "border-border text-foreground hover:border-primary/50 hover:text-primary hover:bg-primary/5"}`}
+              onClick={() => handleTabChange("reels")}
+            >
+              <Film className="h-4 w-4" />
+              Reels
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              className={`shrink-0 rounded-lg border px-3 py-2 text-sm font-medium transition-all duration-300 ${activeTab === "reviews" ? "border-primary bg-primary/10 text-primary" : "border-border text-foreground hover:border-primary/50 hover:text-primary hover:bg-primary/5"}`}
               onClick={() => handleTabChange("reviews")}
             >
               <MessageSquare className="h-4 w-4" />
               Reviews
               {(user?.ratingCount ?? 0) > 0 ? ` (${user?.ratingCount})` : ""}
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              className={`shrink-0 rounded-lg border px-3 py-2 text-sm font-medium transition-all duration-300 ${activeTab === "saved" ? "border-primary bg-primary/10 text-primary" : "border-border text-foreground hover:border-primary/50 hover:text-primary hover:bg-primary/5"}`}
+              onClick={() => handleTabChange("saved")}
+            >
+              <Bookmark className="h-4 w-4" />
+              Saved
             </Button>
           </div>
         </div>
@@ -391,11 +451,13 @@ export default function LoungeProfilePage() {
                   />
                 </>
               )}
-              {activeTab === "posts" && (
-                <PostsDisplay
-                  centerName={user?.loungeTitle || getUserDisplayName(user)}
-                />
+              {activeTab === "posts" && user?._id && (
+                <UserPostsTab userId={user._id} />
               )}
+              {activeTab === "reels" && user?._id && (
+                <UserReelsTab userId={user._id} />
+              )}
+              {activeTab === "saved" && <SavedContentTab />}
               {activeTab === "reviews" && user?._id && (
                 <div className="space-y-4">
                   <RatingSummaryBadge

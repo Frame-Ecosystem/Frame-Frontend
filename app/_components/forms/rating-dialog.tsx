@@ -29,7 +29,6 @@ const MAX_COMMENT_LENGTH = 1000
 
 interface RatingDialogProps {
   isOpen: boolean
-  // eslint-disable-next-line no-unused-vars
   onOpenChange: (open: boolean) => void
   loungeId: string
   loungeName?: string | null

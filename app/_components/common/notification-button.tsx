@@ -256,14 +256,8 @@ const NotificationButton = ({ compact }: NotificationButtonProps) => {
           size="icon"
           className="hover:bg-primary/10 relative flex items-center gap-2 rounded-full"
         >
-          <div className="relative">
-            <div
-              className={`border-border flex items-center justify-center rounded-full border ${
-                compact ? "h-9 w-9" : "h-12 w-12"
-              }`}
-            >
-              <Bell className={compact ? "h-4 w-4" : "h-5 w-5"} />
-            </div>
+          <div className="relative flex h-9 w-9 items-center justify-center rounded-full border">
+            <Bell className={compact ? "h-4 w-4" : "h-5 w-5"} />
             {unreadCount > 0 && (
               <Badge
                 variant="destructive"

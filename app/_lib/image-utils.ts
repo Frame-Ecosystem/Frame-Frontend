@@ -10,6 +10,20 @@ export function getImageUrl(
   return null
 }
 
+/**
+ * Safe profileImage resolver — handles both string and {url, publicId} shapes
+ * the backend may return. Returns undefined when there's nothing to show so
+ * that <AvatarImage> / <img> falls through to a fallback.
+ */
+export function resolveProfileImage(
+  value: string | { url?: string } | null | undefined,
+): string | undefined {
+  if (!value) return undefined
+  if (typeof value === "string") return value
+  if (typeof value === "object" && value.url) return value.url
+  return undefined
+}
+
 /** Compress an image to a max 800 px JPEG data-URL (80 % quality) */
 export function compressImage(file: File): Promise<string> {
   return new Promise((resolve, reject) => {

@@ -1,5 +1,7 @@
 {
   "CodeGPT.apiKey": "OpenAI",
   "amp.experimental.codeReviewSkill": true,
-  "amp.experimental.reviewSubagent": true
+  "amp.experimental.reviewSubagent": true,
+  "css.customData": [],
+  "css.lint.unknownAtRules": "ignore"
 }

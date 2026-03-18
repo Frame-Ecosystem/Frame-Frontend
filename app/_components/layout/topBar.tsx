@@ -1,16 +1,15 @@
 "use client"
 
-/* eslint-disable react-hooks/set-state-in-effect */
-import Image from "next/image"
 import Link from "next/link"
-import React, { useEffect, useState } from "react"
+import React from "react"
 import UserSession from "../profile/user-session"
 import NotificationButton from "../common/notification-button"
+import { CreateContentButton } from "../content/create-content-button"
 import { InstallAppButton } from "../ui/install-app-button"
 import { Button } from "../ui/button"
+import { Search } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { useAuth } from "../../_providers/auth"
-import { useTheme } from "next-themes"
 
 interface TopBarProps {
   onGetStarted?: () => void
@@ -25,43 +24,31 @@ const TopBar: React.FC<TopBarProps> = ({
   showGetStarted,
   isLoading: externalIsLoading,
 }) => {
-  const { resolvedTheme } = useTheme()
-  const [logoSrc, setLogoSrc] = useState("/images/frameDark.png")
   const { user } = useAuth()
   const router = useRouter()
 
-  useEffect(() => {
-    if (resolvedTheme) {
-      const newSrc = resolvedTheme.includes("light")
-        ? "/images/frameLight.png"
-        : "/images/frameDark.png"
-      setLogoSrc(newSrc)
-    }
-  }, [resolvedTheme])
   return (
     <div
       data-nav-topbar
       className={`bg-background border-border border-b-primary fixed top-0 right-0 left-0 z-20 flex items-center justify-between gap-2 border-b px-3 py-4 pr-6 shadow-xl backdrop-blur-sm md:py-5 lg:px-10 lg:py-5 lg:pr-20 ${user ? "lg:hidden" : ""} ${className}`}
     >
-      {/* LOGO - flex start */}
-      <div className="flex flex-shrink-0 items-center">
+      {/* LEFT SIDE: Logo + Create */}
+      <div className="flex flex-shrink-0 items-center gap-1">
         <Link
           href="/"
           className="flex items-center gap-2 transition-opacity duration-200 hover:opacity-75 lg:ml-20"
         >
-          <Image
-            alt="Frame"
-            src={logoSrc}
-            priority
-            height={60}
-            width={60}
-            className="h-10 w-auto scale-100 md:scale-150"
-            suppressHydrationWarning
-          />
+          <span
+            className="text-foreground text-2xl font-bold tracking-tight md:text-3xl"
+            style={{ fontFamily: "var(--font-nunito), sans-serif" }}
+          >
+            frame
+          </span>
         </Link>
+        {user && <CreateContentButton />}
       </div>
       {/* Actions - flex end: show notifications only when authenticated, add Get Started */}
-      <div className="ml-auto flex items-center gap-6 lg:gap-16">
+      <div className="ml-auto flex items-center gap-2 lg:gap-4">
         {(showGetStarted ?? !user) && !(externalIsLoading ?? false) && (
           <Button
             size="sm"
@@ -79,6 +66,16 @@ const TopBar: React.FC<TopBarProps> = ({
           </Button>
         )}
         <InstallAppButton />
+        {user && (
+          <Button
+            variant="ghost"
+            size="icon"
+            className="hover:bg-primary/10 rounded-lg"
+            onClick={() => router.push("/lounges")}
+          >
+            <Search className="h-4 w-4" />
+          </Button>
+        )}
         {user && <NotificationButton compact />}
         <UserSession compact />
       </div>

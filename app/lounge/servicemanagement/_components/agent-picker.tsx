@@ -1,7 +1,5 @@
 "use client"
 
-/* eslint-disable no-unused-vars */
-
 import Image from "next/image"
 import { Checkbox } from "../../../_components/ui/checkbox"
 import { Label } from "../../../_components/ui/label"

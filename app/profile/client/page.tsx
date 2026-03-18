@@ -4,15 +4,24 @@ import { useState, useEffect, useCallback, useRef } from "react"
 import { useSearchParams } from "next/navigation"
 import Link from "next/link"
 import { Button } from "../../_components/ui/button"
-import { Pencil, User, FileText, Heart, StarIcon } from "lucide-react"
+import {
+  Pencil,
+  User,
+  FileText,
+  Film,
+  Heart,
+  StarIcon,
+  Bookmark,
+} from "lucide-react"
 import { ErrorBoundary } from "../../_components/common/errorBoundary"
 import { useAuth } from "../../_providers/auth"
-import { authService, getUserDisplayName } from "../../_services/auth.service"
-import { PostService } from "../../_services/post.service"
+import { authService } from "../../_services/auth.service"
 import { ProfileCover } from "../../_components/common/profile-display/profile-cover"
 import { AccountSettings } from "../../_components/profile/account-settings"
 import { AccountInformation } from "../../_components/profile/account-information"
-import PostsDisplay from "../../_components/lounges/lounge-posts-display"
+import { UserPostsTab } from "../../_components/profile/user-posts-tab"
+import { UserReelsTab } from "../../_components/profile/user-reels-tab"
+import { SavedContentTab } from "../../_components/content/saved-content-tab"
 import { Card, CardContent } from "../../_components/ui/card"
 import {
   Avatar,
@@ -53,15 +62,22 @@ export default function ClientProfilePage() {
   const [isBioExpanded, setIsBioExpanded] = useState(false)
   const [isMobile, setIsMobile] = useState(false)
   const [activeTab, setActiveTab] = useState<
-    "account" | "posts" | "likes" | "ratings"
+    "account" | "posts" | "reels" | "likes" | "ratings" | "saved"
   >(() => {
     const tab = searchParams.get("tab")
-    if (tab === "posts" || tab === "likes" || tab === "ratings") return tab
+    if (
+      tab === "posts" ||
+      tab === "reels" ||
+      tab === "likes" ||
+      tab === "ratings" ||
+      tab === "saved"
+    )
+      return tab
     return "account"
   })
 
   const handleTabChange = useCallback(
-    (tab: "account" | "posts" | "likes" | "ratings") => {
+    (tab: "account" | "posts" | "reels" | "likes" | "ratings" | "saved") => {
       setActiveTab(tab)
       const url = new URL(window.location.href)
       url.searchParams.set("tab", tab)
@@ -69,7 +85,6 @@ export default function ClientProfilePage() {
     },
     [],
   )
-  const [postsCount, setPostsCount] = useState(0)
   const [likesPage, setLikesPage] = useState(1)
   const [ratingsPage, setRatingsPage] = useState(1)
   const tabsScrollRef = useRef<HTMLDivElement>(null)
@@ -188,20 +203,6 @@ export default function ClientProfilePage() {
       return () => clearTimeout(timer)
     }
   }, [openBioSection])
-
-  useEffect(() => {
-    const fetchPostsCount = async () => {
-      if (user?._id) {
-        try {
-          const posts = await PostService.getUserPosts(user._id, 1, 1)
-          setPostsCount(posts.total)
-        } catch {
-          setPostsCount(0)
-        }
-      }
-    }
-    fetchPostsCount()
-  }, [user?._id])
 
   const handleUpdateProfileImage = async (file: File) => {
     if (file.size > 5 * 1024 * 1024) {
@@ -368,7 +369,16 @@ export default function ClientProfilePage() {
               onClick={() => handleTabChange("posts")}
             >
               <FileText className="h-4 w-4" />
-              Posts {postsCount > 0 && `(${postsCount})`}
+              Posts
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              className={`shrink-0 rounded-lg border px-3 py-2 text-sm font-medium transition-all duration-300 ${activeTab === "reels" ? "border-primary bg-primary/10 text-primary" : "border-border text-foreground hover:border-primary/50 hover:text-primary hover:bg-primary/5"}`}
+              onClick={() => handleTabChange("reels")}
+            >
+              <Film className="h-4 w-4" />
+              Reels
             </Button>
             <Button
               variant="ghost"
@@ -387,6 +397,15 @@ export default function ClientProfilePage() {
             >
               <StarIcon className="h-4 w-4" />
               Ratings
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              className={`shrink-0 rounded-lg border px-3 py-2 text-sm font-medium transition-all duration-300 ${activeTab === "saved" ? "border-primary bg-primary/10 text-primary" : "border-border text-foreground hover:border-primary/50 hover:text-primary hover:bg-primary/5"}`}
+              onClick={() => handleTabChange("saved")}
+            >
+              <Bookmark className="h-4 w-4" />
+              Saved
             </Button>
           </div>
         </div>
@@ -413,8 +432,11 @@ export default function ClientProfilePage() {
                   />
                 </>
               )}
-              {activeTab === "posts" && (
-                <PostsDisplay centerName={getUserDisplayName(user)} />
+              {activeTab === "posts" && user?._id && (
+                <UserPostsTab userId={user._id} />
+              )}
+              {activeTab === "reels" && user?._id && (
+                <UserReelsTab userId={user._id} />
               )}
               {activeTab === "likes" && (
                 <div className="space-y-4">
@@ -503,6 +525,7 @@ export default function ClientProfilePage() {
                   )}
                 </div>
               )}
+              {activeTab === "saved" && <SavedContentTab />}
               {activeTab === "ratings" && (
                 <div className="space-y-4">
                   {ratingsLoading ? (

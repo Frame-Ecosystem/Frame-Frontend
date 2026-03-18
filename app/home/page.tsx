@@ -12,14 +12,12 @@ const Home = () => {
   const { user, isLoading } = useAuth()
   const router = useRouter()
 
-  // Redirect authenticated users to their respective dashboards
   useEffect(() => {
     if (!isLoading && user) {
       // All user types share this home page
     }
   }, [user, isLoading, router])
 
-  // Show loading state while checking authentication
   if (isLoading) {
     return (
       <ErrorBoundary>
@@ -27,9 +25,6 @@ const Home = () => {
       </ErrorBoundary>
     )
   }
-
-  // Don't render anything for unauthenticated users (they'll be redirected)
-  // AuthGuard at the layout level handles unauthenticated redirects
 
   return (
     <ErrorBoundary>

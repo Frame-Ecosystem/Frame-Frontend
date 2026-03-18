@@ -1,21 +1,20 @@
 "use client"
 
-import { useEffect } from "react"
-import { useInfiniteQuery } from "@tanstack/react-query"
+import { useEffect, useMemo } from "react"
 import { Loader2, RefreshCw } from "lucide-react"
+import { useInView } from "react-intersection-observer"
 import { Button } from "../ui/button"
 import { CreatePost } from "./create-post"
 import { PostCard } from "./post-card"
-import { PostService } from "../../_services"
 import { useAuth } from "../../_providers/auth"
-import { useInView } from "react-intersection-observer"
+import { useFollowingFeed } from "../../_hooks/queries/useContent"
 import { PostFeedSkeleton } from "../skeletons/posts"
+import type { FeedItem, Post } from "../../_types/content"
 
 export function PostFeed() {
   const { user } = useAuth()
   const { ref, inView } = useInView()
 
-  // Fetch posts with infinite scroll
   const {
     data,
     fetchNextPage,
@@ -24,19 +23,16 @@ export function PostFeed() {
     isLoading,
     isError,
     refetch,
-  } = useInfiniteQuery({
-    queryKey: ["posts"],
-    queryFn: ({ pageParam = 1 }) => PostService.getPosts(pageParam, 10),
-    initialPageParam: 1,
-    getNextPageParam: (lastPage, pages) => {
-      const totalPages = Math.ceil(lastPage.total / 10)
-      return pages.length < totalPages ? pages.length + 1 : undefined
-    },
-    staleTime: 1000 * 60 * 5, // 5 minutes
-    retry: false, // Don't retry on error since API might not exist yet
-  })
+  } = useFollowingFeed()
 
-  // Load more posts when the last post comes into view
+  // Extract only posts from the feed
+  const allPosts: Post[] = useMemo(() => {
+    const items: FeedItem[] =
+      data?.pages.flatMap((page) => page.data as FeedItem[]) ?? []
+    return items.filter((item) => item.contentType === "post") as Post[]
+  }, [data])
+
+  // Load more when sentinel comes into view
   useEffect(() => {
     if (inView && hasNextPage && !isFetchingNextPage) {
       fetchNextPage()
@@ -72,11 +68,9 @@ export function PostFeed() {
     )
   }
 
-  const allPosts = data?.pages.flatMap((page) => page.data) || []
-
   return (
     <div className="mx-auto max-w-2xl space-y-6">
-      {/* Create Post - only show if user is logged in */}
+      {/* Create Post — only show if user is logged in */}
       {user && <CreatePost />}
 
       {/* Horizontal line separator */}
@@ -99,7 +93,7 @@ export function PostFeed() {
       ) : (
         <div className="space-y-4">
           {allPosts.map((post, index) => (
-            <PostCard key={post.id} post={post} priority={index === 0} />
+            <PostCard key={post._id} post={post} priority={index === 0} />
           ))}
 
           {/* Load more trigger */}

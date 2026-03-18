@@ -6,13 +6,13 @@ import { Heart, MessageSquare, FileText } from "lucide-react"
 import { Card, CardContent } from "@/app/_components/ui/card"
 import { PaginationControls } from "@/app/_components/common/pagination-controls"
 import { useQuery } from "@tanstack/react-query"
-import { PostService } from "@/app/_services/post.service"
+import { postService } from "@/app/_services"
 import type { Post } from "@/app/_types"
 import { SimpleListSkeleton } from "@/app/_components/skeletons/clients"
 
 interface VisitorPostsTabProps {
   clientId: string
-  // eslint-disable-next-line no-unused-vars
+
   onImageClick: (src: string, alt: string) => void
 }
 
@@ -21,25 +21,25 @@ function PostCard({
   onImageClick,
 }: {
   post: Post
-  // eslint-disable-next-line no-unused-vars
+
   onImageClick: (src: string, alt: string) => void
 }) {
   return (
     <Card className="bg-card border shadow-sm">
       <CardContent className="p-4">
-        <p className="text-sm leading-relaxed">{post.content}</p>
+        <p className="text-sm leading-relaxed">{post.text}</p>
 
-        {post.images && post.images.length > 0 && (
+        {post.media && post.media.length > 0 && (
           <div className="mt-3 flex gap-2 overflow-x-auto [&::-webkit-scrollbar]:hidden">
-            {post.images.map((img, i) => (
+            {post.media.map((m, i) => (
               <button
                 key={i}
                 type="button"
                 className="relative h-32 w-32 shrink-0 cursor-pointer overflow-hidden rounded-lg"
-                onClick={() => onImageClick(img, `Post image ${i + 1}`)}
+                onClick={() => onImageClick(m.url, `Post image ${i + 1}`)}
               >
                 <Image
-                  src={img}
+                  src={m.url}
                   alt={`Post image ${i + 1}`}
                   fill
                   className="object-cover"
@@ -58,16 +58,16 @@ function PostCard({
               year: "numeric",
             })}
           </span>
-          {post.likes?.length > 0 && (
+          {post.likeCount > 0 && (
             <span className="flex items-center gap-1">
               <Heart className="h-3 w-3" />
-              {post.likes.length}
+              {post.likeCount}
             </span>
           )}
-          {post.comments?.length > 0 && (
+          {post.commentCount > 0 && (
             <span className="flex items-center gap-1">
               <MessageSquare className="h-3 w-3" />
-              {post.comments.length}
+              {post.commentCount}
             </span>
           )}
         </div>
@@ -84,7 +84,7 @@ export function VisitorPostsTab({
 
   const { data, isLoading } = useQuery({
     queryKey: ["clientPosts", clientId, page],
-    queryFn: () => PostService.getUserPosts(clientId, page, 10),
+    queryFn: () => postService.getUserPosts(clientId, page, 10),
     enabled: !!clientId,
   })
 
@@ -101,7 +101,9 @@ export function VisitorPostsTab({
     )
   }
 
-  const totalPages = Math.ceil(data.total / data.limit!)
+  const totalPages = Math.ceil(
+    (data.pagination?.total || data.data.length) / 10,
+  )
 
   return (
     <div className="space-y-4">

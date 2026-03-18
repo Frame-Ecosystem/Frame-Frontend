@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { InfoIcon, FileText, CalendarIcon, Users } from "lucide-react"
+import { InfoIcon, FileText, Film, CalendarIcon, Users } from "lucide-react"
 import { Card, CardContent, CardHeader } from "@/app/_components/ui/card"
 import { Button } from "@/app/_components/ui/button"
 import OpeningHours from "@/app/_components/forms/opening-hours"
@@ -10,12 +10,13 @@ import Extras from "@/app/_components/common/extras"
 import ContactInfo from "@/app/_components/common/profile-display/contact-info"
 import OurServices from "@/app/_components/services/our-services"
 import QueueDisplay from "@/app/_components/queue/queue-display"
-import PostsDisplay from "@/app/_components/lounges/lounge-posts-display"
+import { UserPostsTab } from "@/app/_components/profile/user-posts-tab"
+import { UserReelsTab } from "@/app/_components/profile/user-reels-tab"
 import type { LoungeDetail } from "../_lib/use-lounge-data"
 
 // ── Types & Constants ───────────────────────────────────────────
 
-type Tab = "info" | "posts" | "services" | "queue"
+type Tab = "info" | "posts" | "reels" | "services" | "queue"
 
 const TABS: {
   id: Tab
@@ -24,13 +25,13 @@ const TABS: {
 }[] = [
   { id: "info", label: "Info", icon: InfoIcon },
   { id: "posts", label: "Posts", icon: FileText },
+  { id: "reels", label: "Reels", icon: Film },
   { id: "services", label: "Services", icon: CalendarIcon },
   { id: "queue", label: "Queue", icon: Users },
 ]
 
 // ── Sub-components ──────────────────────────────────────────────
 
-/* eslint-disable no-unused-vars */
 function TabNavigation({
   activeTab,
   onTabChange,
@@ -38,7 +39,6 @@ function TabNavigation({
   activeTab: Tab
   onTabChange: (tab: Tab) => void
 }) {
-  /* eslint-enable no-unused-vars */
   return (
     <div className="flex justify-center gap-1">
       {TABS.map(({ id, label, icon: Icon }) => (
@@ -98,7 +98,9 @@ function TabContent({
     case "services":
       return <OurServices services={lounge.services} center={lounge} />
     case "posts":
-      return <PostsDisplay centerName={lounge.name} />
+      return <UserPostsTab userId={loungeId} />
+    case "reels":
+      return <UserReelsTab userId={loungeId} />
     case "queue":
       return (
         <QueueDisplay

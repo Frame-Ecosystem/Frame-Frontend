@@ -2,7 +2,13 @@
 
 import { useState, useEffect, useCallback } from "react"
 import { useParams, useRouter } from "next/navigation"
-import { ArrowLeft, User as UserIcon, FileText, BookOpen } from "lucide-react"
+import {
+  ArrowLeft,
+  User as UserIcon,
+  FileText,
+  Film,
+  BookOpen,
+} from "lucide-react"
 import { ErrorBoundary } from "@/app/_components/common/errorBoundary"
 import { useAuth } from "@/app/_providers/auth"
 import { Button } from "@/app/_components/ui/button"
@@ -15,9 +21,10 @@ import { VisitorStatsCards } from "@/app/_components/clients/visitor-stats-cards
 import { VisitorOverviewTab } from "@/app/_components/clients/visitor-overview-tab"
 import { VisitorPostsTab } from "@/app/_components/clients/visitor-posts-tab"
 import { VisitorBookingsTab } from "@/app/_components/clients/visitor-bookings-tab"
+import { UserReelsTab } from "@/app/_components/profile/user-reels-tab"
 
 // -- Tab types --
-type Tab = "overview" | "posts" | "bookings"
+type Tab = "overview" | "posts" | "reels" | "bookings"
 
 const TABS: { key: Tab; label: string; icon: React.ReactNode }[] = [
   {
@@ -26,6 +33,7 @@ const TABS: { key: Tab; label: string; icon: React.ReactNode }[] = [
     icon: <UserIcon className="h-4 w-4" />,
   },
   { key: "posts", label: "Posts", icon: <FileText className="h-4 w-4" /> },
+  { key: "reels", label: "Reels", icon: <Film className="h-4 w-4" /> },
   {
     key: "bookings",
     label: "Bookings",
@@ -145,6 +153,7 @@ export default function ClientVisitorProfilePage() {
               onImageClick={handleImageClick}
             />
           )}
+          {activeTab === "reels" && <UserReelsTab userId={clientId} />}
           {activeTab === "bookings" && (
             <VisitorBookingsTab clientId={clientId} />
           )}

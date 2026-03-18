@@ -17,9 +17,7 @@ const MAX_NOTE_LENGTH = 500
 
 interface CancelBookingDialogProps {
   open: boolean
-  // eslint-disable-next-line no-unused-vars
   onOpenChange: (open: boolean) => void
-  // eslint-disable-next-line no-unused-vars
   onConfirm: (note?: string) => void
   loading?: boolean
 }

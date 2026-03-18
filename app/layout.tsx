@@ -1,5 +1,5 @@
 import type { Metadata } from "next"
-import { Inter } from "next/font/google"
+import { Inter, Nunito } from "next/font/google"
 
 // Global styles
 import "./globals.css"
@@ -27,6 +27,7 @@ import ConditionalHeader from "./_components/layout/conditional-header"
 import ConditionalFooter from "./_components/layout/conditional-footer"
 
 const inter = Inter({ subsets: ["latin"] })
+const nunito = Nunito({ subsets: ["latin"], variable: "--font-nunito" })
 
 export const metadata: Metadata = {
   // Base URL for resolving relative URLs in metadata
@@ -118,7 +119,7 @@ export default function RootLayout({
         {/* Apple touch icons */}
         <link rel="apple-touch-icon" href="/images/favicon.png" />
       </head>
-      <body className={inter.className}>
+      <body className={`${inter.className} ${nunito.variable}`}>
         {/* PROVIDER HIERARCHY */}
 
         {/* Theme provider for dark/light mode support */}
