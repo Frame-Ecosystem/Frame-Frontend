@@ -6,8 +6,10 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../ui/dialog"
 import { Button } from "../ui/button"
 import { Textarea } from "../ui/textarea"
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar"
+import Link from "next/link"
 import { useAuth } from "../../_providers/auth"
 import { useCreateReel } from "../../_hooks/queries/useContent"
+import { getProfilePath } from "../../_lib/profile"
 
 interface CreateReelDialogProps {
   open: boolean
@@ -172,15 +174,22 @@ export function CreateReelDialog({
         <div className="space-y-4">
           {/* Author */}
           <div className="flex items-center gap-3">
-            <Avatar className="h-10 w-10">
-              <AvatarImage src={profileImage} alt="" />
-              <AvatarFallback>
-                {(user.firstName || user.email || "U").charAt(0).toUpperCase()}
-              </AvatarFallback>
-            </Avatar>
-            <p className="text-sm font-semibold">
+            <Link href={getProfilePath(user)}>
+              <Avatar className="h-10 w-10 cursor-pointer transition-opacity hover:opacity-80">
+                <AvatarImage src={profileImage} alt="" />
+                <AvatarFallback>
+                  {(user.firstName || user.email || "U")
+                    .charAt(0)
+                    .toUpperCase()}
+                </AvatarFallback>
+              </Avatar>
+            </Link>
+            <Link
+              href={getProfilePath(user)}
+              className="text-sm font-semibold hover:underline"
+            >
               {user.loungeTitle || user.firstName || user.email}
-            </p>
+            </Link>
           </div>
 
           {/* Video preview or picker */}

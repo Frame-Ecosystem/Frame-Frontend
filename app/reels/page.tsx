@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useRef, useEffect, useMemo, useCallback } from "react"
+import { useSearchParams } from "next/navigation"
 import { Loader2 } from "lucide-react"
 import { ErrorBoundary } from "../_components/common/errorBoundary"
 import { ReelPlayer } from "../_components/content/reel-player"
@@ -10,6 +11,10 @@ import { useExploreFeed } from "../_hooks/queries/useContent"
 import type { Reel, FeedItem } from "../_types/content"
 
 export default function ReelsPage() {
+  const searchParams = useSearchParams()
+  const targetReelId = searchParams.get("id")
+  const hasJumped = useRef(false)
+
   const [activeIndex, setActiveIndexRaw] = useState(0)
   const containerRef = useRef<HTMLDivElement>(null)
   const isTransitioning = useRef(false)
@@ -49,6 +54,19 @@ export default function ReelsPage() {
     )
   }, [exploreQuery.data])
 
+  // Jump to a specific reel when navigated via ?id= param
+  useEffect(() => {
+    if (!targetReelId || hasJumped.current || reels.length === 0) return
+    const idx = reels.findIndex((r) => r._id === targetReelId)
+    if (idx !== -1) {
+      // Use rAF to avoid synchronous setState inside effect body
+      requestAnimationFrame(() => {
+        setActiveIndexRaw(idx)
+      })
+      hasJumped.current = true
+    }
+  }, [targetReelId, reels])
+
   // Load more when approaching the end
   const { hasNextPage, isFetchingNextPage, fetchNextPage } = exploreQuery
   useEffect(() => {
@@ -79,7 +97,7 @@ export default function ReelsPage() {
         isTransitioning.current = false
       }, 500)
     },
-    [reels.length],
+    [reels.length, setActiveIndex],
   )
 
   // Wheel handler (passive: false for preventDefault)

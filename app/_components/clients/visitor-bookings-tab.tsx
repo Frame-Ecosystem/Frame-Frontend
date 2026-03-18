@@ -14,6 +14,7 @@ import { PaginationControls } from "@/app/_components/common/pagination-controls
 import { useClientBookings } from "@/app/_hooks/queries/useClientVisitorProfile"
 import type { ClientBookingItem } from "@/app/_types"
 import { SimpleListSkeleton } from "@/app/_components/skeletons/clients"
+import { resolveProfileImage } from "@/app/_lib/image-utils"
 
 interface VisitorBookingsTabProps {
   clientId: string
@@ -27,7 +28,7 @@ function BookingRow({ booking }: { booking: ClientBookingItem }) {
           <Avatar className="h-12 w-12">
             {booking.loungeId.profileImage && (
               <AvatarImage
-                src={booking.loungeId.profileImage}
+                src={resolveProfileImage(booking.loungeId.profileImage)}
                 alt={booking.loungeId.loungeTitle}
               />
             )}

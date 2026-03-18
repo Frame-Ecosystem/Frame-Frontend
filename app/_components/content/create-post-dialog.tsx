@@ -7,8 +7,10 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../ui/dialog"
 import { Button } from "../ui/button"
 import { Textarea } from "../ui/textarea"
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar"
+import Link from "next/link"
 import { useAuth } from "../../_providers/auth"
 import { useCreatePost } from "../../_hooks/queries/useContent"
+import { getProfilePath } from "../../_lib/profile"
 
 interface CreatePostDialogProps {
   open: boolean
@@ -121,16 +123,23 @@ export function CreatePostDialog({
         <div className="space-y-4">
           {/* Author info + text */}
           <div className="flex gap-3">
-            <Avatar className="h-10 w-10 shrink-0">
-              <AvatarImage src={profileImage} alt="" />
-              <AvatarFallback>
-                {(user.firstName || user.email || "U").charAt(0).toUpperCase()}
-              </AvatarFallback>
-            </Avatar>
+            <Link href={getProfilePath(user)} className="shrink-0">
+              <Avatar className="h-10 w-10 cursor-pointer transition-opacity hover:opacity-80">
+                <AvatarImage src={profileImage} alt="" />
+                <AvatarFallback>
+                  {(user.firstName || user.email || "U")
+                    .charAt(0)
+                    .toUpperCase()}
+                </AvatarFallback>
+              </Avatar>
+            </Link>
             <div className="flex-1">
-              <p className="text-sm font-semibold">
+              <Link
+                href={getProfilePath(user)}
+                className="text-sm font-semibold hover:underline"
+              >
                 {user.loungeTitle || user.firstName || user.email}
-              </p>
+              </Link>
               <Textarea
                 placeholder="What's on your mind?"
                 value={text}

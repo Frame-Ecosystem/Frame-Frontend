@@ -1,19 +1,33 @@
 "use client"
 
-import { useEffect, useMemo } from "react"
-import { Loader2, RefreshCw } from "lucide-react"
+import { useState, useEffect, useMemo } from "react"
+import { Loader2, RefreshCw, FileText, Film } from "lucide-react"
 import { useInView } from "react-intersection-observer"
+import Link from "next/link"
 import { Button } from "../ui/button"
-import { CreatePost } from "./create-post"
+import { Card, CardContent } from "../ui/card"
+import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar"
+import { CreatePostDialog } from "../content/create-post-dialog"
+import { CreateReelDialog } from "../content/create-reel-dialog"
 import { PostCard } from "./post-card"
 import { useAuth } from "../../_providers/auth"
 import { useFollowingFeed } from "../../_hooks/queries/useContent"
 import { PostFeedSkeleton } from "../skeletons/posts"
+import { getProfilePath } from "../../_lib/profile"
 import type { FeedItem, Post } from "../../_types/content"
 
 export function PostFeed() {
   const { user } = useAuth()
   const { ref, inView } = useInView()
+  const [showPostDialog, setShowPostDialog] = useState(false)
+  const [showReelDialog, setShowReelDialog] = useState(false)
+
+  const profileImage =
+    typeof user?.profileImage === "string"
+      ? user?.profileImage
+      : user?.profileImage?.url
+  const displayName =
+    user?.firstName || user?.loungeTitle || user?.email || "User"
 
   const {
     data,
@@ -70,11 +84,60 @@ export function PostFeed() {
 
   return (
     <div className="mx-auto max-w-2xl space-y-6">
-      {/* Create Post — only show if user is logged in */}
-      {user && <CreatePost />}
-
-      {/* Horizontal line separator */}
-      {user && <hr className="border-border" />}
+      {/* Create content prompt — same dialogs as the plus button */}
+      {user && (
+        <>
+          <Card className="mt-8 mb-4 w-full">
+            <CardContent className="pt-4">
+              <div className="flex items-center gap-3">
+                <Link href={getProfilePath(user)} className="shrink-0">
+                  <Avatar className="h-10 w-10 cursor-pointer transition-opacity hover:opacity-80">
+                    <AvatarImage src={profileImage} alt={displayName} />
+                    <AvatarFallback>
+                      {displayName.charAt(0).toUpperCase()}
+                    </AvatarFallback>
+                  </Avatar>
+                </Link>
+                <button
+                  onClick={() => setShowPostDialog(true)}
+                  className="text-muted-foreground bg-muted/50 hover:bg-muted flex-1 rounded-full px-4 py-2.5 text-left text-sm transition-colors"
+                >
+                  What&apos;s on your mind?
+                </button>
+              </div>
+              <div className="mt-3 flex items-center gap-1 border-t pt-3">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setShowPostDialog(true)}
+                  className="text-muted-foreground hover:text-foreground flex items-center gap-1.5"
+                >
+                  <FileText className="h-4 w-4" />
+                  <span className="text-sm">Post</span>
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setShowReelDialog(true)}
+                  className="text-muted-foreground hover:text-foreground flex items-center gap-1.5"
+                >
+                  <Film className="h-4 w-4" />
+                  <span className="text-sm">Reel</span>
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+          <hr className="border-border" />
+          <CreatePostDialog
+            open={showPostDialog}
+            onOpenChange={setShowPostDialog}
+          />
+          <CreateReelDialog
+            open={showReelDialog}
+            onOpenChange={setShowReelDialog}
+          />
+        </>
+      )}
 
       {/* Posts Feed */}
       {allPosts.length === 0 ? (
@@ -86,7 +149,7 @@ export function PostFeed() {
           </p>
           {user && (
             <p className="text-muted-foreground text-sm">
-              Use the form above to create your first post.
+              Tap the prompt above to create your first post or reel.
             </p>
           )}
         </div>

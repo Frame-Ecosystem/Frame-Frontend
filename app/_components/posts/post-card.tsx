@@ -6,20 +6,22 @@ import { formatDistanceToNow } from "date-fns"
 import {
   Heart,
   MessageCircle,
+  Bookmark,
   Trash2,
   ChevronLeft,
   ChevronRight,
 } from "lucide-react"
+import Link from "next/link"
 import { Button } from "../ui/button"
 import { Card, CardContent, CardHeader } from "../ui/card"
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar"
-import { Textarea } from "../ui/textarea"
+import { CommentSheet } from "../content/comment-sheet"
 import type { Post } from "../../_types/content"
 import { useAuth } from "../../_providers/auth"
 import {
   useTogglePostLike,
+  useTogglePostSave,
   useDeletePost,
-  useAddComment,
 } from "../../_hooks/queries/useContent"
 
 interface PostCardProps {
@@ -30,14 +32,12 @@ interface PostCardProps {
 
 export function PostCard({ post, priority = false }: PostCardProps) {
   const { user } = useAuth()
-  const [showComments, setShowComments] = useState(false)
-  const [commentText, setCommentText] = useState("")
-  const [showCommentForm, setShowCommentForm] = useState(false)
+  const [showCommentSheet, setShowCommentSheet] = useState(false)
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
 
   const likeMutation = useTogglePostLike(post._id)
+  const saveMutation = useTogglePostSave(post._id)
   const deleteMutation = useDeletePost()
-  const addCommentMutation = useAddComment("post", post._id)
 
   // Image navigation
   const nextImage = () => {
@@ -60,18 +60,8 @@ export function PostCard({ post, priority = false }: PostCardProps) {
     if (user) likeMutation.mutate()
   }
 
-  const handleComment = () => {
-    if (user && commentText.trim()) {
-      addCommentMutation.mutate(
-        { text: commentText.trim() },
-        {
-          onSuccess: () => {
-            setCommentText("")
-            setShowCommentForm(false)
-          },
-        },
-      )
-    }
+  const handleSave = () => {
+    if (user) saveMutation.mutate()
   }
 
   const handleDelete = () => {
@@ -82,6 +72,10 @@ export function PostCard({ post, priority = false }: PostCardProps) {
 
   const author = post.authorId
   const authorName = author.firstName || author.loungeTitle || "User"
+  const authorHref =
+    author.type === "lounge"
+      ? `/lounges/${author._id}`
+      : `/clients/${author._id}`
   const canDelete = user && user._id === author._id
 
   return (
@@ -89,21 +83,28 @@ export function PostCard({ post, priority = false }: PostCardProps) {
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-3">
-            <Avatar className="h-10 w-10">
-              <AvatarImage
-                src={
-                  typeof author.profileImage === "string"
-                    ? author.profileImage
-                    : (author.profileImage as any)?.url
-                }
-                alt={authorName}
-              />
-              <AvatarFallback>
-                {authorName.charAt(0).toUpperCase()}
-              </AvatarFallback>
-            </Avatar>
+            <Link href={authorHref}>
+              <Avatar className="h-10 w-10 cursor-pointer transition-opacity hover:opacity-80">
+                <AvatarImage
+                  src={
+                    typeof author.profileImage === "string"
+                      ? author.profileImage
+                      : (author.profileImage as any)?.url
+                  }
+                  alt={authorName}
+                />
+                <AvatarFallback>
+                  {authorName.charAt(0).toUpperCase()}
+                </AvatarFallback>
+              </Avatar>
+            </Link>
             <div>
-              <p className="text-sm font-semibold">{authorName}</p>
+              <Link
+                href={authorHref}
+                className="text-sm font-semibold hover:underline"
+              >
+                {authorName}
+              </Link>
               <p className="text-muted-foreground text-xs">
                 {formatDistanceToNow(new Date(post.createdAt), {
                   addSuffix: true,
@@ -206,7 +207,7 @@ export function PostCard({ post, priority = false }: PostCardProps) {
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={() => setShowComments(!showComments)}
+                onClick={() => setShowCommentSheet(true)}
                 className="text-muted-foreground flex items-center space-x-1"
               >
                 <MessageCircle className="h-4 w-4" />
@@ -217,45 +218,29 @@ export function PostCard({ post, priority = false }: PostCardProps) {
             <Button
               variant="ghost"
               size="sm"
-              onClick={() => setShowCommentForm(!showCommentForm)}
-              className="text-muted-foreground"
+              onClick={handleSave}
+              className={`flex items-center space-x-1 ${
+                post.isSaved ? "text-foreground" : "text-muted-foreground"
+              }`}
             >
-              Reply
+              <Bookmark
+                className={`h-4 w-4 transition-colors ${
+                  post.isSaved ? "fill-current" : ""
+                }`}
+              />
             </Button>
           </div>
-
-          {/* Comment form */}
-          {showCommentForm && (
-            <div className="space-y-2 border-t pt-2">
-              <Textarea
-                placeholder="Write a comment..."
-                value={commentText}
-                onChange={(e) => setCommentText(e.target.value)}
-                className="min-h-[60px] resize-none"
-              />
-              <div className="flex justify-end space-x-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => {
-                    setShowCommentForm(false)
-                    setCommentText("")
-                  }}
-                >
-                  Cancel
-                </Button>
-                <Button
-                  size="sm"
-                  onClick={handleComment}
-                  disabled={!commentText.trim() || addCommentMutation.isPending}
-                >
-                  {addCommentMutation.isPending ? "Posting..." : "Comment"}
-                </Button>
-              </div>
-            </div>
-          )}
         </div>
       </CardContent>
+
+      {/* Comment bottom sheet */}
+      <CommentSheet
+        open={showCommentSheet}
+        onClose={() => setShowCommentSheet(false)}
+        targetType="post"
+        targetId={post._id}
+        commentCount={post.commentCount}
+      />
     </Card>
   )
 }

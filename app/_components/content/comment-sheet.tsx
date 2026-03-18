@@ -73,7 +73,7 @@ export function CommentSheet({
       {/* Sheet */}
       <div
         className={cn(
-          "bg-background fixed right-0 bottom-0 left-0 z-50 flex max-h-[85vh] flex-col rounded-t-2xl shadow-xl",
+          "bg-background fixed right-0 bottom-0 left-0 z-50 mx-auto flex max-h-[85vh] flex-col rounded-t-2xl shadow-xl lg:max-w-[420px]",
           "animate-in slide-in-from-bottom duration-300",
         )}
       >

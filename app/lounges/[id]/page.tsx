@@ -48,6 +48,13 @@ export default function LoungePage() {
   const router = useRouter()
   const searchParams = useSearchParams()
 
+  // Redirect to own profile if visiting yourself
+  useEffect(() => {
+    if (!authLoading && user && user._id === id) {
+      router.replace("/profile/lounge")
+    }
+  }, [authLoading, user, id, router])
+
   const [center, setCenter] = useState<
     | (Lounge & {
         services: LoungeService[]

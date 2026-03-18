@@ -38,6 +38,7 @@ import {
   LikesGridSkeleton,
   CardListSkeleton,
 } from "../../_components/skeletons/profile"
+import { resolveProfileImage } from "../../_lib/image-utils"
 
 // Helper function to format bio text with line breaks
 const formatBioText = (text: string, isMobile: boolean = false) => {
@@ -465,7 +466,9 @@ export default function ClientProfilePage() {
                                 <Avatar className="h-14 w-14">
                                   {lounge.profileImage && (
                                     <AvatarImage
-                                      src={lounge.profileImage}
+                                      src={resolveProfileImage(
+                                        lounge.profileImage,
+                                      )}
                                       alt={lounge.loungeTitle}
                                     />
                                   )}
@@ -550,7 +553,9 @@ export default function ClientProfilePage() {
                                 <Avatar className="h-10 w-10">
                                   {r.loungeId.profileImage && (
                                     <AvatarImage
-                                      src={r.loungeId.profileImage}
+                                      src={resolveProfileImage(
+                                        r.loungeId.profileImage,
+                                      )}
                                       alt={r.loungeId.loungeTitle}
                                     />
                                   )}

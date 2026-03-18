@@ -45,7 +45,14 @@ export default function ClientVisitorProfilePage() {
   const params = useParams()
   const clientId = params.id as string
   const router = useRouter()
-  const { isLoading: authLoading } = useAuth()
+  const { user, isLoading: authLoading } = useAuth()
+
+  // Redirect to own profile if visiting yourself
+  useEffect(() => {
+    if (!authLoading && user && user._id === clientId) {
+      router.replace("/profile/client")
+    }
+  }, [authLoading, user, clientId, router])
 
   const [activeTab, setActiveTab] = useState<Tab>("overview")
   const [isMobile, setIsMobile] = useState(false)
