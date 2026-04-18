@@ -26,7 +26,7 @@ import {
 import { useQuery } from "@tanstack/react-query"
 import { loungeService } from "../../_services/lounge.service"
 import clientService from "../../_services/client.service"
-import { useAuth } from "../../_providers/auth"
+import { useAuth } from "@/app/_auth"
 import {
   useBookFromQueue,
   useLoungeBookFromQueue,
@@ -38,7 +38,7 @@ type BookingMode = "visitor" | "client"
 
 interface BookFromQueueDialogProps {
   open: boolean
-  // eslint-disable-next-line no-unused-vars
+
   onOpenChange: (open: boolean) => void
   agentId: string
   agentName?: string

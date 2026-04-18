@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import { useAuth } from "@/app/_providers/auth"
+import { useAuth } from "@/app/_auth"
 import { clientService } from "@/app/_services"
 import { isAuthError } from "@/app/_services/api"
 import type { Lounge, LoungeService } from "@/app/_types"

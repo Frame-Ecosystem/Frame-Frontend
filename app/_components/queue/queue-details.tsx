@@ -32,21 +32,21 @@ interface QueueDetailsProps {
   persons: QueuePerson[]
   mode: "client" | "staff"
   isExpanded: boolean
-  // eslint-disable-next-line no-unused-vars
+
   setIsExpanded: (expanded: boolean) => void
   isFullScreen: boolean
-  // eslint-disable-next-line no-unused-vars
+
   onDragEnd: (event: DragEndEvent) => void
-  // eslint-disable-next-line no-unused-vars
+
   onStatusChange?: (bookingId: string, status: QueuePersonStatus) => void
-  // eslint-disable-next-line no-unused-vars
+
   onRemove?: (bookingId: string) => void
   onAddPerson?: () => void
   isUpdating?: boolean
   /** Whether this agent's queue currently accepts bookings */
   acceptQueueBooking?: boolean
   /** Callback when the lounge owner toggles the setting */
-  // eslint-disable-next-line no-unused-vars
+
   onToggleAcceptBooking?: (enabled: boolean) => void
   /** Whether the toggle mutation is in-flight */
   isTogglingBooking?: boolean

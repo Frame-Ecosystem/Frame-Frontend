@@ -7,7 +7,7 @@ import { BookingSkeleton } from "../card/BookingSkeleton"
 import { BookingListHeader } from "./BookingListHeader"
 import { toast } from "sonner"
 
-import { useAuth } from "../../../_providers/auth"
+import { useAuth } from "@/app/_auth"
 import type { Booking, BookingStatus } from "../../../_types"
 import { bookingService } from "@/app/_services"
 import { useSocketRoom } from "../../../_hooks/useSocketRoom"

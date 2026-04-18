@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { Plus, FileText, Film, X } from "lucide-react"
-import { useAuth } from "../../_providers/auth"
+import { useAuth } from "@/app/_auth"
 import { usePathname } from "next/navigation"
 import { CreatePostDialog } from "./create-post-dialog"
 import { CreateReelDialog } from "./create-reel-dialog"

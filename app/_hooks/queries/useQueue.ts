@@ -7,7 +7,7 @@ import { QueuePersonStatus } from "../../_types"
 import { toast } from "sonner"
 import { isAuthError } from "../../_services/api"
 import { useSocketRoom } from "../useSocketRoom"
-import { useAuth } from "../../_providers/auth"
+import { useAuth } from "@/app/_auth"
 
 // ── Query Keys ────────────────────────────────────────────────
 export const queueKeys = {

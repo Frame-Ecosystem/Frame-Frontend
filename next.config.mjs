@@ -27,6 +27,10 @@ const nextConfig = {
     contentDispositionType: "attachment",
     contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
   },
+  // Allow dev HMR access from IPv4 hosts during development.
+  // NOTE: Next.js rejects a single '*' as too broad, but does support wildcard
+  // matching per domain segment. `*.*.*.*` effectively allows any IPv4 host.
+  // Keep this dev-only.
+  allowedDevOrigins: ["*.*.*.*"],
 }
-
 export default nextConfig

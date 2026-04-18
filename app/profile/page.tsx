@@ -2,7 +2,7 @@
 
 import { useEffect } from "react"
 import { useRouter } from "next/navigation"
-import { useAuth } from "../_providers/auth"
+import { useAuth } from "@/app/_auth"
 import { getProfilePath } from "../_lib/profile"
 import { ProfileRouterSkeleton } from "../_components/skeletons/auth"
 

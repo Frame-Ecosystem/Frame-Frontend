@@ -11,9 +11,12 @@ export function useAdminHidePost() {
   const qc = useQueryClient()
   return useMutation({
     mutationFn: (postId: string) => postService.hidePost(postId),
-    onSuccess: () => {
+    onSuccess: (_data, postId) => {
       toast.success("Post hidden")
       qc.invalidateQueries({ queryKey: contentKeys.exploreFeed })
+      qc.invalidateQueries({ queryKey: contentKeys.followingFeed })
+      qc.invalidateQueries({ queryKey: contentKeys.savedFeed })
+      qc.invalidateQueries({ queryKey: contentKeys.post(postId) })
     },
   })
 }
@@ -22,9 +25,12 @@ export function useAdminUnhidePost() {
   const qc = useQueryClient()
   return useMutation({
     mutationFn: (postId: string) => postService.unhidePost(postId),
-    onSuccess: () => {
+    onSuccess: (_data, postId) => {
       toast.success("Post unhidden")
       qc.invalidateQueries({ queryKey: contentKeys.exploreFeed })
+      qc.invalidateQueries({ queryKey: contentKeys.followingFeed })
+      qc.invalidateQueries({ queryKey: contentKeys.savedFeed })
+      qc.invalidateQueries({ queryKey: contentKeys.post(postId) })
     },
   })
 }
@@ -37,6 +43,7 @@ export function useAdminDeletePost() {
       toast.success("Post force-deleted")
       qc.invalidateQueries({ queryKey: contentKeys.exploreFeed })
       qc.invalidateQueries({ queryKey: contentKeys.followingFeed })
+      qc.invalidateQueries({ queryKey: contentKeys.savedFeed })
     },
   })
 }
@@ -47,9 +54,12 @@ export function useAdminHideReel() {
   const qc = useQueryClient()
   return useMutation({
     mutationFn: (reelId: string) => reelService.hideReel(reelId),
-    onSuccess: () => {
+    onSuccess: (_data, reelId) => {
       toast.success("Reel hidden")
       qc.invalidateQueries({ queryKey: contentKeys.exploreFeed })
+      qc.invalidateQueries({ queryKey: contentKeys.followingFeed })
+      qc.invalidateQueries({ queryKey: contentKeys.savedFeed })
+      qc.invalidateQueries({ queryKey: contentKeys.reel(reelId) })
     },
   })
 }
@@ -58,9 +68,12 @@ export function useAdminUnhideReel() {
   const qc = useQueryClient()
   return useMutation({
     mutationFn: (reelId: string) => reelService.unhideReel(reelId),
-    onSuccess: () => {
+    onSuccess: (_data, reelId) => {
       toast.success("Reel unhidden")
       qc.invalidateQueries({ queryKey: contentKeys.exploreFeed })
+      qc.invalidateQueries({ queryKey: contentKeys.followingFeed })
+      qc.invalidateQueries({ queryKey: contentKeys.savedFeed })
+      qc.invalidateQueries({ queryKey: contentKeys.reel(reelId) })
     },
   })
 }
@@ -73,6 +86,7 @@ export function useAdminDeleteReel() {
       toast.success("Reel force-deleted")
       qc.invalidateQueries({ queryKey: contentKeys.exploreFeed })
       qc.invalidateQueries({ queryKey: contentKeys.followingFeed })
+      qc.invalidateQueries({ queryKey: contentKeys.savedFeed })
     },
   })
 }
@@ -80,23 +94,36 @@ export function useAdminDeleteReel() {
 /* ── Comment admin actions ── */
 
 export function useAdminHideComment() {
+  const qc = useQueryClient()
   return useMutation({
     mutationFn: (commentId: string) => commentService.hideComment(commentId),
-    onSuccess: () => toast.success("Comment hidden"),
+    onSuccess: () => {
+      toast.success("Comment hidden")
+      // Invalidate all comment caches
+      qc.invalidateQueries({ queryKey: ["comments"] })
+    },
   })
 }
 
 export function useAdminUnhideComment() {
+  const qc = useQueryClient()
   return useMutation({
     mutationFn: (commentId: string) => commentService.unhideComment(commentId),
-    onSuccess: () => toast.success("Comment unhidden"),
+    onSuccess: () => {
+      toast.success("Comment unhidden")
+      qc.invalidateQueries({ queryKey: ["comments"] })
+    },
   })
 }
 
 export function useAdminDeleteComment() {
+  const qc = useQueryClient()
   return useMutation({
     mutationFn: (commentId: string) =>
       commentService.adminDeleteComment(commentId),
-    onSuccess: () => toast.success("Comment force-deleted"),
+    onSuccess: () => {
+      toast.success("Comment force-deleted")
+      qc.invalidateQueries({ queryKey: ["comments"] })
+    },
   })
 }

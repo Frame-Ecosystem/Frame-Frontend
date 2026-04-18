@@ -1,5 +1,17 @@
 export const themes = [
   {
+    name: "silver-light",
+    label: "Silver",
+    icon: "\u2728",
+    colors: ["#6B7A8D", "#E8ECF0", "#FCFCFD"],
+  },
+  {
+    name: "silver-dark",
+    label: "Silver Dark",
+    icon: "\u2B50",
+    colors: ["#A8B4C2", "#2A2F38", "#181B21"],
+  },
+  {
     name: "monochrome-light",
     label: "Monochrome",
     icon: "⚫",

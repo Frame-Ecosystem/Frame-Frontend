@@ -50,6 +50,7 @@ export function useCreatePost() {
       toast.success("Post created!")
       qc.invalidateQueries({ queryKey: contentKeys.followingFeed })
       qc.invalidateQueries({ queryKey: contentKeys.exploreFeed })
+      qc.invalidateQueries({ queryKey: ["posts", "user"] })
     },
     onError: () => toast.error("Failed to create post"),
   })
@@ -70,6 +71,9 @@ export function useUpdatePost() {
     onSuccess: (_data, vars) => {
       toast.success("Post updated")
       qc.invalidateQueries({ queryKey: contentKeys.post(vars.postId) })
+      qc.invalidateQueries({ queryKey: contentKeys.followingFeed })
+      qc.invalidateQueries({ queryKey: contentKeys.exploreFeed })
+      qc.invalidateQueries({ queryKey: contentKeys.savedFeed })
     },
     onError: () => toast.error("Failed to update post"),
   })

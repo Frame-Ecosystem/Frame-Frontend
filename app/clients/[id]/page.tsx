@@ -10,7 +10,7 @@ import {
   BookOpen,
 } from "lucide-react"
 import { ErrorBoundary } from "@/app/_components/common/errorBoundary"
-import { useAuth } from "@/app/_providers/auth"
+import { useAuth } from "@/app/_auth"
 import { Button } from "@/app/_components/ui/button"
 import { ImageLightbox } from "@/app/_components/common/images/image-lightbox"
 import { useClientProfile } from "@/app/_hooks/queries/useClientVisitorProfile"

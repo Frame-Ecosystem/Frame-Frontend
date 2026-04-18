@@ -81,4 +81,18 @@ export function updateFeedItemOptimistic(
       }
     })
   }
+
+  // Also update any active hashtagFeed caches
+  qc.setQueriesData({ queryKey: ["feed", "hashtag"] }, (old: any) => {
+    if (!old) return old
+    return {
+      ...old,
+      pages: old.pages.map((page: any) => ({
+        ...page,
+        data: page.data.map((item: any) =>
+          item._id === itemId ? updater(item) : item,
+        ),
+      })),
+    }
+  })
 }

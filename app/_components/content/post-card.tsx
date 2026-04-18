@@ -1,15 +1,16 @@
 "use client"
 
 import { useState, useCallback, useRef } from "react"
-import { Heart } from "lucide-react"
+import { Heart, EyeOff } from "lucide-react"
 import { AuthorHeader } from "./author-header"
 import { ActionBar } from "./action-bar"
 import { ImageCarousel } from "./image-carousel"
 import { HashtagText } from "./hashtag-text"
 import { ContentMenu } from "./content-menu"
 import { ReportModal } from "./report-modal"
+import { EditPostDialog } from "./edit-post-dialog"
 import type { Post } from "../../_types"
-import { useAuth } from "../../_providers/auth"
+import { useAuth } from "@/app/_auth"
 import {
   useTogglePostLike,
   useTogglePostSave,
@@ -30,10 +31,11 @@ export function PostCard({
   post,
   priority,
   onCommentClick,
-  onEditClick,
+  onEditClick: _onEditClick,
 }: PostCardProps) {
   const { user } = useAuth()
   const [showReport, setShowReport] = useState(false)
+  const [showEdit, setShowEdit] = useState(false)
   const [showDoubleTapHeart, setShowDoubleTapHeart] = useState(false)
   const [expanded, setExpanded] = useState(false)
   const heartTimeout = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -76,7 +78,17 @@ export function PostCard({
     : textContent
 
   return (
-    <article className="border-border bg-card border-b">
+    <article
+      id={`post-${post._id}`}
+      className="border-border bg-card relative border-b"
+    >
+      {/* Hidden indicator for admins */}
+      {post.isHidden && isAdmin && (
+        <div className="flex items-center gap-1.5 bg-amber-500/10 px-4 py-1.5 text-xs font-medium text-amber-600 dark:text-amber-400">
+          <EyeOff className="h-3 w-3" />
+          Hidden from public feeds
+        </div>
+      )}
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-3">
         <AuthorHeader author={post.authorId} createdAt={post.createdAt} />
@@ -84,7 +96,7 @@ export function PostCard({
           isOwner={isOwner}
           isAdmin={isAdmin}
           isHidden={post.isHidden}
-          onEdit={isOwner ? onEditClick : undefined}
+          onEdit={isOwner ? () => setShowEdit(true) : undefined}
           onDelete={isOwner ? handleDelete : undefined}
           onReport={!isOwner ? () => setShowReport(true) : undefined}
           onHide={isAdmin ? () => hideMutation.mutate(post._id) : undefined}
@@ -185,6 +197,15 @@ export function PostCard({
         targetType="post"
         targetId={post._id}
       />
+
+      {/* Edit dialog */}
+      {isOwner && (
+        <EditPostDialog
+          post={post}
+          open={showEdit}
+          onOpenChange={setShowEdit}
+        />
+      )}
     </article>
   )
 }

@@ -1,13 +1,9 @@
 "use client"
 import { Button } from "../ui/button"
 import { Avatar, AvatarImage, AvatarFallback } from "../ui/avatar"
-import {
-  authService,
-  getUserDisplayName,
-  getUserInitials,
-} from "../../_services/auth.service"
+import { authService, getUserDisplayName, getUserInitials } from "@/app/_auth"
 import type { User } from "../../_types"
-import { useAuth } from "../../_providers/auth"
+import { useAuth } from "@/app/_auth"
 import { useRouter } from "next/navigation"
 import { UserPlusIcon, LogOutIcon, Settings } from "lucide-react"
 

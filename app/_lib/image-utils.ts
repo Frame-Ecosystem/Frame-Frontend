@@ -30,8 +30,11 @@ export function compressImage(file: File): Promise<string> {
     const canvas = document.createElement("canvas")
     const ctx = canvas.getContext("2d")
     const img = new window.Image()
+    const blobUrl = URL.createObjectURL(file)
 
     img.onload = () => {
+      URL.revokeObjectURL(blobUrl)
+
       const maxSize = 800
       let { width, height } = img
 
@@ -55,7 +58,10 @@ export function compressImage(file: File): Promise<string> {
       resolve(dataUrl)
     }
 
-    img.onerror = () => reject(new Error("Failed to load image"))
-    img.src = URL.createObjectURL(file)
+    img.onerror = () => {
+      URL.revokeObjectURL(blobUrl)
+      reject(new Error("Failed to load image"))
+    }
+    img.src = blobUrl
   })
 }

@@ -52,8 +52,32 @@ export function useCreateReel() {
       toast.success("Reel shared!")
       qc.invalidateQueries({ queryKey: contentKeys.followingFeed })
       qc.invalidateQueries({ queryKey: contentKeys.exploreFeed })
+      qc.invalidateQueries({ queryKey: ["reels", "user"] })
     },
     onError: () => toast.error("Failed to upload reel"),
+  })
+}
+
+/** Update reel caption/hashtags */
+export function useUpdateReel() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: ({
+      reelId,
+      ...data
+    }: {
+      reelId: string
+      caption?: string
+      hashtags?: string[]
+    }) => reelService.updateReel(reelId, data),
+    onSuccess: (_data, vars) => {
+      toast.success("Reel updated")
+      qc.invalidateQueries({ queryKey: contentKeys.reel(vars.reelId) })
+      qc.invalidateQueries({ queryKey: contentKeys.followingFeed })
+      qc.invalidateQueries({ queryKey: contentKeys.exploreFeed })
+      qc.invalidateQueries({ queryKey: contentKeys.savedFeed })
+    },
+    onError: () => toast.error("Failed to update reel"),
   })
 }
 

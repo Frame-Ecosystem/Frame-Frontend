@@ -1,118 +1,192 @@
 "use client"
 
-import { CardContent } from "../ui/card"
-import { MapPinIcon, PhoneIcon, MailIcon } from "lucide-react"
+import { Mail, Instagram } from "lucide-react"
 import Link from "next/link"
+import { FooterBrandLogo as _FooterBrandLogo } from "../common/brand-logo"
 
 const FooterDesktop = () => {
   return (
-    <footer className="bg-card/30 hidden border-t backdrop-blur-sm lg:block">
-      <CardContent className="px-5 py-6 lg:px-8 lg:py-12">
-        <div className="mx-auto max-w-7xl">
-          <div className="mb-8 grid grid-cols-3 gap-8">
-            {/* Brand column */}
-            <div className="space-y-4">
-              <h3 className="text-xl font-bold">Frame</h3>
-              <p className="text-muted-foreground text-sm leading-relaxed">
-                The best platform to book your appointment with the best centers
-                in Tunisia.
-              </p>
-              <div className="text-muted-foreground flex items-center gap-2 text-sm">
-                <MapPinIcon className="h-4 w-4" />
-                <span>Tunis, TN</span>
-              </div>
+    <footer className="border-border/50 border-t px-4 pt-16 pb-8 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-6xl">
+        {/* Top row — brand + links */}
+        <div className="grid grid-cols-2 gap-x-6 gap-y-10 sm:grid-cols-3 lg:grid-cols-5">
+          {/* Brand column */}
+          <div className="col-span-2 sm:col-span-3 lg:col-span-1">
+            <div className="mb-3 flex items-baseline">
+              <span
+                className="text-foreground text-2xl font-bold tracking-tight"
+                style={{ fontFamily: "var(--font-nunito), sans-serif" }}
+              >
+                frame
+              </span>
+              <span className="text-primary decoration-primary/50 ml-0.5 self-end text-[8px] font-semibold underline">
+                beauty
+              </span>
             </div>
-            {/* Company column */}
-            <div className="space-y-4">
-              <h4 className="font-semibold">Company</h4>
-              <ul className="text-muted-foreground space-y-2 text-sm">
-                <li>
-                  <Link
-                    href="#"
-                    className="hover:text-primary transition-colors"
-                  >
-                    About us
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="#"
-                    className="hover:text-primary transition-colors"
-                  >
-                    Careers
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="#"
-                    className="hover:text-primary transition-colors"
-                  >
-                    Partners
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="#"
-                    className="hover:text-primary transition-colors"
-                  >
-                    Contact
-                  </Link>
-                </li>
-              </ul>
-            </div>
-            {/* Contact column */}
-            <div className="space-y-4">
-              <h4 className="font-semibold">Contact</h4>
-              <div className="text-muted-foreground space-y-3 text-sm">
-                <div className="flex items-center gap-2">
-                  <PhoneIcon className="h-4 w-4" />
-                  <span>(216) 50 922 140</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <MailIcon className="h-4 w-4" />
-                  <span>medab@gmail.com</span>
-                </div>
-              </div>
+            <p className="text-muted-foreground mb-5 max-w-xs text-sm leading-relaxed">
+              The all-in-one platform to discover trends, shop beauty products,
+              and book appointments at top-rated centers near you.
+            </p>
+            <div className="flex items-center gap-3">
+              <a
+                href="https://instagram.com/framebeauty"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Frame Beauty on Instagram"
+                className="text-muted-foreground hover:text-primary hover:border-border inline-flex h-9 w-9 items-center justify-center rounded-lg border border-transparent transition-colors"
+              >
+                <Instagram className="h-4 w-4" />
+              </a>
+              <a
+                href="mailto:abbassimoohamed@gmail.com"
+                aria-label="Email Frame Beauty"
+                className="text-muted-foreground hover:text-primary hover:border-border inline-flex h-9 w-9 items-center justify-center rounded-lg border border-transparent transition-colors"
+              >
+                <Mail className="h-4 w-4" />
+              </a>
             </div>
           </div>
-          {/* Bottom section */}
-          <div className="flex items-center justify-between border-t pt-8">
-            <p className="text-muted-foreground text-sm">
-              © 2026 <span className="font-bold">Frame</span>. All rights
-              reserved.
-            </p>
-            <p>
-              Developed by{" "}
-              <Link
-                className="hover:text-primary flex items-center text-[#0077B5] transition-colors"
-                href="https://www.linkedin.com/"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width={16}
-                  height={16}
-                  fill="currentColor"
-                  viewBox="0 0 24 24"
+
+          {/* Platform column */}
+          <div>
+            <h4 className="text-foreground mb-3 text-sm font-semibold">
+              Platform
+            </h4>
+            <ul className="text-muted-foreground space-y-2.5 text-sm">
+              <li>
+                <Link
+                  href="/home"
+                  className="hover:text-foreground transition-colors"
                 >
-                  <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-10h3v10zm-1.5-11.268c-.966 0-1.75-.784-1.75-1.75s.784-1.75 1.75-1.75 1.75.784 1.75 1.75-.784 1.75-1.75 1.75zm15.5 11.268h-3v-5.604c0-1.337-.025-3.063-1.868-3.063-1.868 0-2.154 1.459-2.154 2.968v5.699h-3v-10h2.881v1.367h.041c.401-.761 1.379-1.563 2.841-1.563 3.039 0 3.6 2.001 3.6 4.599v5.597z" />
-                </svg>
-                <span className="ml-2 font-bold">medab</span>
-              </Link>
-            </p>
-            <div className="text-muted-foreground flex items-center gap-6 text-sm">
-              <Link href="#" className="hover:text-primary transition-colors">
-                Privacidade
-              </Link>
-              <Link href="#" className="hover:text-primary transition-colors">
-                Termos
-              </Link>
-              <Link href="#" className="hover:text-primary transition-colors">
-                Cookies
-              </Link>
-            </div>
+                  Feed
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/store"
+                  className="hover:text-foreground transition-colors"
+                >
+                  Shop
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/bookings"
+                  className="hover:text-foreground transition-colors"
+                >
+                  Book
+                </Link>
+              </li>
+            </ul>
+          </div>
+
+          {/* For Clients column */}
+          <div>
+            <h4 className="text-foreground mb-3 text-sm font-semibold">
+              For Clients
+            </h4>
+            <ul className="text-muted-foreground space-y-2.5 text-sm">
+              <li>
+                <Link
+                  href="/home"
+                  className="hover:text-foreground transition-colors"
+                >
+                  Discover Styles
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/bookings"
+                  className="hover:text-foreground transition-colors"
+                >
+                  Book Appointments
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/saved"
+                  className="hover:text-foreground transition-colors"
+                >
+                  Saved &amp; Favorites
+                </Link>
+              </li>
+            </ul>
+          </div>
+
+          {/* For Centers column */}
+          <div>
+            <h4 className="text-foreground mb-3 text-sm font-semibold">
+              For Centers
+            </h4>
+            <ul className="text-muted-foreground space-y-2.5 text-sm">
+              <li>
+                <Link
+                  href="/settings"
+                  className="hover:text-foreground transition-colors"
+                >
+                  Dashboard
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/clients"
+                  className="hover:text-foreground transition-colors"
+                >
+                  Clients
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/queue"
+                  className="hover:text-foreground transition-colors"
+                >
+                  Queue
+                </Link>
+              </li>
+            </ul>
+          </div>
+
+          {/* Contact column */}
+          <div>
+            <h4 className="text-foreground mb-3 text-sm font-semibold">
+              Contact
+            </h4>
+            <ul className="text-muted-foreground space-y-2.5 text-sm">
+              <li>
+                <a
+                  href="mailto:abbassimoohamed@gmail.com"
+                  className="hover:text-foreground break-all transition-colors"
+                >
+                  abbassimoohamed@gmail.com
+                </a>
+              </li>
+              <li>
+                <a
+                  href="https://instagram.com/framebeauty"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hover:text-foreground transition-colors"
+                >
+                  @framebeauty
+                </a>
+              </li>
+            </ul>
           </div>
         </div>
-      </CardContent>
+
+        {/* Divider */}
+        <div className="border-border/50 mt-12 border-t" />
+
+        {/* Bottom row — copyright */}
+        <div className="mt-6 flex flex-col items-center justify-between gap-3 sm:flex-row">
+          <p className="text-muted-foreground text-xs">
+            &copy; {new Date().getFullYear()} Frame Beauty. All rights reserved.
+          </p>
+          <p className="text-muted-foreground/60 text-xs">
+            Crafted with care in Tunisia
+          </p>
+        </div>
+      </div>
     </footer>
   )
 }

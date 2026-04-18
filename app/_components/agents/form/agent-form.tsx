@@ -11,7 +11,7 @@ import {
 } from "./validate-agent-form"
 import { useAgent } from "../../../_providers/agent"
 import { isAuthError } from "../../../_services/api"
-import { useAuth } from "../../../_providers/auth"
+import { useAuth } from "@/app/_auth"
 import { Agent, CreateAgentDto, UpdateAgentDto } from "../../../_types"
 import { Button } from "../../ui/button"
 import { Input } from "../../ui/input"
@@ -36,7 +36,7 @@ import { clientService } from "../../../_services"
 
 interface AgentFormProps {
   isOpen: boolean
-  // eslint-disable-next-line no-unused-vars
+
   onOpenChange: (open: boolean) => void
   agent?: Agent | null
   onSuccess?: () => void

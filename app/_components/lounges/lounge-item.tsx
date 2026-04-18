@@ -4,7 +4,7 @@ import Image from "next/image"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { PhoneIcon, StarIcon, Heart } from "lucide-react"
-import { useAuth } from "../../_providers/auth"
+import { useAuth } from "@/app/_auth"
 import { useCheckLiked, useToggleLike } from "../../_hooks/queries"
 import type { Lounge } from "../../_types"
 import { Badge } from "../ui/badge"
@@ -40,7 +40,7 @@ const LoungeItem = ({ lounge }: { lounge: Lounge }) => {
 
   return (
     <Link href={`/lounges/${lounge.id}?tab=posts`}>
-      <Card className="min-w-[167px] cursor-pointer rounded-2xl transition-shadow hover:shadow-lg">
+      <Card className="w-[168px] max-w-[168px] min-w-[168px] cursor-pointer rounded-2xl transition-shadow hover:shadow-lg">
         <CardContent className="p-0 px-1 pt-1">
           {/* Cover image */}
           <div className="relative h-[159px] w-full">
@@ -104,8 +104,15 @@ const LoungeItem = ({ lounge }: { lounge: Lounge }) => {
               )}
             </div>
 
-            <p className="text-muted-foreground min-h-[20px] truncate text-sm">
-              {lounge.address || "\u00A0"}
+            <p
+              className="text-muted-foreground min-h-[20px] text-sm"
+              title={lounge.address || undefined}
+            >
+              {lounge.address
+                ? lounge.address.length > 20
+                  ? lounge.address.slice(0, 20) + "..."
+                  : lounge.address
+                : "\u00A0"}
             </p>
 
             <p className="text-muted-foreground mt-1 flex min-h-[16px] items-center gap-1 text-xs">

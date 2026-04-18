@@ -1,6 +1,30 @@
-import { apiClient } from "./api"
-import { API_BASE_URL } from "./api"
-import type { User, AuthResponse, Gender } from "../_types"
+import { apiClient } from "../_services/api"
+import { API_BASE_URL } from "../_services/api"
+import { getCsrfTokenFromCookie } from "./lib/csrf"
+import type { User, Gender } from "../_types"
+import type {
+  AuthTokenResponse,
+  SignupDto,
+  SignupResponse,
+  RefreshTokenResponse,
+  MessageResponse,
+} from "./auth.types"
+
+// ── Device Name Helper ──────────────────────────────────────────
+
+function getDeviceName(): string {
+  if (typeof navigator === "undefined") return "Unknown Device"
+  const ua = navigator.userAgent
+  if (/iPhone/.test(ua)) return "iPhone"
+  if (/iPad/.test(ua)) return "iPad"
+  if (/Android/.test(ua)) return "Android Device"
+  if (/Macintosh/.test(ua)) return "Mac"
+  if (/Windows/.test(ua)) return "Windows PC"
+  if (/Linux/.test(ua)) return "Linux PC"
+  return "Web Browser"
+}
+
+// ── Display Name Helpers ────────────────────────────────────────
 
 /**
  * Get the display name for a user based on their type
@@ -47,20 +71,137 @@ export function getUserInitials(user: User | null | undefined): string {
   return displayName.slice(0, 2).toUpperCase()
 }
 
+// ── Auth Service ────────────────────────────────────────────────
+
 class AuthService {
-  // Fetch CSRF token from server
-  async fetchCsrfToken(): Promise<void> {
+  // ── Auth Endpoints (/v1/auth/*) ─────────────────────────────
+
+  /**
+   * POST /v1/auth/login
+   * Returns access token in body, refresh token in HttpOnly cookie.
+   */
+  async signIn(
+    emailOrPhone: string,
+    password: string,
+  ): Promise<AuthTokenResponse> {
+    const data = await apiClient.post<AuthTokenResponse>("/v1/auth/login", {
+      emailOrPhone,
+      password,
+      deviceName: getDeviceName(),
+    })
+    return data
+  }
+
+  /**
+   * POST /v1/auth/signup
+   * Sends magic-link verification email. Does NOT return tokens.
+   */
+  async signUp(dto: SignupDto): Promise<SignupResponse> {
+    const payload: Record<string, unknown> = {
+      password: dto.password,
+      deviceName: dto.deviceName || getDeviceName(),
+    }
+
+    if (dto.email) payload.email = dto.email
+    if (dto.phoneNumber) payload.phoneNumber = dto.phoneNumber
+    if (dto.type) payload.type = dto.type
+    if (dto.gender) payload.gender = dto.gender
+    if (dto.firstName) payload.firstName = dto.firstName
+    if (dto.lastName) payload.lastName = dto.lastName
+    if (dto.LoungeTitle) payload.LoungeTitle = dto.LoungeTitle
+    if (dto.location) payload.location = dto.location
+    if (dto.profileImage) payload.profileImage = dto.profileImage
+
+    return apiClient.post<SignupResponse>("/v1/auth/signup", payload)
+  }
+
+  /**
+   * POST /v1/auth/refresh-token
+   * Uses raw fetch to avoid ApiClient's 401 retry loop.
+   * Returns parsed response with ok/status for the caller to handle.
+   */
+  async refreshToken(): Promise<{
+    ok: boolean
+    status: number
+    data?: RefreshTokenResponse
+  } | null> {
     try {
-      await apiClient.get("/csrf-token")
-    } catch {
-      // Try alternative endpoint
-      try {
-        await apiClient.get("/api/csrf-token")
-      } catch {
-        // CSRF token might be obtained from other responses
+      const headers: Record<string, string> = {
+        "Content-Type": "application/json",
       }
+      const csrfToken = getCsrfTokenFromCookie()
+      if (csrfToken) {
+        headers["x-csrf-token"] = csrfToken
+      }
+
+      const res = await fetch(`${API_BASE_URL}/v1/auth/refresh-token`, {
+        method: "POST",
+        credentials: "include",
+        headers,
+      })
+
+      const status = res.status
+      let data: RefreshTokenResponse | undefined
+      try {
+        data = await res.json()
+      } catch {
+        data = undefined
+      }
+
+      return { ok: res.ok, status, data }
+    } catch {
+      return null
     }
   }
+
+  /**
+   * POST /v1/auth/logout — revokes current device session.
+   */
+  async signOut(): Promise<void> {
+    try {
+      await apiClient.post("/v1/auth/logout", {})
+    } catch (error) {
+      console.warn("[AuthService] signOut failed:", error)
+    }
+  }
+
+  /**
+   * POST /v1/auth/logout-all — revokes all sessions across all devices.
+   */
+  async logoutAll(): Promise<void> {
+    try {
+      await apiClient.post("/v1/auth/logout-all", {})
+    } catch (error) {
+      throw error instanceof Error
+        ? error
+        : new Error("Failed to logout from all sessions")
+    }
+  }
+
+  /**
+   * POST /v1/auth/forgot-password — sends password reset email.
+   * Always returns 200 (prevents user enumeration).
+   */
+  async forgotPassword(email: string): Promise<MessageResponse> {
+    return apiClient.post<MessageResponse>("/v1/auth/forgot-password", {
+      email,
+    })
+  }
+
+  /**
+   * POST /v1/auth/reset-password — resets password and revokes all sessions.
+   */
+  async resetPassword(
+    token: string,
+    newPassword: string,
+  ): Promise<MessageResponse> {
+    return apiClient.post<MessageResponse>("/v1/auth/reset-password", {
+      token,
+      newPassword,
+    })
+  }
+
+  // ── User Profile Endpoints (/v1/me/*) ───────────────────────
 
   async getCurrentUser(): Promise<User | null> {
     try {
@@ -74,58 +215,6 @@ class AuthService {
       return response as User
     } catch {
       return null
-    }
-  }
-
-  async signUp(data: {
-    email?: string
-    phoneNumber?: string
-    password: string
-    type?: "client" | "lounge"
-  }): Promise<AuthResponse | null> {
-    try {
-      const payload: any = { password: data.password }
-
-      // Add email if provided
-      if (data.email) {
-        payload.email = data.email
-      }
-
-      // Add phone number if provided
-      if (data.phoneNumber) {
-        payload.phoneNumber = data.phoneNumber
-      }
-
-      // Pass the type directly when provided
-      if (data.type) {
-        payload.type = data.type
-      }
-
-      const response = await apiClient.post<AuthResponse>(
-        "/v1/auth/signup",
-        payload,
-      )
-      return response
-    } catch (err) {
-      throw err instanceof Error ? err : new Error("Signup failed")
-    }
-  }
-
-  async signIn(
-    emailOrPhone: string,
-    password: string,
-  ): Promise<AuthResponse | null> {
-    try {
-      const data = await apiClient.post<AuthResponse>("/v1/auth/login", {
-        emailOrPhone,
-        password,
-      })
-
-      // CSRF token is automatically set by server in cookie during login
-
-      return data
-    } catch (err) {
-      throw err instanceof Error ? err : new Error("Sign-in failed")
     }
   }
 
@@ -145,13 +234,6 @@ class AuthService {
       formData,
     )
     return data.data
-  }
-
-  async signOut(): Promise<void> {
-    try {
-      // Call backend to clear HttpOnly cookie
-      await apiClient.post("/v1/auth/logout", {})
-    } catch {}
   }
 
   async updateLocation(locationData: {
@@ -184,33 +266,6 @@ class AuthService {
       throw err instanceof Error
         ? err
         : new Error("Failed to update gender preference")
-    }
-  }
-  async refreshToken(): Promise<{
-    ok: boolean
-    status: number
-    data?: any
-  } | null> {
-    try {
-      const res = await fetch(`${API_BASE_URL}/v1/auth/refresh-token`, {
-        method: "POST",
-        credentials: "include",
-        headers: { "Content-Type": "application/json" },
-      })
-
-      const status = res.status
-      let data = null
-      try {
-        data = await res.json()
-      } catch {
-        data = null
-      }
-
-      // CSRF token is automatically managed by server
-
-      return { ok: res.ok, status, data }
-    } catch {
-      return null
     }
   }
 
@@ -273,6 +328,7 @@ class AuthService {
       throw err instanceof Error ? err : new Error("Failed to update theme")
     }
   }
+
   async changePassword(passwordData: {
     currentPassword: string
     newPassword: string
@@ -286,45 +342,6 @@ class AuthService {
       return data
     } catch (err) {
       throw err instanceof Error ? err : new Error("Failed to change password")
-    }
-  }
-
-  async logoutAll(): Promise<void> {
-    try {
-      await apiClient.post("/v1/auth/logout-all", {})
-    } catch (error) {
-      throw error instanceof Error
-        ? error
-        : new Error("Failed to logout from all sessions")
-    }
-  }
-
-  async forgotPassword(email: string): Promise<{ message: string } | null> {
-    try {
-      const data = await apiClient.post<{ message: string }>(
-        "/v1/auth/forgot-password",
-        { email },
-      )
-      return data
-    } catch (err) {
-      throw err instanceof Error
-        ? err
-        : new Error("Failed to send password reset email")
-    }
-  }
-
-  async resetPassword(
-    token: string,
-    newPassword: string,
-  ): Promise<{ message: string } | null> {
-    try {
-      const data = await apiClient.post<{ message: string }>(
-        "/v1/auth/reset-password",
-        { token, newPassword },
-      )
-      return data
-    } catch (err) {
-      throw err instanceof Error ? err : new Error("Failed to reset password")
     }
   }
 }

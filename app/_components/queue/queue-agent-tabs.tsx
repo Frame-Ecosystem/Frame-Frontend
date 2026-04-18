@@ -12,7 +12,7 @@ import type { Queue } from "../../_types"
 interface QueueAgentTabsProps {
   queues: Queue[]
   activeQueueIndex: number
-  // eslint-disable-next-line no-unused-vars
+
   onSelectQueue: (index: number) => void
   isLoading: boolean
   showAddAgent?: boolean
@@ -97,9 +97,7 @@ export default function QueueAgentTabs({
                     >
                       <Armchair className="mr-0.5 h-3.5 w-3.5 text-amber-500" />
                       {(() => {
-                        const stats = calculateQueueStats(
-                          queue.persons ?? [],
-                        )
+                        const stats = calculateQueueStats(queue.persons ?? [])
                         return stats.totalWaiting + stats.totalInService
                       })()}
                     </Badge>

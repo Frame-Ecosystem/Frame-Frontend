@@ -2,6 +2,7 @@
 
 import { useEffect } from "react"
 import { useInView } from "react-intersection-observer"
+import { useRouter as _useRouter } from "next/navigation"
 import { Loader2 } from "lucide-react"
 import Image from "next/image"
 import type { Post, Reel } from "../../_types/content"
@@ -17,6 +18,7 @@ interface ContentGridProps {
   isLoading?: boolean
   emptyType?: "posts" | "reels" | "saved"
   onReelClick?: (_reel: Reel) => void
+  onPostClick?: (_post: Post) => void
 }
 
 export function ContentGrid({
@@ -28,6 +30,7 @@ export function ContentGrid({
   isLoading,
   emptyType,
   onReelClick,
+  onPostClick,
 }: ContentGridProps) {
   const { ref: sentinelRef, inView } = useInView({ threshold: 0.1 })
 
@@ -70,7 +73,11 @@ export function ContentGrid({
     <div>
       <div className="grid grid-cols-3 gap-1">
         {(items as Post[]).map((post) => (
-          <PostGridItem key={post._id} post={post} />
+          <PostGridItem
+            key={post._id}
+            post={post}
+            onClick={() => onPostClick?.(post)}
+          />
         ))}
       </div>
 
@@ -86,11 +93,14 @@ export function ContentGrid({
 }
 
 /** Compact grid thumbnail for a post */
-function PostGridItem({ post }: { post: Post }) {
+function PostGridItem({ post, onClick }: { post: Post; onClick?: () => void }) {
   const thumbnail = post.media?.[0]?.url || "/images/placeholder.png"
 
   return (
-    <div className="bg-muted group relative aspect-square cursor-pointer overflow-hidden">
+    <div
+      onClick={onClick}
+      className="bg-muted group relative aspect-square cursor-pointer overflow-hidden"
+    >
       <Image
         src={thumbnail}
         alt=""

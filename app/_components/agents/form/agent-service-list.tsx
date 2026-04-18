@@ -16,7 +16,7 @@ interface AgentServiceListProps {
   selectedIds: string[]
   loading: boolean
   isAdmin: boolean
-  // eslint-disable-next-line no-unused-vars
+
   onChange: (ids: string[]) => void
   error?: string
 }

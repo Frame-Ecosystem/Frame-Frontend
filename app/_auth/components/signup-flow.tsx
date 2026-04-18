@@ -2,11 +2,15 @@
 
 import { useState, useEffect } from "react"
 import Image from "next/image"
-import { Card } from "../ui/card"
-import { Button } from "../ui/button"
+import { Card } from "@/app/_components/ui/card"
+import { Button } from "@/app/_components/ui/button"
 import SignUpForm from "./sign-up-form"
-import { DialogHeader, DialogTitle, DialogDescription } from "../ui/dialog"
-import { useAuth } from "../../_providers/auth"
+import {
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/app/_components/ui/dialog"
+import { useAuth } from "@/app/_auth"
 import { Mail } from "lucide-react"
 
 export default function SignupFlow({

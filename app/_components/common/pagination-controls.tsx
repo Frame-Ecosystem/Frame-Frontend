@@ -7,7 +7,7 @@ interface PaginationControlsProps {
   totalPages: number
   hasPrev?: boolean
   hasNext?: boolean
-  // eslint-disable-next-line no-unused-vars
+
   onPageChange: (page: number) => void
 }
 

@@ -1,4 +1,3 @@
-/* eslint-disable no-unused-vars */
 "use client"
 
 import { Label } from "../../ui/label"

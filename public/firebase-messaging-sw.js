@@ -8,7 +8,7 @@
  *       to process.env.
  */
 
-/* eslint-env serviceworker */
+/* global importScripts, firebase */
 
 importScripts(
   "https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js",

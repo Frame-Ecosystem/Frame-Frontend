@@ -1,11 +1,12 @@
-import { GOOGLE_AUTH_BASE_URL, apiClient } from "../_services/api"
-import { authService } from "../_services/auth.service"
+import { GOOGLE_AUTH_BASE_URL, apiClient } from "../../_services/api"
+import { authService } from "../auth.service"
 
 // ── Types ────────────────────────────────────────────────────
 
 export interface GoogleAuthResult {
   token: string
   user?: any
+  expiresIn?: number
 }
 
 interface PopupOptions {
@@ -16,11 +17,10 @@ interface PopupOptions {
 }
 
 interface ResultHandlers {
-  // eslint-disable-next-line no-unused-vars
-  setAuth: (user: any, token: string) => void
+  setAuth: (user: any, token: string, expiresIn?: number) => void
   onSuccess?: () => void
   onClose?: () => void
-  // eslint-disable-next-line no-unused-vars
+
   redirect: (path: string) => void
   getRedirectPath: () => string
 }
@@ -59,6 +59,7 @@ async function tryRefreshToken() {
       ok: res.ok,
       token: body?.token || body?.data?.token,
       user: body?.user || body?.data?.user,
+      expiresIn: body?.expiresIn || body?.data?.expiresIn,
     }
   } catch {
     return null
@@ -113,6 +114,8 @@ export async function openGoogleOAuthPopup({
       messageError = new Error(
         "Account already exists. Please sign in instead.",
       )
+    } else if (type === "GOOGLE_AUTH_BLOCKED") {
+      messageError = new Error("Account suspended. Please contact support.")
     }
   }
 
@@ -146,7 +149,7 @@ export async function openGoogleOAuthPopup({
         if (refresh?.ok && refresh.token) {
           if (!popupClosed) popup.close()
           const user = refresh.user ?? (await fetchCurrentUser(refresh.token))
-          return { token: refresh.token, user }
+          return { token: refresh.token, user, expiresIn: refresh.expiresIn }
         }
 
         // If popup is closed and the callback page sent an error, throw it
@@ -192,7 +195,7 @@ export async function handleGoogleAuthResult(
   if (!user.type)
     throw new Error("Account found but type not set. Please contact support.")
 
-  setAuth(user, token)
+  setAuth(user, token, result.expiresIn)
   onSuccess?.()
   onClose?.()
   redirect(getRedirectPath())

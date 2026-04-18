@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "../../ui/card"
 import { toast } from "sonner"
-import { useAuth } from "../../../_providers/auth"
+import { useAuth } from "@/app/_auth"
 import { loungeService } from "../../../_services/lounge.service"
 import { bookingService } from "../../../_services/booking.service"
 import { isAuthError } from "../../../_services/api"

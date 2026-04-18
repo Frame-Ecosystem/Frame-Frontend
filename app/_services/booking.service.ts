@@ -94,22 +94,22 @@ class BookingService {
     try {
       // Handle new agentIds array format
       if (booking.agentIds && Array.isArray(booking.agentIds)) {
-        for (const agentData of booking.agentIds) {
-          if (typeof agentData === "object" && agentData._id) {
-            // Already populated agent object
-            const agent = this.transformAgent(agentData)
-            if (agent) agents.push(agent)
-          } else if (typeof agentData === "string") {
-            // Agent ID string, fetch the agent
-            try {
-              const agent = await agentService.getAgentById(agentData)
-              if (agent) agents.push(agent)
-            } catch (error) {
-              console.warn(`Failed to fetch agent ${agentData}:`, error)
+        const results = await Promise.all(
+          booking.agentIds.map(async (agentData: any) => {
+            if (typeof agentData === "object" && agentData._id) {
+              return this.transformAgent(agentData) ?? null
+            } else if (typeof agentData === "string") {
+              try {
+                return await agentService.getAgentById(agentData)
+              } catch (error) {
+                console.warn(`Failed to fetch agent ${agentData}:`, error)
+                return null
+              }
             }
-          }
-        }
-        return agents
+            return null
+          }),
+        )
+        return results.filter((a): a is Agent => a !== null)
       }
 
       // Handle legacy agentId format (backwards compatibility)

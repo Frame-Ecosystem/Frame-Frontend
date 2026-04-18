@@ -7,11 +7,11 @@ import type { User } from "../../_types"
 interface AccountInformationProps {
   user: User | null
   isAccountInfoOpen: boolean
-  // eslint-disable-next-line no-unused-vars
+
   setIsAccountInfoOpen: (open: boolean) => void
-  // eslint-disable-next-line no-unused-vars
+
   setOpenPhoneSection: (open: boolean) => void
-  // eslint-disable-next-line no-unused-vars
+
   setOpenSettings: (open: boolean) => void
 }
 

@@ -1,8 +1,8 @@
 "use client"
 
 import { useState } from "react"
-import { SquarePlus, FileText, Film } from "lucide-react"
-import { useAuth } from "../../_providers/auth"
+import { Plus, FileText, Film } from "lucide-react"
+import { useAuth } from "@/app/_auth"
 import { Button } from "../ui/button"
 import { Popover, PopoverTrigger, PopoverContent } from "../ui/popover"
 import { CreatePostDialog } from "./create-post-dialog"
@@ -12,7 +12,7 @@ import { CreateReelDialog } from "./create-reel-dialog"
  * Top-bar button for creating posts and reels.
  * Styled to match the notification bell icon button.
  */
-export function CreateContentButton() {
+export function CreateContentButton({ compact }: { compact?: boolean } = {}) {
   const { user } = useAuth()
   const [open, setOpen] = useState(false)
   const [showPostDialog, setShowPostDialog] = useState(false)
@@ -26,9 +26,17 @@ export function CreateContentButton() {
         <PopoverTrigger asChild>
           <Button
             variant="ghost"
-            className="hover:bg-primary/10 relative flex h-10 w-10 items-center justify-center rounded-lg p-0 transition-transform active:scale-95"
+            size="icon"
+            className={`hover:bg-primary/10 relative flex items-center justify-center rounded-full transition-transform active:scale-95 ${compact ? "h-8 w-8" : ""}`}
           >
-            <SquarePlus className="!h-7 !w-7" strokeWidth={2} />
+            <div
+              className={`flex items-center justify-center rounded-full border ${compact ? "h-8 w-8" : "h-9 w-9"}`}
+            >
+              <Plus
+                className={compact ? "h-4 w-4" : "h-5 w-5"}
+                strokeWidth={2}
+              />
+            </div>
           </Button>
         </PopoverTrigger>
 

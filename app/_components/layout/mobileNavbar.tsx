@@ -1,24 +1,24 @@
 "use client"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { useAuth } from "../../_providers/auth"
+import { useAuth } from "@/app/_auth"
 import { getHomePath } from "../../_lib/profile"
 import { NAV_LINKS } from "../../_constants/navigation"
+import { useScrollDirection } from "../../_hooks/useScrollDirection"
 
 const MobileNavbar = () => {
   const { user, isLoading } = useAuth()
   const pathname = usePathname()
+  const scrollDir = useScrollDirection(50)
+  const isHomePage = pathname === "/home"
+  const hidden = isHomePage && scrollDir === "down"
 
-  // Hide navbar while auth state is loading or user is not authenticated
   if (isLoading || !user) return null
 
-  // Filter navigation links based on user type
   const filteredNavLinks = NAV_LINKS.filter((link: any) => {
-    // Hide lounges page for lounge users
     if (link.href === "/lounges" && user.type === "lounge") {
       return false
     }
-    // Show loungeOnly items only for lounge users
     if (link.loungeOnly && user.type !== "lounge") {
       return false
     }
@@ -29,9 +29,9 @@ const MobileNavbar = () => {
     <>
       <nav
         data-nav-mobile
-        className={`bg-card/95 border-border fixed right-0 bottom-0 left-0 z-20 h-[85px] border-t shadow-[0_-2px_12px_0_rgba(0,0,0,0.04)] backdrop-blur-sm lg:hidden`}
+        className={`bg-card/95 border-border fixed right-0 bottom-0 left-0 z-[9999] h-[85px] border-t shadow-[0_-2px_12px_0_rgba(0,0,0,0.04)] backdrop-blur-sm transition-transform duration-300 ease-in-out lg:hidden ${hidden ? "translate-y-[200%]" : "translate-y-0"}`}
       >
-        <div className="relative flex h-full items-center justify-between gap-1 px-2 py-3 pb-6">
+        <div className="relative mb-2 flex h-full items-center justify-between gap-1 px-3 py-2 pb-10">
           {filteredNavLinks.map((link) => {
             const isHomeLink = link.href === "/home"
             const href = isHomeLink ? getHomePath() : link.href
@@ -53,7 +53,7 @@ const MobileNavbar = () => {
                 className="flex flex-1 justify-center"
               >
                 <div
-                  className={`group relative flex h-full w-full flex-col items-center gap-1`}
+                  className={`group relative flex h-full w-full flex-col items-center gap-0.5 px-1 py-1`}
                 >
                   <span
                     className={`rounded-full p-2 transition-all duration-500 ease-[cubic-bezier(.68,-0.55,.27,1.55)] ${isActive ? "from-primary to-primary/80 text-primary-foreground border-card ring-primary/40 scale-110 border-4 bg-gradient-to-b shadow-2xl ring-2 backdrop-blur-md" : "bg-background text-muted-foreground group-hover:bg-muted/60 group-hover:text-primary"}`}

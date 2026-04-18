@@ -9,8 +9,10 @@ import { CommentSheet } from "../_components/content/comment-sheet"
 import { EmptyState } from "../_components/content/empty-state"
 import { useExploreFeed } from "../_hooks/queries/useContent"
 import type { Reel, FeedItem } from "../_types/content"
+import { useScrollToTarget } from "../_hooks/useScrollToTarget"
 
 export default function ReelsPage() {
+  useScrollToTarget()
   const searchParams = useSearchParams()
   const targetReelId = searchParams.get("id")
   const hasJumped = useRef(false)
@@ -48,10 +50,13 @@ export default function ReelsPage() {
   const reels = useMemo(() => {
     const items =
       exploreQuery.data?.pages.flatMap((page) => page.data as FeedItem[]) ?? []
-    return items.filter(
-      (item): item is Reel & { contentType: "reel" } =>
-        item.contentType === "reel",
-    )
+    const seen = new Set<string>()
+    return items.filter((item): item is Reel & { contentType: "reel" } => {
+      if (item.contentType !== "reel") return false
+      if (seen.has(item._id)) return false
+      seen.add(item._id)
+      return true
+    })
   }, [exploreQuery.data])
 
   // Jump to a specific reel when navigated via ?id= param

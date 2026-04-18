@@ -7,7 +7,7 @@ import { Button } from "../ui/button"
 import { Card, CardContent } from "../ui/card"
 import { Textarea } from "../ui/textarea"
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar"
-import { useAuth } from "../../_providers/auth"
+import { useAuth } from "@/app/_auth"
 import { useCreatePost, useCreateReel } from "../../_hooks/queries/useContent"
 
 const MAX_IMAGES = 10

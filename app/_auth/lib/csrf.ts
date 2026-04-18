@@ -1,5 +1,5 @@
 // CSRF utilities for Double-Submit Cookie Pattern
-import type { HttpMethod } from "../_types"
+import type { HttpMethod } from "../../_types"
 
 // Read the CSRF token from the readable cookie `csrf-token`
 export function getCsrfTokenFromCookie(): string | null {

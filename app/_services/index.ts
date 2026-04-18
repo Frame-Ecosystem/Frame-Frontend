@@ -2,7 +2,7 @@
 export { apiClient } from "./api"
 export { loungeVisitorService, centerService } from "./lounge-visitor.service"
 export { bookingService } from "./booking.service"
-export { authService } from "./auth.service"
+export { authService } from "@/app/_auth"
 export { serviceService } from "./service.service"
 export { loungeService } from "./lounge.service"
 export { serviceCategoryService } from "./service-category.service"

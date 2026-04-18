@@ -2,14 +2,16 @@
 
 import { useEffect } from "react"
 import { useRouter } from "next/navigation"
-import { useAuth } from "../_providers/auth"
+import { useAuth } from "@/app/_auth"
 import { ErrorBoundary } from "../_components/common/errorBoundary"
 import { PostFeed } from "../_components/posts/post-feed"
 import { HomeIcon } from "lucide-react"
 import { HomeFeedSkeleton } from "../_components/skeletons/home"
+import { useScrollToTarget } from "../_hooks/useScrollToTarget"
 
 const Home = () => {
   const { user, isLoading } = useAuth()
+  useScrollToTarget()
   const router = useRouter()
 
   useEffect(() => {

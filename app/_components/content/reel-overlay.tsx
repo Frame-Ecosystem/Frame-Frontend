@@ -22,13 +22,13 @@ export function ReelOverlay({ reel }: ReelOverlayProps) {
       : caption
 
   return (
-    <div className="absolute right-0 bottom-0 left-0 z-20 bg-gradient-to-t from-black/70 via-black/30 to-transparent px-4 pt-16 pb-4">
+    <div className="pointer-events-none absolute right-0 bottom-0 left-0 z-20 bg-gradient-to-t from-black/70 via-black/30 to-transparent px-4 pt-16 pb-4">
       <AuthorHeader
         author={reel.authorId}
-        className="[&_p]:text-white [&_p]:drop-shadow"
+        className="pointer-events-auto [&_p]:text-white [&_p]:drop-shadow"
       />
       {caption && (
-        <div className="mt-2 max-w-[80%]">
+        <div className="pointer-events-auto mt-2 max-w-[80%]">
           <p className="text-sm text-white drop-shadow">
             <HashtagText
               text={truncatedCaption}

@@ -8,7 +8,6 @@ import { ImageCropDialog } from "./image-crop-dialog"
 import Image from "next/image"
 
 interface ImageSelectorProps {
-  // eslint-disable-next-line no-unused-vars
   onUpdate: (file: File) => void
   updating: boolean
   /** Aspect ratio for crop: 1 = circle/square (profile), wider = cover */

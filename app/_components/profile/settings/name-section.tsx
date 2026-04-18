@@ -15,7 +15,7 @@ interface NameSectionProps {
     lastName: string
     loungeTitle: string
   }
-  // eslint-disable-next-line no-unused-vars
+
   onChange: (field: string, value: string) => void
   onSave: () => void
   loungeTitleRef: React.RefObject<HTMLInputElement | null>

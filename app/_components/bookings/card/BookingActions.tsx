@@ -22,11 +22,11 @@ interface BookingActionsProps {
   userType: string
   allowCancel?: boolean
   allowStatusUpdate?: boolean
-  // eslint-disable-next-line no-unused-vars
+
   onStatusUpdate?: (bookingId: string, newStatus: BookingStatus) => void
-  // eslint-disable-next-line no-unused-vars
+
   onCancel?: (bookingId: string, note?: string) => void
-  // eslint-disable-next-line no-unused-vars
+
   onDelete?: (bookingId: string) => void
 }
 

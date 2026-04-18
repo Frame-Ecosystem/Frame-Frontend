@@ -1,26 +1,31 @@
 "use client"
 
-import { useState, useEffect, useMemo } from "react"
-import { Loader2, RefreshCw, FileText, Film } from "lucide-react"
-import { useInView } from "react-intersection-observer"
+import { useState, useMemo, useRef, useEffect } from "react"
+import { createPortal } from "react-dom"
+import { RefreshCw, FileText, Film, Users, Compass } from "lucide-react"
 import Link from "next/link"
 import { Button } from "../ui/button"
 import { Card, CardContent } from "../ui/card"
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar"
 import { CreatePostDialog } from "../content/create-post-dialog"
 import { CreateReelDialog } from "../content/create-reel-dialog"
-import { PostCard } from "./post-card"
-import { useAuth } from "../../_providers/auth"
-import { useFollowingFeed } from "../../_hooks/queries/useContent"
+import { FeedList } from "../content/feed-list"
+import { useAuth } from "@/app/_auth"
+import {
+  useFollowingFeed,
+  useExploreFeed,
+} from "../../_hooks/queries/useContent"
 import { PostFeedSkeleton } from "../skeletons/posts"
 import { getProfilePath } from "../../_lib/profile"
-import type { FeedItem, Post } from "../../_types/content"
+import type { FeedItem } from "../../_types/content"
 
 export function PostFeed() {
   const { user } = useAuth()
-  const { ref, inView } = useInView()
   const [showPostDialog, setShowPostDialog] = useState(false)
   const [showReelDialog, setShowReelDialog] = useState(false)
+  const [activeTab, setActiveTab] = useState<"following" | "explore">(
+    "following",
+  )
 
   const profileImage =
     typeof user?.profileImage === "string"
@@ -29,39 +34,47 @@ export function PostFeed() {
   const displayName =
     user?.firstName || user?.loungeTitle || user?.email || "User"
 
-  const {
-    data,
-    fetchNextPage,
-    hasNextPage,
-    isFetchingNextPage,
-    isLoading,
-    isError,
-    refetch,
-  } = useFollowingFeed()
+  const following = useFollowingFeed()
+  const explore = useExploreFeed()
 
-  // Extract only posts from the feed
-  const allPosts: Post[] = useMemo(() => {
-    const items: FeedItem[] =
-      data?.pages.flatMap((page) => page.data as FeedItem[]) ?? []
-    return items.filter((item) => item.contentType === "post") as Post[]
-  }, [data])
+  const feed = activeTab === "following" ? following : explore
 
-  // Load more when sentinel comes into view
+  // Track when inline tabs scroll out of their natural position → show floating side nav
+  // We use a scroll listener checking the sentinel's position (more reliable than IO for h-0 elements)
+  const sentinelRef = useRef<HTMLDivElement>(null)
+  const [tabsHidden, setTabsHidden] = useState(false)
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => setMounted(true), []) // eslint-disable-line react-hooks/set-state-in-effect -- mount flag
+
   useEffect(() => {
-    if (inView && hasNextPage && !isFetchingNextPage) {
-      fetchNextPage()
+    const onScroll = () => {
+      const el = sentinelRef.current
+      if (!el) return
+      // When the sentinel scrolls above the viewport, the sticky tabs are "stuck"
+      setTabsHidden(el.getBoundingClientRect().bottom < 0)
     }
-  }, [inView, hasNextPage, isFetchingNextPage, fetchNextPage])
+    window.addEventListener("scroll", onScroll, { passive: true })
+    return () => window.removeEventListener("scroll", onScroll)
+  }, [])
 
-  const handleRefresh = () => {
-    refetch()
-  }
+  // Mixed feed: posts + reels together as the backend intended
+  const feedItems: FeedItem[] = useMemo(() => {
+    const items =
+      feed.data?.pages.flatMap((page) => page.data as FeedItem[]) ?? []
+    const seen = new Set<string>()
+    return items.filter((item) => {
+      if (seen.has(item._id)) return false
+      seen.add(item._id)
+      return true
+    })
+  }, [feed.data])
 
-  if (isLoading) {
+  if (feed.isLoading) {
     return <PostFeedSkeleton showCreatePost={!!user} />
   }
 
-  if (isError) {
+  if (feed.isError) {
     return (
       <div className="flex min-h-[400px] items-center justify-center">
         <div className="max-w-md text-center">
@@ -73,7 +86,7 @@ export function PostFeed() {
             We&apos;re working on bringing you a social experience where you can
             share posts and connect with others. Check back soon!
           </p>
-          <Button onClick={handleRefresh} variant="outline">
+          <Button onClick={() => feed.refetch()} variant="outline">
             <RefreshCw className="mr-2 h-4 w-4" />
             Refresh
           </Button>
@@ -84,7 +97,7 @@ export function PostFeed() {
 
   return (
     <div className="mx-auto max-w-2xl space-y-6">
-      {/* Create content prompt — same dialogs as the plus button */}
+      {/* Create content prompt */}
       {user && (
         <>
           <Card className="mt-8 mb-4 w-full">
@@ -139,44 +152,80 @@ export function PostFeed() {
         </>
       )}
 
-      {/* Posts Feed */}
-      {allPosts.length === 0 ? (
-        <div className="py-12 text-center">
-          <div className="mb-4 text-6xl">📝</div>
-          <h3 className="mb-2 text-lg font-semibold">No posts yet</h3>
-          <p className="text-muted-foreground mb-4">
-            Be the first to share something with the community!
-          </p>
-          {user && (
-            <p className="text-muted-foreground text-sm">
-              Tap the prompt above to create your first post or reel.
-            </p>
-          )}
-        </div>
-      ) : (
-        <div className="space-y-4">
-          {allPosts.map((post, index) => (
-            <PostCard key={post._id} post={post} priority={index === 0} />
-          ))}
+      {/* Sentinel — scrolls away normally; scroll listener checks when it leaves viewport */}
+      <div ref={sentinelRef} className="h-px" aria-hidden />
 
-          {/* Load more trigger */}
-          <div ref={ref} className="flex justify-center py-4">
-            {isFetchingNextPage && (
-              <div className="flex items-center space-x-2">
-                <Loader2 className="h-4 w-4 animate-pulse" />
-                <span className="text-muted-foreground text-sm">
-                  Loading more posts...
-                </span>
-              </div>
-            )}
-            {!hasNextPage && allPosts.length > 0 && (
-              <p className="text-muted-foreground text-sm">
-                You&apos;ve seen all posts!
-              </p>
-            )}
-          </div>
-        </div>
-      )}
+      {/* Feed tab toggle — sticky under top bar (mobile) / desktop nav */}
+      <div className="bg-background/95 border-border sticky top-0 z-[9998] -mx-5 flex border-b backdrop-blur-sm lg:-mx-8">
+        <button
+          onClick={() => setActiveTab("following")}
+          className={`flex flex-1 items-center justify-center gap-2 py-3 text-sm font-medium transition ${
+            activeTab === "following"
+              ? "border-primary text-foreground border-b-2"
+              : "text-muted-foreground hover:text-foreground"
+          }`}
+        >
+          <Users className="h-4 w-4" />
+          Following
+        </button>
+        <button
+          onClick={() => setActiveTab("explore")}
+          className={`flex flex-1 items-center justify-center gap-2 py-3 text-sm font-medium transition ${
+            activeTab === "explore"
+              ? "border-primary text-foreground border-b-2"
+              : "text-muted-foreground hover:text-foreground"
+          }`}
+        >
+          <Compass className="h-4 w-4" />
+          Explore
+        </button>
+      </div>
+
+      {/* Mixed feed: posts + reels */}
+      <FeedList
+        items={feedItems}
+        hasNextPage={!!feed.hasNextPage}
+        isFetchingNextPage={feed.isFetchingNextPage}
+        fetchNextPage={feed.fetchNextPage}
+        isLoading={false}
+        emptyType="feed"
+      />
+
+      {/* Floating icon buttons — portaled to body to escape ancestor transforms */}
+      {mounted &&
+        createPortal(
+          <div
+            className={`fixed top-1/2 right-3 z-[99999] flex -translate-y-1/2 flex-col gap-2 transition-all duration-300 lg:right-6 ${
+              tabsHidden
+                ? "pointer-events-auto translate-x-0 opacity-100"
+                : "pointer-events-none translate-x-12 opacity-0"
+            }`}
+          >
+            <button
+              aria-label="Following"
+              onClick={() => setActiveTab("following")}
+              className={`flex h-10 w-10 items-center justify-center rounded-full shadow-lg transition-all ${
+                activeTab === "following"
+                  ? "bg-primary text-primary-foreground shadow-primary/25"
+                  : "bg-background/90 text-muted-foreground border-border hover:bg-muted border"
+              }`}
+            >
+              <Users className="h-5 w-5" />
+            </button>
+            <button
+              aria-label="Explore"
+              onClick={() => setActiveTab("explore")}
+              className={`flex h-10 w-10 items-center justify-center rounded-full shadow-lg transition-all ${
+                activeTab === "explore"
+                  ? "bg-primary text-primary-foreground shadow-primary/25"
+                  : "bg-background/90 text-muted-foreground border-border hover:bg-muted border"
+              }`}
+            >
+              <Compass className="h-5 w-5" />
+            </button>
+          </div>,
+          document.body,
+        )}
     </div>
   )
 }

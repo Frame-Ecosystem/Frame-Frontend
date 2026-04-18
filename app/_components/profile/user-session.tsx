@@ -2,18 +2,18 @@
 
 import { useState } from "react"
 import { UserIcon, X } from "lucide-react"
-import SignInDialog from "../auth/sign-in-dialog"
+import {
+  SignInDialog,
+  useAuth,
+  SignupFlow,
+  getUserDisplayName,
+  getUserInitials,
+} from "@/app/_auth"
 import { Button } from "../ui/button"
 import { Popover, PopoverTrigger, PopoverContent } from "../ui/popover"
 import { Dialog, DialogContent } from "../ui/dialog"
 import UserInfo from "./user-info"
-import SignupFlow from "../auth/signup-flow"
-import { useAuth } from "../../_providers/auth"
 import { Avatar, AvatarImage, AvatarFallback } from "../ui/avatar"
-import {
-  getUserDisplayName,
-  getUserInitials,
-} from "../../_services/auth.service"
 
 /** Prevent Radix events from closing dialogs. */
 const prevent = (e: Event) => e.preventDefault()
@@ -48,7 +48,7 @@ const UserSession = ({ compact }: { compact?: boolean } = {}) => {
       {isLoggedIn ? (
         <div className="relative">
           <Avatar
-            className={`${compact ? "h-8 w-8" : "h-12 w-12"} ring-primary/50 ring-2`}
+            className={`${compact ? "h-10 w-10" : "h-12 w-12"} ring-primary/50 ring-2`}
           >
             {user?.profileImage && (
               <AvatarImage

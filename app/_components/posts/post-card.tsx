@@ -17,7 +17,7 @@ import { Card, CardContent, CardHeader } from "../ui/card"
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar"
 import { CommentSheet } from "../content/comment-sheet"
 import type { Post } from "../../_types/content"
-import { useAuth } from "../../_providers/auth"
+import { useAuth } from "@/app/_auth"
 import {
   useTogglePostLike,
   useTogglePostSave,
@@ -79,7 +79,7 @@ export function PostCard({ post, priority = false }: PostCardProps) {
   const canDelete = user && user._id === author._id
 
   return (
-    <Card className="w-full">
+    <Card id={`post-${post._id}`} className="w-full">
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-3">

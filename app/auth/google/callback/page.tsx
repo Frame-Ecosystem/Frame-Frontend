@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
+import { GOOGLE_OAUTH_ERROR_MESSAGES } from "@/app/_auth/auth.types"
 
 export default function GoogleCallbackPage() {
   const [status, setStatus] = useState<"loading" | "success" | "error">(
@@ -16,18 +17,18 @@ export default function GoogleCallbackPage() {
 
     // ── Error redirect from backend (e.g. account_not_found) ──
     if (urlStatus === "error" && errorCode) {
-      const errorMessages: Record<string, string> = {
-        account_not_found:
-          "Account not found. Please sign up with Google to create your account.",
-        account_exists: "Account already exists. Please sign in instead.",
-        oauth_failed: "Authentication failed. Please try again.",
-      }
       const friendlyMessage =
-        errorMessages[errorCode] || `Authentication failed: ${errorCode}`
+        GOOGLE_OAUTH_ERROR_MESSAGES[
+          errorCode as keyof typeof GOOGLE_OAUTH_ERROR_MESSAGES
+        ] || `Authentication failed: ${errorCode}`
 
       if (isPopup) {
+        const messageType =
+          errorCode === "account_blocked"
+            ? "GOOGLE_AUTH_BLOCKED"
+            : "GOOGLE_AUTH_ERROR"
         window.opener.postMessage(
-          { type: "GOOGLE_AUTH_ERROR", message: friendlyMessage },
+          { type: messageType, message: friendlyMessage },
           window.location.origin,
         )
         setTimeout(() => window.close(), 300)

@@ -10,7 +10,7 @@
 "use client"
 
 import React, { createContext, useContext, useCallback, useMemo } from "react"
-import { useAuth } from "./auth"
+import { useAuth } from "@/app/_auth"
 import { usePushNotifications } from "../_hooks/usePushNotifications"
 import PushNotificationPrompt from "../_components/common/push-notification-prompt"
 

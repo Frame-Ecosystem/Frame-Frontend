@@ -12,7 +12,7 @@ import { PopularServicesSkeleton } from "../skeletons/lounges"
 interface PopularServicesSectionProps {
   className?: string
   selectedCategoryId?: string | null
-  // eslint-disable-next-line no-unused-vars
+
   onServiceSelect?: (serviceId: string | null, serviceName?: string) => void
   selectedServiceId?: string | null
 }

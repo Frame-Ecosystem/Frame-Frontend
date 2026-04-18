@@ -60,7 +60,7 @@ class ReelServiceClass {
 
   /** Delete own reel */
   async deleteReel(reelId: string): Promise<void> {
-    await apiClient.delete(`/v1/reels/${reelId}`)
+    await apiClient.delete(`/v1/me/reels/${reelId}`)
   }
 
   /** Toggle like */

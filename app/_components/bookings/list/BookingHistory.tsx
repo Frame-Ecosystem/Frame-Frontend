@@ -34,7 +34,7 @@ type HistoryFilter =
 interface BookingHistoryProps {
   bookings: Booking[]
   userType: string
-  // eslint-disable-next-line no-unused-vars
+
   onDelete?: (bookingId: string) => void
 }
 

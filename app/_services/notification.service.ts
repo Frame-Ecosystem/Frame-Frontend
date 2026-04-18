@@ -1,5 +1,10 @@
 import { apiClient } from "./api"
-import type { NotificationsResponse, UnreadCountResponse } from "../_types"
+import type {
+  NotificationsResponse,
+  UnreadCountResponse,
+  UnreadCountData,
+  NotificationCategory,
+} from "../_types"
 
 const EMPTY_PAGE = (page: number, limit: number): NotificationsResponse => ({
   success: false,
@@ -12,15 +17,26 @@ const EMPTY_PAGE = (page: number, limit: number): NotificationsResponse => ({
   message: "",
 })
 
+const EMPTY_UNREAD: UnreadCountData = { total: 0, byCategory: {} }
+
 function isAuthError(error: unknown): boolean {
   return (error as Error)?.message === "AUTH_FAILURE"
 }
 
 class NotificationService {
-  async getAll(page = 1, limit = 20): Promise<NotificationsResponse> {
+  async getAll(
+    page = 1,
+    limit = 20,
+    category?: NotificationCategory,
+  ): Promise<NotificationsResponse> {
     try {
+      const params = new URLSearchParams({
+        page: String(page),
+        limit: String(limit),
+      })
+      if (category) params.set("category", category)
       return await apiClient.get<NotificationsResponse>(
-        `/v1/notifications?page=${page}&limit=${limit}`,
+        `/v1/notifications?${params}`,
       )
     } catch (error) {
       if (isAuthError(error)) return EMPTY_PAGE(page, limit)
@@ -28,14 +44,14 @@ class NotificationService {
     }
   }
 
-  async getUnreadCount(): Promise<number> {
+  async getUnreadCount(): Promise<UnreadCountData> {
     try {
       const res = await apiClient.get<UnreadCountResponse>(
         "/v1/notifications/unread-count",
       )
-      return res?.data?.unreadCount ?? 0
+      return res?.data ?? EMPTY_UNREAD
     } catch (error) {
-      if (isAuthError(error)) return 0
+      if (isAuthError(error)) return EMPTY_UNREAD
       throw error
     }
   }

@@ -17,7 +17,7 @@ export function QueryProvider({ children }: { children: ReactNode }) {
             refetchOnWindowFocus: false,
             retry: (failureCount, error) => {
               if (isAuthFailure(error)) return false
-              return failureCount < 1
+              return failureCount < 2
             },
             throwOnError: (error) => !isAuthFailure(error),
           },

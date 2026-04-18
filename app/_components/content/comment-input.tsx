@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from "react"
 import { Send, X, Loader2 } from "lucide-react"
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar"
-import { useAuth } from "../../_providers/auth"
+import { useAuth } from "@/app/_auth"
 import { useAddComment } from "../../_hooks/queries/useContent"
 
 interface CommentInputProps {

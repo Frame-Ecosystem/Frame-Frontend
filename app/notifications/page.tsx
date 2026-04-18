@@ -1,14 +1,16 @@
 "use client"
 
-import { useCallback, useEffect, useMemo, useRef } from "react"
+import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { Bell, Trash2, CheckCheck, ArrowLeft } from "lucide-react"
 import { Button } from "../_components/ui/button"
 import { Badge } from "../_components/ui/badge"
 import { Card, CardContent } from "../_components/ui/card"
 import Link from "next/link"
+import Image from "next/image"
 import { ErrorBoundary } from "../_components/common/errorBoundary"
-import { useAuth } from "../_providers/auth"
+import { useAuth } from "@/app/_auth"
 import { useNotificationContext } from "../_providers/notification"
+import { getRedirectPath } from "../_providers/notification"
 import {
   useNotifications,
   useMarkNotificationsRead,
@@ -19,6 +21,7 @@ import {
   getNotificationMeta,
   timeAgo,
 } from "../_components/common/notification-button"
+import { NotificationCategory } from "../_types"
 import type { AppNotification } from "../_types"
 import { useRouter } from "next/navigation"
 import {
@@ -26,7 +29,20 @@ import {
   NotificationRowSkeleton,
 } from "../_components/skeletons/notifications"
 
-// ── Full notification row (with delete) ──────────────────────
+// ── Category tab config ──────────────────────────────────────
+const CATEGORY_TABS: {
+  label: string
+  value: NotificationCategory | undefined
+}[] = [
+  { label: "All", value: undefined },
+  { label: "Bookings", value: NotificationCategory.BOOKING },
+  { label: "Queue", value: NotificationCategory.QUEUE },
+  { label: "Content", value: NotificationCategory.CONTENT },
+  { label: "Social", value: NotificationCategory.SOCIAL },
+  { label: "Admin", value: NotificationCategory.ADMIN },
+]
+
+// ── Full notification row (with delete + actor avatar) ───────
 function NotificationRow({
   notification,
   onDelete,
@@ -44,16 +60,26 @@ function NotificationRow({
       tabIndex={0}
       onClick={onClick}
       onKeyDown={(e) => e.key === "Enter" && onClick()}
-      className={`group hover:bg-muted/60 flex cursor-pointer items-start gap-3 rounded-lg border p-4 transition-colors ${
+      className={`group hover:bg-muted/60 flex cursor-pointer items-start gap-3 rounded-xl border p-4 transition-all ${
         !notification.isRead
-          ? "bg-primary/5 border-primary/20"
-          : "bg-background border-border"
+          ? "bg-primary/5 border-primary/20 shadow-sm"
+          : "bg-background border-border hover:shadow-sm"
       }`}
     >
-      {/* Icon */}
-      <div className={`mt-0.5 shrink-0 ${color}`}>
-        <Icon className="h-5 w-5" />
-      </div>
+      {/* Actor avatar or type icon */}
+      {notification.imageUrl ? (
+        <Image
+          src={notification.imageUrl}
+          alt=""
+          width={40}
+          height={40}
+          className="mt-0.5 h-10 w-10 shrink-0 rounded-full object-cover"
+        />
+      ) : (
+        <div className={`mt-0.5 shrink-0 ${color}`}>
+          <Icon className="h-5 w-5" />
+        </div>
+      )}
 
       {/* Content */}
       <div className="min-w-0 flex-1">
@@ -67,12 +93,19 @@ function NotificationRow({
             <span className="bg-primary h-2 w-2 shrink-0 rounded-full" />
           )}
         </div>
-        <p className="text-muted-foreground mt-1 text-sm">
+        <p className="text-muted-foreground mt-1 line-clamp-2 text-sm">
           {notification.body}
         </p>
-        <p className="text-muted-foreground/70 mt-1.5 text-xs">
-          {timeAgo(notification.createdAt)}
-        </p>
+        <div className="mt-1.5 flex items-center gap-2">
+          <p className="text-muted-foreground/70 text-xs">
+            {timeAgo(notification.createdAt)}
+          </p>
+          {notification.category && (
+            <span className="bg-muted text-muted-foreground rounded-full px-2 py-0.5 text-[10px] capitalize">
+              {notification.category}
+            </span>
+          )}
+        </div>
       </div>
 
       {/* Delete button (visible on hover) */}
@@ -94,9 +127,12 @@ function NotificationRow({
 // ── Page ─────────────────────────────────────────────────────
 export default function NotificationsPage() {
   const { user, isLoading: authLoading } = useAuth()
-  const { unreadCount } = useNotificationContext()
+  const { unreadCount, unreadByCategory } = useNotificationContext()
   const router = useRouter()
   const scrollRef = useRef<HTMLDivElement>(null)
+  const [activeCategory, setActiveCategory] = useState<
+    NotificationCategory | undefined
+  >(undefined)
 
   const {
     data,
@@ -104,7 +140,7 @@ export default function NotificationsPage() {
     hasNextPage,
     isFetchingNextPage,
     isLoading: listLoading,
-  } = useNotifications()
+  } = useNotifications(activeCategory)
 
   const markRead = useMarkNotificationsRead()
   const deleteOne = useDeleteNotification()
@@ -137,19 +173,8 @@ export default function NotificationsPage() {
 
   const handleNotificationClick = useCallback(
     (n: AppNotification) => {
-      if (n.metadata?.bookingId) {
-        const isHistory =
-          n.type === "booking:cancelled" ||
-          n.type === "booking:completed" ||
-          n.type === "booking:absent" ||
-          n.type === "queue:completed" ||
-          n.type === "queue:absent" ||
-          n.type === "queue:autoCancelled"
-        const params = new URLSearchParams()
-        if (isHistory) params.set("view", "history")
-        params.set("highlight", n.metadata.bookingId)
-        router.push(`/bookings?${params.toString()}`)
-      }
+      const path = getRedirectPath(n)
+      if (path) router.push(path)
     },
     [router],
   )
@@ -203,56 +228,94 @@ export default function NotificationsPage() {
   return (
     <ErrorBoundary>
       <div className="from-background via-background to-muted/20 mb-24 min-h-screen bg-linear-to-br lg:mb-0">
-        <div className="mx-auto max-w-3xl p-5 lg:px-8 lg:py-12">
+        <div className="mx-auto max-w-2xl px-4 pt-6 pb-8 lg:px-8 lg:pt-10 lg:pb-12">
           {/* Page Header */}
-          <div className="mb-8 lg:mb-12">
-            <div className="mt-6 mb-4 flex items-center justify-between">
+          <div className="mb-6 lg:mb-8">
+            <div className="mt-4 mb-3 flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="h-9 w-9"
+                  className="hover:bg-primary/10 h-9 w-9 rounded-full"
                   onClick={() => router.back()}
                 >
                   <ArrowLeft className="h-5 w-5" />
                 </Button>
-                <Bell className="text-primary h-8 w-8 lg:h-10 lg:w-10" />
-                <h1 className="text-3xl font-bold lg:text-4xl">
-                  Notifications
-                </h1>
-                {unreadCount > 0 && (
-                  <Badge variant="secondary" className="text-xs">
-                    {unreadCount} new
-                  </Badge>
-                )}
+                <div>
+                  <h1 className="text-2xl font-bold lg:text-3xl">
+                    Notifications
+                  </h1>
+                  <p className="text-muted-foreground mt-0.5 text-sm">
+                    Stay up to date with your activity
+                  </p>
+                </div>
               </div>
+              {unreadCount > 0 && (
+                <Badge
+                  variant="secondary"
+                  className="bg-primary/10 text-primary border-primary/20 border text-xs"
+                >
+                  {unreadCount} new
+                </Badge>
+              )}
             </div>
-            <p className="text-muted-foreground lg:text-lg">
-              Stay up to date with your bookings and queue updates.
-            </p>
+          </div>
+
+          {/* Category Tabs */}
+          <div className="mb-4 flex gap-2 overflow-x-auto pb-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+            {CATEGORY_TABS.map((tab) => {
+              const isActive = activeCategory === tab.value
+              const count = tab.value
+                ? (unreadByCategory[tab.value] ?? 0)
+                : unreadCount
+              return (
+                <button
+                  key={tab.label}
+                  onClick={() => setActiveCategory(tab.value)}
+                  className={`relative shrink-0 rounded-full px-4 py-1.5 text-sm font-medium transition-all ${
+                    isActive
+                      ? "bg-primary text-primary-foreground shadow-sm"
+                      : "bg-muted/60 text-muted-foreground hover:bg-muted"
+                  }`}
+                >
+                  {tab.label}
+                  {count > 0 && (
+                    <span
+                      className={`ml-1.5 inline-flex h-5 min-w-5 items-center justify-center rounded-full px-1 text-[10px] font-bold ${
+                        isActive
+                          ? "bg-primary-foreground/20 text-primary-foreground"
+                          : "bg-primary/10 text-primary"
+                      }`}
+                    >
+                      {count > 99 ? "99+" : count}
+                    </span>
+                  )}
+                </button>
+              )
+            })}
           </div>
 
           {/* Action bar */}
           {notifications.length > 0 && (
-            <div className="mb-4 flex items-center gap-2">
+            <div className="border-border mb-4 flex items-center gap-2 border-b pb-4">
               <Button
                 variant="outline"
                 size="sm"
-                className="gap-2"
+                className="hover:bg-primary/10 gap-2 text-xs"
                 onClick={() => markRead.mutate(undefined)}
                 disabled={markRead.isPending}
               >
-                <CheckCheck className="h-4 w-4" />
-                Mark All as Read
+                <CheckCheck className="h-3.5 w-3.5" />
+                Mark All Read
               </Button>
               <Button
                 variant="outline"
                 size="sm"
-                className="text-destructive hover:text-destructive gap-2"
+                className="text-destructive hover:text-destructive hover:bg-destructive/10 gap-2 text-xs"
                 onClick={() => deleteAll.mutate()}
                 disabled={deleteAll.isPending}
               >
-                <Trash2 className="h-4 w-4" />
+                <Trash2 className="h-3.5 w-3.5" />
                 Clear All
               </Button>
             </div>
@@ -262,7 +325,7 @@ export default function NotificationsPage() {
           <div
             ref={scrollRef}
             onScroll={handleScroll}
-            className="max-h-[calc(100vh-280px)] space-y-2 overflow-y-auto lg:max-h-[calc(100vh-320px)]"
+            className="max-h-[calc(100vh-300px)] space-y-2 overflow-y-auto pr-1 lg:max-h-[calc(100vh-340px)]"
           >
             {listLoading ? (
               <div className="space-y-2">
@@ -271,13 +334,19 @@ export default function NotificationsPage() {
                 ))}
               </div>
             ) : notifications.length === 0 ? (
-              <div className="py-20 text-center">
-                <Bell className="text-muted-foreground mx-auto mb-4 h-16 w-16 opacity-30" />
-                <p className="text-muted-foreground text-lg">
-                  No notifications yet
+              <div className="py-24 text-center">
+                <div className="bg-muted/30 mx-auto mb-5 flex h-20 w-20 items-center justify-center rounded-full">
+                  <Bell className="text-muted-foreground h-10 w-10 opacity-40" />
+                </div>
+                <p className="text-foreground text-base font-medium">
+                  {activeCategory
+                    ? `No ${activeCategory} notifications`
+                    : "No notifications yet"}
                 </p>
-                <p className="text-muted-foreground/60 mt-1 text-sm">
-                  When you receive notifications, they&apos;ll appear here.
+                <p className="text-muted-foreground mt-1 text-sm">
+                  {activeCategory
+                    ? "Try switching to a different category."
+                    : "When you receive notifications, they'll appear here."}
                 </p>
               </div>
             ) : (
@@ -298,7 +367,7 @@ export default function NotificationsPage() {
                   </div>
                 )}
                 {!hasNextPage && notifications.length > 0 && (
-                  <p className="text-muted-foreground/50 py-4 text-center text-xs">
+                  <p className="text-muted-foreground/50 py-6 text-center text-xs">
                     You&apos;re all caught up
                   </p>
                 )}

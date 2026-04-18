@@ -1,21 +1,10 @@
 "use client"
 
-import { useMemo } from "react"
 import { Bookmark } from "lucide-react"
 import { ErrorBoundary } from "../_components/common/errorBoundary"
-import { FeedList } from "../_components/content/feed-list"
-import { useSavedFeed } from "../_hooks/queries/useContent"
-import type { FeedItem } from "../_types/content"
+import { SavedContentTab } from "../_components/content/saved-content-tab"
 
 export default function SavedPage() {
-  const savedQuery = useSavedFeed()
-
-  const feedItems: FeedItem[] = useMemo(() => {
-    return (
-      savedQuery.data?.pages.flatMap((page) => page.data as FeedItem[]) ?? []
-    )
-  }, [savedQuery.data])
-
   return (
     <ErrorBoundary>
       <div className="from-background via-background to-muted/20 min-h-screen bg-linear-to-br pb-24 lg:pb-0">
@@ -28,15 +17,8 @@ export default function SavedPage() {
             </div>
           </div>
 
-          {/* Feed */}
-          <FeedList
-            items={feedItems}
-            hasNextPage={!!savedQuery.hasNextPage}
-            isFetchingNextPage={savedQuery.isFetchingNextPage}
-            fetchNextPage={savedQuery.fetchNextPage}
-            isLoading={savedQuery.isLoading}
-            emptyType="saved"
-          />
+          {/* Saved content with Posts/Reels sub-tabs */}
+          <SavedContentTab />
         </div>
       </div>
     </ErrorBoundary>

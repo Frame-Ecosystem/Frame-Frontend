@@ -1,6 +1,6 @@
 // User-related types
 
-export type UserType = "client" | "lounge" | "admin" | string
+export type UserType = "client" | "lounge" | "admin"
 
 export type Gender = "male" | "female" | "unisex" | "kids"
 

@@ -33,7 +33,7 @@ import { Button } from "@/app/_components/ui/button"
 import { LoungeDetailSkeleton } from "@/app/_components/skeletons/lounges"
 
 import { Lounge, LoungeService } from "@/app/_types"
-import { useAuth } from "@/app/_providers/auth"
+import { useAuth } from "@/app/_auth"
 import { useCallback, useEffect, useRef, useState } from "react"
 import { useParams, useRouter, useSearchParams } from "next/navigation"
 import { isLoungeCurrentlyOpen } from "@/app/_components/bookings/booking-utils"

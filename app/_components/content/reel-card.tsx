@@ -17,6 +17,7 @@ interface ReelCardProps {
 export function ReelCard({ reel, onClick, className }: ReelCardProps) {
   return (
     <button
+      id={`reel-${reel._id}`}
       onClick={onClick}
       className={cn(
         "group relative aspect-[9/16] w-full overflow-hidden rounded-md bg-black",
@@ -33,11 +34,13 @@ export function ReelCard({ reel, onClick, className }: ReelCardProps) {
         />
       ) : (
         <video
-          src={reel.videoUrl}
           muted
+          playsInline
           preload="metadata"
           className="h-full w-full object-cover"
-        />
+        >
+          <source src={reel.videoUrl} type="video/mp4" />
+        </video>
       )}
 
       {/* Play icon overlay */}

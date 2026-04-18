@@ -8,7 +8,7 @@ import { Button } from "../ui/button"
 import { Textarea } from "../ui/textarea"
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar"
 import Link from "next/link"
-import { useAuth } from "../../_providers/auth"
+import { useAuth } from "@/app/_auth"
 import { useCreatePost } from "../../_hooks/queries/useContent"
 import { getProfilePath } from "../../_lib/profile"
 

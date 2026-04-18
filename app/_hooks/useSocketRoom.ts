@@ -20,10 +20,18 @@ import { getSocket } from "../_services/socket"
  */
 export function useSocketRoom(
   rooms: string | string[],
-  // eslint-disable-next-line no-unused-vars
+
   events: Record<string, (data: any) => void>,
 ) {
   const joinedRoomsRef = useRef<string[]>([])
+  const eventsRef = useRef(events)
+  eventsRef.current = events
+
+  // Stabilise rooms identity: join a string so the effect only re-runs
+  // when the actual room names change, not on every render.
+  const roomKey = Array.isArray(rooms)
+    ? rooms.filter(Boolean).join(",")
+    : rooms || ""
 
   useEffect(() => {
     const roomList = Array.isArray(rooms) ? rooms : [rooms]
@@ -48,21 +56,23 @@ export function useSocketRoom(
 
     joinedRoomsRef.current = validRooms
 
-    // ── Register event listeners ────────────────────────────
-    const entries = Object.entries(events)
-    entries.forEach(([event, handler]) => {
+    // ── Register event listeners (via ref for fresh handlers) ─
+    const entries = Object.entries(eventsRef.current)
+    const wrappedHandlers = entries.map(([event, _]) => {
+      const handler = (data: any) => eventsRef.current[event]?.(data)
       socket.on(event, handler)
+      return [event, handler] as const
     })
 
     // ── Cleanup ─────────────────────────────────────────────
     return () => {
       socket.off("connect", joinRooms)
       socket.emit("leave", joinedRoomsRef.current)
-      entries.forEach(([event, handler]) => {
+      wrappedHandlers.forEach(([event, handler]) => {
         socket.off(event, handler)
       })
       joinedRoomsRef.current = []
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [JSON.stringify(rooms)])
+  }, [roomKey])
 }

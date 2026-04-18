@@ -96,6 +96,7 @@ export interface Comment {
   isHidden: boolean
   replyCount?: number
   createdAt: string
+  updatedAt: string
 }
 
 /* ───────── Hashtag ───────── */
@@ -104,6 +105,7 @@ export interface Hashtag {
   _id: string
   name: string
   postCount: number
+  createdAt: string
 }
 
 /* ───────── Report ───────── */
@@ -118,6 +120,7 @@ export interface Report {
   status: ReportStatus
   adminNote?: string
   createdAt: string
+  updatedAt: string
 }
 
 /* ───────── API Response wrappers ───────── */
