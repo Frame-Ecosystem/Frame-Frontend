@@ -4,7 +4,7 @@ import type { ServiceCategory } from "../_types"
 class ServiceCategoryService {
   async getAll(): Promise<ServiceCategory[]> {
     try {
-      const response = await apiClient.get<any>("/v1/admin/service-categories")
+      const response = await apiClient.get<any>("/v1/service-categories")
       // Handle different response formats
       let categories: any[] = []
       if (Array.isArray(response)) {
@@ -19,14 +19,14 @@ class ServiceCategoryService {
           categories = response.items
         } else {
           console.warn(
-            "Unexpected response format for /v1/admin/service-categories:",
+            "Unexpected response format for /v1/service-categories:",
             response,
           )
           return []
         }
       } else {
         console.warn(
-          "Unexpected response format for /v1/admin/service-categories:",
+          "Unexpected response format for /v1/service-categories:",
           response,
         )
         return []

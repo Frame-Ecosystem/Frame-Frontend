@@ -24,7 +24,6 @@ export type AuthErrorCode =
 export interface LoginDto {
   emailOrPhone: string
   password: string
-  deviceName?: string
 }
 
 export interface SignupDto {

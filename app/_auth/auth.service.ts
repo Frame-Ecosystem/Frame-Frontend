@@ -87,7 +87,6 @@ class AuthService {
     const data = await apiClient.post<AuthTokenResponse>("/v1/auth/login", {
       emailOrPhone,
       password,
-      deviceName: getDeviceName(),
     })
     return data
   }

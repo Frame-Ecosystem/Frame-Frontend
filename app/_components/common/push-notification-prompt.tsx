@@ -59,7 +59,7 @@ export default function PushNotificationPrompt({ onEnable }: Props) {
 
   return (
     <div
-      className="animate-in slide-in-from-top-4 fade-in bg-card fixed top-4 left-1/2 z-[9999] w-[calc(100%-2rem)] max-w-md -translate-x-1/2 rounded-lg border p-4 shadow-lg"
+      className="animate-in slide-in-from-top-4 fade-in bg-card fixed top-4 left-1/2 z-[10000] w-[calc(100%-2rem)] max-w-md -translate-x-1/2 rounded-lg border p-4 shadow-lg"
       role="alert"
     >
       <button

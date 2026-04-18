@@ -93,7 +93,7 @@ const UserSession = ({ compact }: { compact?: boolean } = {}) => {
         (isLoggedIn ? (
           <Popover open={popoverOpen} onOpenChange={setPopoverOpen}>
             <PopoverTrigger asChild>{userButton}</PopoverTrigger>
-            <PopoverContent className="mt-2 w-72 p-0" align="end">
+            <PopoverContent className="z-[9999] mt-6 w-72 p-0" align="end">
               <UserInfo
                 user={user}
                 onAddAccount={handleAddAccount}
@@ -111,7 +111,7 @@ const UserSession = ({ compact }: { compact?: boolean } = {}) => {
       {/* Our own <button> calls closeSignIn() which is the ONLY close path.  */}
       <Dialog open={dialogOpen} onOpenChange={noop}>
         <DialogContent
-          className="max-h-[90vh] w-[90%] overflow-y-auto [&>button:last-child]:hidden"
+          className="z-[9999] max-h-[90vh] w-[90%] overflow-y-auto rounded-2xl [&>button:last-child]:hidden"
           onInteractOutside={prevent}
           onFocusOutside={prevent}
           onEscapeKeyDown={prevent}
@@ -139,7 +139,7 @@ const UserSession = ({ compact }: { compact?: boolean } = {}) => {
       {/* ── Sign-up dialog (always mounted, fully controlled) ── */}
       <Dialog open={signupOpen} onOpenChange={noop}>
         <DialogContent
-          className="w-[90%] [&>button:last-child]:hidden"
+          className="top-[55%] z-[9999] w-[90%] rounded-2xl [&>button:last-child]:hidden"
           onInteractOutside={prevent}
           onFocusOutside={prevent}
           onEscapeKeyDown={prevent}

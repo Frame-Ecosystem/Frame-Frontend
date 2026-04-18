@@ -212,9 +212,9 @@ export default function SignUpForm({
   return (
     <form
       onSubmit={handleSubmit(onSubmit, () => setSubmitAttempted(true))}
-      className="space-y-4"
+      className="space-y-1.5"
     >
-      <div className="space-y-2">
+      <div className="space-y-1">
         <Label htmlFor="phoneNumber">Phone Number</Label>
         <div className="relative">
           <div className="text-muted-foreground pointer-events-none absolute top-1/2 left-3 flex -translate-y-1/2 items-center gap-1 text-sm">
@@ -255,7 +255,7 @@ export default function SignUpForm({
         )}
       </div>
 
-      <div className="space-y-2">
+      <div className="space-y-1">
         <Label htmlFor="email">Email</Label>
         <Input
           id="email"
@@ -272,7 +272,7 @@ export default function SignUpForm({
         )}
       </div>
 
-      <div className="space-y-2">
+      <div className="space-y-1">
         <Label htmlFor="password">Password</Label>
         <div className="relative">
           <Input
@@ -299,19 +299,22 @@ export default function SignUpForm({
             )}
           </button>
         </div>
-        <div className="space-y-2">
-          <ul className="space-y-1 text-xs">
-            {rules.map((rule) => (
-              <li
-                key={rule.id}
-                className={
-                  rule.met
-                    ? "text-green-600 dark:text-green-400"
-                    : "text-foreground"
-                }
-                aria-label={rule.label}
-              >
-                <span className="inline-flex items-center gap-2">
+        <div>
+          <ul className="space-y-0 text-xs">
+            {(() => {
+              const filtered = rules.filter(
+                (rule) => rule.id !== "maxLength" && rule.id !== "match",
+              )
+              const minLength = filtered.find((r) => r.id === "minLength")
+              const digit = filtered.find((r) => r.id === "digit")
+              const rest = filtered.filter(
+                (r) => r.id !== "minLength" && r.id !== "digit",
+              )
+
+              const renderRule = (rule: (typeof filtered)[number]) => (
+                <span
+                  className={`inline-flex items-center gap-1 ${rule.met ? "text-green-600 dark:text-green-400" : "text-foreground"}`}
+                >
                   {rule.met ? (
                     <Check className="h-3.5 w-3.5" aria-hidden />
                   ) : (
@@ -319,8 +322,24 @@ export default function SignUpForm({
                   )}
                   <span>{rule.label}</span>
                 </span>
-              </li>
-            ))}
+              )
+
+              return (
+                <>
+                  {minLength && digit && (
+                    <li className="flex items-center gap-3">
+                      {renderRule(minLength)}
+                      {renderRule(digit)}
+                    </li>
+                  )}
+                  {rest.map((rule) => (
+                    <li key={rule.id} aria-label={rule.label}>
+                      {renderRule(rule)}
+                    </li>
+                  ))}
+                </>
+              )
+            })()}
           </ul>
         </div>
         {errors.password?.message && (
@@ -328,7 +347,7 @@ export default function SignUpForm({
         )}
       </div>
 
-      <div className="space-y-2">
+      <div className="space-y-1">
         <Label htmlFor="confirmPassword">Confirm Password</Label>
         <div className="relative">
           <Input
@@ -355,6 +374,24 @@ export default function SignUpForm({
             )}
           </button>
         </div>
+        {(() => {
+          const matchRule = rules.find((r) => r.id === "match")
+          if (!matchRule) return null
+          return (
+            <p
+              className={`text-xs ${matchRule.met ? "text-green-600 dark:text-green-400" : "text-foreground"}`}
+            >
+              <span className="inline-flex items-center gap-2">
+                {matchRule.met ? (
+                  <Check className="h-3.5 w-3.5" aria-hidden />
+                ) : (
+                  <X className="h-3.5 w-3.5" aria-hidden />
+                )}
+                <span>{matchRule.label}</span>
+              </span>
+            </p>
+          )
+        })()}
         {errors.confirmPassword?.message && (
           <p className="text-destructive text-sm">
             {errors.confirmPassword.message}
@@ -388,7 +425,6 @@ export default function SignUpForm({
       <GoogleButton
         onClick={handleGoogleSignUp}
         disabled={loading || emailSending || !selectedType}
-        showIcon={false}
       />
 
       {/* Sign in link: redirect to sign-in dialog */}

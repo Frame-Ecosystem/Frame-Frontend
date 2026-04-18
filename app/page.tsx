@@ -1181,7 +1181,7 @@ const LandingPage = () => {
       {/* ── Signup Dialog ── */}
       <Dialog open={signupOpen} onOpenChange={setSignupOpen}>
         <DialogContent
-          className="max-h-[90vh] w-[90%] overflow-y-auto"
+          className="top-[55%] max-h-[90vh] w-[90%] overflow-y-auto rounded-2xl"
           onInteractOutside={(e) => e.preventDefault()}
         >
           <SignupFlow
@@ -1197,7 +1197,7 @@ const LandingPage = () => {
       {/* ── Sign-in Dialog ── */}
       <Dialog open={signinOpen} onOpenChange={setSigninOpen}>
         <DialogContent
-          className="max-h-[90vh] w-[90%] overflow-y-auto"
+          className="max-h-[90vh] w-[90%] overflow-y-auto rounded-2xl"
           onInteractOutside={(e) => e.preventDefault()}
         >
           <SignInDialog

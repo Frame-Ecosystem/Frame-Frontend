@@ -190,19 +190,6 @@ export default function SignupFlow({
 
   return (
     <>
-      <div className="mb-4 flex justify-center">
-        <Image
-          src={
-            selectedType === "client"
-              ? "/images/clientType.png"
-              : "/images/loungeType.png"
-          }
-          alt={selectedType === "client" ? "Client" : "Center"}
-          width={60}
-          height={60}
-          className="rounded-md object-contain"
-        />
-      </div>
       <DialogHeader>
         <DialogTitle className="text-center">Create Account</DialogTitle>
       </DialogHeader>
