@@ -154,7 +154,7 @@ export function BookingWizard({
   // Calculate total price and duration when selected services change
   useEffect(() => {
     const total = selectedServices.reduce(
-      (sum, service) => sum + service.price,
+      (sum, service) => sum + (service.price ?? 0),
       0,
     )
     setTotalPrice(total)

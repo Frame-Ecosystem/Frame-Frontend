@@ -22,9 +22,9 @@ export { pushNotificationService } from "./push-notification.service"
 export { ratingService } from "./rating.service"
 export { likeService } from "./like.service"
 export { followService } from "./follow.service"
+export { marketplaceService } from "./marketplace.service"
 export type {
   Lounge,
-  Center,
   Booking,
   CreateBookingInput,
   User,

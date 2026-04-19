@@ -1,229 +1,290 @@
 "use client"
 
-import { Store, ShoppingCart, Heart, Star } from "lucide-react"
-import { Button } from "../_components/ui/button"
-import { Card, CardContent } from "../_components/ui/card"
-import { Badge } from "../_components/ui/badge"
-import { Input } from "../_components/ui/input"
-import Image from "next/image"
 import { useState } from "react"
-import { useTranslation } from "@/app/_i18n"
+import Link from "next/link"
+import {
+  Search,
+  Store,
+  Package,
+  ShoppingCart,
+  Heart,
+  ChevronRight,
+  Sparkles,
+  TrendingUp,
+} from "lucide-react"
+import { Button } from "@/app/_components/ui/button"
+import { Input } from "@/app/_components/ui/input"
+import { StoreCard } from "@/app/_components/marketplace/store-card"
+import { ProductCard } from "@/app/_components/marketplace/product-card"
+import {
+  useDiscoverStores,
+  useDiscoverProducts,
+  useAddToCart,
+  useMyCart,
+} from "@/app/_hooks/queries/useMarketplace"
+import { toast } from "sonner"
+import type { StoreCategory } from "@/app/_types/marketplace"
 
-// Sample products data - replace with real API data later
-const SAMPLE_PRODUCTS = [
-  {
-    id: "1",
-    name: "Premium Hair Gel",
-    description: "Professional-grade styling gel for all hair types",
-    price: 24.99,
-    imageUrl: "/images/frameLight.png",
-    category: "Hair Care",
-    rating: 4.5,
-    inStock: true,
-  },
-  {
-    id: "2",
-    name: "Beard Oil",
-    description: "Natural beard conditioning oil with essential oils",
-    price: 19.99,
-    imageUrl: "/images/clientType.png",
-    category: "Beard Care",
-    rating: 4.8,
-    inStock: true,
-  },
-  {
-    id: "3",
-    name: "Hair Wax",
-    description: "Strong hold matte finish hair wax",
-    price: 22.5,
-    imageUrl: "/images/frameLight.png",
-    category: "Hair Care",
-    rating: 4.6,
-    inStock: true,
-  },
-  {
-    id: "4",
-    name: "Shaving Cream",
-    description: "Luxury shaving cream with moisturizing formula",
-    price: 15.99,
-    imageUrl: "/images/frameDark.png",
-    category: "Shaving",
-    rating: 4.7,
-    inStock: false,
-  },
-  {
-    id: "5",
-    name: "Hair Pomade",
-    description: "High shine medium hold pomade",
-    price: 21.99,
-    imageUrl: "/images/frameLight.png",
-    category: "Hair Care",
-    rating: 4.4,
-    inStock: true,
-  },
-  {
-    id: "6",
-    name: "Aftershave Balm",
-    description: "Soothing aftershave balm with aloe vera",
-    price: 18.99,
-    imageUrl: "/images/loungeType.png",
-    category: "Shaving",
-    rating: 4.9,
-    inStock: true,
-  },
+const CATEGORY_CHIPS: {
+  value: StoreCategory | ""
+  label: string
+  emoji: string
+}[] = [
+  { value: "", label: "All", emoji: "✨" },
+  { value: "haircare", label: "Hair Care", emoji: "💆" },
+  { value: "skincare", label: "Skin Care", emoji: "🌿" },
+  { value: "makeup", label: "Makeup", emoji: "💄" },
+  { value: "nails", label: "Nails", emoji: "💅" },
+  { value: "fragrance", label: "Fragrance", emoji: "🌸" },
+  { value: "tools_accessories", label: "Tools", emoji: "🪮" },
+  { value: "organic_natural", label: "Organic", emoji: "🍃" },
+  { value: "mens_grooming", label: "Men's", emoji: "🧔" },
+  { value: "spa_wellness", label: "Spa", emoji: "🛁" },
 ]
 
-export default function StorePage() {
-  const { t, dir } = useTranslation()
-  const [searchTerm, setSearchTerm] = useState("")
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
+export default function MarketplacePage() {
+  const [search, setSearch] = useState("")
 
-  const categories = Array.from(new Set(SAMPLE_PRODUCTS.map((p) => p.category)))
-
-  const filteredProducts = SAMPLE_PRODUCTS.filter((product) => {
-    const matchesSearch =
-      product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      product.description.toLowerCase().includes(searchTerm.toLowerCase())
-    const matchesCategory =
-      !selectedCategory || product.category === selectedCategory
-    return matchesSearch && matchesCategory
+  const { data: storesData, isLoading: storesLoading } = useDiscoverStores({
+    sort: "popular",
+    limit: 6,
   })
+  const { data: productsData, isLoading: productsLoading } =
+    useDiscoverProducts({
+      sort: "best_selling",
+      limit: 8,
+    })
+  const { data: newArrivalsData } = useDiscoverProducts({
+    sort: "newest",
+    limit: 4,
+  })
+  const { data: cart } = useMyCart()
+  const addToCart = useAddToCart()
+
+  const cartCount = cart?.items.reduce((sum, i) => sum + i.quantity, 0) ?? 0
+
+  const handleAddToCart = (productId: string) => {
+    addToCart.mutate(
+      { productId, quantity: 1 },
+      {
+        onSuccess: () => toast.success("Added to cart!"),
+        onError: () => toast.error("Failed to add to cart"),
+      },
+    )
+  }
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (search.trim()) {
+      window.location.href = `/store/products?search=${encodeURIComponent(search)}`
+    }
+  }
 
   return (
     <div className="from-background via-background to-muted/20 min-h-screen bg-linear-to-br pb-24 lg:pb-0">
-      <div className="mx-auto max-w-7xl lg:pt-0">
-        <div className="p-5 lg:px-8 lg:py-12">
-          {/* Header */}
-          <div className="mb-8 lg:mb-12">
-            <div dir={dir} className="mt-6 mb-4 flex items-center gap-3">
-              <Store className="text-primary h-8 w-8 lg:h-10 lg:w-10" />
-              <h1 className="text-3xl font-bold lg:text-4xl">
-                {t("store.title")}
-              </h1>
+      <div className="mx-auto max-w-7xl space-y-10 px-4 py-6 lg:px-8 lg:py-10">
+        {/* Hero */}
+        <div className="from-primary/20 via-primary/10 to-background relative overflow-hidden rounded-2xl bg-linear-to-br p-6 lg:p-10">
+          <div className="relative z-10">
+            <div className="mb-2 flex items-center gap-2">
+              <Sparkles className="text-primary h-5 w-5" />
+              <span className="text-primary text-sm font-semibold tracking-wide uppercase">
+                Beauty Marketplace
+              </span>
             </div>
-            <p className="text-muted-foreground lg:text-lg">
-              {t("store.subtitle")}
+            <h1 className="mb-2 text-3xl leading-tight font-bold lg:text-4xl">
+              Discover Beauty
+              <br />
+              <span className="text-primary">Products & Stores</span>
+            </h1>
+            <p className="text-muted-foreground mb-6 max-w-md text-sm">
+              Shop from the best beauty professionals and salons.
             </p>
+            <form onSubmit={handleSearch} className="flex max-w-lg gap-2">
+              <div className="relative flex-1">
+                <Search className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
+                <Input
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  placeholder="Search products, stores..."
+                  className="bg-background/80 pl-9 backdrop-blur-sm"
+                />
+              </div>
+              <Button type="submit">Search</Button>
+            </form>
           </div>
+          <div className="bg-primary/10 absolute -top-12 -right-12 h-64 w-64 rounded-full blur-3xl" />
+        </div>
 
-          {/* Search and Filters */}
-          <div className="mb-8 space-y-4">
-            <Input
-              type="text"
-              placeholder={t("store.searchPlaceholder")}
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="max-w-md"
-            />
-
-            {/* Category Filters */}
-            <div className="flex gap-2 overflow-x-auto pb-2 [&::-webkit-scrollbar]:hidden">
-              <Button
-                variant={selectedCategory === null ? "default" : "outline"}
-                onClick={() => setSelectedCategory(null)}
-                size="sm"
+        {/* Quick actions */}
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+          {[
+            {
+              label: "All Products",
+              href: "/store/products",
+              icon: Package,
+              color:
+                "bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400",
+            },
+            {
+              label: "All Stores",
+              href: "/store/stores",
+              icon: Store,
+              color:
+                "bg-purple-50 dark:bg-purple-900/20 text-purple-600 dark:text-purple-400",
+            },
+            {
+              label: `Cart (${cartCount})`,
+              href: "/store/cart",
+              icon: ShoppingCart,
+              color:
+                cartCount > 0
+                  ? "bg-primary/10 text-primary"
+                  : "bg-muted text-muted-foreground",
+            },
+            {
+              label: "Wishlist",
+              href: "/store/wishlist",
+              icon: Heart,
+              color:
+                "bg-rose-50 dark:bg-rose-900/20 text-rose-600 dark:text-rose-400",
+            },
+          ].map((item) => {
+            const Icon = item.icon
+            return (
+              <Link
+                key={item.label}
+                href={item.href}
+                className={`flex items-center gap-2.5 rounded-xl p-3.5 transition-all hover:scale-[1.02] ${item.color}`}
               >
-                {t("store.allProducts")}
-              </Button>
-              {categories.map((category) => (
-                <Button
-                  key={category}
-                  variant={
-                    selectedCategory === category ? "default" : "outline"
-                  }
-                  onClick={() => setSelectedCategory(category)}
-                  size="sm"
-                >
-                  {category}
-                </Button>
+                <Icon size={18} />
+                <span className="text-sm font-medium">{item.label}</span>
+              </Link>
+            )
+          })}
+        </div>
+
+        {/* Category chips */}
+        <div className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1 lg:mx-0 lg:px-0 [&::-webkit-scrollbar]:hidden">
+          {CATEGORY_CHIPS.map((cat) => (
+            <Link
+              key={cat.value}
+              href={`/store/products${cat.value ? `?category=${cat.value}` : ""}`}
+              className="border-border bg-card hover:bg-muted flex flex-shrink-0 items-center gap-1.5 rounded-full border px-4 py-2 text-sm font-medium transition-all"
+            >
+              <span>{cat.emoji}</span>
+              <span>{cat.label}</span>
+            </Link>
+          ))}
+        </div>
+
+        {/* Best Selling Products */}
+        <section>
+          <div className="mb-4 flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <TrendingUp className="text-primary h-5 w-5" />
+              <h2 className="text-xl font-bold">Best Selling</h2>
+            </div>
+            <Link
+              href="/store/products?sort=best_selling"
+              className="text-primary flex items-center gap-0.5 text-sm hover:underline"
+            >
+              See all <ChevronRight size={14} />
+            </Link>
+          </div>
+          {productsLoading ? (
+            <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
+              {Array.from({ length: 8 }).map((_, i) => (
+                <div
+                  key={i}
+                  className="bg-muted h-64 animate-pulse rounded-xl"
+                />
               ))}
             </div>
-          </div>
-
-          {/* Products Grid */}
-          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            {filteredProducts.map((product, productIndex) => (
-              <Card
-                key={product.id}
-                className="group overflow-hidden rounded-2xl"
-              >
-                <CardContent className="p-0">
-                  {/* Product Image */}
-                  <div className="bg-muted relative h-[200px] w-full overflow-hidden">
-                    <Image
-                      alt={product.name}
-                      fill
-                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
-                      className="object-cover transition-transform duration-300 group-hover:scale-110"
-                      src={product.imageUrl}
-                      priority={productIndex === 0}
-                      loading={productIndex === 0 ? "eager" : undefined}
-                    />
-
-                    {/* Stock Badge */}
-                    {!product.inStock && (
-                      <Badge
-                        className="absolute top-2 left-2"
-                        variant="destructive"
-                      >
-                        {t("store.outOfStock")}
-                      </Badge>
-                    )}
-
-                    {/* Favorite Button */}
-                    <Button
-                      size="icon"
-                      variant="secondary"
-                      className="absolute top-2 right-2 h-8 w-8 opacity-0 transition-opacity group-hover:opacity-100"
-                    >
-                      <Heart className="h-4 w-4" />
-                    </Button>
-                  </div>
-
-                  {/* Product Info */}
-                  <div className="p-4">
-                    <Badge variant="outline" className="mb-2 text-xs">
-                      {product.category}
-                    </Badge>
-
-                    <h3 className="mb-1 font-semibold">{product.name}</h3>
-                    <p className="text-muted-foreground mb-3 line-clamp-2 text-sm">
-                      {product.description}
-                    </p>
-
-                    {/* Rating */}
-                    <div className="mb-3 flex items-center gap-1">
-                      <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                      <span className="text-sm font-medium">
-                        {product.rating}
-                      </span>
-                    </div>
-
-                    {/* Price and Add to Cart */}
-                    <div className="flex items-center justify-between">
-                      <p className="text-xl font-bold">${product.price}</p>
-                      <Button
-                        size="sm"
-                        disabled={!product.inStock}
-                        className="gap-2"
-                      >
-                        <ShoppingCart className="h-4 w-4" />
-                        {t("store.addToCart")}
-                      </Button>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-
-          {/* No Results */}
-          {filteredProducts.length === 0 && (
-            <div className="py-12 text-center">
-              <p className="text-muted-foreground">{t("store.noResults")}</p>
+          ) : (
+            <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
+              {(productsData?.data ?? []).map((product) => (
+                <ProductCard
+                  key={product._id}
+                  product={product}
+                  onAddToCart={handleAddToCart}
+                />
+              ))}
             </div>
           )}
-        </div>
+        </section>
+
+        {/* New Arrivals */}
+        {(newArrivalsData?.data.length ?? 0) > 0 && (
+          <section>
+            <div className="mb-4 flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Sparkles className="text-primary h-5 w-5" />
+                <h2 className="text-xl font-bold">New Arrivals</h2>
+              </div>
+              <Link
+                href="/store/products?sort=newest"
+                className="text-primary flex items-center gap-0.5 text-sm hover:underline"
+              >
+                See all <ChevronRight size={14} />
+              </Link>
+            </div>
+            <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+              {(newArrivalsData?.data ?? []).map((product) => (
+                <ProductCard
+                  key={product._id}
+                  product={product}
+                  onAddToCart={handleAddToCart}
+                />
+              ))}
+            </div>
+          </section>
+        )}
+
+        {/* Featured Stores */}
+        <section>
+          <div className="mb-4 flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Store className="text-primary h-5 w-5" />
+              <h2 className="text-xl font-bold">Featured Stores</h2>
+            </div>
+            <Link
+              href="/store/stores"
+              className="text-primary flex items-center gap-0.5 text-sm hover:underline"
+            >
+              See all <ChevronRight size={14} />
+            </Link>
+          </div>
+          {storesLoading ? (
+            <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
+              {Array.from({ length: 6 }).map((_, i) => (
+                <div
+                  key={i}
+                  className="bg-muted h-48 animate-pulse rounded-xl"
+                />
+              ))}
+            </div>
+          ) : (
+            <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
+              {(storesData?.data ?? []).map((store) => (
+                <StoreCard key={store._id} store={store} />
+              ))}
+            </div>
+          )}
+        </section>
+
+        {/* Open store CTA */}
+        <section className="from-primary/15 to-primary/5 rounded-2xl bg-linear-to-r p-6 text-center">
+          <Store className="text-primary mx-auto mb-3 h-10 w-10" />
+          <h3 className="mb-2 text-xl font-bold">Start Selling Today</h3>
+          <p className="text-muted-foreground mx-auto mb-4 max-w-md text-sm">
+            Join hundreds of beauty professionals. Open your store and reach
+            thousands of customers.
+          </p>
+          <Button asChild size="lg">
+            <Link href="/store/my-store">Open My Store</Link>
+          </Button>
+        </section>
       </div>
     </div>
   )

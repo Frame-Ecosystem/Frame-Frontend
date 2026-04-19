@@ -81,9 +81,9 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
 
   // Detect preferred locale on mount (client-only)
   useLayoutEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setLocaleState(detectLocale())
     setMounted(true)
-    // eslint-disable-next-line react-hooks/set-state-in-effect
   }, [])
 
   // Sync document attributes whenever locale changes

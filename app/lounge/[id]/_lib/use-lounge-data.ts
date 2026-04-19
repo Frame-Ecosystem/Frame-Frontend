@@ -17,6 +17,7 @@ export interface LoungeDetail extends Lounge {
 
 function transformServices(raw: any[]): LoungeService[] {
   return raw.map((s) => ({
+    _id: s._id,
     id: s._id,
     name: s.serviceId?.name || "Unnamed Service",
     description: s.serviceId?.description || "",
