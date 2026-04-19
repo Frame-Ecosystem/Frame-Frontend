@@ -8,6 +8,7 @@ import { authService } from "@/app/_auth"
 import { isAuthError } from "../../_services/api"
 import { useAuth } from "@/app/_auth"
 import { toast } from "sonner"
+import { useTranslation } from "../../_i18n"
 
 // themes are sourced from app/_constants/themes
 
@@ -17,6 +18,7 @@ export function ThemeSelector() {
   const [isUpdating, setIsUpdating] = useState(false)
   const { theme, setTheme } = useTheme()
   const { user } = useAuth()
+  const { t } = useTranslation()
 
   const handleThemeChange = async (newTheme: string) => {
     const previousTheme = theme
@@ -30,12 +32,12 @@ export function ThemeSelector() {
       // Update theme on backend if user is authenticated
       if (user) {
         await authService.updateTheme(newTheme)
-        toast.success("Theme updated successfully")
+        toast.success(t("toast.themeUpdated"))
       }
     } catch (error) {
       if (isAuthError(error)) return
       console.error("Failed to update theme:", error)
-      toast.error("Failed to save theme preference")
+      toast.error(t("toast.error"))
       // Revert to previous theme on error
       setTheme(previousTheme || "system")
     } finally {
@@ -54,7 +56,7 @@ export function ThemeSelector() {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <Palette className="text-muted-foreground h-5 w-5" />
-              <span className="font-medium">Theme</span>
+              <span className="font-medium">{t("settings.theme")}</span>
             </div>
             <ChevronDown className="text-muted-foreground h-5 w-5" />
           </div>

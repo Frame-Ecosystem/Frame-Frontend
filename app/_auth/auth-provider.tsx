@@ -30,6 +30,8 @@ import type { User } from "../_types"
 import { apiClient } from "../_services/api"
 import { getSocket, disconnectSocket } from "../_services/socket"
 import { useTheme } from "next-themes"
+import { useTranslation } from "../_i18n"
+import type { Locale } from "../_i18n"
 
 /** Default token lifetime (seconds) when backend doesn't provide expiresIn. */
 const DEFAULT_EXPIRES_IN = 900
@@ -57,6 +59,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const isRefreshingRef = useRef(false)
   const lastRefreshAttemptRef = useRef<number>(0)
   const { setTheme } = useTheme()
+  const { setLocale } = useTranslation()
   const router = useRouter()
 
   // Apply user's saved theme preference
@@ -67,6 +70,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
     },
     [setTheme],
+  )
+
+  // Apply user's saved language preference
+  const applyUserLanguage = useCallback(
+    (user: User | null) => {
+      if (user?.language) {
+        setLocale(user.language as Locale)
+      }
+    },
+    [setLocale],
   )
 
   // Refresh access token using refresh token from HttpOnly cookie
@@ -103,6 +116,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     (newUser: User | null, token: string | null, expiresIn?: number) => {
       setUser(newUser)
       applyUserTheme(newUser)
+      applyUserLanguage(newUser)
 
       if (token) {
         tokenManager.set(token, expiresIn || DEFAULT_EXPIRES_IN)
@@ -114,7 +128,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setAccessToken(null)
       }
     },
-    [applyUserTheme],
+    [applyUserTheme, applyUserLanguage],
   )
 
   // Clear authentication state
@@ -140,23 +154,26 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (userData) {
         setUser(userData)
         applyUserTheme(userData)
+        applyUserLanguage(userData)
       }
     } catch (error) {
       console.error("[AuthProvider] Failed to refresh user data:", error)
     }
-  }, [applyUserTheme])
+  }, [applyUserTheme, applyUserLanguage])
 
   // Refs to avoid dependency issues in event listeners
   const setUserRef = useRef(setUser)
   const setAccessTokenRef = useRef(setAccessToken)
   const applyUserThemeRef = useRef(applyUserTheme)
+  const applyUserLanguageRef = useRef(applyUserLanguage)
 
   // Keep refs in sync synchronously
   useLayoutEffect(() => {
     setUserRef.current = setUser
     setAccessTokenRef.current = setAccessToken
     applyUserThemeRef.current = applyUserTheme
-  }, [setUser, setAccessToken, applyUserTheme])
+    applyUserLanguageRef.current = applyUserLanguage
+  }, [setUser, setAccessToken, applyUserTheme, applyUserLanguage])
 
   // Update API client when access token changes
   useLayoutEffect(() => {
@@ -198,6 +215,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             if (userData) {
               setUser(userData)
               applyUserTheme(userData)
+              applyUserLanguage(userData)
               getSocket() // Connect socket after session restore
             } else {
               tokenManager.clear()
@@ -216,7 +234,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
 
     checkAuth()
-  }, [handleAuthFailure, refreshAccessToken, applyUserTheme])
+  }, [handleAuthFailure, refreshAccessToken, applyUserTheme, applyUserLanguage])
 
   // ── Cross-tab sync via StorageEvent on `hasRefreshToken` flag ──
 
@@ -239,6 +257,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             if (userData) {
               setUserRef.current(userData)
               applyUserThemeRef.current(userData)
+              applyUserLanguageRef.current(userData)
             }
           } catch {
             /* ignore */
@@ -274,6 +293,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           apiClient.setAccessTokenGetter(() => token)
           setUser(user || null)
           applyUserTheme(user || null)
+          applyUserLanguage(user || null)
         }
       } catch {
         // ignore malformed messages

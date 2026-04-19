@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react"
 import { CalendarIcon, History } from "lucide-react"
+import { useTranslation } from "@/app/_i18n"
 import { Button } from "../_components/ui/button"
 import Link from "next/link"
 import { useSearchParams, useRouter } from "next/navigation"
@@ -13,6 +14,7 @@ import { BookingsPageSkeleton } from "../_components/skeletons/bookings"
 
 export default function BookingsPage() {
   const { user, isLoading } = useAuth()
+  const { t, dir } = useTranslation()
   const searchParams = useSearchParams()
   const router = useRouter()
   const [showHistory, setShowHistory] = useState(
@@ -84,11 +86,10 @@ export default function BookingsPage() {
                     <CalendarIcon className="text-primary h-16 w-16" />
                   </div>
                   <h3 className="mb-4 text-2xl font-bold lg:text-3xl">
-                    Sign in to view your bookings
+                    {t("bookings.signInTitle")}
                   </h3>
                   <p className="text-muted-foreground mx-auto mb-8 max-w-md lg:text-lg">
-                    You need to be logged in to see your bookings and schedule
-                    new appointments.
+                    {t("bookings.signInDesc")}
                   </p>
                   <div className="flex flex-col justify-center gap-4 sm:flex-row">
                     <Button
@@ -97,7 +98,7 @@ export default function BookingsPage() {
                       className="shadow-lg"
                       asChild
                     >
-                      <Link href="/">Sign In</Link>
+                      <Link href="/">{t("bookings.signIn")}</Link>
                     </Button>
                     <Button
                       size="lg"
@@ -107,7 +108,7 @@ export default function BookingsPage() {
                     >
                       <Link href="/lounges">
                         <CalendarIcon className="mr-2 h-5 w-5" />
-                        Explore Lounges
+                        {t("bookings.exploreLounges")}
                       </Link>
                     </Button>
                   </div>
@@ -131,16 +132,16 @@ export default function BookingsPage() {
           {/* Page Header */}
           <div className="mb-8 lg:mb-12">
             <div className="mt-6 mb-4 flex items-center justify-between">
-              <div className="flex items-center gap-3">
+              <div dir={dir} className="flex items-center gap-3">
                 <CalendarIcon className="text-primary h-8 w-8 lg:h-10 lg:w-10" />
                 <h1 className="text-3xl font-bold lg:text-4xl">
                   {showHistory
-                    ? "Booking History"
+                    ? t("bookings.bookingHistory")
                     : user.type === "lounge"
-                      ? "Bookings Management"
+                      ? t("bookings.bookingsManagement")
                       : user.type === "admin"
-                        ? "All Bookings"
-                        : "My Bookings"}
+                        ? t("bookings.allBookings")
+                        : t("bookings.myBookings")}
                 </h1>
               </div>
               <Button
@@ -150,17 +151,17 @@ export default function BookingsPage() {
                 className="gap-2"
               >
                 <History className="h-4 w-4" />
-                {showHistory ? "Back" : "History"}
+                {showHistory ? t("common.back") : t("bookings.history")}
               </Button>
             </div>
             <p className="text-muted-foreground lg:text-lg">
               {showHistory
-                ? "View your completed bookings"
+                ? t("bookings.viewCompleted")
                 : user.type === "lounge"
-                  ? "Manage bookings for your lounge services"
+                  ? t("bookings.manageLounge")
                   : user.type === "admin"
-                    ? "View and manage all bookings in the system"
-                    : "View and manage your appointments"}
+                    ? t("bookings.viewManageAll")
+                    : t("bookings.viewManage")}
             </p>
           </div>
 

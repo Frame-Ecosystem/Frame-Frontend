@@ -1,3 +1,6 @@
+"use client"
+
+import { useTranslation } from "@/app/_i18n"
 import { Card, CardContent } from "../../ui/card"
 import { BookingAvatar } from "./booking-avatar"
 import { BookingStatusBadge } from "./BookingStatusBadge"
@@ -34,6 +37,7 @@ export function BookingCard({
   onCancel,
   onDelete,
 }: BookingCardProps) {
+  const { t } = useTranslation()
   const loungeId =
     typeof booking.lounge === "object" ? booking.lounge?._id : undefined
   const agentId = booking.agents?.[0]?._id || booking.agentId
@@ -63,7 +67,7 @@ export function BookingCard({
             <div className="grid grid-cols-2 gap-4 text-sm">
               <div className="flex flex-col gap-1">
                 <div className="flex items-center gap-2">
-                  <span className="font-medium">Date:</span>
+                  <span className="font-medium">{t("booking.date")}</span>
                   <span>
                     {booking.bookingDate
                       ? new Date(booking.bookingDate).toLocaleDateString()
@@ -71,7 +75,7 @@ export function BookingCard({
                   </span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className="font-medium">Time:</span>
+                  <span className="font-medium">{t("booking.time")}</span>
                   <span>
                     {booking.bookingDate
                       ? new Date(booking.bookingDate).toLocaleTimeString([], {
@@ -101,7 +105,9 @@ export function BookingCard({
         {booking.notes && (
           <div className="mb-2">
             <div className="flex items-center gap-2">
-              <span className="text-sm font-medium">Client Notes:</span>
+              <span className="text-sm font-medium">
+                {t("booking.clientNotes")}
+              </span>
               <p className="text-muted-foreground text-sm">{booking.notes}</p>
             </div>
           </div>
@@ -111,7 +117,9 @@ export function BookingCard({
         {booking.status === "cancelled" && booking.cancelledBy?.note && (
           <div className="mb-2">
             <div className="flex items-center gap-2">
-              <span className="text-sm font-medium">Cancellation Reason:</span>
+              <span className="text-sm font-medium">
+                {t("booking.cancellationReason")}
+              </span>
               <p className="text-muted-foreground text-sm">
                 &ldquo;{booking.cancelledBy.note}&rdquo;
               </p>

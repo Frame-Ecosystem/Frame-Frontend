@@ -25,8 +25,10 @@ import {
 import { useRouter, useSearchParams } from "next/navigation"
 import { ArrowLeft, Check, Eye, EyeOff, Lock, X } from "lucide-react"
 import Link from "next/link"
+import { useTranslation } from "@/app/_i18n"
 
 export default function ResetPasswordPage() {
+  const { t } = useTranslation()
   const router = useRouter()
   const searchParams = useSearchParams()
   const token = searchParams.get("token")
@@ -43,9 +45,7 @@ export default function ResetPasswordPage() {
 
   useEffect(() => {
     if (!token) {
-      setError(
-        "Invalid or missing reset token. Please request a new password reset link.",
-      )
+      setError(t("auth.reset.invalidToken"))
     }
   }, [token])
 
@@ -55,13 +55,13 @@ export default function ResetPasswordPage() {
         .object({
           newPassword: z
             .string()
-            .min(1, "New password is required")
-            .min(8, "Password must be at least 8 characters")
-            .max(128, "Password must not exceed 128 characters"),
+            .min(1, t("auth.reset.passwordRequired"))
+            .min(8, t("auth.reset.passwordMinLength"))
+            .max(128, t("auth.reset.passwordMaxLength")),
           confirmPassword: z
             .string()
-            .min(1, "Confirm password is required")
-            .min(8, "Password must be at least 8 characters"),
+            .min(1, t("auth.reset.confirmRequired"))
+            .min(8, t("auth.reset.passwordMinLength")),
         })
         .superRefine(({ newPassword, confirmPassword }, ctx) => {
           if (!newPassword || !confirmPassword) return
@@ -72,7 +72,10 @@ export default function ResetPasswordPage() {
           )
           if (!validationError) return
 
-          if (validationError === "Passwords do not match") {
+          if (
+            validationError === "Passwords do not match" ||
+            validationError === t("auth.reset.passwordsMismatch")
+          ) {
             ctx.addIssue({
               code: "custom",
               path: ["confirmPassword"],
@@ -132,7 +135,7 @@ export default function ResetPasswordPage() {
         // Server invalidates all sessions on password reset —
         // clear any local auth state before redirecting.
         clearAuth()
-        setSuccess("Password reset successfully! Redirecting to sign in...")
+        setSuccess(t("auth.reset.successRedirect"))
         setTimeout(() => {
           router.push("/?signin=true")
         }, 2000)
@@ -160,7 +163,7 @@ export default function ResetPasswordPage() {
               className="text-muted-foreground hover:text-foreground inline-flex items-center text-sm"
             >
               <ArrowLeft className="mr-2 h-4 w-4" />
-              Back to forgot password
+              {t("auth.reset.backToForgot")}
             </Link>
           </div>
 
@@ -169,15 +172,18 @@ export default function ResetPasswordPage() {
               <div className="bg-destructive/10 mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full">
                 <Lock className="text-destructive h-6 w-6" />
               </div>
-              <CardTitle className="text-2xl">Invalid Reset Link</CardTitle>
+              <CardTitle className="text-2xl">
+                {t("auth.reset.invalidLink")}
+              </CardTitle>
               <CardDescription>
-                This password reset link is invalid or has expired. Please
-                request a new one.
+                {t("auth.reset.invalidLinkDesc")}
               </CardDescription>
             </CardHeader>
             <CardContent>
               <Button asChild className="w-full">
-                <Link href="/auth/forgot-password">Request New Reset Link</Link>
+                <Link href="/auth/forgot-password">
+                  {t("auth.reset.requestNewLink")}
+                </Link>
               </Button>
             </CardContent>
           </Card>
@@ -195,7 +201,7 @@ export default function ResetPasswordPage() {
             className="text-muted-foreground hover:text-foreground inline-flex items-center text-sm"
           >
             <ArrowLeft className="mr-2 h-4 w-4" />
-            Back to forgot password
+            {t("auth.reset.backToForgot")}
           </Link>
         </div>
 
@@ -204,8 +210,8 @@ export default function ResetPasswordPage() {
             <div className="bg-primary/10 mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full">
               <Lock className="text-primary h-6 w-6" />
             </div>
-            <CardTitle className="text-2xl">Reset your password</CardTitle>
-            <CardDescription>Enter your new password below.</CardDescription>
+            <CardTitle className="text-2xl">{t("auth.reset.title")}</CardTitle>
+            <CardDescription>{t("auth.reset.description")}</CardDescription>
           </CardHeader>
           <CardContent>
             <form
@@ -213,7 +219,9 @@ export default function ResetPasswordPage() {
               className="space-y-4"
             >
               <div className="space-y-2">
-                <Label htmlFor="newPassword">New password</Label>
+                <Label htmlFor="newPassword">
+                  {t("auth.reset.newPassword")}
+                </Label>
                 <div className="relative">
                   <Controller
                     control={control}
@@ -281,7 +289,9 @@ export default function ResetPasswordPage() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="confirmPassword">Confirm new password</Label>
+                <Label htmlFor="confirmPassword">
+                  {t("auth.reset.confirmPassword")}
+                </Label>
                 <div className="relative">
                   <Input
                     id="confirmPassword"
@@ -326,16 +336,18 @@ export default function ResetPasswordPage() {
                 onClick={() => setSubmitAttempted(true)}
               >
                 {isLocked
-                  ? `Too many attempts (${remainingSeconds}s)`
+                  ? t("auth.rateLimit", {
+                      remainingSeconds: String(remainingSeconds),
+                    })
                   : loading
-                    ? "Resetting..."
-                    : "Reset password"}
+                    ? t("auth.reset.resetting")
+                    : t("auth.reset.submit")}
               </Button>
             </form>
 
             <div className="mt-6 text-center text-sm">
               <Link href="/" className="text-primary hover:underline">
-                Back to sign in
+                {t("auth.backToSignIn")}
               </Link>
             </div>
           </CardContent>

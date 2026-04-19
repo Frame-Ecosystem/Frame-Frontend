@@ -5,6 +5,7 @@ import { Button } from "../../ui/button"
 import { Label } from "../../ui/label"
 import { Textarea } from "../../ui/textarea"
 import type { User } from "../../../_types"
+import { useTranslation } from "@/app/_i18n"
 
 interface BioSectionProps {
   isOpen: boolean
@@ -26,6 +27,7 @@ export function BioSection({
   onSave,
   bioRef,
 }: BioSectionProps) {
+  const { t } = useTranslation()
   return (
     <div>
       <button
@@ -34,7 +36,7 @@ export function BioSection({
       >
         <div className="flex items-center gap-2">
           <Pencil className="h-4 w-4" />
-          <span className="font-medium">Update Bio</span>
+          <span className="font-medium">{t("settings.updateBio")}</span>
         </div>
         <ChevronDown
           className={`text-muted-foreground h-4 w-4 transition-transform ${isOpen ? "rotate-180" : ""}`}
@@ -45,7 +47,7 @@ export function BioSection({
         <div className="bg-background/30 border-border/50 mt-4 rounded-lg border p-4">
           <div className="space-y-4">
             <div>
-              <Label htmlFor="bio">Bio</Label>
+              <Label htmlFor="bio">{t("settings.bio")}</Label>
               <Textarea
                 ref={bioRef}
                 id="bio"
@@ -56,18 +58,18 @@ export function BioSection({
                 placeholder={
                   user?.bio ||
                   (user?.type === "client"
-                    ? "Tell us about yourself..."
-                    : "Tell us about your services...")
+                    ? t("settings.bioPlaceholderClient")
+                    : t("settings.bioPlaceholderLounge"))
                 }
                 className="mt-1 min-h-[100px]"
                 maxLength={255}
               />
               <p className="text-muted-foreground mt-1 text-xs">
-                {bio.length}/255 characters
+                {bio.length}/255 {t("settings.characters")}
               </p>
             </div>
             <Button onClick={onSave} className="w-full">
-              Update Bio
+              {t("settings.updateBio")}
             </Button>
           </div>
         </div>

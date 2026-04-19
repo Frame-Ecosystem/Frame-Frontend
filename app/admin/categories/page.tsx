@@ -40,6 +40,7 @@ import type {
   AdminServiceCategory,
   CreateServiceCategoryDto,
 } from "../../_types/admin"
+import { useTranslation } from "@/app/_i18n"
 
 export default function CategoriesPage() {
   const [createOpen, setCreateOpen] = useState(false)
@@ -50,18 +51,20 @@ export default function CategoriesPage() {
   const updateMut = useUpdateCategory()
   const deleteMut = useDeleteCategory()
   const { confirm, dialog } = useConfirmDialog()
+  const { t } = useTranslation()
 
   const categories = data?.data ?? []
 
   return (
     <>
       <AdminHeader
-        title="Service Categories"
-        description="Organize services into categories"
+        title={t("admin.categories.title")}
+        description={t("admin.categories.desc")}
         icon={Layers}
         actions={
           <Button onClick={() => setCreateOpen(true)}>
-            <Plus className="mr-2 h-4 w-4" /> Add Category
+            <Plus className="mr-2 h-4 w-4" />{" "}
+            {t("admin.categories.addCategory")}
           </Button>
         }
       />
@@ -71,11 +74,12 @@ export default function CategoriesPage() {
       ) : categories.length === 0 ? (
         <EmptyState
           icon={<Layers />}
-          title="No categories"
-          description="Add your first category to organize services"
+          title={t("admin.categories.noCategories")}
+          description={t("admin.categories.addFirst")}
           action={
             <Button onClick={() => setCreateOpen(true)}>
-              <Plus className="mr-2 h-4 w-4" /> Add Category
+              <Plus className="mr-2 h-4 w-4" />{" "}
+              {t("admin.categories.addCategory")}
             </Button>
           }
         />
@@ -84,9 +88,9 @@ export default function CategoriesPage() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Name</TableHead>
-                <TableHead>Description</TableHead>
-                <TableHead>Icon</TableHead>
+                <TableHead>{t("admin.categories.headerName")}</TableHead>
+                <TableHead>{t("admin.categories.headerDescription")}</TableHead>
+                <TableHead>{t("admin.categories.headerIcon")}</TableHead>
                 <TableHead className="w-12" />
               </TableRow>
             </TableHeader>
@@ -113,7 +117,7 @@ export default function CategoriesPage() {
                           className="text-destructive"
                           onClick={() =>
                             confirm({
-                              title: "Delete category?",
+                              title: t("admin.categories.deleteConfirm"),
                               description: `"${c.name}" will be permanently deleted. Services in this category may become uncategorized.`,
                               confirmLabel: "Delete",
                               variant: "destructive",
@@ -187,35 +191,39 @@ function CategoryFormDialog({
   const set = (key: string, val: string) =>
     setForm((f) => ({ ...f, [key]: val }))
 
+  const { t } = useTranslation()
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>
-            {initial ? "Edit Category" : "Add Category"}
+            {initial
+              ? t("admin.categories.editCategory")
+              : t("admin.categories.addCategory")}
           </DialogTitle>
         </DialogHeader>
         <div className="space-y-4 py-4">
           <div className="space-y-2">
-            <Label>Name</Label>
+            <Label>{t("common.name")}</Label>
             <Input
               value={form.name}
               onChange={(e) => set("name", e.target.value)}
             />
           </div>
           <div className="space-y-2">
-            <Label>Description</Label>
+            <Label>{t("common.description")}</Label>
             <Textarea
               value={form.description}
               onChange={(e) => set("description", e.target.value)}
             />
           </div>
           <div className="space-y-2">
-            <Label>Icon</Label>
+            <Label>{t("admin.categories.headerIcon")}</Label>
             <Input
               value={form.icon}
               onChange={(e) => set("icon", e.target.value)}
-              placeholder="e.g. scissors, spa, palette"
+              placeholder={t("admin.categories.iconPlaceholder")}
             />
           </div>
         </div>
@@ -227,7 +235,11 @@ function CategoryFormDialog({
             disabled={!form.name || loading}
             onClick={() => onSubmit(form)}
           >
-            {loading ? "Saving..." : initial ? "Save" : "Create"}
+            {loading
+              ? t("admin.categories.saving")
+              : initial
+                ? "Save"
+                : t("admin.categories.create")}
           </Button>
         </DialogFooter>
       </DialogContent>

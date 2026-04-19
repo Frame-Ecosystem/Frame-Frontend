@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 import { MapPinIcon, ChevronDown } from "lucide-react"
+import { useTranslation } from "@/app/_i18n"
 
 interface DisplayLocationProps {
   address: string
@@ -16,6 +17,7 @@ export default function DisplayLocation({
   longitude,
   isMobile = false,
 }: DisplayLocationProps) {
+  const { t } = useTranslation()
   const [isExpanded, setIsExpanded] = useState(true)
 
   const limit = isMobile ? 25 : 55
@@ -32,7 +34,7 @@ export default function DisplayLocation({
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <MapPinIcon className="text-primary h-4 w-4" />
-            <p className="text-sm font-semibold">Location</p>
+            <p className="text-sm font-semibold">{t("location.label")}</p>
           </div>
           <ChevronDown
             className={`text-muted-foreground h-4 w-4 transition-transform ${isExpanded ? "" : "-rotate-90"}`}
@@ -52,7 +54,7 @@ export default function DisplayLocation({
                     onClick={() => setIsExpanded(false)}
                     className="text-primary hover:text-primary/80 ml-1 text-sm transition-colors"
                   >
-                    show less
+                    {t("location.showLess")}
                   </button>
                 )}
               </p>
@@ -69,7 +71,7 @@ export default function DisplayLocation({
                   className="text-primary hover:text-primary/80 mt-2 flex items-center gap-1.5 text-sm transition-colors"
                 >
                   <MapPinIcon className="h-4 w-4" />
-                  See in map
+                  {t("location.seeInMap")}
                 </button>
               )}
             </div>

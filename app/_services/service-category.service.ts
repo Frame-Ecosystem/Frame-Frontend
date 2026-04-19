@@ -4,7 +4,9 @@ import type { ServiceCategory } from "../_types"
 class ServiceCategoryService {
   async getAll(): Promise<ServiceCategory[]> {
     try {
-      const response = await apiClient.get<any>("/v1/service-categories")
+      const response = await apiClient.get<any>("/v1/service-categories", {
+        suppressAuthFailure: true,
+      })
       // Handle different response formats
       let categories: any[] = []
       if (Array.isArray(response)) {
@@ -19,14 +21,14 @@ class ServiceCategoryService {
           categories = response.items
         } else {
           console.warn(
-            "Unexpected response format for /v1/service-categories:",
+            "Unexpected response format for /v1/admin/service-categories:",
             response,
           )
           return []
         }
       } else {
         console.warn(
-          "Unexpected response format for /v1/service-categories:",
+          "Unexpected response format for /v1/admin/service-categories:",
           response,
         )
         return []
@@ -39,17 +41,14 @@ class ServiceCategoryService {
       })) as ServiceCategory[]
 
       return mappedCategories
-    } catch (error) {
-      console.error("Failed to fetch service categories:", error)
+    } catch {
       return []
     }
   }
 
   async getById(id: string): Promise<ServiceCategory | null> {
     try {
-      const response = await apiClient.get<any>(
-        `/v1/admin/service-categories/${id}`,
-      )
+      const response = await apiClient.get<any>(`/v1/service-categories/${id}`)
       // Handle different response formats
       let category: any = null
       if (response && typeof response === "object") {

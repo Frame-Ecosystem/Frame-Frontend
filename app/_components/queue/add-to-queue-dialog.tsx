@@ -12,6 +12,7 @@ import { Button } from "../ui/button"
 import { Input } from "../ui/input"
 import { Label } from "../ui/label"
 import { Search } from "lucide-react"
+import { useTranslation } from "@/app/_i18n"
 
 interface AddToQueueDialogProps {
   open: boolean
@@ -28,6 +29,7 @@ export default function AddToQueueDialog({
   onAdd,
   isLoading,
 }: AddToQueueDialogProps) {
+  const { t } = useTranslation()
   const [bookingId, setBookingId] = useState("")
   const [position, setPosition] = useState("")
 
@@ -45,23 +47,19 @@ export default function AddToQueueDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Add Person to Queue</DialogTitle>
-          <DialogDescription>
-            Enter a booking ID to add the client to this agent&apos;s queue.
-            Only confirmed bookings with &quot;inQueue&quot; status can be
-            added.
-          </DialogDescription>
+          <DialogTitle>{t("queue.addPerson")}</DialogTitle>
+          <DialogDescription>{t("queue.addPersonDesc")}</DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="bookingId">Booking ID</Label>
+            <Label htmlFor="bookingId">{t("queue.bookingId")}</Label>
             <div className="flex gap-2">
               <div className="relative flex-1">
                 <Search className="text-muted-foreground absolute top-2.5 left-3 h-4 w-4" />
                 <Input
                   id="bookingId"
-                  placeholder="Enter booking ID..."
+                  placeholder={t("queue.enterBookingId")}
                   value={bookingId}
                   onChange={(e) => setBookingId(e.target.value)}
                   className="pl-9"
@@ -73,9 +71,9 @@ export default function AddToQueueDialog({
 
           <div className="space-y-2">
             <Label htmlFor="position">
-              Position{" "}
+              {t("queue.positionLabel")}{" "}
               <span className="text-muted-foreground text-xs">
-                (optional — leave empty to append at end)
+                ({t("queue.positionOptional")})
               </span>
             </Label>
             <Input
@@ -94,13 +92,13 @@ export default function AddToQueueDialog({
               variant="outline"
               onClick={() => onOpenChange(false)}
             >
-              Cancel
+              {t("common.cancel")}
             </Button>
             <Button type="submit" disabled={!bookingId.trim() || isLoading}>
               {isLoading && (
                 <div className="bg-primary/20 mr-2 h-4 w-4 animate-pulse rounded-full" />
               )}
-              Add to Queue
+              {t("queue.addToQueue")}
             </Button>
           </div>
         </form>

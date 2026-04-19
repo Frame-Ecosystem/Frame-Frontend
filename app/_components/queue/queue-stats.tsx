@@ -12,6 +12,7 @@ import {
   Armchair,
 } from "lucide-react"
 import type { QueueStats as QueueStatsData } from "./queue-utils"
+import { useTranslation } from "@/app/_i18n"
 
 interface QueueStatsProps {
   agentName?: string
@@ -28,6 +29,7 @@ export default function QueueStats({
   isFullScreen,
   mode = "client",
 }: QueueStatsProps) {
+  const { t } = useTranslation()
   return (
     <Card
       className={`border-primary/20 from-primary/5 to-primary/10 rounded-lg bg-gradient-to-br ${isFullScreen ? "shadow-2xl" : ""}`}
@@ -43,12 +45,12 @@ export default function QueueStats({
                 {agentName ? `${agentName}'s Queue` : "Queue"}
               </h3>
               <p className="text-muted-foreground text-xs">
-                {centerName || "Current status"}
+                {centerName || t("queue.currentStatus")}
               </p>
             </div>
           </div>
           <Badge className="bg-primary text-primary-foreground px-2 py-1 text-xs">
-            {stats.totalWaiting} waiting
+            {t("queue.waitingCount", { count: stats.totalWaiting })}
           </Badge>
         </div>
 
@@ -60,7 +62,7 @@ export default function QueueStats({
             <div className="flex items-center gap-1">
               <Armchair className="h-5 w-5 text-amber-500" />
               <p className="text-muted-foreground text-[11px] font-medium">
-                Waiting
+                {t("queue.waiting")}
               </p>
             </div>
             <div className="mt-1 flex w-full justify-end">
@@ -71,7 +73,7 @@ export default function QueueStats({
             <div className="flex items-center gap-1">
               <Clock className="h-5 w-5 text-amber-500" />
               <p className="text-muted-foreground text-[11px] font-medium">
-                Avg Wait
+                {t("queue.avgWait")}
               </p>
             </div>
             <div className="mt-1 flex w-full justify-end">
@@ -82,7 +84,7 @@ export default function QueueStats({
             <div className="flex items-center gap-1">
               <TrendingUp className="h-5 w-5 text-blue-500" />
               <p className="text-muted-foreground text-[11px] font-medium">
-                In Service
+                {t("queue.inService")}
               </p>
             </div>
             <div className="mt-1 flex w-full justify-end">
@@ -94,7 +96,7 @@ export default function QueueStats({
               <div className="flex items-center gap-1">
                 <Users className="h-5 w-5 text-indigo-500" />
                 <p className="text-muted-foreground text-[11px] font-medium">
-                  Total People
+                  {t("queue.totalPeople")}
                 </p>
               </div>
               <div className="mt-1 flex w-full justify-end">
@@ -107,7 +109,7 @@ export default function QueueStats({
               <div className="flex items-center gap-1">
                 <CheckCircle2 className="h-5 w-5 text-green-500" />
                 <p className="text-muted-foreground text-[11px] font-medium">
-                  Completed
+                  {t("queue.completed")}
                 </p>
               </div>
               <div className="mt-1 flex w-full justify-end">
@@ -119,7 +121,7 @@ export default function QueueStats({
             <div className="flex items-center gap-1">
               <UserX className="h-5 w-5 text-red-500" />
               <p className="text-muted-foreground text-[11px] font-medium">
-                Absent
+                {t("queue.absent")}
               </p>
             </div>
             <div className="mt-1 flex w-full justify-end">

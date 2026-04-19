@@ -6,6 +6,7 @@ import { Input } from "../../ui/input"
 import { CameraIcon, X } from "lucide-react"
 import { ImageCropDialog } from "./image-crop-dialog"
 import Image from "next/image"
+import { useTranslation } from "@/app/_i18n"
 
 interface ImageSelectorProps {
   onUpdate: (file: File) => void
@@ -25,6 +26,7 @@ export function ImageSelector({
   cropShape = "round",
   label = "Click to select a new profile image",
 }: ImageSelectorProps) {
+  const { t } = useTranslation()
   const [rawImageUrl, setRawImageUrl] = useState<string | null>(null)
   const [croppedPreviewUrl, setCroppedPreviewUrl] = useState<string | null>(
     null,
@@ -106,7 +108,7 @@ export function ImageSelector({
             <button
               onClick={() => rawImageUrl && setShowCrop(true)}
               className="bg-primary text-primary-foreground absolute -right-1 -bottom-1 flex h-6 w-6 items-center justify-center rounded-full shadow"
-              title="Re-crop"
+              title={t("imageCrop.reCrop")}
             >
               <CameraIcon className="h-3 w-3" />
             </button>

@@ -13,6 +13,7 @@ import { Button } from "../../_components/ui/button"
 import { ArrowLeft } from "lucide-react"
 import { toast } from "sonner"
 import { loungeService, serviceService } from "../../_services"
+import { useTranslation } from "@/app/_i18n"
 import { isAuthError } from "../../_services/api"
 import type { Service, LoungeServiceItem, LoungeAgent } from "../../_types"
 import { compressImage, getImageUrl } from "../../_lib/image-utils"
@@ -27,6 +28,7 @@ import { ServiceManagementSkeleton } from "../../_components/skeletons/admin"
 export default function LoungeServiceManagementPage() {
   const { user, isLoading } = useAuth()
   const router = useRouter()
+  const { t, dir } = useTranslation()
   const [services, setServices] = useState<LoungeServiceItem[]>([])
   const [globalServices, setGlobalServices] = useState<Service[]>([])
   const [serviceNames, setServiceNames] = useState<Record<string, string>>({})
@@ -167,11 +169,11 @@ export default function LoungeServiceManagementPage() {
     if (!file) return
 
     if (!file.type.startsWith("image/")) {
-      toast.error("Please select a valid image file")
+      toast.error(t("serviceMgmt.invalidImage"))
       return
     }
     if (file.size > 5 * 1024 * 1024) {
-      toast.error("File size must be less than 5MB")
+      toast.error(t("serviceMgmt.fileTooLarge"))
       return
     }
 
@@ -179,7 +181,7 @@ export default function LoungeServiceManagementPage() {
 
     compressImage(file)
       .then((dataUrl) => setFormData((prev) => ({ ...prev, image: dataUrl })))
-      .catch(() => toast.error("Failed to process image"))
+      .catch(() => toast.error(t("serviceMgmt.processFailed")))
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -212,7 +214,7 @@ export default function LoungeServiceManagementPage() {
           serviceData.image = formData.image
         }
         await loungeService.update((editingService as any)._id, serviceData)
-        toast.success("Service updated successfully")
+        toast.success(t("serviceMgmt.updated"))
       } else {
         const payload: any = {
           loungeId: user?._id || "",
@@ -232,7 +234,7 @@ export default function LoungeServiceManagementPage() {
           payload.image = formData.image
         }
         await loungeService.createLoungeService(payload)
-        toast.success("Lounge service added successfully")
+        toast.success(t("serviceMgmt.added"))
       }
 
       setDialogOpen(false)
@@ -249,7 +251,7 @@ export default function LoungeServiceManagementPage() {
 
   const handleEdit = (service: LoungeServiceItem) => {
     if (!(service as any)._id) {
-      toast.error("Cannot edit service: Invalid ID")
+      toast.error(t("serviceMgmt.invalidEditId"))
       return
     }
     setEditingService(service)
@@ -258,13 +260,13 @@ export default function LoungeServiceManagementPage() {
 
   const handleDelete = async (id: string) => {
     if (!id) {
-      toast.error("Cannot delete service: Invalid ID")
+      toast.error(t("serviceMgmt.invalidDeleteId"))
       return
     }
     try {
       await loungeService.delete(id)
       loadServices()
-      toast.success("Service deleted successfully")
+      toast.success(t("serviceMgmt.deleteSuccess"))
     } catch (error) {
       if (isAuthError(error)) return
       toast.error(
@@ -314,7 +316,7 @@ export default function LoungeServiceManagementPage() {
             <ArrowLeft className="mr-2 h-4 w-4" />
             Back to Lounge Settings
           </Button>
-          <h1 className="mb-2 text-3xl font-bold lg:text-4xl">
+          <h1 className="mb-2 text-3xl font-bold lg:text-4xl" dir={dir}>
             Lounge Service Management
           </h1>
           <p className="text-muted-foreground">

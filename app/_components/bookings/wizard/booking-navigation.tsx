@@ -2,6 +2,7 @@
 
 import { Button } from "../../ui/button"
 import { ChevronLeft, ChevronRight, Check } from "lucide-react"
+import { useTranslation } from "@/app/_i18n"
 
 type BookingStep = "datetime" | "agent" | "preview"
 
@@ -24,6 +25,7 @@ export function BookingNavigation({
   onNextStep,
   onSubmit,
 }: BookingNavigationProps) {
+  const { t } = useTranslation()
   return (
     <div className="flex gap-3 pt-4 sm:justify-between sm:gap-4 sm:pt-3">
       <Button
@@ -33,11 +35,11 @@ export function BookingNavigation({
         className="h-12 flex-1 font-medium shadow-sm transition-all hover:shadow-md sm:h-10 sm:w-auto sm:flex-none"
       >
         {currentStep === "agent" ? (
-          "Cancel"
+          t("booking.nav.cancel")
         ) : (
           <div className="flex w-full items-center justify-between">
             <ChevronLeft className="h-5 w-5 flex-shrink-0 sm:h-4 sm:w-4" />
-            <span className="flex-1 text-center">Back</span>
+            <span className="flex-1 text-center">{t("booking.nav.back")}</span>
           </div>
         )}
       </Button>
@@ -52,11 +54,13 @@ export function BookingNavigation({
           {isLoading ? (
             <>
               <div className="h-4 w-4 animate-pulse rounded-full bg-green-300" />
-              Creating...
+              {t("booking.nav.creating")}
             </>
           ) : (
             <div className="flex w-full items-center justify-between">
-              <span className="flex-1 text-center">Confirm Booking</span>
+              <span className="flex-1 text-center">
+                {t("booking.nav.confirmBooking")}
+              </span>
               <Check className="h-5 w-5 flex-shrink-0 sm:h-4 sm:w-4" />
             </div>
           )}
@@ -69,7 +73,7 @@ export function BookingNavigation({
           className="h-12 flex-1 font-medium shadow-sm transition-all hover:shadow-md sm:h-10 sm:w-auto sm:flex-none"
         >
           <div className="flex w-full items-center justify-between">
-            <span className="flex-1 text-center">Next</span>
+            <span className="flex-1 text-center">{t("booking.nav.next")}</span>
             <ChevronRight className="h-5 w-5 flex-shrink-0 sm:h-4 sm:w-4" />
           </div>
         </Button>

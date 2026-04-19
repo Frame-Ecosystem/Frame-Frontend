@@ -1,15 +1,16 @@
 "use client"
 
 import { Clock, ChevronDown } from "lucide-react"
+import { useTranslation } from "@/app/_i18n"
 
 const DAYS_DISPLAY = [
-  { key: "monday", label: "Mon" },
-  { key: "tuesday", label: "Tue" },
-  { key: "wednesday", label: "Wed" },
-  { key: "thursday", label: "Thu" },
-  { key: "friday", label: "Fri" },
-  { key: "saturday", label: "Sat" },
-  { key: "sunday", label: "Sun" },
+  { key: "monday", labelKey: "hours.mon" },
+  { key: "tuesday", labelKey: "hours.tue" },
+  { key: "wednesday", labelKey: "hours.wed" },
+  { key: "thursday", labelKey: "hours.thu" },
+  { key: "friday", labelKey: "hours.fri" },
+  { key: "saturday", labelKey: "hours.sat" },
+  { key: "sunday", labelKey: "hours.sun" },
 ]
 
 interface TimeSlot {
@@ -28,6 +29,8 @@ export function OpeningHoursDisplay({
   compact = false,
   isExpanded = false,
 }: OpeningHoursDisplayProps) {
+  const { t } = useTranslation()
+
   if (!openingHours) return null
 
   // Remove _id field if present by filtering entries
@@ -47,7 +50,7 @@ export function OpeningHoursDisplay({
 
   // Format time from 24h to 12h format
   const formatTime = (time: string) => {
-    if (!time || time === "00:00") return "Closed"
+    if (!time || time === "00:00") return t("hours.closed")
     const [hours, minutes] = time.split(":")
     const hour = parseInt(hours)
     const ampm = hour >= 12 ? "PM" : "AM"
@@ -68,10 +71,10 @@ export function OpeningHoursDisplay({
       <div className="flex items-center gap-2 text-sm">
         <Clock className="text-muted-foreground h-4 w-4" />
         {isClosed ? (
-          <span className="text-red-500">Closed today</span>
+          <span className="text-red-500">{t("hours.closedToday")}</span>
         ) : (
           <span className="text-green-500">
-            Open today: {formatTime(todayHours.from)} -{" "}
+            {t("hours.openToday")} {formatTime(todayHours.from)} -{" "}
             {formatTime(todayHours.to)}
           </span>
         )}
@@ -89,10 +92,10 @@ export function OpeningHoursDisplay({
     <div className="border-border rounded-lg border p-4">
       <div className="mb-3 flex items-center gap-2">
         <Clock className="text-muted-foreground h-6 w-6" />
-        <h3 className="font-semibold">Opening Hours</h3>
+        <h3 className="font-semibold">{t("hours.title")}</h3>
       </div>
       <div className="space-y-2">
-        {DAYS_DISPLAY.map(({ key, label }) => {
+        {DAYS_DISPLAY.map(({ key, labelKey }) => {
           const dayHours = hours[key]
           const isClosed =
             !dayHours || (dayHours.from === "00:00" && dayHours.to === "00:00")
@@ -102,9 +105,11 @@ export function OpeningHoursDisplay({
               key={key}
               className="flex items-center justify-between text-sm"
             >
-              <span className="text-muted-foreground w-16">{label}</span>
+              <span className="text-muted-foreground w-16">{t(labelKey)}</span>
               {isClosed ? (
-                <span className="text-muted-foreground">Closed</span>
+                <span className="text-muted-foreground">
+                  {t("hours.closed")}
+                </span>
               ) : (
                 <span className="font-medium">
                   {formatTime(dayHours.from)} - {formatTime(dayHours.to)}

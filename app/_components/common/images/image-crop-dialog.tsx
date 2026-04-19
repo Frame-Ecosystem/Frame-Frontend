@@ -12,6 +12,7 @@ import {
 } from "../../ui/dialog"
 import { Button } from "../../ui/button"
 import { ZoomIn, ZoomOut, RotateCw } from "lucide-react"
+import { useTranslation } from "@/app/_i18n"
 
 interface ImageCropDialogProps {
   open: boolean
@@ -78,6 +79,7 @@ export function ImageCropDialog({
   const [crop, setCrop] = useState({ x: 0, y: 0 })
   const [zoom, setZoom] = useState(1)
   const [rotation, setRotation] = useState(0)
+  const { t } = useTranslation()
   const [croppedAreaPixels, setCroppedAreaPixels] = useState<Area | null>(null)
   const [isSaving, setIsSaving] = useState(false)
 
@@ -133,7 +135,7 @@ export function ImageCropDialog({
             size="icon"
             className="h-8 w-8"
             onClick={() => setZoom((z) => Math.max(1, z - 0.2))}
-            title="Zoom out"
+            title={t("imageCrop.zoomOut")}
           >
             <ZoomOut className="h-4 w-4" />
           </Button>
@@ -145,7 +147,7 @@ export function ImageCropDialog({
             size="icon"
             className="h-8 w-8"
             onClick={() => setZoom((z) => Math.min(3, z + 0.2))}
-            title="Zoom in"
+            title={t("imageCrop.zoomIn")}
           >
             <ZoomIn className="h-4 w-4" />
           </Button>
@@ -154,7 +156,7 @@ export function ImageCropDialog({
             size="icon"
             className="h-8 w-8"
             onClick={() => setRotation((r) => (r + 90) % 360)}
-            title="Rotate"
+            title={t("imageCrop.rotate")}
           >
             <RotateCw className="h-4 w-4" />
           </Button>
@@ -162,10 +164,10 @@ export function ImageCropDialog({
 
         <DialogFooter className="px-6 pb-6">
           <Button variant="outline" onClick={() => onOpenChange(false)}>
-            Cancel
+            {t("common.cancel")}
           </Button>
           <Button onClick={handleConfirm} disabled={isSaving}>
-            {isSaving ? "Saving..." : "Apply"}
+            {isSaving ? t("imageCrop.saving") : t("common.apply")}
           </Button>
         </DialogFooter>
       </DialogContent>

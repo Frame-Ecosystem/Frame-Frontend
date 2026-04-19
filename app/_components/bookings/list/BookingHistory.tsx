@@ -26,6 +26,7 @@ import { BookingServicesList } from "../card/BookingServicesList"
 import { BookingAgentInfo } from "../card/BookingAgentInfo"
 import { BookingTotalSummary } from "../card/BookingTotalSummary"
 import type { Booking, BookingStatus } from "../../../_types"
+import { useTranslation } from "@/app/_i18n"
 
 type HistoryFilter =
   | "all"
@@ -43,6 +44,7 @@ export function BookingHistory({
   userType,
   onDelete,
 }: BookingHistoryProps) {
+  const { t } = useTranslation()
   const [expandedCancelled, setExpandedCancelled] = React.useState<Set<string>>(
     new Set(),
   )
@@ -68,10 +70,14 @@ export function BookingHistory({
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">All Bookings</SelectItem>
-            <SelectItem value="completed">Completed</SelectItem>
-            <SelectItem value="absent">Absent</SelectItem>
-            <SelectItem value="cancelled">Cancelled</SelectItem>
+            <SelectItem value="all">{t("booking.filter.all")}</SelectItem>
+            <SelectItem value="completed">
+              {t("booking.filter.completed")}
+            </SelectItem>
+            <SelectItem value="absent">{t("booking.filter.absent")}</SelectItem>
+            <SelectItem value="cancelled">
+              {t("booking.filter.cancelled")}
+            </SelectItem>
           </SelectContent>
         </Select>
       </div>
@@ -111,7 +117,8 @@ export function BookingHistory({
                     "Lounge"}
                 </div>
                 <div className="text-muted-foreground text-xs">
-                  {booking.lounge?.location?.address || "Address not available"}
+                  {booking.lounge?.location?.address ||
+                    t("booking.history.addressNA")}
                 </div>
               </div>
               <BookingStatusBadge
@@ -131,7 +138,9 @@ export function BookingHistory({
             {booking.notes && (
               <div className="mb-2">
                 <div className="flex items-center gap-2">
-                  <span className="text-sm font-medium">Client Notes:</span>
+                  <span className="text-sm font-medium">
+                    {t("booking.history.clientNotes")}
+                  </span>
                   <p className="text-muted-foreground text-sm">
                     {booking.notes}
                   </p>
@@ -144,7 +153,7 @@ export function BookingHistory({
               <div className="mb-2">
                 <div className="flex items-center gap-2">
                   <span className="text-sm font-medium">
-                    Cancellation Reason:
+                    {t("booking.history.cancelReason")}
                   </span>
                   <p className="text-muted-foreground text-sm">
                     &ldquo;{booking.cancelledBy.note}&rdquo;
@@ -171,11 +180,11 @@ export function BookingHistory({
                   </AlertDialogTrigger>
                   <AlertDialogContent>
                     <AlertDialogHeader>
-                      <AlertDialogTitle>Delete Booking</AlertDialogTitle>
+                      <AlertDialogTitle>
+                        {t("booking.history.deleteTitle")}
+                      </AlertDialogTitle>
                       <AlertDialogDescription>
-                        Are you sure you want to permanently delete this
-                        booking? This action cannot be undone and will remove
-                        all booking data.
+                        {t("booking.history.deleteDesc")}
                       </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
@@ -184,7 +193,7 @@ export function BookingHistory({
                         onClick={() => onDelete(booking._id)}
                         className="border border-red-500 bg-transparent text-red-600 hover:bg-red-500 hover:text-white dark:border-red-400 dark:text-red-400 dark:hover:bg-red-400"
                       >
-                        Delete Booking
+                        {t("booking.history.deleteBooking")}
                       </AlertDialogAction>
                     </AlertDialogFooter>
                   </AlertDialogContent>

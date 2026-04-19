@@ -43,6 +43,7 @@ import {
   getValidTransitions,
 } from "./queue-utils"
 import { format } from "date-fns"
+import { useTranslation } from "@/app/_i18n"
 
 // ── Constants ────────────────────────────────────────────────
 
@@ -64,28 +65,28 @@ const ACTION_CONFIG = [
     key: "inService",
     variant: "info" as const,
     icon: Play,
-    label: "Start",
+    labelKey: "queue.start",
     status: QueuePersonStatus.IN_SERVICE,
   },
   {
     key: "absent",
     variant: "destructive" as const,
     icon: UserX,
-    label: "Mark Absent",
+    labelKey: "queue.markAbsent",
     status: QueuePersonStatus.ABSENT,
   },
   {
     key: "completed",
     variant: "success" as const,
     icon: CheckCircle2,
-    label: "Mark Completed",
+    labelKey: "queue.markCompleted",
     status: QueuePersonStatus.COMPLETED,
   },
   {
     key: "waiting",
     variant: "outline" as const,
     icon: RotateCcw,
-    label: "Back to Waiting",
+    labelKey: "queue.backToWaiting",
     status: QueuePersonStatus.WAITING,
   },
 ]
@@ -115,6 +116,7 @@ export default function QueueItem({
   highlightBookingId,
 }: QueueItemProps) {
   const router = useRouter()
+  const { t } = useTranslation()
   const highlightRef = useRef<HTMLDivElement>(null)
   const isHighlighted =
     !!highlightBookingId && person.bookingId?._id === highlightBookingId
@@ -143,7 +145,7 @@ export default function QueueItem({
   const validTransitions = getValidTransitions(status)
   const clientName = client
     ? getClientFullName(client.firstName, client.lastName)
-    : person.visitorName || "Visitor"
+    : person.visitorName || t("queue.visitor")
   const serviceDuration = person.bookingId?.totalDuration ?? 0
   const joinedTime = person.joinedAt
     ? format(new Date(person.joinedAt), "h:mm a")
@@ -221,20 +223,18 @@ export default function QueueItem({
           </AlertDialogTrigger>
           <AlertDialogContent>
             <AlertDialogHeader>
-              <AlertDialogTitle>Mark Absent</AlertDialogTitle>
+              <AlertDialogTitle>{t("queue.markAbsent")}</AlertDialogTitle>
               <AlertDialogDescription>
-                Are you sure you want to mark{" "}
-                <span className="font-semibold">{clientName}</span> as absent
-                and remove them from the queue?
+                {t("queue.markAbsentConfirm", { name: clientName })}
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter className="flex-col gap-2 sm:flex-row">
-              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogCancel>{t("common.cancel")}</AlertDialogCancel>
               <AlertDialogAction
                 className="bg-red-600 hover:bg-red-700"
                 onClick={() => onRemove?.(bookingId, true)}
               >
-                Mark Absent & Remove
+                {t("queue.markAbsentRemove")}
               </AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>
@@ -289,7 +289,7 @@ export default function QueueItem({
                 variant="outline"
                 className="shrink-0 border-amber-500/40 bg-amber-500/10 px-1.5 py-0 text-[10px] text-amber-600 dark:text-amber-400"
               >
-                Visitor
+                {t("queue.visitor")}
               </Badge>
             )}
           </div>
@@ -305,7 +305,7 @@ export default function QueueItem({
           <div className="mt-1 flex items-end justify-between gap-2">
             <div className="flex flex-col">
               <span className="text-s flex items-center gap-0 font-semibold text-blue-600 dark:text-blue-400">
-                In Progress
+                {t("queue.inProgress")}
                 <span className="-m-8 inline-block h-24 w-24">
                   <DotLottieReact
                     src="https://lottie.host/14342ff1-b9f0-4fb9-bd2c-d5bff0b4f9b9/tCpt5cQuSm.lottie"
@@ -315,10 +315,10 @@ export default function QueueItem({
                 </span>
               </span>
               <span className="text-muted-foreground text-xs">
-                Service duration {serviceDuration} min
+                {t("queue.serviceDuration", { duration: serviceDuration })}
               </span>
               <span className="text-muted-foreground text-xs">
-                Joined {joinedTime}
+                {t("queue.joined", { time: joinedTime })}
               </span>
             </div>
           </div>
@@ -328,17 +328,19 @@ export default function QueueItem({
               <Clock className="h-3.5 w-3.5" />
               <span className="font-medium">
                 {status === "completed"
-                  ? "Done"
+                  ? t("queue.done")
                   : status === "absent"
-                    ? "Absent"
-                    : `~${estimatedWaitTime(person, allPersons)} min average waiting`}
+                    ? t("queue.absent")
+                    : t("queue.avgWaiting", {
+                        time: estimatedWaitTime(person, allPersons),
+                      })}
               </span>
             </div>
             <div className="text-muted-foreground text-[11px]">
-              Service duration {serviceDuration} min
+              {t("queue.serviceDuration", { duration: serviceDuration })}
             </div>
             <div className="text-muted-foreground text-[11px]">
-              Joined {joinedTime}
+              {t("queue.joined", { time: joinedTime })}
             </div>
             {isStaff && person.bookingId?.totalPrice != null && (
               <div className="text-muted-foreground text-[11px] font-medium">
@@ -354,7 +356,13 @@ export default function QueueItem({
             {ACTION_CONFIG.filter(({ key }) =>
               validTransitions.includes(key),
             ).map(
-              ({ key, variant, icon: Icon, label, status: targetStatus }) => (
+              ({
+                key,
+                variant,
+                icon: Icon,
+                labelKey,
+                status: targetStatus,
+              }) => (
                 <Button
                   key={key}
                   size="sm"
@@ -364,7 +372,7 @@ export default function QueueItem({
                   onClick={() => onStatusChange?.(bookingId, targetStatus)}
                 >
                   <Icon className="h-3 w-3" />
-                  {label}
+                  {t(labelKey)}
                 </Button>
               ),
             )}
@@ -375,7 +383,7 @@ export default function QueueItem({
         {status === "completed" && (
           <div className="mt-2 flex items-center gap-1 text-xs font-medium text-green-600">
             <CheckCircle2 className="h-3.5 w-3.5" />
-            Service completed
+            {t("queue.serviceCompleted")}
           </div>
         )}
       </div>

@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { useAuth } from "@/app/_auth"
+import { useTranslation } from "@/app/_i18n"
 import { AgentProvider } from "../../_providers/agent"
 import { AgentList } from "../../_components/agents/list/agent-list"
 import { AgentForm } from "../../_components/agents/form/agent-form"
@@ -20,6 +21,7 @@ import { AgentListSkeleton } from "../../_components/skeletons/agents"
 function AgentManagementContent() {
   const { user, isLoading } = useAuth()
   const router = useRouter()
+  const { t, dir } = useTranslation()
 
   const [formOpen, setFormOpen] = useState(false)
   const [detailsOpen, setDetailsOpen] = useState(false)
@@ -66,11 +68,13 @@ function AgentManagementContent() {
             onClick={() => router.push("/lounge/servicemanagement")}
             className="text-primary mb-4 inline-flex items-center hover:underline"
           >
-            ← Back to Service Management
+            {t("loungeAgents.backToService")}
           </button>
-          <h1 className="text-3xl font-bold lg:text-4xl">Agent Management</h1>
+          <h1 className="text-3xl font-bold lg:text-4xl" dir={dir}>
+            {t("loungeAgents.title")}
+          </h1>
           <p className="text-muted-foreground mt-2">
-            Manage agents for your lounge
+            {t("loungeAgents.subtitle")}
           </p>
         </div>
 

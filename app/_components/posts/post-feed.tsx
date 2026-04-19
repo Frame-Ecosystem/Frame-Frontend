@@ -18,8 +18,10 @@ import {
 import { PostFeedSkeleton } from "../skeletons/posts"
 import { getProfilePath } from "../../_lib/profile"
 import type { FeedItem } from "../../_types/content"
+import { useTranslation } from "@/app/_i18n"
 
 export function PostFeed() {
+  const { t } = useTranslation()
   const { user } = useAuth()
   const [showPostDialog, setShowPostDialog] = useState(false)
   const [showReelDialog, setShowReelDialog] = useState(false)
@@ -88,7 +90,7 @@ export function PostFeed() {
           </p>
           <Button onClick={() => feed.refetch()} variant="outline">
             <RefreshCw className="mr-2 h-4 w-4" />
-            Refresh
+            {t("common.refresh")}
           </Button>
         </div>
       </div>
@@ -115,7 +117,7 @@ export function PostFeed() {
                   onClick={() => setShowPostDialog(true)}
                   className="text-muted-foreground bg-muted/50 hover:bg-muted flex-1 rounded-full px-4 py-2.5 text-left text-sm transition-colors"
                 >
-                  What&apos;s on your mind?
+                  {t("postFeed.whatsOnYourMind")}
                 </button>
               </div>
               <div className="mt-3 flex items-center gap-1 border-t pt-3">
@@ -126,7 +128,7 @@ export function PostFeed() {
                   className="text-muted-foreground hover:text-foreground flex items-center gap-1.5"
                 >
                   <FileText className="h-4 w-4" />
-                  <span className="text-sm">Post</span>
+                  <span className="text-sm">{t("postFeed.post")}</span>
                 </Button>
                 <Button
                   variant="ghost"
@@ -135,7 +137,7 @@ export function PostFeed() {
                   className="text-muted-foreground hover:text-foreground flex items-center gap-1.5"
                 >
                   <Film className="h-4 w-4" />
-                  <span className="text-sm">Reel</span>
+                  <span className="text-sm">{t("postFeed.reel")}</span>
                 </Button>
               </div>
             </CardContent>
@@ -166,7 +168,7 @@ export function PostFeed() {
           }`}
         >
           <Users className="h-4 w-4" />
-          Following
+          {t("postFeed.following")}
         </button>
         <button
           onClick={() => setActiveTab("explore")}
@@ -177,7 +179,7 @@ export function PostFeed() {
           }`}
         >
           <Compass className="h-4 w-4" />
-          Explore
+          {t("postFeed.explore")}
         </button>
       </div>
 

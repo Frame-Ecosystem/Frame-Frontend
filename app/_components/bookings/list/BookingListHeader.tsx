@@ -6,6 +6,7 @@ import {
   SelectValue,
 } from "../../ui/select"
 import type { BookingStatus } from "../../../_types"
+import { useTranslation } from "@/app/_i18n"
 
 interface BookingListHeaderProps {
   statusFilter: BookingStatus | "all"
@@ -19,6 +20,7 @@ export function BookingListHeader({
   setStatusFilter,
   show,
 }: BookingListHeaderProps) {
+  const { t } = useTranslation()
   if (!show) return null
   return (
     <div className="flex items-center justify-between">
@@ -33,10 +35,12 @@ export function BookingListHeader({
           <SelectValue />
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value="all">Upcoming </SelectItem>
-          <SelectItem value="pending">Pending</SelectItem>
-          <SelectItem value="confirmed">Confirmed</SelectItem>
-          <SelectItem value="inQueue">In Queue</SelectItem>
+          <SelectItem value="all">{t("booking.filter.upcoming")}</SelectItem>
+          <SelectItem value="pending">{t("booking.filter.pending")}</SelectItem>
+          <SelectItem value="confirmed">
+            {t("booking.filter.confirmed")}
+          </SelectItem>
+          <SelectItem value="inQueue">{t("booking.filter.inQueue")}</SelectItem>
         </SelectContent>
       </Select>
     </div>

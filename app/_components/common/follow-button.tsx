@@ -6,6 +6,7 @@ import {
   useToggleFollow,
   useFollowCounts,
 } from "@/app/_hooks/queries/useFollows"
+import { useTranslation } from "@/app/_i18n"
 
 interface FollowButtonProps {
   /** The target user id to follow/unfollow. */
@@ -19,6 +20,7 @@ interface FollowButtonProps {
  * Shows UserPlus / UserCheck icon and the follower count from the API.
  */
 export function FollowButton({ targetId, className }: FollowButtonProps) {
+  const { t } = useTranslation()
   const { data: isFollowing = false } = useCheckFollowing(targetId)
   const toggleFollow = useToggleFollow(targetId)
   const { data: counts } = useFollowCounts(targetId)
@@ -34,7 +36,7 @@ export function FollowButton({ targetId, className }: FollowButtonProps) {
           ? "bg-primary/10 text-primary hover:bg-primary/20"
           : "bg-muted/50 text-muted-foreground hover:bg-muted"
       } ${className ?? ""}`}
-      aria-label={isFollowing ? "Unfollow" : "Follow"}
+      aria-label={isFollowing ? t("follow.unfollow") : t("follow.follow")}
     >
       {isFollowing ? (
         <UserCheck size={14} className="text-primary" />
@@ -42,7 +44,7 @@ export function FollowButton({ targetId, className }: FollowButtonProps) {
         <UserPlus size={14} />
       )}
       <span className="text-sm font-medium">
-        {isFollowing ? "Following" : "Follow"}
+        {isFollowing ? t("follow.following") : t("follow.follow")}
       </span>
       {followersCount > 0 && (
         <span className="text-sm font-medium">{followersCount}</span>

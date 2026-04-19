@@ -10,6 +10,7 @@
 import { useState, useEffect, useCallback } from "react"
 import { Bell, X } from "lucide-react"
 import { Button } from "../ui/button"
+import { useTranslation } from "@/app/_i18n"
 
 // ── Constants ────────────────────────────────────────────────
 
@@ -24,6 +25,7 @@ interface Props {
 }
 
 export default function PushNotificationPrompt({ onEnable }: Props) {
+  const { t } = useTranslation()
   const [visible, setVisible] = useState(false)
   const [loading, setLoading] = useState(false)
 
@@ -77,19 +79,20 @@ export default function PushNotificationPrompt({ onEnable }: Props) {
 
         <div className="flex-1 space-y-2">
           <p className="text-sm leading-tight font-medium">
-            Stay updated on your bookings
+            {t("notifications.prompt.title")}
           </p>
           <p className="text-muted-foreground text-xs">
-            Get notified about booking confirmations, queue updates, and
-            reminders — even when you&apos;re not on the app.
+            {t("notifications.prompt.description")}
           </p>
 
           <div className="flex items-center gap-2 pt-1">
             <Button size="sm" onClick={handleEnable} disabled={loading}>
-              {loading ? "Enabling…" : "Enable notifications"}
+              {loading
+                ? t("notifications.prompt.enabling")
+                : t("notifications.prompt.enable")}
             </Button>
             <Button size="sm" variant="ghost" onClick={dismiss}>
-              Not now
+              {t("notifications.prompt.notNow")}
             </Button>
           </div>
         </div>

@@ -6,8 +6,8 @@ import Link from "next/link"
 import { Button } from "../../_components/ui/button"
 import {
   Pencil,
-  User,
-  FileText,
+  Settings,
+  Grid3X3,
   Film,
   Heart,
   StarIcon,
@@ -22,7 +22,6 @@ import { AccountInformation } from "../../_components/profile/account-informatio
 import { UserPostsTab } from "../../_components/profile/user-posts-tab"
 import { UserReelsTab } from "../../_components/profile/user-reels-tab"
 import { SavedContentTab } from "../../_components/content/saved-content-tab"
-import { Card, CardContent } from "../../_components/ui/card"
 import {
   Avatar,
   AvatarImage,
@@ -39,19 +38,22 @@ import {
   CardListSkeleton,
 } from "../../_components/skeletons/profile"
 import { resolveProfileImage } from "../../_lib/image-utils"
+import { useTranslation } from "@/app/_i18n"
 
-// Helper function to format bio text with line breaks
-const formatBioText = (text: string, isMobile: boolean = false) => {
-  const breakInterval = isMobile ? 40 : 100
-  const lines = []
-  for (let i = 0; i < text.length; i += breakInterval) {
-    lines.push(text.substring(i, i + breakInterval))
-  }
-  return lines.join("\n")
-}
+type TabKey = "account" | "posts" | "reels" | "likes" | "ratings" | "saved"
+
+const TABS: { key: TabKey; icon: typeof Grid3X3; labelKey: string }[] = [
+  { key: "account", icon: Settings, labelKey: "profile.tabs.account" },
+  { key: "posts", icon: Grid3X3, labelKey: "profile.tabs.posts" },
+  { key: "reels", icon: Film, labelKey: "profile.tabs.reels" },
+  { key: "likes", icon: Heart, labelKey: "profile.tabs.likes" },
+  { key: "ratings", icon: StarIcon, labelKey: "profile.tabs.ratings" },
+  { key: "saved", icon: Bookmark, labelKey: "profile.tabs.saved" },
+]
 
 export default function ClientProfilePage() {
   const { user, isLoading, setAuth, accessToken } = useAuth()
+  const { t, locale } = useTranslation()
   const searchParams = useSearchParams()
   const [updating, setUpdating] = useState(false)
   const [updatingCover, setUpdatingCover] = useState(false)
@@ -61,10 +63,7 @@ export default function ClientProfilePage() {
   const [openBioSection, setOpenBioSection] = useState(false)
   const [isAccountInfoOpen, setIsAccountInfoOpen] = useState(true)
   const [isBioExpanded, setIsBioExpanded] = useState(false)
-  const [isMobile, setIsMobile] = useState(false)
-  const [activeTab, setActiveTab] = useState<
-    "account" | "posts" | "reels" | "likes" | "ratings" | "saved"
-  >(() => {
+  const [activeTab, setActiveTab] = useState<TabKey>(() => {
     const tab = searchParams.get("tab")
     if (
       tab === "posts" ||
@@ -77,18 +76,16 @@ export default function ClientProfilePage() {
     return "account"
   })
 
-  const handleTabChange = useCallback(
-    (tab: "account" | "posts" | "reels" | "likes" | "ratings" | "saved") => {
-      setActiveTab(tab)
-      const url = new URL(window.location.href)
-      url.searchParams.set("tab", tab)
-      window.history.replaceState({}, "", url.toString())
-    },
-    [],
-  )
+  const handleTabChange = useCallback((tab: TabKey) => {
+    setActiveTab(tab)
+    const url = new URL(window.location.href)
+    url.searchParams.set("tab", tab)
+    window.history.replaceState({}, "", url.toString())
+  }, [])
+
   const [likesPage, setLikesPage] = useState(1)
   const [ratingsPage, setRatingsPage] = useState(1)
-  const tabsScrollRef = useRef<HTMLDivElement>(null)
+  const activeTabRef = useRef<HTMLButtonElement>(null)
 
   const { data: likesData, isLoading: likesLoading } = useClientLikes(
     activeTab === "likes" && user?._id ? user._id : undefined,
@@ -100,82 +97,17 @@ export default function ClientProfilePage() {
     ratingsPage,
   )
 
-  // Auto-scroll effect for tabs
+  // Scroll active tab into view on change
   useEffect(() => {
-    const container = tabsScrollRef.current
-    if (!container) return
-
-    let scrollInterval: NodeJS.Timeout
-    let isPaused = false
-
-    const startAutoScroll = () => {
-      container.scrollLeft = 0
-
-      scrollInterval = setInterval(() => {
-        if (!isPaused && container) {
-          container.scrollLeft += 1
-
-          const maxScroll = container.scrollWidth - container.clientWidth
-          if (container.scrollLeft >= maxScroll) {
-            container.scrollLeft = maxScroll
-            clearInterval(scrollInterval)
-          }
-        }
-      }, 40)
-    }
-
-    startAutoScroll()
-
-    const handleMouseEnter = () => {
-      isPaused = true
-    }
-    const handleMouseLeave = () => {
-      isPaused = false
-    }
-    const handleMouseDown = () => {
-      isPaused = true
-    }
-    const handleMouseUp = () => {
-      isPaused = false
-    }
-    const handleTouchStart = () => {
-      isPaused = true
-    }
-    const handleTouchEnd = () => {
-      isPaused = false
-    }
-
-    container.addEventListener("mouseenter", handleMouseEnter)
-    container.addEventListener("mouseleave", handleMouseLeave)
-    container.addEventListener("mousedown", handleMouseDown)
-    container.addEventListener("mouseup", handleMouseUp)
-    container.addEventListener("touchstart", handleTouchStart)
-    container.addEventListener("touchend", handleTouchEnd)
-
-    return () => {
-      clearInterval(scrollInterval)
-      container.removeEventListener("mouseenter", handleMouseEnter)
-      container.removeEventListener("mouseleave", handleMouseLeave)
-      container.removeEventListener("mousedown", handleMouseDown)
-      container.removeEventListener("mouseup", handleMouseUp)
-      container.removeEventListener("touchstart", handleTouchStart)
-      container.removeEventListener("touchend", handleTouchEnd)
-    }
-  }, [])
-
-  useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth < 768) // md breakpoint
-    }
-
-    checkMobile()
-    window.addEventListener("resize", checkMobile)
-    return () => window.removeEventListener("resize", checkMobile)
-  }, [])
+    activeTabRef.current?.scrollIntoView({
+      behavior: "smooth",
+      block: "nearest",
+      inline: "center",
+    })
+  }, [activeTab])
 
   useEffect(() => {
     if (openNameSection) {
-      // Reset after a short delay to allow the section to open
       const timer = setTimeout(() => setOpenNameSection(false), 100)
       return () => clearTimeout(timer)
     }
@@ -183,7 +115,6 @@ export default function ClientProfilePage() {
 
   useEffect(() => {
     if (openSettings) {
-      // Reset after a short delay to allow the section to open
       const timer = setTimeout(() => setOpenSettings(false), 100)
       return () => clearTimeout(timer)
     }
@@ -191,7 +122,6 @@ export default function ClientProfilePage() {
 
   useEffect(() => {
     if (openPhoneSection) {
-      // Reset after a short delay to allow the section to open
       const timer = setTimeout(() => setOpenPhoneSection(false), 100)
       return () => clearTimeout(timer)
     }
@@ -199,7 +129,6 @@ export default function ClientProfilePage() {
 
   useEffect(() => {
     if (openBioSection) {
-      // Reset after a short delay to allow the section to open
       const timer = setTimeout(() => setOpenBioSection(false), 100)
       return () => clearTimeout(timer)
     }
@@ -207,7 +136,7 @@ export default function ClientProfilePage() {
 
   const handleUpdateProfileImage = async (file: File) => {
     if (file.size > 5 * 1024 * 1024) {
-      alert("File size must be less than 5MB")
+      alert(t("profile.fileSizeLimit"))
       return
     }
     setUpdating(true)
@@ -216,13 +145,13 @@ export default function ClientProfilePage() {
     try {
       const updatedUser = await authService.updateProfileImage(formData)
       if (updatedUser) {
-        setAuth(updatedUser, accessToken) // Update the auth context, preserve token
+        setAuth(updatedUser, accessToken)
       }
     } catch (error) {
       const message =
         error instanceof Error
           ? error.message
-          : "Failed to update profile image"
+          : t("profile.failedUpdateProfileImage")
       alert(message)
     } finally {
       setUpdating(false)
@@ -231,7 +160,7 @@ export default function ClientProfilePage() {
 
   const handleUpdateCoverImage = async (file: File) => {
     if (file.size > 5 * 1024 * 1024) {
-      alert("File size must be less than 5MB")
+      alert(t("profile.fileSizeLimit"))
       return
     }
     setUpdatingCover(true)
@@ -244,7 +173,9 @@ export default function ClientProfilePage() {
       }
     } catch (error) {
       const message =
-        error instanceof Error ? error.message : "Failed to update cover image"
+        error instanceof Error
+          ? error.message
+          : t("profile.failedUpdateCoverImage")
       alert(message)
     } finally {
       setUpdatingCover(false)
@@ -259,12 +190,12 @@ export default function ClientProfilePage() {
     )
   }
 
-  // AuthGuard in layout handles unauthenticated users; render profile when `user` exists
+  const BIO_LIMIT = 120
 
   return (
     <ErrorBoundary>
       <div className="from-background via-background to-muted/20 min-h-screen bg-linear-to-br pb-24 lg:pb-0">
-        {/* Facebook-style Cover + Profile Image */}
+        {/* ── Hero: Cover + Avatar ────────────────────────── */}
         <ProfileCover
           user={user}
           editable
@@ -274,371 +205,332 @@ export default function ClientProfilePage() {
           updatingCover={updatingCover}
         />
 
-        {/* MAIN CONTENT CONTAINER */}
-        <div className="mx-auto max-w-5xl px-4 pt-4 sm:px-6 lg:px-8">
-          {/* Edit Name / Bio */}
-          <div className="space-y-4">
+        {/* ── Identity Zone ───────────────────────────────── */}
+        <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
+          {/* Name + edit prompt */}
+          <div className="mt-3">
             {!(user?.firstName && user?.lastName) && (
               <button
                 onClick={() => {
                   setOpenNameSection(true)
                   setOpenSettings(true)
                 }}
-                className="text-primary hover:text-primary/80 flex items-center gap-2 text-left text-lg font-medium transition-colors"
+                className="text-primary hover:text-primary/80 flex items-center gap-2 text-left text-base font-semibold transition-colors"
               >
-                Update your name
-                <Pencil className="h-4 w-4" />
+                {t("profile.updateName")}
+                <Pencil className="h-3.5 w-3.5" />
               </button>
             )}
+          </div>
 
+          {/* Bio */}
+          <div className="mt-2">
             {user?.bio ? (
-              <div>
-                <p className="text-muted-foreground text-sm leading-relaxed whitespace-pre-line">
-                  {isBioExpanded
-                    ? formatBioText(user.bio, isMobile)
-                    : user.bio.length > (isMobile ? 25 : 55)
-                      ? `${user.bio.substring(0, isMobile ? 25 : 55)}... `
-                      : formatBioText(user.bio, isMobile)}
-                  {user.bio.length > (isMobile ? 25 : 55) && !isBioExpanded && (
-                    <button
-                      onClick={() => setIsBioExpanded(true)}
-                      className="text-primary hover:text-primary/80 ml-1 text-sm transition-colors"
-                    >
-                      read more
-                    </button>
-                  )}
-                  {user.bio.length > (isMobile ? 25 : 55) && isBioExpanded && (
-                    <button
-                      onClick={() => setIsBioExpanded(false)}
-                      className="text-primary hover:text-primary/80 ml-1 text-sm transition-colors"
-                    >
-                      show less
-                    </button>
-                  )}
+              <p className="text-foreground/80 text-sm leading-relaxed">
+                {isBioExpanded || user.bio.length <= BIO_LIMIT
+                  ? user.bio
+                  : `${user.bio.slice(0, BIO_LIMIT).trimEnd()}...`}
+                {user.bio.length > BIO_LIMIT && (
                   <button
-                    onClick={() => {
-                      setOpenBioSection(true)
-                      setOpenSettings(true)
-                    }}
-                    className="text-primary hover:text-primary/80 ml-2 inline transition-colors"
+                    onClick={() => setIsBioExpanded((v) => !v)}
+                    className="text-primary hover:text-primary/80 ml-1 text-sm font-medium transition-colors"
                   >
-                    <Pencil className="h-4 w-4" />
+                    {isBioExpanded ? t("profile.less") : t("profile.more")}
                   </button>
-                </p>
-              </div>
+                )}
+                <button
+                  onClick={() => {
+                    setOpenBioSection(true)
+                    setOpenSettings(true)
+                  }}
+                  className="text-muted-foreground hover:text-primary ml-2 inline-flex translate-y-0.5 transition-colors"
+                >
+                  <Pencil className="h-3.5 w-3.5" />
+                </button>
+              </p>
             ) : (
               <button
                 onClick={() => {
                   setOpenBioSection(true)
                   setOpenSettings(true)
                 }}
-                className="text-primary hover:text-primary/80 flex items-center gap-2 text-sm transition-colors"
+                className="text-muted-foreground hover:text-primary flex items-center gap-1.5 text-sm transition-colors"
               >
-                Add bio
-                <Pencil className="h-4 w-4" />
+                <Pencil className="h-3.5 w-3.5" />
+                {t("profile.addBio")}
               </button>
             )}
-
-            {/* Stats Section */}
-            <div className="flex flex-col items-start justify-between gap-4 text-sm md:flex-row md:items-center md:gap-0">
-              <div className="flex items-center gap-4">
-                {user?._id && <FollowStats userId={user._id} />}
-              </div>
-            </div>
           </div>
-        </div>
 
-        {/* Tabbed Content */}
-        <div className="to-background/95 sticky top-[var(--header-offset)] z-50 mt-4 bg-gradient-to-b from-transparent shadow-sm backdrop-blur-md lg:top-[var(--header-offset-lg)]">
-          <div
-            ref={tabsScrollRef}
-            className="mx-auto flex w-full max-w-5xl gap-2 overflow-x-auto px-4 py-3 sm:px-6 lg:px-8 [&::-webkit-scrollbar]:hidden"
-          >
+          {/* Follow stats */}
+          <div className="mt-3">
+            {user?._id && <FollowStats userId={user._id} />}
+          </div>
+
+          {/* Edit Profile button */}
+          <div className="mt-4">
             <Button
-              variant="ghost"
+              variant="outline"
               size="sm"
-              className={`shrink-0 rounded-lg border px-3 py-2 text-sm font-medium transition-all duration-300 ${activeTab === "account" ? "border-primary bg-primary/10 text-primary" : "border-border text-foreground hover:border-primary/50 hover:text-primary hover:bg-primary/5"}`}
-              onClick={() => handleTabChange("account")}
+              className="w-full sm:w-auto"
+              onClick={() => {
+                setOpenSettings(true)
+              }}
             >
-              <User className="h-4 w-4" />
-              Account
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              className={`shrink-0 rounded-lg border px-3 py-2 text-sm font-medium transition-all duration-300 ${activeTab === "posts" ? "border-primary bg-primary/10 text-primary" : "border-border text-foreground hover:border-primary/50 hover:text-primary hover:bg-primary/5"}`}
-              onClick={() => handleTabChange("posts")}
-            >
-              <FileText className="h-4 w-4" />
-              Posts
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              className={`shrink-0 rounded-lg border px-3 py-2 text-sm font-medium transition-all duration-300 ${activeTab === "reels" ? "border-primary bg-primary/10 text-primary" : "border-border text-foreground hover:border-primary/50 hover:text-primary hover:bg-primary/5"}`}
-              onClick={() => handleTabChange("reels")}
-            >
-              <Film className="h-4 w-4" />
-              Reels
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              className={`shrink-0 rounded-lg border px-3 py-2 text-sm font-medium transition-all duration-300 ${activeTab === "likes" ? "border-primary bg-primary/10 text-primary" : "border-border text-foreground hover:border-primary/50 hover:text-primary hover:bg-primary/5"}`}
-              onClick={() => handleTabChange("likes")}
-            >
-              <Heart className="h-4 w-4" />
-              Likes
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              className={`shrink-0 rounded-lg border px-3 py-2 text-sm font-medium transition-all duration-300 ${activeTab === "ratings" ? "border-primary bg-primary/10 text-primary" : "border-border text-foreground hover:border-primary/50 hover:text-primary hover:bg-primary/5"}`}
-              onClick={() => handleTabChange("ratings")}
-            >
-              <StarIcon className="h-4 w-4" />
-              Ratings
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              className={`shrink-0 rounded-lg border px-3 py-2 text-sm font-medium transition-all duration-300 ${activeTab === "saved" ? "border-primary bg-primary/10 text-primary" : "border-border text-foreground hover:border-primary/50 hover:text-primary hover:bg-primary/5"}`}
-              onClick={() => handleTabChange("saved")}
-            >
-              <Bookmark className="h-4 w-4" />
-              Saved
+              <Settings className="mr-2 h-4 w-4" />
+              {t("profile.editProfile")}
             </Button>
           </div>
         </div>
 
-        {/* Tab Content Area */}
-        <div className="mx-auto max-w-5xl px-4 pb-8 sm:px-6 lg:px-8">
-          <Card className="border-0 bg-transparent backdrop-blur-sm">
-            <CardContent className="mt-4">
-              {activeTab === "account" && (
-                <>
-                  <AccountInformation
-                    user={user}
-                    isAccountInfoOpen={isAccountInfoOpen}
-                    setIsAccountInfoOpen={setIsAccountInfoOpen}
-                    setOpenPhoneSection={setOpenPhoneSection}
-                    setOpenSettings={setOpenSettings}
-                  />
-
-                  <AccountSettings
-                    openNameSection={openNameSection}
-                    openSettings={openSettings}
-                    openPhoneSection={openPhoneSection}
-                    openBioSection={openBioSection}
-                  />
-                </>
-              )}
-              {activeTab === "posts" && user?._id && (
-                <UserPostsTab userId={user._id} />
-              )}
-              {activeTab === "reels" && user?._id && (
-                <UserReelsTab userId={user._id} />
-              )}
-              {activeTab === "likes" && (
-                <div className="space-y-4">
-                  {likesLoading ? (
-                    <LikesGridSkeleton count={4} />
-                  ) : !likesData?.lounges?.length ? (
-                    <Card className="bg-card border shadow-sm">
-                      <CardContent className="py-12 text-center">
-                        <Heart className="text-muted-foreground mx-auto mb-3 h-10 w-10" />
-                        <p className="text-muted-foreground">
-                          No liked lounges
-                        </p>
-                      </CardContent>
-                    </Card>
-                  ) : (
-                    <>
-                      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                        {likesData.lounges.map((lounge) => (
-                          <Link
-                            key={lounge._id}
-                            href={`/lounges/${lounge._id}`}
-                            className="block"
-                          >
-                            <Card className="bg-card hover:border-primary/40 border shadow-sm transition-colors">
-                              <CardContent className="flex items-center gap-4 p-4">
-                                <Avatar className="h-14 w-14">
-                                  {lounge.profileImage && (
-                                    <AvatarImage
-                                      src={resolveProfileImage(
-                                        lounge.profileImage,
-                                      )}
-                                      alt={lounge.loungeTitle}
-                                    />
-                                  )}
-                                  <AvatarFallback className="bg-primary/10 text-primary">
-                                    {lounge.loungeTitle?.[0] || "L"}
-                                  </AvatarFallback>
-                                </Avatar>
-                                <div className="min-w-0 flex-1">
-                                  <p className="truncate font-medium">
-                                    {lounge.loungeTitle}
-                                  </p>
-                                  <div className="text-muted-foreground flex items-center gap-2 text-xs">
-                                    <StarIcon className="h-3 w-3 fill-yellow-500 text-yellow-500" />
-                                    <span>
-                                      {lounge.averageRating.toFixed(1)} (
-                                      {lounge.ratingCount})
-                                    </span>
-                                  </div>
-                                </div>
-                                <Heart className="h-5 w-5 shrink-0 fill-red-500 text-red-500" />
-                              </CardContent>
-                            </Card>
-                          </Link>
-                        ))}
-                      </div>
-
-                      {likesData.total > likesData.limit && (
-                        <div className="flex justify-center gap-2 pt-2">
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            disabled={likesPage <= 1}
-                            onClick={() =>
-                              setLikesPage((p) => Math.max(1, p - 1))
-                            }
-                          >
-                            Previous
-                          </Button>
-                          <span className="text-muted-foreground flex items-center text-sm">
-                            {likesPage}/
-                            {Math.ceil(likesData.total / likesData.limit)}
-                          </span>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            disabled={
-                              likesPage >=
-                              Math.ceil(likesData.total / likesData.limit)
-                            }
-                            onClick={() => setLikesPage((p) => p + 1)}
-                          >
-                            Next
-                          </Button>
-                        </div>
-                      )}
-                    </>
+        {/* ── Tab Navigation ──────────────────────────────── */}
+        <div
+          data-nav-tabs
+          className="border-border/50 bg-background/80 sticky top-[var(--header-offset)] z-50 mt-2 border-b backdrop-blur-md lg:top-[var(--header-offset-lg)]"
+        >
+          <div className="mx-auto flex max-w-5xl overflow-x-auto [&::-webkit-scrollbar]:hidden">
+            {TABS.map(({ key, icon: Icon, labelKey }) => {
+              const isActive = activeTab === key
+              return (
+                <button
+                  key={key}
+                  ref={isActive ? activeTabRef : undefined}
+                  onClick={() => handleTabChange(key)}
+                  className={`relative flex flex-1 shrink-0 flex-col items-center gap-1 px-4 py-3 text-xs font-medium transition-colors sm:flex-row sm:justify-center sm:gap-2 sm:text-sm ${
+                    isActive
+                      ? "text-primary"
+                      : "text-muted-foreground hover:text-foreground"
+                  }`}
+                >
+                  <Icon className="h-5 w-5 sm:h-4 sm:w-4" />
+                  <span className="hidden sm:inline">{t(labelKey)}</span>
+                  {isActive && (
+                    <span className="bg-primary absolute bottom-0 left-0 h-0.5 w-full rounded-t-full" />
                   )}
+                </button>
+              )
+            })}
+          </div>
+        </div>
+
+        {/* ── Tab Content ─────────────────────────────────── */}
+        <div className="mx-auto max-w-5xl px-4 py-6 sm:px-6 lg:px-8">
+          {activeTab === "account" && (
+            <div className="space-y-6">
+              <AccountInformation
+                user={user}
+                isAccountInfoOpen={isAccountInfoOpen}
+                setIsAccountInfoOpen={setIsAccountInfoOpen}
+                setOpenPhoneSection={setOpenPhoneSection}
+                setOpenSettings={setOpenSettings}
+              />
+              <AccountSettings
+                openNameSection={openNameSection}
+                openSettings={openSettings}
+                openPhoneSection={openPhoneSection}
+                openBioSection={openBioSection}
+              />
+            </div>
+          )}
+
+          {activeTab === "posts" && user?._id && (
+            <UserPostsTab userId={user._id} />
+          )}
+
+          {activeTab === "reels" && user?._id && (
+            <UserReelsTab userId={user._id} />
+          )}
+
+          {activeTab === "likes" && (
+            <div className="space-y-4">
+              {likesLoading ? (
+                <LikesGridSkeleton count={4} />
+              ) : !likesData?.lounges?.length ? (
+                <div className="flex flex-col items-center justify-center py-16">
+                  <Heart className="text-muted-foreground/40 mb-3 h-12 w-12" />
+                  <p className="text-muted-foreground text-sm">
+                    {t("profile.noLikes")}
+                  </p>
                 </div>
-              )}
-              {activeTab === "saved" && <SavedContentTab />}
-              {activeTab === "ratings" && (
-                <div className="space-y-4">
-                  {ratingsLoading ? (
-                    <CardListSkeleton count={3} />
-                  ) : !ratingsData?.ratings?.length ? (
-                    <Card className="bg-card border shadow-sm">
-                      <CardContent className="py-12 text-center">
-                        <StarIcon className="text-muted-foreground mx-auto mb-3 h-10 w-10" />
-                        <p className="text-muted-foreground">No ratings yet</p>
-                      </CardContent>
-                    </Card>
-                  ) : (
-                    <>
-                      {ratingsData.ratings.map((r) => (
-                        <Card key={r._id} className="bg-card border shadow-sm">
-                          <CardContent className="p-4">
-                            <div className="flex items-center gap-3">
-                              <Link
-                                href={`/lounges/${r.loungeId._id}`}
-                                className="shrink-0"
-                              >
-                                <Avatar className="h-10 w-10">
-                                  {r.loungeId.profileImage && (
-                                    <AvatarImage
-                                      src={resolveProfileImage(
-                                        r.loungeId.profileImage,
-                                      )}
-                                      alt={r.loungeId.loungeTitle}
-                                    />
-                                  )}
-                                  <AvatarFallback className="bg-primary/10 text-primary text-xs">
-                                    {r.loungeId.loungeTitle?.[0] || "L"}
-                                  </AvatarFallback>
-                                </Avatar>
-                              </Link>
-                              <div className="min-w-0 flex-1">
-                                <Link
-                                  href={`/lounges/${r.loungeId._id}`}
-                                  className="hover:text-primary truncate font-medium transition-colors"
-                                >
-                                  {r.loungeId.loungeTitle}
-                                </Link>
-                                <div className="flex items-center gap-1.5">
-                                  {[...Array(5)].map((_, i) => (
-                                    <StarIcon
-                                      key={i}
-                                      className={`h-3.5 w-3.5 ${
-                                        i < r.rating
-                                          ? "fill-yellow-500 text-yellow-500"
-                                          : "text-muted-foreground/30"
-                                      }`}
-                                    />
-                                  ))}
-                                </div>
-                              </div>
-                              <span className="text-muted-foreground shrink-0 text-xs">
-                                {new Date(r.createdAt).toLocaleDateString(
-                                  "en-US",
-                                  {
-                                    month: "short",
-                                    day: "numeric",
-                                    year: "numeric",
-                                  },
-                                )}
+              ) : (
+                <>
+                  <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                    {likesData.lounges.map((lounge) => (
+                      <Link
+                        key={lounge._id}
+                        href={`/lounges/${lounge._id}`}
+                        className="group block"
+                      >
+                        <div className="border-border/60 group-hover:border-primary/30 flex items-center gap-3.5 rounded-xl border p-3.5 transition-all">
+                          <Avatar className="ring-background/60 h-12 w-12 ring-2">
+                            {lounge.profileImage && (
+                              <AvatarImage
+                                src={resolveProfileImage(lounge.profileImage)}
+                                alt={lounge.loungeTitle}
+                              />
+                            )}
+                            <AvatarFallback className="bg-primary/10 text-primary text-sm">
+                              {lounge.loungeTitle?.[0] || "L"}
+                            </AvatarFallback>
+                          </Avatar>
+                          <div className="min-w-0 flex-1">
+                            <p className="truncate text-sm font-semibold">
+                              {lounge.loungeTitle}
+                            </p>
+                            <div className="text-muted-foreground mt-0.5 flex items-center gap-1.5 text-xs">
+                              <StarIcon className="h-3 w-3 fill-yellow-500 text-yellow-500" />
+                              {lounge.averageRating.toFixed(1)}
+                              <span className="text-muted-foreground/60">
+                                ({lounge.ratingCount})
                               </span>
                             </div>
-                            {r.comment && (
-                              <p className="text-muted-foreground mt-2 text-sm leading-relaxed">
-                                {r.comment}
-                              </p>
-                            )}
-                          </CardContent>
-                        </Card>
-                      ))}
-
-                      {ratingsData.total > ratingsData.limit && (
-                        <div className="flex justify-center gap-2 pt-2">
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            disabled={ratingsPage <= 1}
-                            onClick={() =>
-                              setRatingsPage((p) => Math.max(1, p - 1))
-                            }
-                          >
-                            Previous
-                          </Button>
-                          <span className="text-muted-foreground flex items-center text-sm">
-                            {ratingsPage}/
-                            {Math.ceil(ratingsData.total / ratingsData.limit)}
-                          </span>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            disabled={
-                              ratingsPage >=
-                              Math.ceil(ratingsData.total / ratingsData.limit)
-                            }
-                            onClick={() => setRatingsPage((p) => p + 1)}
-                          >
-                            Next
-                          </Button>
+                          </div>
+                          <Heart className="h-4 w-4 shrink-0 fill-red-500 text-red-500 opacity-60 transition-opacity group-hover:opacity-100" />
                         </div>
-                      )}
-                    </>
+                      </Link>
+                    ))}
+                  </div>
+
+                  {likesData.total > likesData.limit && (
+                    <div className="flex items-center justify-center gap-3 pt-2">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        disabled={likesPage <= 1}
+                        onClick={() => setLikesPage((p) => Math.max(1, p - 1))}
+                      >
+                        {t("common.previous")}
+                      </Button>
+                      <span className="text-muted-foreground text-xs tabular-nums">
+                        {likesPage} /{" "}
+                        {Math.ceil(likesData.total / likesData.limit)}
+                      </span>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        disabled={
+                          likesPage >=
+                          Math.ceil(likesData.total / likesData.limit)
+                        }
+                        onClick={() => setLikesPage((p) => p + 1)}
+                      >
+                        {t("common.next")}
+                      </Button>
+                    </div>
                   )}
-                </div>
+                </>
               )}
-            </CardContent>
-          </Card>
+            </div>
+          )}
+
+          {activeTab === "saved" && <SavedContentTab />}
+
+          {activeTab === "ratings" && (
+            <div className="space-y-3">
+              {ratingsLoading ? (
+                <CardListSkeleton count={3} />
+              ) : !ratingsData?.ratings?.length ? (
+                <div className="flex flex-col items-center justify-center py-16">
+                  <StarIcon className="text-muted-foreground/40 mb-3 h-12 w-12" />
+                  <p className="text-muted-foreground text-sm">
+                    {t("profile.noRatings")}
+                  </p>
+                </div>
+              ) : (
+                <>
+                  {ratingsData.ratings.map((r) => (
+                    <div
+                      key={r._id}
+                      className="border-border/60 rounded-xl border p-4"
+                    >
+                      <div className="flex items-center gap-3">
+                        <Link
+                          href={`/lounges/${r.loungeId._id}`}
+                          className="shrink-0"
+                        >
+                          <Avatar className="h-10 w-10">
+                            {r.loungeId.profileImage && (
+                              <AvatarImage
+                                src={resolveProfileImage(
+                                  r.loungeId.profileImage,
+                                )}
+                                alt={r.loungeId.loungeTitle}
+                              />
+                            )}
+                            <AvatarFallback className="bg-primary/10 text-primary text-xs">
+                              {r.loungeId.loungeTitle?.[0] || "L"}
+                            </AvatarFallback>
+                          </Avatar>
+                        </Link>
+                        <div className="min-w-0 flex-1">
+                          <Link
+                            href={`/lounges/${r.loungeId._id}`}
+                            className="hover:text-primary text-sm font-semibold transition-colors"
+                          >
+                            {r.loungeId.loungeTitle}
+                          </Link>
+                          <div className="mt-0.5 flex items-center gap-1">
+                            {[...Array(5)].map((_, i) => (
+                              <StarIcon
+                                key={i}
+                                className={`h-3 w-3 ${
+                                  i < r.rating
+                                    ? "fill-yellow-500 text-yellow-500"
+                                    : "text-muted-foreground/20"
+                                }`}
+                              />
+                            ))}
+                          </div>
+                        </div>
+                        <span className="text-muted-foreground/70 shrink-0 text-xs">
+                          {new Date(r.createdAt).toLocaleDateString(locale, {
+                            month: "short",
+                            day: "numeric",
+                            year: "numeric",
+                          })}
+                        </span>
+                      </div>
+                      {r.comment && (
+                        <p className="text-muted-foreground mt-2.5 text-sm leading-relaxed">
+                          {r.comment}
+                        </p>
+                      )}
+                    </div>
+                  ))}
+
+                  {ratingsData.total > ratingsData.limit && (
+                    <div className="flex items-center justify-center gap-3 pt-2">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        disabled={ratingsPage <= 1}
+                        onClick={() =>
+                          setRatingsPage((p) => Math.max(1, p - 1))
+                        }
+                      >
+                        {t("common.previous")}
+                      </Button>
+                      <span className="text-muted-foreground text-xs tabular-nums">
+                        {ratingsPage} /{" "}
+                        {Math.ceil(ratingsData.total / ratingsData.limit)}
+                      </span>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        disabled={
+                          ratingsPage >=
+                          Math.ceil(ratingsData.total / ratingsData.limit)
+                        }
+                        onClick={() => setRatingsPage((p) => p + 1)}
+                      >
+                        {t("common.next")}
+                      </Button>
+                    </div>
+                  )}
+                </>
+              )}
+            </div>
+          )}
         </div>
       </div>
     </ErrorBoundary>

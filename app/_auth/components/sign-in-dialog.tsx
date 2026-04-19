@@ -20,6 +20,7 @@ import { useSignIn } from "@/app/_hooks/queries"
 import GoogleButton from "./google-button"
 import { mapAuthError } from "../lib/error-mapper"
 import { useAuthRateLimit } from "../hooks/use-rate-limit"
+import { useTranslation } from "@/app/_i18n"
 
 const MAX_PHONE_DIGITS = 8
 const EMAIL_CHAR_PATTERN = /[a-zA-Z._-]/
@@ -65,6 +66,7 @@ const SignInDialog = ({
   const router = useRouter()
   const { setAuth } = useAuth()
   const signInMutation = useSignIn()
+  const { t } = useTranslation()
 
   const [loading, setLoading] = useState(false)
   const [formError, setFormError] = useState("")
@@ -181,14 +183,14 @@ const SignInDialog = ({
       <div className="hidden w-full items-center justify-center p-5 md:flex">
         <DialogHeader className="flex w-full flex-col items-center">
           <DialogTitle className="w-full text-center text-lg font-bold">
-            Sign In to Frame
+            {t("auth.signin.title")}
           </DialogTitle>
         </DialogHeader>
       </div>
 
       {/* Mobile header */}
       <DialogHeader className="md:hidden">
-        <DialogTitle>Sign In to Frame</DialogTitle>
+        <DialogTitle>{t("auth.signin.title")}</DialogTitle>
       </DialogHeader>
 
       <div className="space-y-4">
@@ -198,7 +200,9 @@ const SignInDialog = ({
         >
           {/* Email / Phone */}
           <div className="space-y-2">
-            <Label htmlFor="emailOrPhone">Email or Phone Number</Label>
+            <Label htmlFor="emailOrPhone">
+              {t("auth.signin.emailOrPhone")}
+            </Label>
             <Controller
               control={control}
               name="emailOrPhone"
@@ -215,7 +219,7 @@ const SignInDialog = ({
                   <Input
                     id="emailOrPhone"
                     type="text"
-                    placeholder="you@example.com or 50123456"
+                    placeholder={t("auth.signin.emailPhonePlaceholder")}
                     value={field.value}
                     onChange={(e) => {
                       const raw = e.target.value
@@ -246,7 +250,7 @@ const SignInDialog = ({
 
           {/* Password */}
           <div className="space-y-2">
-            <Label htmlFor="password">Password</Label>
+            <Label htmlFor="password">{t("auth.signin.password")}</Label>
             <div className="relative">
               <Input
                 id="password"
@@ -288,10 +292,12 @@ const SignInDialog = ({
             onClick={() => setSubmitAttempted(true)}
           >
             {isLocked
-              ? `Too many attempts (${remainingSeconds}s)`
+              ? t("auth.rateLimit", {
+                  remainingSeconds: String(remainingSeconds),
+                })
               : loading
-                ? "Loading..."
-                : "Sign In"}
+                ? t("common.loading")
+                : t("auth.signin.submit")}
           </Button>
 
           <div className="text-center">
@@ -300,7 +306,7 @@ const SignInDialog = ({
               onClick={handleForgotPassword}
               className="text-primary text-sm hover:underline"
             >
-              Forgot your password?
+              {t("auth.signin.forgotPassword")}
             </button>
           </div>
 
@@ -312,7 +318,7 @@ const SignInDialog = ({
               onClick={handleSignUp}
               className="text-primary hover:underline"
             >
-              Don&apos;t have an account? Sign up
+              {t("auth.signin.noAccount")}
             </button>
           </div>
         </form>

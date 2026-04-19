@@ -3,12 +3,12 @@
 import { useState } from "react"
 import Image from "next/image"
 import { Heart, MessageSquare, FileText } from "lucide-react"
-import { Card, CardContent } from "@/app/_components/ui/card"
 import { PaginationControls } from "@/app/_components/common/pagination-controls"
 import { useQuery } from "@tanstack/react-query"
 import { postService } from "@/app/_services"
 import type { Post } from "@/app/_types"
 import { SimpleListSkeleton } from "@/app/_components/skeletons/clients"
+import { useTranslation } from "@/app/_i18n"
 
 interface VisitorPostsTabProps {
   clientId: string
@@ -25,54 +25,52 @@ function PostCard({
   onImageClick: (src: string, alt: string) => void
 }) {
   return (
-    <Card className="bg-card border shadow-sm">
-      <CardContent className="p-4">
-        <p className="text-sm leading-relaxed">{post.text}</p>
+    <div className="border-border/60 rounded-xl border p-4">
+      <p className="text-sm leading-relaxed">{post.text}</p>
 
-        {post.media && post.media.length > 0 && (
-          <div className="mt-3 flex gap-2 overflow-x-auto [&::-webkit-scrollbar]:hidden">
-            {post.media.map((m, i) => (
-              <button
-                key={i}
-                type="button"
-                className="relative h-32 w-32 shrink-0 cursor-pointer overflow-hidden rounded-lg"
-                onClick={() => onImageClick(m.url, `Post image ${i + 1}`)}
-              >
-                <Image
-                  src={m.url}
-                  alt={`Post image ${i + 1}`}
-                  fill
-                  className="object-cover"
-                  sizes="128px"
-                />
-              </button>
-            ))}
-          </div>
-        )}
-
-        <div className="text-muted-foreground mt-3 flex items-center gap-4 text-xs">
-          <span>
-            {new Date(post.createdAt).toLocaleDateString("en-US", {
-              month: "short",
-              day: "numeric",
-              year: "numeric",
-            })}
-          </span>
-          {post.likeCount > 0 && (
-            <span className="flex items-center gap-1">
-              <Heart className="h-3 w-3" />
-              {post.likeCount}
-            </span>
-          )}
-          {post.commentCount > 0 && (
-            <span className="flex items-center gap-1">
-              <MessageSquare className="h-3 w-3" />
-              {post.commentCount}
-            </span>
-          )}
+      {post.media && post.media.length > 0 && (
+        <div className="mt-3 flex gap-2 overflow-x-auto [&::-webkit-scrollbar]:hidden">
+          {post.media.map((m, i) => (
+            <button
+              key={i}
+              type="button"
+              className="relative h-32 w-32 shrink-0 cursor-pointer overflow-hidden rounded-lg"
+              onClick={() => onImageClick(m.url, `Post image ${i + 1}`)}
+            >
+              <Image
+                src={m.url}
+                alt={`Post image ${i + 1}`}
+                fill
+                className="object-cover"
+                sizes="128px"
+              />
+            </button>
+          ))}
         </div>
-      </CardContent>
-    </Card>
+      )}
+
+      <div className="text-muted-foreground mt-3 flex items-center gap-4 text-xs">
+        <span>
+          {new Date(post.createdAt).toLocaleDateString("en-US", {
+            month: "short",
+            day: "numeric",
+            year: "numeric",
+          })}
+        </span>
+        {post.likeCount > 0 && (
+          <span className="flex items-center gap-1">
+            <Heart className="h-3 w-3" />
+            {post.likeCount}
+          </span>
+        )}
+        {post.commentCount > 0 && (
+          <span className="flex items-center gap-1">
+            <MessageSquare className="h-3 w-3" />
+            {post.commentCount}
+          </span>
+        )}
+      </div>
+    </div>
   )
 }
 
@@ -80,6 +78,7 @@ export function VisitorPostsTab({
   clientId,
   onImageClick,
 }: VisitorPostsTabProps) {
+  const { t } = useTranslation()
   const [page, setPage] = useState(1)
 
   const { data, isLoading } = useQuery({
@@ -92,12 +91,10 @@ export function VisitorPostsTab({
 
   if (!data?.data?.length) {
     return (
-      <Card className="bg-card border shadow-sm">
-        <CardContent className="py-12 text-center">
-          <FileText className="text-muted-foreground mx-auto mb-3 h-10 w-10" />
-          <p className="text-muted-foreground">No posts yet</p>
-        </CardContent>
-      </Card>
+      <div className="border-border/60 rounded-xl border py-12 text-center">
+        <FileText className="text-muted-foreground mx-auto mb-3 h-10 w-10" />
+        <p className="text-muted-foreground">{t("clients.noPosts")}</p>
+      </div>
     )
   }
 

@@ -16,6 +16,7 @@ import { toast } from "sonner"
 import { useAuth } from "@/app/_auth"
 import { loungeService } from "../../_services"
 import { isAuthError } from "../../_services/api"
+import { useTranslation } from "@/app/_i18n"
 
 const DAYS = [
   "monday",
@@ -37,6 +38,7 @@ interface OpeningHours {
 }
 
 export function OpeningHoursSelector() {
+  const { t } = useTranslation()
   const { user, refreshUser } = useAuth()
   const [open, setOpen] = useState(false)
   const [openingHours, setOpeningHours] = useState<OpeningHours>({})
@@ -89,7 +91,7 @@ export function OpeningHoursSelector() {
       setLoading(true)
       const loungeId = user?._id
       if (!loungeId) {
-        toast.error("User ID not found")
+        toast.error(t("openingHours.userIdNotFound"))
         return
       }
 
@@ -104,7 +106,7 @@ export function OpeningHoursSelector() {
       // Refresh user data to sync opening hours
       await refreshUser()
 
-      toast.success("Opening hours updated successfully")
+      toast.success(t("openingHours.updated"))
       setOpen(false)
     } catch (error) {
       if (isAuthError(error)) return
@@ -112,7 +114,7 @@ export function OpeningHoursSelector() {
       if (error instanceof Error) {
         toast.error(error.message)
       } else {
-        toast.error("Failed to update opening hours")
+        toast.error(t("openingHours.updateFailed"))
       }
     } finally {
       setLoading(false)
@@ -125,7 +127,7 @@ export function OpeningHoursSelector() {
         <div className="border-border hover:bg-card/50 flex w-full cursor-pointer items-center justify-between rounded-lg border p-4 transition-colors">
           <div className="flex items-center gap-3">
             <Clock className="text-muted-foreground h-5 w-5" />
-            <span className="font-medium">Opening Hours</span>
+            <span className="font-medium">{t("openingHours.title")}</span>
           </div>
           <span className="text-muted-foreground text-sm">
             {(() => {
@@ -143,7 +145,7 @@ export function OpeningHoursSelector() {
       </DialogTrigger>
       <DialogContent className="max-h-[80vh] overflow-y-auto sm:max-w-[500px]">
         <DialogHeader>
-          <DialogTitle>Opening Hours</DialogTitle>
+          <DialogTitle>{t("openingHours.title")}</DialogTitle>
         </DialogHeader>
         <div className="space-y-4 py-4">
           {DAYS.map((day) => (
@@ -163,8 +165,8 @@ export function OpeningHoursSelector() {
                 >
                   {openingHours[day]?.from === "00:00" &&
                   openingHours[day]?.to === "00:00"
-                    ? "Closed"
-                    : "Open"}
+                    ? t("openingHours.closed")
+                    : t("openingHours.open")}
                 </Button>
               </div>
               {openingHours[day] &&
@@ -172,7 +174,9 @@ export function OpeningHoursSelector() {
                 openingHours[day].to !== "00:00" && (
                   <div className="flex gap-2">
                     <div className="flex-1">
-                      <Label className="text-xs">From</Label>
+                      <Label className="text-xs">
+                        {t("openingHours.from")}
+                      </Label>
                       <Input
                         type="time"
                         value={openingHours[day]?.from || "09:00"}
@@ -182,7 +186,7 @@ export function OpeningHoursSelector() {
                       />
                     </div>
                     <div className="flex-1">
-                      <Label className="text-xs">To</Label>
+                      <Label className="text-xs">{t("openingHours.to")}</Label>
                       <Input
                         type="time"
                         value={openingHours[day]?.to || "18:00"}
@@ -204,7 +208,7 @@ export function OpeningHoursSelector() {
               Cancel
             </Button>
             <Button type="button" onClick={handleSave} disabled={loading}>
-              {loading ? "Saving..." : "Save"}
+              {loading ? t("openingHours.saving") : t("openingHours.save")}
             </Button>
           </div>
         </div>

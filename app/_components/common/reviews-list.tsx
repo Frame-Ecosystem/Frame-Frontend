@@ -12,6 +12,7 @@ import { StarRating } from "@/app/_components/common/star-rating"
 import { useLoungeRatings } from "@/app/_hooks/queries"
 import type { Rating, PopulatedClient } from "@/app/_types"
 import { ReviewsListSkeleton } from "@/app/_components/skeletons/reviews"
+import { useTranslation } from "@/app/_i18n"
 
 function isPopulatedClient(c: string | PopulatedClient): c is PopulatedClient {
   return typeof c === "object" && "_id" in c
@@ -20,7 +21,10 @@ function isPopulatedClient(c: string | PopulatedClient): c is PopulatedClient {
 function ReviewCard({ rating }: { rating: Rating }) {
   const router = useRouter()
   const client = isPopulatedClient(rating.clientId) ? rating.clientId : null
-  const name = client ? `${client.firstName} ${client.lastName}` : "Anonymous"
+  const { t } = useTranslation()
+  const name = client
+    ? `${client.firstName} ${client.lastName}`
+    : t("reviews.anonymous")
   const initials = client
     ? `${client.firstName?.[0] ?? ""}${client.lastName?.[0] ?? ""}`.toUpperCase()
     : "?"
@@ -71,6 +75,7 @@ interface ReviewsListProps {
 }
 
 export default function ReviewsList({ loungeId }: ReviewsListProps) {
+  const { t } = useTranslation()
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } =
     useLoungeRatings(loungeId)
 
@@ -84,9 +89,7 @@ export default function ReviewsList({ loungeId }: ReviewsListProps) {
   if (ratings.length === 0) {
     return (
       <div className="py-8 text-center">
-        <p className="text-muted-foreground text-sm">
-          No reviews yet. Be the first to rate!
-        </p>
+        <p className="text-muted-foreground text-sm">{t("reviews.empty")}</p>
       </div>
     )
   }
@@ -94,7 +97,8 @@ export default function ReviewsList({ loungeId }: ReviewsListProps) {
   return (
     <div>
       <p className="text-muted-foreground mb-2 text-sm font-medium">
-        {total} review{total !== 1 ? "s" : ""}
+        {total}{" "}
+        {total !== 1 ? t("reviews.reviewPlural") : t("reviews.reviewSingular")}
       </p>
       <div>
         {ratings.map((r) => (
@@ -109,7 +113,7 @@ export default function ReviewsList({ loungeId }: ReviewsListProps) {
             onClick={() => fetchNextPage()}
             disabled={isFetchingNextPage}
           >
-            {isFetchingNextPage ? "Loading..." : "Load More"}
+            {isFetchingNextPage ? t("reviews.loading") : t("reviews.loadMore")}
           </Button>
         </div>
       )}

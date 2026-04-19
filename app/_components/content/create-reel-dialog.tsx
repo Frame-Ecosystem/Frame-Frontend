@@ -10,6 +10,7 @@ import Link from "next/link"
 import { useAuth } from "@/app/_auth"
 import { useCreateReel } from "../../_hooks/queries/useContent"
 import { getProfilePath } from "../../_lib/profile"
+import { useTranslation } from "@/app/_i18n"
 
 interface CreateReelDialogProps {
   open: boolean
@@ -36,6 +37,7 @@ export function CreateReelDialog({
   const videoInputRef = useRef<HTMLInputElement>(null)
   const thumbInputRef = useRef<HTMLInputElement>(null)
   const createReel = useCreateReel()
+  const { t } = useTranslation()
 
   const profileImage =
     typeof user?.profileImage === "string"
@@ -168,7 +170,7 @@ export function CreateReelDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle>Create Reel</DialogTitle>
+          <DialogTitle>{t("content.reel.create")}</DialogTitle>
         </DialogHeader>
 
         <div className="space-y-4">
@@ -216,8 +218,14 @@ export function CreateReelDialog({
               className="border-muted-foreground/30 text-muted-foreground flex aspect-[9/16] max-h-[200px] w-full flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed transition hover:border-current"
             >
               <Video className="h-10 w-10" />
-              <span className="text-sm font-medium">Select Video</span>
-              <span className="text-xs">Max {MAX_DURATION} seconds</span>
+              <span className="text-sm font-medium">
+                {t("content.reel.selectVideo")}
+              </span>
+              <span className="text-xs">
+                {t("content.reel.maxDuration", {
+                  seconds: String(MAX_DURATION),
+                })}
+              </span>
             </button>
           )}
 
@@ -231,14 +239,16 @@ export function CreateReelDialog({
 
           {durationError && (
             <p className="text-destructive text-sm">
-              Video must be {MAX_DURATION} seconds or less.
+              {t("content.reel.durationError", {
+                seconds: String(MAX_DURATION),
+              })}
             </p>
           )}
 
           {/* Thumbnail picker */}
           <div>
             <p className="text-muted-foreground mb-1.5 text-xs font-medium">
-              Custom Thumbnail (optional)
+              {t("content.reel.thumbnailOptional")}
             </p>
             {thumbnailPreview ? (
               <div className="relative inline-block h-16 w-16 overflow-hidden rounded-lg">
@@ -271,7 +281,7 @@ export function CreateReelDialog({
                   className="gap-1.5"
                 >
                   <ImageIcon className="h-4 w-4" />
-                  Add Thumbnail
+                  {t("content.reel.addThumbnail")}
                 </Button>
               </div>
             )}
@@ -280,7 +290,7 @@ export function CreateReelDialog({
           {/* Caption */}
           <div>
             <Textarea
-              placeholder="Write a caption..."
+              placeholder={t("content.reel.captionPlaceholder")}
               value={caption}
               onChange={(e) => setCaption(e.target.value)}
               maxLength={MAX_CAPTION}
@@ -313,7 +323,7 @@ export function CreateReelDialog({
             <Hash className="text-muted-foreground h-4 w-4 shrink-0" />
             <input
               type="text"
-              placeholder="Add hashtag..."
+              placeholder={t("content.hashtag.placeholder")}
               value={hashtagInput}
               onChange={(e) => setHashtagInput(e.target.value)}
               onKeyDown={(e) => {
@@ -326,7 +336,7 @@ export function CreateReelDialog({
             />
             {hashtagInput && (
               <Button variant="ghost" size="sm" onClick={addHashtag}>
-                Add
+                {t("common.add")}
               </Button>
             )}
           </div>
@@ -337,10 +347,10 @@ export function CreateReelDialog({
               {createReel.isPending ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Uploading...
+                  {t("content.reel.uploading")}
                 </>
               ) : (
-                "Share Reel"
+                t("content.reel.share")
               )}
             </Button>
           </div>

@@ -13,6 +13,7 @@ import ProgressProvider from "./_components/forms/progress-bar"
 import MainContentWrapper from "./_components/layout/mainContentWrapper"
 
 // Context providers
+import { LanguageProvider } from "./_i18n"
 import { ThemeProviderComponent } from "./_providers/theme"
 import { SwipeNavigationProvider } from "./_providers/swipe-navigation"
 import { AuthProvider, AuthGuard } from "./_auth"
@@ -202,40 +203,43 @@ export default function RootLayout({
       <body className={`${inter.className} ${nunito.variable}`}>
         {/* PROVIDER HIERARCHY */}
 
-        {/* Theme provider for dark/light mode support */}
-        <ThemeProviderComponent>
-          {/* Query provider for data fetching and caching */}
-          <QueryProvider>
-            {/* Auth provider for user authentication state */}
-            <AuthProvider>
-              {/* Notification provider for real-time in-app notifications */}
-              <NotificationProvider>
-                {/* Push notification provider for FCM registration & prompts */}
-                <PushNotificationProvider>
-                  {/* Swipe navigation for mobile back/forward gestures */}
-                  <SwipeNavigationProvider>
-                    {/* Progress bar for page transition feedback */}
-                    <ProgressProvider>
-                      <ServiceWorkerRegister />
-                      {/* MAIN LAYOUT STRUCTURE */}
-                      {/* Uses flexbox to keep footer at bottom of viewport */}
-                      <div className="flex min-h-screen flex-col">
-                        {/* Header handles top bars and navigation visibility */}
-                        <ConditionalHeader />
-                        {/* Main content area - flex-1 always reserves space */}
-                        <MainContentWrapper>
-                          <AuthGuard>{children}</AuthGuard>
-                        </MainContentWrapper>
-                        {/* Footer - always at the bottom for desktop */}
-                        <ConditionalFooter />
-                      </div>
-                    </ProgressProvider>
-                  </SwipeNavigationProvider>
-                </PushNotificationProvider>
-              </NotificationProvider>
-            </AuthProvider>
-          </QueryProvider>
-        </ThemeProviderComponent>
+        {/* Language provider — outermost so every component can translate */}
+        <LanguageProvider>
+          {/* Theme provider for dark/light mode support */}
+          <ThemeProviderComponent>
+            {/* Query provider for data fetching and caching */}
+            <QueryProvider>
+              {/* Auth provider for user authentication state */}
+              <AuthProvider>
+                {/* Notification provider for real-time in-app notifications */}
+                <NotificationProvider>
+                  {/* Push notification provider for FCM registration & prompts */}
+                  <PushNotificationProvider>
+                    {/* Swipe navigation for mobile back/forward gestures */}
+                    <SwipeNavigationProvider>
+                      {/* Progress bar for page transition feedback */}
+                      <ProgressProvider>
+                        <ServiceWorkerRegister />
+                        {/* MAIN LAYOUT STRUCTURE */}
+                        {/* Uses flexbox to keep footer at bottom of viewport */}
+                        <div className="flex min-h-screen flex-col">
+                          {/* Header handles top bars and navigation visibility */}
+                          <ConditionalHeader />
+                          {/* Main content area - flex-1 always reserves space */}
+                          <MainContentWrapper>
+                            <AuthGuard>{children}</AuthGuard>
+                          </MainContentWrapper>
+                          {/* Footer - always at the bottom for desktop */}
+                          <ConditionalFooter />
+                        </div>
+                      </ProgressProvider>
+                    </SwipeNavigationProvider>
+                  </PushNotificationProvider>
+                </NotificationProvider>
+              </AuthProvider>
+            </QueryProvider>
+          </ThemeProviderComponent>
+        </LanguageProvider>
 
         {/* GLOBAL UI COMPONENTS */}
 

@@ -5,6 +5,7 @@ import { CalendarIcon, Plus } from "lucide-react"
 import { LoungeService } from "../../_types"
 import { useRouter } from "next/navigation"
 import { useTheme } from "next-themes"
+import { useTranslation } from "@/app/_i18n"
 
 interface BookingCTAProps {
   loungeId?: string
@@ -17,6 +18,7 @@ export default function BookingCTA({
 }: BookingCTAProps) {
   const router = useRouter()
   const { theme } = useTheme()
+  const { t } = useTranslation()
   const hasSelectedServices = selectedServices.length > 0
   const isDark = theme?.includes("dark")
 
@@ -48,7 +50,7 @@ export default function BookingCTA({
           }`}
         >
           <CalendarIcon aria-hidden="true" />
-          Ready to book?
+          {t("booking.cta.readyToBook")}
         </h3>
         <p
           className={`mb-3 text-xs ${
@@ -58,8 +60,10 @@ export default function BookingCTA({
           }`}
         >
           {hasSelectedServices
-            ? `${selectedServices.length} service${selectedServices.length > 1 ? "s" : ""} selected - Choose date and time`
-            : "Select services to continue"}
+            ? t("booking.cta.servicesSelected", {
+                count: selectedServices.length,
+              })
+            : t("booking.cta.selectToContinue")}
         </p>
         <Button
           onClick={handleBookNow}
@@ -67,7 +71,9 @@ export default function BookingCTA({
           variant={hasSelectedServices ? "success" : "outline"}
           size="sm"
         >
-          {hasSelectedServices ? "Book Now" : "Select Services First"}
+          {hasSelectedServices
+            ? t("booking.cta.bookNow")
+            : t("booking.cta.selectFirst")}
           <Plus className="h-4 w-4" />
         </Button>
       </div>

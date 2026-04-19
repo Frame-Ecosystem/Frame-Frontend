@@ -18,6 +18,7 @@ import { PhoneSection } from "./settings/phone-section"
 import { BioSection } from "./settings/bio-section"
 import { PasswordSection } from "./settings/password-section"
 import { LogoutSection } from "./settings/logout-section"
+import { useTranslation } from "@/app/_i18n"
 
 export function AccountSettings({
   openNameSection = false,
@@ -51,6 +52,7 @@ export function AccountSettings({
   })
   const { user, clearAuth } = useAuth()
   const router = useRouter()
+  const { t } = useTranslation()
 
   const firstNameRef = useRef<HTMLInputElement>(null)
   const lastNameRef = useRef<HTMLInputElement>(null)
@@ -140,18 +142,18 @@ export function AccountSettings({
   const handlePasswordChange = async (e: React.FormEvent) => {
     e.preventDefault()
     if (passwordData.newPassword !== passwordData.newPasswordConfirm) {
-      toast.error("New passwords do not match")
+      toast.error(t("accountSettings.passwordsMismatch"))
       return
     }
     if (passwordData.newPassword.length < 6) {
-      toast.error("New password must be at least 6 characters long")
+      toast.error(t("accountSettings.passwordMinLength"))
       return
     }
     setIsChangingPassword(true)
     try {
       const result = await changePasswordMutation.mutateAsync(passwordData)
       if (result) {
-        toast.success("Password changed successfully. Please sign in again.")
+        toast.success(t("accountSettings.passwordChanged"))
         setPasswordData({
           currentPassword: "",
           newPassword: "",
@@ -165,7 +167,7 @@ export function AccountSettings({
       }
     } catch (error: any) {
       if (isAuthError(error)) return
-      toast.error(error.message || "Failed to change password")
+      toast.error(error.message || t("accountSettings.failedChangePassword"))
     } finally {
       setIsChangingPassword(false)
     }
@@ -175,28 +177,28 @@ export function AccountSettings({
     try {
       if (user?.type === "lounge") {
         if (!profileData.loungeTitle.trim()) {
-          toast.error("Please enter a lounge title")
+          toast.error(t("accountSettings.enterLoungeTitle"))
           return
         }
         await updateLoungeTitleMutation.mutateAsync({
           loungeTitle: profileData.loungeTitle,
         })
-        toast.success("Lounge title updated successfully")
+        toast.success(t("accountSettings.loungeTitleUpdated"))
       } else {
         if (!profileData.firstName.trim() || !profileData.lastName.trim()) {
-          toast.error("Please enter both first name and last name")
+          toast.error(t("accountSettings.enterFullName"))
           return
         }
         await updateClientNameMutation.mutateAsync({
           firstName: profileData.firstName,
           lastName: profileData.lastName,
         })
-        toast.success("Name updated successfully")
+        toast.success(t("accountSettings.nameUpdated"))
       }
       setIsNameSectionOpen(false)
     } catch (error: any) {
       if (isAuthError(error)) return
-      toast.error(error.message || "Failed to update profile")
+      toast.error(error.message || t("accountSettings.failedUpdateProfile"))
     }
   }
 
@@ -207,19 +209,17 @@ export function AccountSettings({
           ? profileData.loungePhone
           : profileData.clientPhone
       if (!phoneNumber || phoneNumber.length !== 8) {
-        toast.error("Please enter a valid 8-digit phone number")
+        toast.error(t("accountSettings.invalidPhone"))
         return
       }
       await updatePhoneMutation.mutateAsync(phoneNumber)
-      toast.success("Phone number updated successfully")
+      toast.success(t("accountSettings.phoneUpdated"))
     } catch (error: any) {
       if (isAuthError(error)) return
       if (error.message?.toLowerCase().includes("already registered")) {
-        toast.error(
-          "This phone number is already in use. Please choose a different one.",
-        )
+        toast.error(t("accountSettings.phoneInUse"))
       } else {
-        toast.error(error.message || "Failed to update phone number")
+        toast.error(error.message || t("accountSettings.failedUpdatePhone"))
       }
     }
   }
@@ -227,25 +227,25 @@ export function AccountSettings({
   const handleBioUpdate = async () => {
     try {
       if (!profileData.bio.trim()) {
-        toast.error("Please enter a bio")
+        toast.error(t("accountSettings.enterBio"))
         return
       }
       await updateBioMutation.mutateAsync(profileData.bio)
-      toast.success("Bio updated successfully")
+      toast.success(t("accountSettings.bioUpdated"))
       setIsBioSectionOpen(false)
     } catch (error: any) {
       if (isAuthError(error)) return
-      toast.error(error.message || "Failed to update bio")
+      toast.error(error.message || t("accountSettings.failedUpdateBio"))
     }
   }
 
   const handleLogout = () => {
     try {
       logoutAllMutation.mutate()
-      toast.success("Logged out successfully")
+      toast.success(t("accountSettings.loggedOut"))
       router.push("/")
     } catch {
-      toast.error("Failed to logout")
+      toast.error(t("accountSettings.failedLogout"))
     }
   }
 
@@ -255,29 +255,31 @@ export function AccountSettings({
       router.push("/")
     } catch (error: any) {
       if (isAuthError(error)) return
-      toast.error(error.message || "Failed to logout from all sessions")
+      toast.error(error.message || t("accountSettings.failedLogoutAll"))
     }
   }
 
   return (
-    <div className="mb-6 space-y-2">
+    <div className="space-y-3">
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="border-border hover:bg-card/50 w-full rounded-lg border p-4 text-left transition-colors"
+        className="border-border/60 hover:border-border w-full rounded-xl border p-4 text-left transition-colors"
       >
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <Settings className="text-muted-foreground h-5 w-5" />
-            <span className="font-medium">Account Settings</span>
+            <Settings className="text-muted-foreground h-4 w-4" />
+            <span className="text-sm font-semibold">
+              {t("accountSettings.title")}
+            </span>
           </div>
           <ChevronDown
-            className={`text-muted-foreground h-5 w-5 transition-transform ${isOpen ? "rotate-180" : ""}`}
+            className={`text-muted-foreground h-4 w-4 transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`}
           />
         </div>
       </button>
 
       {isOpen && (
-        <div className="border-border bg-card/50 rounded-lg border p-4 backdrop-blur-sm">
+        <div className="border-border/60 rounded-xl border p-4">
           <div className="space-y-4">
             <NameSection
               isOpen={isNameSectionOpen}

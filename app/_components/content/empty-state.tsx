@@ -1,6 +1,7 @@
 "use client"
 
 import { ImageIcon, Film, MessageCircle, Bookmark } from "lucide-react"
+import { useTranslation } from "@/app/_i18n"
 
 interface EmptyStateProps {
   type:
@@ -14,50 +15,42 @@ interface EmptyStateProps {
   className?: string
 }
 
-const EMPTY_STATES: Record<
+const EMPTY_ICONS: Record<EmptyStateProps["type"], React.ElementType> = {
+  feed: ImageIcon,
+  explore: Film,
+  posts: ImageIcon,
+  reels: Film,
+  saved: Bookmark,
+  comments: MessageCircle,
+  hashtag: ImageIcon,
+}
+
+const EMPTY_KEYS: Record<
   EmptyStateProps["type"],
-  { icon: React.ElementType; title: string; description: string }
+  { title: string; desc: string }
 > = {
-  feed: {
-    icon: ImageIcon,
-    title: "Your feed is empty",
-    description: "Follow people and lounges to see their posts and reels here.",
-  },
+  feed: { title: "content.empty.feedTitle", desc: "content.empty.feedDesc" },
   explore: {
-    icon: Film,
-    title: "Nothing to explore yet",
-    description: "Content will appear here as people start posting.",
+    title: "content.empty.exploreTitle",
+    desc: "content.empty.exploreDesc",
   },
-  posts: {
-    icon: ImageIcon,
-    title: "No posts yet",
-    description: "Share your first post with the community!",
-  },
-  reels: {
-    icon: Film,
-    title: "No reels yet",
-    description: "Create a short video to share with everyone.",
-  },
-  saved: {
-    icon: Bookmark,
-    title: "No saved items",
-    description: "Bookmark posts and reels to see them here.",
-  },
+  posts: { title: "content.empty.postsTitle", desc: "content.empty.postsDesc" },
+  reels: { title: "content.empty.reelsTitle", desc: "content.empty.reelsDesc" },
+  saved: { title: "content.empty.savedTitle", desc: "content.empty.savedDesc" },
   comments: {
-    icon: MessageCircle,
-    title: "No comments yet",
-    description: "Be the first to share your thoughts.",
+    title: "content.empty.commentsTitle",
+    desc: "content.empty.commentsDesc",
   },
   hashtag: {
-    icon: ImageIcon,
-    title: "No posts with this hashtag",
-    description: "Be the first to use this hashtag!",
+    title: "content.empty.hashtagTitle",
+    desc: "content.empty.hashtagDesc",
   },
 }
 
 export function EmptyState({ type, className }: EmptyStateProps) {
-  const state = EMPTY_STATES[type]
-  const Icon = state.icon
+  const { t } = useTranslation()
+  const Icon = EMPTY_ICONS[type]
+  const keys = EMPTY_KEYS[type]
 
   return (
     <div
@@ -66,9 +59,9 @@ export function EmptyState({ type, className }: EmptyStateProps) {
       <div className="bg-muted mb-4 rounded-full p-4">
         <Icon className="text-muted-foreground h-10 w-10" />
       </div>
-      <h3 className="mb-1 text-lg font-semibold">{state.title}</h3>
+      <h3 className="mb-1 text-lg font-semibold">{t(keys.title)}</h3>
       <p className="text-muted-foreground max-w-xs text-center text-sm">
-        {state.description}
+        {t(keys.desc)}
       </p>
     </div>
   )

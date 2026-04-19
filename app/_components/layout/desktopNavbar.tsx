@@ -13,15 +13,18 @@ import { useAuth } from "@/app/_auth"
 import { NAV_LINKS } from "../../_constants/navigation"
 import { getProfilePath, getHomePath } from "../../_lib/profile"
 import { useScrollDirection } from "../../_hooks/useScrollDirection"
+import { useTranslation } from "../../_i18n"
 
 const DesktopNavbar = () => {
   const pathname = usePathname()
   const { user, isLoading } = useAuth()
   const scrollDir = useScrollDirection()
+  const { t } = useTranslation()
   const hidden = scrollDir === "down"
 
   return (
     <Card
+      dir="ltr"
       data-nav-desktop
       className={`bg-card border-b-primary fixed top-0 right-0 left-0 z-[9999] hidden rounded-none border-b shadow-xl transition-transform duration-300 ease-in-out lg:block ${hidden ? "-translate-y-full" : "translate-y-0"}`}
     >
@@ -84,12 +87,14 @@ const DesktopNavbar = () => {
                   {isProfileLink && user?.type === "admin" ? (
                     <>
                       <Shield className="h-4 w-4" />
-                      Admin
+                      {t("nav.admin")}
                     </>
                   ) : (
                     <>
                       <Icon className="h-4 w-4" />
-                      {isProfileLink ? "Profile" : link.label}
+                      {isProfileLink
+                        ? t("nav.profile")
+                        : t(`nav.${link.label.toLowerCase()}`)}
                     </>
                   )}
                 </Link>

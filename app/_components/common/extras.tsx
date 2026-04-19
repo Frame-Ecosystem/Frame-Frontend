@@ -2,23 +2,25 @@
 
 import { useState } from "react"
 import { Sparkles, CheckCircleIcon, ChevronDown } from "lucide-react"
+import { useTranslation } from "@/app/_i18n"
 
 interface ExtrasProps {
   amenities?: string[]
 }
 
 export default function Extras({ amenities = [] }: ExtrasProps) {
+  const { t } = useTranslation()
   const [isExpanded, setIsExpanded] = useState(false)
 
   const defaults = amenities.length
     ? amenities
     : [
-        "Free Wi-Fi",
-        "Parking",
-        "Credit Card",
-        "Premium Products",
-        "Air Conditioned",
-        "Qualified Professionals",
+        t("extras.wifi"),
+        t("extras.parking"),
+        t("extras.creditCard"),
+        t("extras.premium"),
+        t("extras.airCon"),
+        t("extras.qualified"),
       ]
 
   return (
@@ -30,7 +32,7 @@ export default function Extras({ amenities = [] }: ExtrasProps) {
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Sparkles className="text-primary h-4 w-4" />
-            <p className="text-sm font-semibold">Extras</p>
+            <p className="text-sm font-semibold">{t("extras.title")}</p>
           </div>
           <ChevronDown
             className={`text-muted-foreground h-4 w-4 transition-transform ${isExpanded ? "" : "-rotate-90"}`}

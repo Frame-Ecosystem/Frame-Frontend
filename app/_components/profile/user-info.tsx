@@ -6,6 +6,7 @@ import type { User } from "../../_types"
 import { useAuth } from "@/app/_auth"
 import { useRouter } from "next/navigation"
 import { UserPlusIcon, LogOutIcon, Settings } from "lucide-react"
+import { useTranslation } from "@/app/_i18n"
 
 interface UserProps {
   user: User | null
@@ -16,6 +17,7 @@ interface UserProps {
 const UserInfo = ({ user, onAddAccount, onClose }: UserProps) => {
   const { clearAuth } = useAuth()
   const router = useRouter()
+  const { t } = useTranslation()
 
   // === EVENT HANDLERS ===
 
@@ -89,7 +91,7 @@ const UserInfo = ({ user, onAddAccount, onClose }: UserProps) => {
           }}
         >
           <Settings className="h-4 w-4" />
-          Settings
+          {t("userInfo.settings")}
         </Button>
 
         {/* Add Another Account Button */}
@@ -100,7 +102,7 @@ const UserInfo = ({ user, onAddAccount, onClose }: UserProps) => {
           onClick={handleAddAccount}
         >
           <UserPlusIcon className="h-4 w-4" />
-          Add Another Account
+          {t("userInfo.addAccount")}
         </Button>
 
         {/* Sign Out Button - Transparent with red border */}
@@ -111,7 +113,7 @@ const UserInfo = ({ user, onAddAccount, onClose }: UserProps) => {
           onClick={handleSignOut}
         >
           <LogOutIcon className="h-4 w-4" />
-          Logout
+          {t("userInfo.logout")}
         </Button>
       </div>
     </div>

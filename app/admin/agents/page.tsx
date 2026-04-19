@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 import { Users } from "lucide-react"
+import { useTranslation } from "@/app/_i18n"
 import { AgentProvider } from "../../_providers/agent"
 import { AgentList } from "../../_components/agents/list/agent-list"
 import { AgentForm } from "../../_components/agents/form/agent-form"
@@ -10,6 +11,7 @@ import { Agent } from "../../_types"
 import { AdminHeader } from "../_components/admin-header"
 
 function AgentManagementContent() {
+  const { t } = useTranslation()
   const [formOpen, setFormOpen] = useState(false)
   const [detailsOpen, setDetailsOpen] = useState(false)
   const [selectedAgent, setSelectedAgent] = useState<Agent | null>(null)
@@ -40,8 +42,8 @@ function AgentManagementContent() {
   return (
     <>
       <AdminHeader
-        title="Agent Management"
-        description="Manage agents across all lounges on the platform"
+        title={t("admin.agents.title")}
+        description={t("admin.agents.desc")}
         icon={Users}
       />
 

@@ -21,6 +21,7 @@ import {
   useFollowing,
 } from "@/app/_hooks/queries/useFollows"
 import type { FollowUser } from "@/app/_types"
+import { useTranslation } from "@/app/_i18n"
 
 /* ------------------------------------------------------------------ */
 /* Helpers                                                             */
@@ -104,6 +105,7 @@ function FollowListDialog({
   userId: string
   mode: "followers" | "following"
 }) {
+  const { t } = useTranslation()
   const {
     data: followersData,
     fetchNextPage: fetchMoreFollowers,
@@ -145,7 +147,11 @@ function FollowListDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-h-[80vh] overflow-hidden sm:max-w-md">
         <DialogHeader>
-          <DialogTitle className="capitalize">{mode}</DialogTitle>
+          <DialogTitle className="capitalize">
+            {mode === "followers"
+              ? t("followStats.dialogFollowers")
+              : t("followStats.dialogFollowing")}
+          </DialogTitle>
         </DialogHeader>
 
         <div
@@ -155,7 +161,11 @@ function FollowListDialog({
           {rows.length === 0 ? (
             <div className="text-muted-foreground flex flex-col items-center gap-2 py-12 text-sm">
               <Users className="h-8 w-8 opacity-40" />
-              <p>No {mode} yet</p>
+              <p>
+                {mode === "followers"
+                  ? t("followStats.noFollowers")
+                  : t("followStats.noFollowing")}
+              </p>
             </div>
           ) : (
             <>
@@ -172,7 +182,9 @@ function FollowListDialog({
                     onClick={() => fetchMore()}
                     disabled={loadingMore}
                   >
-                    {loadingMore ? "Loading…" : "Load more"}
+                    {loadingMore
+                      ? t("followStats.loading")
+                      : t("followStats.loadMore")}
                   </Button>
                 </div>
               )}
@@ -193,6 +205,7 @@ interface FollowStatsProps {
 }
 
 export function FollowStats({ userId, className }: FollowStatsProps) {
+  const { t } = useTranslation()
   const { data: counts } = useFollowCounts(userId)
   const [dialogMode, setDialogMode] = useState<
     "followers" | "following" | null
@@ -203,29 +216,35 @@ export function FollowStats({ userId, className }: FollowStatsProps) {
 
   return (
     <>
-      <button
-        onClick={() => setDialogMode("followers")}
-        className={`hover:text-primary flex cursor-pointer items-center gap-1 transition-colors ${className ?? ""}`}
-      >
-        <span className="text-foreground text-sm font-semibold">
-          {formatCount(followersCount)}
-        </span>
-        <span className="text-muted-foreground text-sm">
-          follower{followersCount !== 1 ? "s" : ""}
-        </span>
-      </button>
+      <div className={`flex items-center gap-4 ${className ?? ""}`}>
+        <button
+          onClick={() => setDialogMode("followers")}
+          className="hover:text-primary flex cursor-pointer items-center gap-1 transition-colors"
+        >
+          <span className="text-foreground text-sm font-semibold tabular-nums">
+            {formatCount(followersCount)}
+          </span>
+          <span className="text-muted-foreground text-sm">
+            {followersCount !== 1
+              ? t("followStats.followers")
+              : t("followStats.follower")}
+          </span>
+        </button>
 
-      <span className="text-muted-foreground text-sm">·</span>
+        <span className="text-muted-foreground/40 text-sm">·</span>
 
-      <button
-        onClick={() => setDialogMode("following")}
-        className={`hover:text-primary flex cursor-pointer items-center gap-1 transition-colors ${className ?? ""}`}
-      >
-        <span className="text-foreground text-sm font-semibold">
-          {formatCount(followingCount)}
-        </span>
-        <span className="text-muted-foreground text-sm">following</span>
-      </button>
+        <button
+          onClick={() => setDialogMode("following")}
+          className="hover:text-primary flex cursor-pointer items-center gap-1 transition-colors"
+        >
+          <span className="text-foreground text-sm font-semibold tabular-nums">
+            {formatCount(followingCount)}
+          </span>
+          <span className="text-muted-foreground text-sm">
+            {t("followStats.following")}
+          </span>
+        </button>
+      </div>
 
       {dialogMode && (
         <FollowListDialog

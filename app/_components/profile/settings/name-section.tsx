@@ -5,6 +5,7 @@ import { Button } from "../../ui/button"
 import { Input } from "../../ui/input"
 import { Label } from "../../ui/label"
 import type { User as UserType } from "../../../_types"
+import { useTranslation } from "@/app/_i18n"
 
 interface NameSectionProps {
   isOpen: boolean
@@ -34,6 +35,7 @@ export function NameSection({
   firstNameRef,
   lastNameRef,
 }: NameSectionProps) {
+  const { t } = useTranslation()
   return (
     <div>
       <button
@@ -43,7 +45,9 @@ export function NameSection({
         <div className="flex items-center gap-2">
           <User className="h-4 w-4" />
           <span className="font-medium">
-            {user?.type === "lounge" ? "Update Lounge Title" : "Update Name"}
+            {user?.type === "lounge"
+              ? t("settings.updateLoungeTitle")
+              : t("settings.updateName")}
           </span>
         </div>
         <ChevronDown
@@ -56,47 +60,55 @@ export function NameSection({
           <div className="space-y-4">
             {user?.type === "lounge" ? (
               <div>
-                <Label htmlFor="loungeTitle">Lounge Title</Label>
+                <Label htmlFor="loungeTitle">{t("settings.loungeTitle")}</Label>
                 <Input
                   ref={loungeTitleRef}
                   id="loungeTitle"
                   type="text"
                   value={profileData.loungeTitle}
                   onChange={(e) => onChange("loungeTitle", e.target.value)}
-                  placeholder={user?.loungeTitle || "Enter your lounge title"}
+                  placeholder={
+                    user?.loungeTitle || t("settings.loungeTitlePlaceholder")
+                  }
                   className="mt-1"
                 />
               </div>
             ) : (
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="firstName">First Name</Label>
+                  <Label htmlFor="firstName">{t("settings.firstName")}</Label>
                   <Input
                     ref={firstNameRef}
                     id="firstName"
                     type="text"
                     value={profileData.firstName}
                     onChange={(e) => onChange("firstName", e.target.value)}
-                    placeholder={user?.firstName || "Enter your first name"}
+                    placeholder={
+                      user?.firstName || t("settings.firstNamePlaceholder")
+                    }
                     className="mt-1"
                   />
                 </div>
                 <div>
-                  <Label htmlFor="lastName">Last Name</Label>
+                  <Label htmlFor="lastName">{t("settings.lastName")}</Label>
                   <Input
                     ref={lastNameRef}
                     id="lastName"
                     type="text"
                     value={profileData.lastName}
                     onChange={(e) => onChange("lastName", e.target.value)}
-                    placeholder={user?.lastName || "Enter your last name"}
+                    placeholder={
+                      user?.lastName || t("settings.lastNamePlaceholder")
+                    }
                     className="mt-1"
                   />
                 </div>
               </div>
             )}
             <Button onClick={onSave} className="w-full">
-              {user?.type === "lounge" ? "Update Lounge Title" : "Update Name"}
+              {user?.type === "lounge"
+                ? t("settings.updateLoungeTitle")
+                : t("settings.updateName")}
             </Button>
           </div>
         </div>

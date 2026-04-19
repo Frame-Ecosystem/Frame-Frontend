@@ -9,6 +9,7 @@ import { authService } from "@/app/_auth"
 import { isAuthError } from "../../_services/api"
 import { useAuth } from "@/app/_auth"
 import type { LocationData } from "../../_types"
+import { useTranslation } from "@/app/_i18n"
 
 interface LocationSelectorProps {
   onLocationUpdate?: () => void
@@ -25,6 +26,7 @@ export function LocationSelector({
   onLocationUpdate,
   defaultOpen = false,
 }: LocationSelectorProps) {
+  const { t } = useTranslation()
   const { user, setAuth, accessToken } = useAuth()
   const [isUpdating, setIsUpdating] = useState(false)
   const [searchQuery, setSearchQuery] = useState("")
@@ -298,12 +300,12 @@ export function LocationSelector({
             <MapPinIcon className="text-muted-foreground h-5 w-5" />
             <div>
               <p className="text-muted-foreground text-xs tracking-wide uppercase">
-                Location
+                {t("location.label")}
               </p>
               <p className="font-medium">
                 {user?.location?.placeName ||
                   user?.location?.address ||
-                  "No location set"}
+                  t("location.noLocation")}
               </p>
             </div>
           </div>
@@ -317,18 +319,20 @@ export function LocationSelector({
 
       {isOpen && (
         <div className="border-border bg-card/50 rounded-lg border p-4 backdrop-blur-sm">
-          <h3 className="mb-4 font-semibold">Update Location</h3>
+          <h3 className="mb-4 font-semibold">{t("location.updateLocation")}</h3>
 
           <div className="space-y-4">
             <div>
-              <Label htmlFor="location-search">Search for a location</Label>
+              <Label htmlFor="location-search">
+                {t("location.searchLabel")}
+              </Label>
               <div className="relative mt-1">
                 <SearchIcon className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 transform" />
                 <Input
                   ref={searchInputRef}
                   id="location-search"
                   type="text"
-                  placeholder="Search for a place..."
+                  placeholder={t("location.searchPlaceholder")}
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="pl-10"
@@ -342,7 +346,9 @@ export function LocationSelector({
 
             {selectedLocation && (
               <div className="bg-muted/50 rounded-lg p-3">
-                <h4 className="mb-2 font-medium">Selected Location:</h4>
+                <h4 className="mb-2 font-medium">
+                  {t("location.selectedLocation")}
+                </h4>
                 <p className="text-muted-foreground mb-1 text-sm">
                   {selectedLocation.address ||
                     `${selectedLocation.latitude.toFixed(6)}, ${selectedLocation.longitude.toFixed(6)}`}
@@ -353,22 +359,23 @@ export function LocationSelector({
                     disabled={isUpdating}
                     size="sm"
                   >
-                    {isUpdating ? "Updating..." : "Update Location"}
+                    {isUpdating
+                      ? t("location.updating")
+                      : t("location.updateLocation")}
                   </Button>
                   <Button
                     onClick={() => setSelectedLocation(null)}
                     variant="outline"
                     size="sm"
                   >
-                    Cancel
+                    {t("common.cancel")}
                   </Button>
                 </div>
               </div>
             )}
 
             <p className="text-muted-foreground text-xs">
-              Click on the map or search for a location to select it. Drag the
-              marker to adjust the position.
+              {t("location.mapHint")}
             </p>
           </div>
         </div>

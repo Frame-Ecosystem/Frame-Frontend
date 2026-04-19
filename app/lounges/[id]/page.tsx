@@ -11,8 +11,8 @@ import {
   Users,
   CalendarIcon,
   MessageSquare,
+  ArrowLeft,
 } from "lucide-react"
-import { Card, CardContent } from "@/app/_components/ui/card"
 import {
   Avatar,
   AvatarImage,
@@ -24,6 +24,7 @@ import { RatingSummaryBadge } from "@/app/_components/common/star-rating"
 import ReviewsList from "@/app/_components/common/reviews-list"
 import { useMyRating, useCheckLiked, useToggleLike } from "@/app/_hooks/queries"
 import { FollowButton } from "@/app/_components/common/follow-button"
+import { FollowStats } from "@/app/_components/common/follow-stats"
 import InfoDisplay from "@/app/_components/lounges/info-display"
 import OurServices from "@/app/_components/services/our-services"
 import QueueDisplay from "@/app/_components/queue/queue-display"
@@ -39,6 +40,8 @@ import { useParams, useRouter, useSearchParams } from "next/navigation"
 import { isLoungeCurrentlyOpen } from "@/app/_components/bookings/booking-utils"
 import { clientService } from "@/app/_services"
 import { toast } from "sonner"
+
+type Tab = "info" | "posts" | "reels" | "services" | "queue" | "reviews"
 
 export default function LoungePage() {
   const params = useParams()
@@ -67,7 +70,6 @@ export default function LoungePage() {
   >(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  type Tab = "info" | "posts" | "reels" | "services" | "queue" | "reviews"
   const [activeTab, setActiveTab] = useState<Tab>(() => {
     const tab = searchParams.get("tab") as Tab
     if (["posts", "reels", "services", "queue", "reviews"].includes(tab))
@@ -75,7 +77,7 @@ export default function LoungePage() {
     return "info"
   })
 
-  // Sync tab when searchParams change (e.g. navigating to same page via router.push)
+  // Sync tab when searchParams change
   useEffect(() => {
     const tab = searchParams.get("tab") as Tab
     if (["posts", "reels", "services", "queue", "reviews"].includes(tab)) {
@@ -89,7 +91,7 @@ export default function LoungePage() {
     url.searchParams.set("tab", tab)
     window.history.replaceState({}, "", url.toString())
   }, [])
-  const [isMobile, setIsMobile] = useState(false)
+
   const [isBioExpanded, setIsBioExpanded] = useState(false)
   const [showRatingPopup, setShowRatingPopup] = useState(false)
   const { data: liked = false } = useCheckLiked(
@@ -154,15 +156,7 @@ export default function LoungePage() {
     }
   }, [loading])
 
-  // Detect mobile screen
-  useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth < 768)
-    }
-    checkMobile()
-    window.addEventListener("resize", checkMobile)
-    return () => window.removeEventListener("resize", checkMobile)
-  }, [])
+  const BIO_LIMIT = 120
 
   // Helper function to format opening hours
   const formatOpeningHours = (openingHours: any) => {
@@ -200,16 +194,13 @@ export default function LoungePage() {
         setLoading(true)
         setError(null)
 
-        // Fetch lounge details and services in parallel
         const [loungeData, servicesData] = await Promise.all([
           clientService.getLoungeById(id),
           clientService.getLoungeServicesById(id),
         ])
 
-        // Transform services data to match ServiceItem interface
         const transformedServices: LoungeService[] = servicesData.map(
           (service: any) => {
-            // Helper function to get valid image URL
             const getValidImageUrl = (image: any): string => {
               if (!image) return "/images/placeholder.svg"
               if (typeof image === "string" && image.trim()) return image
@@ -232,10 +223,8 @@ export default function LoungePage() {
           },
         )
 
-        // Determine lounge email (no verification gating)
         const displayEmail = loungeData?.email ?? undefined
 
-        // Transform lounge data to match Lounge interface
         const transformedCenter: Lounge & {
           services: LoungeService[]
           openingHours?: any
@@ -263,7 +252,6 @@ export default function LoungePage() {
           openingHours: loungeData.openingHours,
           latitude: loungeData.location?.latitude,
           longitude: loungeData.location?.longitude,
-          // only expose lounge.email when explicitly verified in object shape
           email: displayEmail,
           averageRating: loungeData.averageRating ?? 0,
           ratingCount: loungeData.ratingCount ?? 0,
@@ -272,7 +260,6 @@ export default function LoungePage() {
 
         setCenter(transformedCenter)
       } catch (err: any) {
-        // If auth failure, the API client already triggers redirect to sign-in
         if (err?.message === "AUTH_FAILURE") return
         setError(err?.message || "Failed to load lounge details")
       } finally {
@@ -285,18 +272,15 @@ export default function LoungePage() {
     }
   }, [user, id])
 
-  // Show loading state while checking authentication or fetching data
   if (authLoading || loading) {
     return <LoungeDetailSkeleton />
   }
 
-  // Redirect to sign-in if not authenticated
   if (!isAuthenticated) {
     router.push("/")
     return null
   }
 
-  // Show error state
   if (error || !center) {
     return (
       <div className="from-background via-background to-muted/20 min-h-screen bg-linear-to-br">
@@ -319,16 +303,12 @@ export default function LoungePage() {
     )
   }
 
-  // Check if the lounge is currently open based on opening hours
-  // If openingHours is null/undefined, treat as closed (not open)
   const isOpen = center?.openingHours
     ? isLoungeCurrentlyOpen(center.openingHours)
     : false
 
-  // Format opening hours from the center data
   const openingHours = formatOpeningHours(center.openingHours)
 
-  // Get initials for avatar fallback
   const getInitials = (name: string) => {
     return name
       .split(" ")
@@ -340,7 +320,6 @@ export default function LoungePage() {
 
   return (
     <ErrorBoundary>
-      {/* Fullscreen lightbox */}
       <ImageLightbox
         src={lightboxSrc ?? ""}
         alt={lightboxAlt}
@@ -349,7 +328,7 @@ export default function LoungePage() {
       />
 
       <div className="from-background via-background to-muted/20 min-h-screen bg-linear-to-br pb-24 lg:pb-0">
-        {/* Facebook-style Cover Image */}
+        {/* ── Hero: Cover + Avatar ────────────────────────── */}
         <div className="relative w-full">
           <div className="relative h-[200px] w-full overflow-hidden bg-gradient-to-r from-blue-600/20 via-purple-600/20 to-pink-600/20 md:h-[280px] lg:h-[320px]">
             {center.coverImageUrl ? (
@@ -396,11 +375,20 @@ export default function LoungePage() {
             ) : (
               <div className="from-primary/15 via-primary/5 absolute inset-0 bg-gradient-to-br to-transparent" />
             )}
-            {/* Gradient overlay at bottom */}
             <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
+
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={() => router.back()}
+              className="absolute top-3 left-3 z-10 gap-1.5 rounded-lg bg-black/50 p-2 text-white backdrop-blur-sm hover:bg-black/70 sm:top-4 sm:left-4 sm:p-2.5"
+            >
+              <ArrowLeft className="h-4 w-4" />
+              <span className="hidden sm:inline">Back</span>
+            </Button>
           </div>
 
-          {/* Profile Image — overlapping the cover */}
+          {/* Avatar + Name */}
           <div className="relative mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
             <div className="relative -mt-16 flex items-end gap-4 md:-mt-20">
               <div className="relative shrink-0">
@@ -419,7 +407,7 @@ export default function LoungePage() {
                   }}
                   aria-label="View profile photo"
                 >
-                  <Avatar className="ring-background h-32 w-32 ring-4 md:h-40 md:w-40">
+                  <Avatar className="ring-background h-28 w-28 shadow-xl ring-4 sm:h-36 sm:w-36 md:h-40 md:w-40">
                     {center.imageUrl &&
                       center.imageUrl !== "/images/placeholder.svg" && (
                         <AvatarImage
@@ -435,124 +423,115 @@ export default function LoungePage() {
                 </button>
               </div>
 
-              {/* Name beside avatar */}
               <div className="mb-2 min-w-0 flex-1 pb-1">
-                <h1 className="truncate text-xl font-bold md:text-2xl lg:text-3xl">
+                <h1 className="text-lg font-bold sm:text-xl md:text-2xl lg:text-3xl">
                   {center.name}
                 </h1>
+                {center.address &&
+                  center.address !== "No location available" && (
+                    <p className="text-muted-foreground mt-0.5 truncate text-sm">
+                      {center.address}
+                    </p>
+                  )}
               </div>
             </div>
           </div>
         </div>
 
-        {/* Info Section below cover */}
-        <div className="mx-auto max-w-5xl px-4 pt-4 sm:px-6 lg:px-8">
-          <div className="space-y-4">
-            {/* Bio */}
-            {center.description &&
-              center.description !== "No description available" && (
-                <div>
-                  <p className="text-foreground text-base leading-relaxed font-semibold whitespace-pre-line">
-                    {isBioExpanded
-                      ? center.description
-                      : center.description.length > (isMobile ? 25 : 55)
-                        ? `${center.description.substring(0, isMobile ? 25 : 55)}... `
-                        : center.description}
-                    {center.description.length > (isMobile ? 25 : 55) &&
-                      !isBioExpanded && (
-                        <button
-                          onClick={() => setIsBioExpanded(true)}
-                          className="text-primary hover:text-primary/80 ml-1 text-sm transition-colors"
-                        >
-                          read more
-                        </button>
-                      )}
-                    {center.description.length > (isMobile ? 25 : 55) &&
-                      isBioExpanded && (
-                        <button
-                          onClick={() => setIsBioExpanded(false)}
-                          className="text-primary hover:text-primary/80 ml-1 text-sm transition-colors"
-                        >
-                          show less
-                        </button>
-                      )}
-                  </p>
-                </div>
+        {/* ── Identity Zone ───────────────────────────────── */}
+        <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
+          {/* Bio */}
+          {center.description &&
+            center.description !== "No description available" && (
+              <div className="mt-2">
+                <p className="text-foreground/80 text-sm leading-relaxed whitespace-pre-line">
+                  {isBioExpanded || center.description.length <= BIO_LIMIT
+                    ? center.description
+                    : `${center.description.slice(0, BIO_LIMIT).trimEnd()}...`}
+                  {center.description.length > BIO_LIMIT && (
+                    <button
+                      onClick={() => setIsBioExpanded((v) => !v)}
+                      className="text-primary hover:text-primary/80 ml-1 text-sm font-medium transition-colors"
+                    >
+                      {isBioExpanded ? "less" : "more"}
+                    </button>
+                  )}
+                </p>
+              </div>
+            )}
+
+          {/* Stats row: rating · likes · followers */}
+          <div className="mt-3 flex flex-wrap items-center gap-x-5 gap-y-2 text-sm">
+            <button
+              onClick={() => {
+                if (user?.type === "client") setShowRatingPopup(true)
+                else handleTabChange("reviews")
+              }}
+              className="hover:text-primary flex items-center gap-1.5 transition-colors"
+            >
+              <StarIcon
+                className={`h-3.5 w-3.5 text-yellow-500 ${isRated ? "fill-yellow-500" : ""}`}
+              />
+              <span className="text-foreground/80 font-medium">
+                {(center.ratingCount ?? 0) > 0
+                  ? (center.averageRating ?? 0).toFixed(1)
+                  : "—"}
+              </span>
+              {(center.ratingCount ?? 0) > 0 && (
+                <span className="text-muted-foreground text-xs">
+                  ({center.ratingCount} rating
+                  {center.ratingCount !== 1 ? "s" : ""})
+                </span>
               )}
+            </button>
 
-            {/* Stats Section */}
-            <div className="flex flex-col items-start justify-between gap-4 text-sm md:flex-row md:items-center md:gap-0">
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={() => {
-                    if (user?.type === "client") setShowRatingPopup(true)
-                    else handleTabChange("reviews")
-                  }}
-                  className={`mx-1 mb-0 flex cursor-pointer items-center gap-1.5 rounded-full px-2 py-1 backdrop-blur-sm transition-colors ${
-                    isRated
-                      ? "bg-yellow-500/20 hover:bg-yellow-500/30"
-                      : "bg-yellow-500/10 hover:bg-yellow-500/20"
-                  }`}
-                >
-                  <StarIcon
-                    size={14}
-                    className={`text-yellow-500 transition-colors ${
-                      isRated ? "fill-yellow-500" : ""
-                    }`}
-                  />
-                  <span className="text-sm font-medium text-yellow-500">
-                    {(center.ratingCount ?? 0) > 0
-                      ? (center.averageRating ?? 0).toFixed(1)
-                      : "—"}
-                  </span>
-                </button>
+            <button
+              onClick={() => {
+                if (user?.type === "client") {
+                  toggleLike.mutate({
+                    onSuccess: (result) => {
+                      setCenter((prev) =>
+                        prev
+                          ? {
+                              ...prev,
+                              likeCount: Math.max(
+                                0,
+                                (prev.likeCount ?? 0) + (result.liked ? 1 : -1),
+                              ),
+                            }
+                          : prev,
+                      )
+                    },
+                  })
+                }
+              }}
+              disabled={toggleLike.isRateLimited || toggleLike.isPending}
+              className="hover:text-primary flex items-center gap-1.5 transition-colors disabled:pointer-events-none disabled:opacity-50"
+              aria-label="Like"
+            >
+              <Heart
+                className={`h-3.5 w-3.5 transition-colors ${liked ? "fill-red-500 text-red-500" : "text-muted-foreground"}`}
+              />
+              <span className="text-foreground/80 font-medium">
+                {center.likeCount ?? 0}
+              </span>
+            </button>
 
-                {/* Heart / Likes */}
-                <button
-                  onClick={() => {
-                    if (user?.type === "client") {
-                      toggleLike.mutate({
-                        onSuccess: (result) => {
-                          setCenter((prev) =>
-                            prev
-                              ? {
-                                  ...prev,
-                                  likeCount: Math.max(
-                                    0,
-                                    (prev.likeCount ?? 0) +
-                                      (result.liked ? 1 : -1),
-                                  ),
-                                }
-                              : prev,
-                          )
-                        },
-                      })
-                    }
-                  }}
-                  disabled={toggleLike.isRateLimited || toggleLike.isPending}
-                  className="bg-muted/50 hover:bg-muted flex items-center gap-1.5 rounded-full px-2 py-1 transition-colors disabled:pointer-events-none disabled:opacity-50"
-                  aria-label="Like"
-                >
-                  <Heart
-                    size={14}
-                    className={`transition-colors ${liked ? "fill-red-500 text-red-500" : "text-muted-foreground"}`}
-                  />
-                  <span className="text-muted-foreground text-sm font-medium">
-                    {center.likeCount ?? 0}
-                  </span>
-                </button>
-
-                {/* Follow */}
-                {user?.type === "client" && <FollowButton targetId={id} />}
-              </div>
-            </div>
+            <FollowStats userId={id} />
           </div>
+
+          {/* Follow button */}
+          {user?.type === "client" && (
+            <div className="mt-3">
+              <FollowButton targetId={id} />
+            </div>
+          )}
         </div>
 
-        {/* Sticky Tab Navigation */}
+        {/* ── Tab Navigation ──────────────────────────────── */}
         <div
           data-nav-tabs
-          className="to-background/95 sticky top-[var(--header-offset)] z-50 mt-4 bg-gradient-to-b from-transparent shadow-sm backdrop-blur-md lg:top-[var(--header-offset-lg)]"
+          className="to-background/95 sticky top-[var(--header-offset)] z-50 mt-2 bg-gradient-to-b from-transparent shadow-sm backdrop-blur-md lg:top-[var(--header-offset-lg)]"
         >
           <div
             ref={tabsScrollRef}
@@ -625,61 +604,56 @@ export default function LoungePage() {
           </div>
         </div>
 
-        {/* Tab Content Container */}
-        <div className="mx-auto max-w-5xl px-4 pb-8 sm:px-6 lg:px-8">
-          <Card className="border-0 bg-transparent backdrop-blur-sm">
-            <CardContent className="mt-4">
-              {activeTab === "info" && (
-                <InfoDisplay
-                  phones={center.phones}
-                  email={center.email}
-                  address={center.address}
-                  latitude={center.latitude}
-                  longitude={center.longitude}
-                  openingHours={openingHours}
-                  isMobile={isMobile}
+        {/* ── Tab Content ─────────────────────────────────── */}
+        <div className="mx-auto max-w-5xl px-4 py-6 sm:px-6 lg:px-8">
+          {activeTab === "info" && (
+            <InfoDisplay
+              phones={center.phones}
+              email={center.email}
+              address={center.address}
+              latitude={center.latitude}
+              longitude={center.longitude}
+              openingHours={openingHours}
+            />
+          )}
+          {activeTab === "posts" && id && <UserPostsTab userId={id} />}
+          {activeTab === "reels" && id && <UserReelsTab userId={id} />}
+          {activeTab === "services" && (
+            <OurServices services={center.services} center={center} />
+          )}
+          {activeTab === "queue" && id && (
+            <QueueDisplay
+              centerName={center.name}
+              mode="client"
+              loungeId={id}
+              initialAgentId={searchParams.get("agentId")}
+              highlightBookingId={searchParams.get("bookingId")}
+            />
+          )}
+          {activeTab === "reviews" && id && (
+            <div className="space-y-5">
+              <div className="flex items-center justify-between">
+                <RatingSummaryBadge
+                  averageRating={center.averageRating ?? 0}
+                  ratingCount={center.ratingCount ?? 0}
                 />
-              )}
-              {activeTab === "posts" && id && <UserPostsTab userId={id} />}
-              {activeTab === "reels" && id && <UserReelsTab userId={id} />}
-              {activeTab === "services" && (
-                <OurServices services={center.services} center={center} />
-              )}
-              {activeTab === "queue" && id && (
-                <QueueDisplay
-                  centerName={center.name}
-                  mode="client"
-                  loungeId={id}
-                  initialAgentId={searchParams.get("agentId")}
-                  highlightBookingId={searchParams.get("bookingId")}
-                />
-              )}
-              {activeTab === "reviews" && id && (
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <RatingSummaryBadge
-                      averageRating={center.averageRating ?? 0}
-                      ratingCount={center.ratingCount ?? 0}
-                    />
-                    {user?.type === "client" && (
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => setShowRatingPopup(true)}
-                      >
-                        <StarIcon className="h-4 w-4" />
-                        {isRated ? "Edit Rating" : "Rate"}
-                      </Button>
-                    )}
-                  </div>
-                  <ReviewsList loungeId={id} />
-                </div>
-              )}
-            </CardContent>
-          </Card>
+                {user?.type === "client" && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setShowRatingPopup(true)}
+                  >
+                    <StarIcon className="h-4 w-4" />
+                    {isRated ? "Edit Rating" : "Rate"}
+                  </Button>
+                )}
+              </div>
+              <ReviewsList loungeId={id} />
+            </div>
+          )}
         </div>
       </div>
-      {/* Rating Popup Dialog */}
+
       <RatingDialog
         isOpen={showRatingPopup}
         onOpenChange={setShowRatingPopup}

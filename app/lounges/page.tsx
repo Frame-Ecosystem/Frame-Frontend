@@ -16,6 +16,7 @@ import FavoriteLoungesSection from "../_components/lounges/favorite-lounges-sect
 import { ErrorBoundary } from "../_components/common/errorBoundary"
 import { isCurrentlyOpen } from "./_lib/opening-hours-utils"
 import { LoungesListSkeleton } from "../_components/skeletons/lounges"
+import { useTranslation } from "@/app/_i18n"
 
 interface LoungeUser {
   _id: string
@@ -43,6 +44,7 @@ export default function LoungesPage() {
   const { user, isLoading } = useAuth()
   const router = useRouter()
   const searchParams = useSearchParams()
+  const { t, dir } = useTranslation()
 
   const [lounges, setLounges] = useState<LoungeUser[]>([])
   const [loading, setLoading] = useState(true)
@@ -112,7 +114,7 @@ export default function LoungesPage() {
 
   const fetchLounges = useCallback(async () => {
     if (!user?.type) {
-      setError("Please complete your profile setup to access this page.")
+      setError(t("lounges.profileRequired"))
       setLoading(false)
       return
     }
@@ -156,16 +158,14 @@ export default function LoungesPage() {
         errorMessage.includes("Client access required") ||
         errorMessage.includes("access")
       ) {
-        setError(
-          "You need to be a client to access this page. Please complete your profile.",
-        )
+        setError(t("lounges.clientAccessRequired"))
       } else {
-        setError("Failed to load lounges. Please try again later.")
+        setError(t("lounges.loadError"))
       }
     } finally {
       setLoading(false)
     }
-  }, [user, selectedServiceId, page, searchTerm, userLocation])
+  }, [user, selectedServiceId, page, searchTerm, userLocation, t])
 
   // Debounced search effect
   const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null)
@@ -254,12 +254,14 @@ export default function LoungesPage() {
           <div className="p-5 lg:px-8 lg:py-12">
             {/* HERO SECTION */}
             <div className="mb-2 lg:mb-12">
-              <div className="mt-6 mb-4 flex items-center gap-3">
+              <div dir={dir} className="mt-6 mb-4 flex items-center gap-3">
                 <Globe className="text-primary h-8 w-8 lg:h-10 lg:w-10" />
-                <h1 className="text-3xl font-bold lg:text-4xl">Lounges</h1>
+                <h1 className="text-3xl font-bold lg:text-4xl">
+                  {t("lounges.title")}
+                </h1>
               </div>
               <p className="text-muted-foreground mb-2 lg:text-lg">
-                Browse and discover amazing lounges.
+                {t("lounges.subtitle")}
               </p>
             </div>
 
@@ -289,19 +291,21 @@ export default function LoungesPage() {
                   <div className="flex flex-col">
                     <h2 className="text-muted-foreground lg:text-foreground text-xs font-bold uppercase lg:text-lg lg:font-semibold lg:normal-case">
                       {selectedServiceName
-                        ? `Lounges offering ${selectedServiceName}`
-                        : "All Lounges"}
+                        ? t("lounges.loungesOffering", {
+                            service: selectedServiceName,
+                          })
+                        : t("lounges.allLounges")}
                     </h2>
                     {userLocation ? (
                       <p className="text-muted-foreground -mb-2 text-xs lg:text-sm">
-                        Sorted by distance from your location
+                        {t("lounges.sortedByDistance")}
                       </p>
                     ) : (
                       <Link
                         href="/settings?section=location"
                         className="text-primary text-xs underline-offset-2 hover:underline lg:text-sm"
                       >
-                        Update your location for better results
+                        {t("lounges.updateLocation")}
                       </Link>
                     )}
                   </div>
@@ -314,7 +318,7 @@ export default function LoungesPage() {
                   <SearchIcon className="text-muted-foreground absolute top-1/2 left-3 h-5 w-5 -translate-y-1/2" />
                   <Input
                     type="text"
-                    placeholder="Search lounges..."
+                    placeholder={t("lounges.searchPlaceholder")}
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     className="pr-10 pl-10"
@@ -347,12 +351,14 @@ export default function LoungesPage() {
                     onClick={() => fetchLoungesRef.current()}
                     variant="outline"
                   >
-                    Try Again
+                    {t("common.retry")}
                   </Button>
                 </div>
               ) : transformedLounges.length === 0 ? (
                 <div className="py-12 text-center">
-                  <p className="text-muted-foreground">No lounges found</p>
+                  <p className="text-muted-foreground">
+                    {t("lounges.noLounges")}
+                  </p>
                 </div>
               ) : (
                 <>
@@ -376,7 +382,7 @@ export default function LoungesPage() {
                         disabled={page === 1}
                         onClick={() => setPage(page - 1)}
                       >
-                        Previous
+                        {t("common.previous")}
                       </Button>
                       <div className="flex items-center gap-2">
                         {[...Array(Math.min(totalPages, 5))].map((_, i) => {
@@ -398,7 +404,7 @@ export default function LoungesPage() {
                         disabled={page === totalPages}
                         onClick={() => setPage(page + 1)}
                       >
-                        Next
+                        {t("common.next")}
                       </Button>
                     </div>
                   )}

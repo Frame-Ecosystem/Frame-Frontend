@@ -1,6 +1,7 @@
 "use client"
 
 import { StarIcon } from "lucide-react"
+import { useTranslation } from "@/app/_i18n"
 
 interface StarRatingProps {
   value: number
@@ -16,10 +17,14 @@ export function StarRating({
   size = 16,
   className = "",
 }: StarRatingProps) {
+  const { t } = useTranslation()
   return (
     <div
       className={`flex items-center gap-0.5 ${className}`}
-      aria-label={`${value} out of ${max} stars`}
+      aria-label={t("rating.ariaLabel", {
+        value: String(value),
+        max: String(max),
+      })}
     >
       {Array.from({ length: max }, (_, i) => {
         const filled = value >= i + 1
@@ -65,6 +70,7 @@ export function RatingSummaryBadge({
   size = 14,
   className = "",
 }: RatingSummaryProps) {
+  const { t } = useTranslation()
   return (
     <div className={`flex items-center gap-1.5 ${className}`}>
       <StarRating value={averageRating} size={size} />
@@ -73,8 +79,8 @@ export function RatingSummaryBadge({
       </span>
       <span className="text-muted-foreground text-sm">
         {ratingCount > 0
-          ? `(${ratingCount} rating${ratingCount !== 1 ? "s" : ""})`
-          : "No ratings yet"}
+          ? `(${ratingCount} ${ratingCount !== 1 ? t("rating.ratingPlural") : t("rating.ratingSingular")})`
+          : t("rating.noRatings")}
       </span>
     </div>
   )

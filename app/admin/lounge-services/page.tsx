@@ -29,6 +29,7 @@ import {
   SelectValue,
 } from "../../_components/ui/select"
 import { AdminHeader } from "../_components/admin-header"
+import { useTranslation } from "@/app/_i18n"
 import {
   DataTableToolbar,
   DataTablePagination,
@@ -49,6 +50,7 @@ import type {
 const LIMIT = 20
 
 export default function LoungeServicesPage() {
+  const { t } = useTranslation()
   const [page, setPage] = useState(1)
   const [search, setSearch] = useState("")
   const [debouncedSearch, setDebouncedSearch] = useState("")
@@ -92,12 +94,13 @@ export default function LoungeServicesPage() {
   return (
     <>
       <AdminHeader
-        title="Lounge Services"
-        description="Assign services to specific lounges"
+        title={t("admin.loungeServices.title")}
+        description={t("admin.loungeServices.desc")}
         icon={Store}
         actions={
           <Button onClick={() => setCreateOpen(true)}>
-            <Plus className="mr-2 h-4 w-4" /> Assign Service
+            <Plus className="mr-2 h-4 w-4" />{" "}
+            {t("admin.loungeServices.assignService")}
           </Button>
         }
       />
@@ -109,26 +112,38 @@ export default function LoungeServicesPage() {
           <DataTableToolbar
             search={search}
             onSearchChange={searchTimeout}
-            searchPlaceholder="Search lounge services..."
+            searchPlaceholder={t("admin.loungeServices.searchPlaceholder")}
           />
 
           {items.length === 0 ? (
             <EmptyState
               icon={<Store />}
-              title="No lounge services"
-              description="Assign services to lounges to get started"
+              title={t("admin.loungeServices.noServices")}
+              description={t("admin.loungeServices.noServicesDesc")}
             />
           ) : (
             <div className="rounded-lg border">
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Lounge</TableHead>
-                    <TableHead>Service</TableHead>
-                    <TableHead>Price</TableHead>
-                    <TableHead>Duration</TableHead>
-                    <TableHead>Gender</TableHead>
-                    <TableHead>Status</TableHead>
+                    <TableHead>
+                      {t("admin.loungeServices.tableLounge")}
+                    </TableHead>
+                    <TableHead>
+                      {t("admin.loungeServices.tableService")}
+                    </TableHead>
+                    <TableHead>
+                      {t("admin.loungeServices.tablePrice")}
+                    </TableHead>
+                    <TableHead>
+                      {t("admin.loungeServices.tableDuration")}
+                    </TableHead>
+                    <TableHead>
+                      {t("admin.loungeServices.tableGender")}
+                    </TableHead>
+                    <TableHead>
+                      {t("admin.loungeServices.tableStatus")}
+                    </TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -147,7 +162,9 @@ export default function LoungeServicesPage() {
                       </TableCell>
                       <TableCell>
                         <Badge variant={ls.isActive ? "default" : "secondary"}>
-                          {ls.isActive ? "Active" : "Inactive"}
+                          {ls.isActive
+                            ? t("common.active")
+                            : t("common.inactive")}
                         </Badge>
                       </TableCell>
                     </TableRow>
@@ -209,11 +226,13 @@ function AssignDialog({
   const set = (key: string, val: unknown) =>
     setForm((f) => ({ ...f, [key]: val }))
 
+  const { t } = useTranslation()
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Assign Service to Lounge</DialogTitle>
+          <DialogTitle>{t("admin.loungeServices.assignTitle")}</DialogTitle>
         </DialogHeader>
         <div className="space-y-4 py-4">
           <div className="space-y-2">
@@ -223,7 +242,9 @@ function AssignDialog({
               onValueChange={(v) => set("loungeId", v)}
             >
               <SelectTrigger>
-                <SelectValue placeholder="Select lounge" />
+                <SelectValue
+                  placeholder={t("admin.loungeServices.selectLounge")}
+                />
               </SelectTrigger>
               <SelectContent>
                 {lounges.map((l) => (
@@ -241,7 +262,9 @@ function AssignDialog({
               onValueChange={(v) => set("serviceId", v)}
             >
               <SelectTrigger>
-                <SelectValue placeholder="Select service" />
+                <SelectValue
+                  placeholder={t("admin.loungeServices.selectService")}
+                />
               </SelectTrigger>
               <SelectContent>
                 {services.map((s) => (
@@ -262,7 +285,7 @@ function AssignDialog({
               />
             </div>
             <div className="space-y-2">
-              <Label>Duration (min)</Label>
+              <Label>{t("admin.loungeServices.durationMin")}</Label>
               <Input
                 type="number"
                 value={form.duration}
@@ -277,23 +300,25 @@ function AssignDialog({
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="men">Men</SelectItem>
-                <SelectItem value="women">Women</SelectItem>
-                <SelectItem value="unisex">Unisex</SelectItem>
-                <SelectItem value="kids">Kids</SelectItem>
+                <SelectItem value="men">{t("gender.men")}</SelectItem>
+                <SelectItem value="women">{t("gender.women")}</SelectItem>
+                <SelectItem value="unisex">{t("gender.unisex")}</SelectItem>
+                <SelectItem value="kids">{t("gender.kids")}</SelectItem>
               </SelectContent>
             </Select>
           </div>
         </div>
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>
-            Cancel
+            {t("common.cancel")}
           </Button>
           <Button
             disabled={!form.loungeId || !form.serviceId || loading}
             onClick={() => onSubmit(form)}
           >
-            {loading ? "Assigning..." : "Assign"}
+            {loading
+              ? t("admin.loungeServices.assigning")
+              : t("admin.loungeServices.assign")}
           </Button>
         </DialogFooter>
       </DialogContent>

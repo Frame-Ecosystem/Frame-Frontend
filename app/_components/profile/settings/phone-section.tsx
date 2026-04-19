@@ -5,6 +5,7 @@ import { Button } from "../../ui/button"
 import { Input } from "../../ui/input"
 import { Label } from "../../ui/label"
 import type { User } from "../../../_types"
+import { useTranslation } from "@/app/_i18n"
 
 interface PhoneSectionProps {
   isOpen: boolean
@@ -26,6 +27,7 @@ export function PhoneSection({
   onSave,
   phoneRef,
 }: PhoneSectionProps) {
+  const { t } = useTranslation()
   return (
     <div>
       <button
@@ -34,7 +36,7 @@ export function PhoneSection({
       >
         <div className="flex items-center gap-2">
           <Phone className="h-4 w-4" />
-          <span className="font-medium">Update Phone Number</span>
+          <span className="font-medium">{t("settings.updatePhone")}</span>
         </div>
         <ChevronDown
           className={`text-muted-foreground h-4 w-4 transition-transform ${isOpen ? "rotate-180" : ""}`}
@@ -45,7 +47,7 @@ export function PhoneSection({
         <div className="bg-background/30 border-border/50 mt-4 rounded-lg border p-4">
           <div className="space-y-4">
             <div>
-              <Label htmlFor="phoneNumber">Phone Number</Label>
+              <Label htmlFor="phoneNumber">{t("settings.phoneNumber")}</Label>
               <div className="relative mt-1">
                 <span className="text-muted-foreground absolute top-1/2 left-3 -translate-y-1/2 transform text-sm font-medium">
                   TN 216
@@ -75,11 +77,11 @@ export function PhoneSection({
                 />
               </div>
               <p className="text-muted-foreground mt-1 text-xs">
-                Enter 8 digits (e.g., 12345678)
+                {t("settings.phoneHint")}
               </p>
             </div>
             <Button onClick={onSave} className="w-full">
-              Update Phone Number
+              {t("settings.updatePhone")}
             </Button>
           </div>
         </div>

@@ -5,12 +5,14 @@ import { useRouter } from "next/navigation"
 import { Play, Film } from "lucide-react"
 import type { Reel } from "../../_types/content"
 import { resolveProfileImage } from "../../_lib/image-utils"
+import { useTranslation } from "@/app/_i18n"
 
 interface ReelSwiperProps {
   reels: Reel[]
 }
 
 export function ReelSwiper({ reels }: ReelSwiperProps) {
+  const { t } = useTranslation()
   const router = useRouter()
 
   if (reels.length === 0) return null
@@ -20,7 +22,7 @@ export function ReelSwiper({ reels }: ReelSwiperProps) {
       {/* Header */}
       <div className="flex items-center gap-2 px-1">
         <Film className="text-primary h-4 w-4" />
-        <h3 className="text-sm font-semibold">Reels for you</h3>
+        <h3 className="text-sm font-semibold">{t("content.reelsForYou")}</h3>
       </div>
 
       {/* Horizontal scroll container */}
@@ -35,7 +37,7 @@ export function ReelSwiper({ reels }: ReelSwiperProps) {
           <button
             key={reel._id}
             onClick={() => router.push(`/reels?id=${reel._id}`)}
-            className="group relative aspect-[9/16] w-[130px] min-w-[130px] shrink-0 overflow-hidden rounded-xl bg-black"
+            className="group relative aspect-[9/16] w-[calc(60vw-12px)] min-w-[calc(60vw-12px)] shrink-0 overflow-hidden rounded-xl bg-black"
             style={{ scrollSnapAlign: "start" }}
           >
             {reel.thumbnailUrl ? (
@@ -43,7 +45,7 @@ export function ReelSwiper({ reels }: ReelSwiperProps) {
                 src={reel.thumbnailUrl}
                 alt={reel.caption || "Reel"}
                 fill
-                sizes="130px"
+                sizes="60vw"
                 className="object-cover transition-transform duration-200 group-hover:scale-105"
               />
             ) : (

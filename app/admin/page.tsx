@@ -24,8 +24,10 @@ import { AdminHeader } from "./_components/admin-header"
 import { StatCard, StatCardSkeleton } from "./_components/stat-card"
 import { useDashboardStats, useSystemHealth } from "../_hooks/queries/useAdmin"
 import { cn } from "../_lib/utils"
+import { useTranslation } from "@/app/_i18n"
 
 export default function AdminDashboard() {
+  const { t } = useTranslation()
   const { data: dashboard, isLoading } = useDashboardStats()
   const { data: health } = useSystemHealth()
 
@@ -34,8 +36,8 @@ export default function AdminDashboard() {
   return (
     <>
       <AdminHeader
-        title="Dashboard"
-        description="Platform overview and quick actions"
+        title={t("admin.dashboard")}
+        description={t("admin.dashboard.platformOverview")}
         icon={LayoutDashboard}
       />
 
@@ -46,22 +48,22 @@ export default function AdminDashboard() {
         ) : (
           <>
             <StatCard
-              title="Total Users"
+              title={t("admin.dashboard.totalUsers")}
               value={stats?.totalUsers ?? 0}
               icon={Users}
             />
             <StatCard
-              title="Total Lounges"
+              title={t("admin.dashboard.totalLounges")}
               value={stats?.totalLounges ?? 0}
               icon={Store}
             />
             <StatCard
-              title="Total Bookings"
+              title={t("admin.dashboard.totalBookings")}
               value={stats?.totalBookings ?? 0}
               icon={Package}
             />
             <StatCard
-              title="New This Month"
+              title={t("admin.dashboard.newThisMonth")}
               value={stats?.newUsersThisMonth ?? 0}
               icon={Activity}
               className="border-green-200 dark:border-green-900"
@@ -76,7 +78,7 @@ export default function AdminDashboard() {
           <CardHeader className="pb-3">
             <CardTitle className="flex items-center gap-2 text-base">
               <Heart className="h-4 w-4" />
-              System Health
+              {t("admin.dashboard.systemHealth")}
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -116,11 +118,11 @@ export default function AdminDashboard() {
                 <div className={cn("rounded-lg p-2", link.color)}>
                   <link.icon className="h-4 w-4 text-white" />
                 </div>
-                <CardTitle className="text-base">{link.label}</CardTitle>
+                <CardTitle className="text-base">{t(link.labelKey)}</CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-muted-foreground text-sm">
-                  {link.description}
+                  {t(link.descKey)}
                 </p>
               </CardContent>
             </Card>
@@ -133,45 +135,45 @@ export default function AdminDashboard() {
 
 const QUICK_LINKS = [
   {
-    label: "User Management",
+    labelKey: "admin.nav.userManagement",
     href: "/admin/users",
     icon: Users,
     color: "bg-blue-500",
-    description: "Manage users, block/unblock, reset passwords",
+    descKey: "admin.nav.userManagementDesc",
   },
   {
-    label: "Content Moderation",
+    labelKey: "admin.nav.contentModeration",
     href: "/admin/moderation",
     icon: Flag,
     color: "bg-red-500",
-    description: "Review reports and moderate content",
+    descKey: "admin.nav.contentModerationDesc",
   },
   {
-    label: "Services",
+    labelKey: "admin.nav.services",
     href: "/admin/services",
     icon: Package,
     color: "bg-purple-500",
-    description: "Manage the service catalog",
+    descKey: "admin.nav.servicesDesc",
   },
   {
-    label: "Lounge Services",
+    labelKey: "admin.nav.loungeServices",
     href: "/admin/lounge-services",
     icon: Store,
     color: "bg-orange-500",
-    description: "Assign services to lounges",
+    descKey: "admin.nav.loungeServicesDesc",
   },
   {
-    label: "Queue",
+    labelKey: "admin.nav.queue",
     href: "/admin/queue",
     icon: Clock,
     color: "bg-teal-500",
-    description: "Populate daily queues",
+    descKey: "admin.nav.queueDesc",
   },
   {
-    label: "System",
+    labelKey: "admin.nav.system",
     href: "/admin/system",
     icon: Activity,
     color: "bg-green-500",
-    description: "Health monitoring, logs, and tools",
+    descKey: "admin.nav.systemDesc",
   },
 ]

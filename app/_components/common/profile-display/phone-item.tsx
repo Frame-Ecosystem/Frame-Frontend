@@ -3,18 +3,20 @@
 import { SmartphoneIcon } from "lucide-react"
 import { Button } from "../../ui/button"
 import { toast } from "sonner"
+import { useTranslation } from "@/app/_i18n"
 
 interface PhoneItemProps {
   phone: string
 }
 
 const PhoneItem = ({ phone }: PhoneItemProps) => {
+  const { t } = useTranslation()
   const handleCopyPhoneClick = async (phone: string) => {
     try {
       // Modern Clipboard API (requires HTTPS)
       if (navigator.clipboard && window.isSecureContext) {
         await navigator.clipboard.writeText(phone)
-        toast.success("Phone copied successfully!")
+        toast.success(t("contact.phoneCopied"))
         return
       }
 
@@ -31,7 +33,7 @@ const PhoneItem = ({ phone }: PhoneItemProps) => {
       try {
         const successful = document.execCommand("copy")
         if (successful) {
-          toast.success("Phone copied successfully!")
+          toast.success(t("contact.phoneCopied"))
         } else {
           throw new Error("Copy command failed")
         }
@@ -41,7 +43,7 @@ const PhoneItem = ({ phone }: PhoneItemProps) => {
     } catch (error) {
       console.error("Failed to copy phone number:", error)
       // Fallback: show the number in an alert
-      toast.error("Copy not supported. Phone: " + phone)
+      toast.error(t("contact.copyNotSupported", { phone }))
     }
   }
 
@@ -63,14 +65,14 @@ const PhoneItem = ({ phone }: PhoneItemProps) => {
           size="sm"
           onClick={() => handleCopyPhoneClick(phone)}
         >
-          Copy
+          {t("common.copy")}
         </Button>
         <Button
           size="sm"
           onClick={() => handleCallClick(phone)}
           className="bg-primary hover:bg-primary/90 px-4"
         >
-          Call
+          {t("common.call")}
         </Button>
       </div>
     </div>

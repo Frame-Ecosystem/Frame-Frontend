@@ -11,6 +11,7 @@ import Link from "next/link"
 import { useAuth } from "@/app/_auth"
 import { useCreatePost } from "../../_hooks/queries/useContent"
 import { getProfilePath } from "../../_lib/profile"
+import { useTranslation } from "@/app/_i18n"
 
 interface CreatePostDialogProps {
   open: boolean
@@ -32,6 +33,7 @@ export function CreatePostDialog({
   const [hashtags, setHashtags] = useState<string[]>([])
   const fileInputRef = useRef<HTMLInputElement>(null)
   const createPost = useCreatePost()
+  const { t } = useTranslation()
 
   const profileImage =
     typeof user?.profileImage === "string"
@@ -117,7 +119,7 @@ export function CreatePostDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle>Create Post</DialogTitle>
+          <DialogTitle>{t("content.post.create")}</DialogTitle>
         </DialogHeader>
 
         <div className="space-y-4">
@@ -141,7 +143,7 @@ export function CreatePostDialog({
                 {user.loungeTitle || user.firstName || user.email}
               </Link>
               <Textarea
-                placeholder="What's on your mind?"
+                placeholder={t("content.post.placeholder")}
                 value={text}
                 onChange={(e) => setText(e.target.value)}
                 maxLength={MAX_TEXT}
@@ -200,7 +202,7 @@ export function CreatePostDialog({
             <Hash className="text-muted-foreground h-4 w-4 shrink-0" />
             <input
               type="text"
-              placeholder="Add hashtag..."
+              placeholder={t("content.hashtag.placeholder")}
               value={hashtagInput}
               onChange={(e) => setHashtagInput(e.target.value)}
               onKeyDown={(e) => {
@@ -213,7 +215,7 @@ export function CreatePostDialog({
             />
             {hashtagInput && (
               <Button variant="ghost" size="sm" onClick={addHashtag}>
-                Add
+                {t("common.add")}
               </Button>
             )}
           </div>
@@ -237,7 +239,7 @@ export function CreatePostDialog({
                 className="gap-1.5"
               >
                 <ImageIcon className="h-4 w-4" />
-                Photo
+                {t("content.post.photo")}
               </Button>
               <span className="text-muted-foreground text-xs">
                 {selectedImages.length}/{MAX_IMAGES}
@@ -248,10 +250,10 @@ export function CreatePostDialog({
               {createPost.isPending ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Posting...
+                  {t("content.post.posting")}
                 </>
               ) : (
-                "Share"
+                t("content.post.share")
               )}
             </Button>
           </div>

@@ -1,5 +1,6 @@
 "use client"
 
+import { useTranslation } from "@/app/_i18n"
 import { useRouter } from "next/navigation"
 
 interface BookingQueueBannerProps {
@@ -17,6 +18,7 @@ export function BookingQueueBanner({
   agentId,
   bookingId,
 }: BookingQueueBannerProps) {
+  const { t } = useTranslation()
   const router = useRouter()
   if (bookingStatus !== "inQueue" || !loungeId) return null
 
@@ -42,7 +44,7 @@ export function BookingQueueBanner({
         router.push(url)
       }}
     >
-      <span>Go to Queue</span>
+      <span>{t("booking.goToQueue")}</span>
       <svg
         className="h-4 w-4"
         fill="none"
