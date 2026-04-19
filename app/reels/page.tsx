@@ -7,6 +7,7 @@ import { ErrorBoundary } from "../_components/common/errorBoundary"
 import { ReelPlayer } from "../_components/content/reel-player"
 import { CommentSheet } from "../_components/content/comment-sheet"
 import { EmptyState } from "../_components/content/empty-state"
+import { useReelMutePreference } from "../_components/content/hooks/use-reel-mute-preference"
 import { useExploreFeed } from "../_hooks/queries/useContent"
 import type { Reel, FeedItem } from "../_types/content"
 import { useScrollToTarget } from "../_hooks/useScrollToTarget"
@@ -23,7 +24,9 @@ export default function ReelsPage() {
   const touchStartY = useRef<number | null>(null)
   const touchStartX = useRef<number | null>(null)
   const swiped = useRef(false)
-  const [globalMuted, setGlobalMuted] = useState(true)
+  // Persisted, gesture-aware mute preference. First user interaction
+  // (tap/scroll/key) auto-unmutes; the choice is remembered for future reels.
+  const [globalMuted, setGlobalMuted] = useReelMutePreference()
   const [commentsOpen, setCommentsOpen] = useState(false)
 
   // Wrap setActiveIndex to also close comments on reel change
@@ -145,7 +148,7 @@ export default function ReelsPage() {
 
   if (exploreQuery.isLoading) {
     return (
-      <div className="fixed inset-x-0 top-[73px] bottom-[85px] z-10 flex items-center justify-center lg:top-[96px] lg:bottom-0">
+      <div className="fixed inset-x-0 top-[73px] bottom-0 z-10 flex items-center justify-center lg:top-[96px]">
         <Loader2 className="text-muted-foreground h-8 w-8 animate-spin" />
       </div>
     )
@@ -153,7 +156,7 @@ export default function ReelsPage() {
 
   if (reels.length === 0) {
     return (
-      <div className="fixed inset-x-0 top-[73px] bottom-[85px] z-10 flex items-center justify-center lg:top-[96px] lg:bottom-0">
+      <div className="fixed inset-x-0 top-[73px] bottom-0 z-10 flex items-center justify-center lg:top-[96px]">
         <EmptyState type="reels" />
       </div>
     )
@@ -161,8 +164,8 @@ export default function ReelsPage() {
 
   return (
     <ErrorBoundary>
-      {/* Fixed layer that fills exactly between top bar & mobile nav */}
-      <div className="bg-background fixed inset-x-0 top-[73px] bottom-[85px] z-10 flex justify-center lg:top-[96px] lg:bottom-0">
+      {/* Fixed layer that fills exactly between top bar & bottom of viewport */}
+      <div className="bg-background fixed inset-x-0 top-[73px] bottom-0 z-10 flex justify-center lg:top-[96px]">
         <div
           ref={containerRef}
           className="relative h-full w-full overflow-hidden lg:max-w-[420px]"

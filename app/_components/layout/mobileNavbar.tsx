@@ -13,9 +13,11 @@ const MobileNavbar = () => {
   const scrollDir = useScrollDirection(50)
   const { t } = useTranslation()
   const isHomePage = pathname === "/home"
+  const isReelsPage = pathname.startsWith("/reels")
   const hidden = isHomePage && scrollDir === "down"
 
   if (isLoading || !user) return null
+  if (isReelsPage) return null
 
   const filteredNavLinks = NAV_LINKS.filter((link: any) => {
     if (link.href === "/lounges" && user.type === "lounge") {

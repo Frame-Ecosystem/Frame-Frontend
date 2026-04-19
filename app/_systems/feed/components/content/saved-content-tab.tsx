@@ -1,10 +1,10 @@
 ﻿"use client"
 
-import { useMemo, useState, useCallback } from "react"
-import { useRouter } from "next/navigation"
+import { useMemo, useState } from "react"
 import { useSavedFeed } from "@/app/_hooks/queries/useContent"
 import { FeedList } from "./feed-list"
 import { ContentGrid } from "./content-grid"
+import { useOpenReel } from "@/app/_components/content/hooks/use-open-reel"
 import { cn } from "@/app/_lib/utils"
 import type { FeedItem, Post, Reel } from "@/app/_types/content"
 import { useTranslation } from "@/app/_i18n"
@@ -16,7 +16,7 @@ import { useTranslation } from "@/app/_i18n"
  */
 export function SavedContentTab() {
   const { t } = useTranslation()
-  const router = useRouter()
+  const { openReel } = useOpenReel()
   const savedQuery = useSavedFeed()
   const [subTab, setSubTab] = useState<"posts" | "reels">("posts")
 
@@ -40,11 +40,6 @@ export function SavedContentTab() {
         (i): i is Reel & { contentType: "reel" } => i.contentType === "reel",
       ),
     [feedItems],
-  )
-
-  const handleReelClick = useCallback(
-    (reel: Reel) => router.push(`/reels?id=${reel._id}`),
-    [router],
   )
 
   return (
@@ -93,7 +88,7 @@ export function SavedContentTab() {
           fetchNextPage={savedQuery.fetchNextPage}
           isLoading={savedQuery.isLoading}
           emptyType="saved"
-          onReelClick={handleReelClick}
+          onReelClick={openReel}
         />
       )}
     </div>

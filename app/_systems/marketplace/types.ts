@@ -446,10 +446,8 @@ export interface CreateStoreDto {
   name: string
   description?: string
   category: StoreCategory
-  tags?: string[]
   contactEmail?: string
   contactPhone?: string
-  contactWhatsapp?: string
   socialLinks?: StoreSocialLinks
   address?: StoreAddress
   returnPolicy?: string

@@ -9,7 +9,7 @@ import { Button } from "../ui/button"
 import { Search, MessageCircle, ChevronLeft } from "lucide-react"
 import { Badge } from "../ui/badge"
 import { NavBrandLogo } from "../common/brand-logo"
-import { useRouter } from "next/navigation"
+import { useRouter, usePathname } from "next/navigation"
 import { useAuth } from "@/app/_auth"
 import { useNotificationContext } from "../../_providers/notification"
 import { useScrollDirection } from "../../_hooks/useScrollDirection"
@@ -36,6 +36,8 @@ const TopBar: React.FC<TopBarProps> = ({
 }) => {
   const { user } = useAuth()
   const router = useRouter()
+  const pathname = usePathname()
+  const isReelsPage = pathname?.startsWith("/reels") ?? false
   const { t } = useTranslation()
   const [trayOpen, setTrayOpen] = useState(true)
   const autoMode = useRef(true)
@@ -43,13 +45,19 @@ const TopBar: React.FC<TopBarProps> = ({
   const trayRef = useRef<HTMLDivElement>(null)
   const scrollDir = useScrollDirection()
 
-  // Auto-close tray once on first scroll, then leave it alone
+  // Auto-close tray once on first scroll, then leave it alone.
+  // On the reels page, keep the tray open and disable auto-close.
   useEffect(() => {
+    if (isReelsPage) {
+      setTrayOpen(true) // eslint-disable-line react-hooks/set-state-in-effect -- force open on reels
+      autoMode.current = false
+      return
+    }
     if (scrollDir && autoMode.current) {
-      setTrayOpen(false) // eslint-disable-line react-hooks/set-state-in-effect -- auto-close on first scroll
+      setTrayOpen(false)
       autoMode.current = false
     }
-  }, [scrollDir])
+  }, [scrollDir, isReelsPage])
 
   return (
     <div

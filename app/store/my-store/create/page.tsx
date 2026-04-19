@@ -38,8 +38,6 @@ export default function CreateStorePage() {
     category: "" as StoreCategory | "",
     contactEmail: "",
     contactPhone: "",
-    contactWhatsapp: "",
-    tags: "",
   })
   const [logoFiles, setLogoFiles] = useState<File[]>([])
   const [bannerFiles, setBannerFiles] = useState<File[]>([])
@@ -56,15 +54,8 @@ export default function CreateStorePage() {
         name: form.name,
         description: form.description,
         category: form.category as StoreCategory,
-        tags: form.tags
-          ? form.tags
-              .split(",")
-              .map((t) => t.trim())
-              .filter(Boolean)
-          : [],
         contactEmail: form.contactEmail || undefined,
         contactPhone: form.contactPhone || undefined,
-        contactWhatsapp: form.contactWhatsapp || undefined,
       },
       {
         onSuccess: async () => {
@@ -152,18 +143,8 @@ export default function CreateStorePage() {
             />
           </div>
 
-          {/* Tags */}
-          <div>
-            <label className="mb-1.5 block text-sm font-medium">Tags</label>
-            <Input
-              value={form.tags}
-              onChange={(e) => setForm((f) => ({ ...f, tags: e.target.value }))}
-              placeholder="e.g. organic, vegan, professional (comma separated)"
-            />
-          </div>
-
           {/* Contact */}
-          <div className="grid gap-3 sm:grid-cols-3">
+          <div className="grid gap-3 sm:grid-cols-2">
             <div>
               <label className="mb-1.5 block text-sm font-medium">Email</label>
               <Input
@@ -181,18 +162,6 @@ export default function CreateStorePage() {
                 value={form.contactPhone}
                 onChange={(e) =>
                   setForm((f) => ({ ...f, contactPhone: e.target.value }))
-                }
-                placeholder="+216..."
-              />
-            </div>
-            <div>
-              <label className="mb-1.5 block text-sm font-medium">
-                WhatsApp
-              </label>
-              <Input
-                value={form.contactWhatsapp}
-                onChange={(e) =>
-                  setForm((f) => ({ ...f, contactWhatsapp: e.target.value }))
                 }
                 placeholder="+216..."
               />

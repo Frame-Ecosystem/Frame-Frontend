@@ -1,9 +1,9 @@
 ﻿"use client"
 
-import { useMemo, useCallback } from "react"
-import { useRouter } from "next/navigation"
+import { useMemo } from "react"
 import { useUserReels } from "@/app/_hooks/queries/useContent"
 import { ContentGrid } from "@/app/_components/content/content-grid"
+import { useOpenReel } from "@/app/_components/content/hooks/use-open-reel"
 import type { Reel } from "@/app/_types/content"
 
 interface UserReelsTabProps {
@@ -15,17 +15,12 @@ interface UserReelsTabProps {
  * Clicking a reel navigates to /reels?id=<reelId>.
  */
 export function UserReelsTab({ userId }: UserReelsTabProps) {
-  const router = useRouter()
+  const { openReel } = useOpenReel()
   const reelsQuery = useUserReels(userId)
 
   const reels: Reel[] = useMemo(
     () => reelsQuery.data?.pages.flatMap((p) => p.data) ?? [],
     [reelsQuery.data],
-  )
-
-  const handleReelClick = useCallback(
-    (reel: Reel) => router.push(`/reels?id=${reel._id}`),
-    [router],
   )
 
   return (
@@ -37,7 +32,7 @@ export function UserReelsTab({ userId }: UserReelsTabProps) {
       fetchNextPage={reelsQuery.fetchNextPage}
       isLoading={reelsQuery.isLoading}
       emptyType="reels"
-      onReelClick={handleReelClick}
+      onReelClick={openReel}
     />
   )
 }

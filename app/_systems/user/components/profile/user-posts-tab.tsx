@@ -39,7 +39,7 @@ export function UserPostsTab({ userId }: UserPostsTabProps) {
   }
 
   return (
-    <div className="mx-auto max-w-2xl space-y-4">
+    <div className="mx-auto max-w-2xl space-y-8 sm:space-y-10">
       {posts.map((post, index) => (
         <PostCard key={post._id} post={post} priority={index === 0} />
       ))}

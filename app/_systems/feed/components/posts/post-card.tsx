@@ -1,16 +1,8 @@
 ﻿"use client"
 
 import { useState } from "react"
-import Image from "next/image"
 import { formatDistanceToNow } from "date-fns"
-import {
-  Heart,
-  MessageCircle,
-  Bookmark,
-  Trash2,
-  ChevronLeft,
-  ChevronRight,
-} from "lucide-react"
+import { Heart, MessageCircle, Bookmark, Trash2 } from "lucide-react"
 import Link from "next/link"
 import { Button } from "@/app/_components/ui/button"
 import { Card, CardContent, CardHeader } from "@/app/_components/ui/card"
@@ -20,6 +12,7 @@ import {
   AvatarImage,
 } from "@/app/_components/ui/avatar"
 import { CommentSheet } from "../content/comment-sheet"
+import { PostMediaCarousel } from "@/app/_components/posts/post-media-carousel"
 import type { Post } from "@/app/_types/content"
 import { useAuth } from "@/app/_auth"
 import {
@@ -37,28 +30,10 @@ interface PostCardProps {
 export function PostCard({ post, priority = false }: PostCardProps) {
   const { user } = useAuth()
   const [showCommentSheet, setShowCommentSheet] = useState(false)
-  const [currentImageIndex, setCurrentImageIndex] = useState(0)
 
   const likeMutation = useTogglePostLike(post._id)
   const saveMutation = useTogglePostSave(post._id)
   const deleteMutation = useDeletePost()
-
-  // Image navigation
-  const nextImage = () => {
-    if (post.media && currentImageIndex < post.media.length - 1) {
-      setCurrentImageIndex(currentImageIndex + 1)
-    }
-  }
-
-  const prevImage = () => {
-    if (currentImageIndex > 0) {
-      setCurrentImageIndex(currentImageIndex - 1)
-    }
-  }
-
-  const goToImage = (index: number) => {
-    setCurrentImageIndex(index)
-  }
 
   const handleLike = () => {
     if (user) likeMutation.mutate()
@@ -138,57 +113,7 @@ export function PostCard({ post, priority = false }: PostCardProps) {
 
           {/* Post images */}
           {post.media && post.media.length > 0 && (
-            <div className="relative overflow-hidden rounded-lg">
-              {/* Main image display */}
-              <div className="relative aspect-video">
-                <Image
-                  src={post.media[currentImageIndex].url}
-                  alt={`Post image ${currentImageIndex + 1}`}
-                  fill
-                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                  className="object-cover"
-                  priority={priority}
-                  loading={priority ? "eager" : undefined}
-                />
-
-                {/* Navigation arrows */}
-                {post.media.length > 1 && (
-                  <>
-                    <button
-                      onClick={prevImage}
-                      disabled={currentImageIndex === 0}
-                      className="absolute top-1/2 left-2 -translate-y-1/2 rounded-full bg-black/50 p-1 text-white transition-colors hover:bg-black/70 disabled:cursor-not-allowed disabled:opacity-30"
-                    >
-                      <ChevronLeft className="h-4 w-4" />
-                    </button>
-                    <button
-                      onClick={nextImage}
-                      disabled={currentImageIndex === post.media.length - 1}
-                      className="absolute top-1/2 right-2 -translate-y-1/2 rounded-full bg-black/50 p-1 text-white transition-colors hover:bg-black/70 disabled:cursor-not-allowed disabled:opacity-30"
-                    >
-                      <ChevronRight className="h-4 w-4" />
-                    </button>
-                  </>
-                )}
-              </div>
-
-              {/* Image indicators */}
-              {post.media.length > 1 && (
-                <div className="mt-2 flex justify-center space-x-1">
-                  {post.media.map((_, index) => (
-                    <button
-                      key={index}
-                      onClick={() => goToImage(index)}
-                      className={`h-2 w-2 rounded-full transition-colors ${
-                        index === currentImageIndex
-                          ? "bg-primary"
-                          : "bg-muted-foreground/30 hover:bg-muted-foreground/50"
-                      }`}
-                    />
-                  ))}
-                </div>
-              )}
-            </div>
+            <PostMediaCarousel media={post.media} priority={priority} />
           )}
 
           {/* Action buttons */}

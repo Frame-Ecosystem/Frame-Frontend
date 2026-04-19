@@ -1,10 +1,10 @@
 ﻿"use client"
 
 import Image from "next/image"
-import { useRouter } from "next/navigation"
 import { Play, Film } from "lucide-react"
 import type { Reel } from "@/app/_types/content"
 import { resolveProfileImage } from "@/app/_lib/image-utils"
+import { useOpenReel } from "@/app/_components/content/hooks/use-open-reel"
 import { useTranslation } from "@/app/_i18n"
 
 interface ReelSwiperProps {
@@ -13,7 +13,7 @@ interface ReelSwiperProps {
 
 export function ReelSwiper({ reels }: ReelSwiperProps) {
   const { t } = useTranslation()
-  const router = useRouter()
+  const { openReel, prefetchReel } = useOpenReel()
 
   if (reels.length === 0) return null
 
@@ -36,7 +36,9 @@ export function ReelSwiper({ reels }: ReelSwiperProps) {
         {reels.map((reel) => (
           <button
             key={reel._id}
-            onClick={() => router.push(`/reels?id=${reel._id}`)}
+            onClick={() => openReel(reel)}
+            onMouseEnter={() => prefetchReel(reel)}
+            onTouchStart={() => prefetchReel(reel)}
             className="group relative aspect-[9/16] w-[calc(60vw-12px)] min-w-[calc(60vw-12px)] shrink-0 overflow-hidden rounded-xl bg-black"
             style={{ scrollSnapAlign: "start" }}
           >
