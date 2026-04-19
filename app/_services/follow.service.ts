@@ -33,7 +33,8 @@ class FollowService {
       )
       const payload = (res as any).data ?? res
       return !!(payload.isFollowing ?? payload.following ?? false)
-    } catch {
+    } catch (error) {
+      console.warn("[FollowService] checkFollowing failed:", error)
       return false
     }
   }
@@ -110,7 +111,8 @@ class FollowService {
         followersCount: payload.followersCount ?? 0,
         followingCount: payload.followingCount ?? 0,
       }
-    } catch {
+    } catch (error) {
+      console.warn("[FollowService] getCounts failed:", error)
       return { followersCount: 0, followingCount: 0 }
     }
   }

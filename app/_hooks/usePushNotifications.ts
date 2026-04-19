@@ -22,9 +22,11 @@ import { useQueryClient } from "@tanstack/react-query"
 
 import { requestFCMToken, onForegroundMessage } from "../_lib/firebase"
 import { pushNotificationService } from "../_services/push-notification.service"
-import { useAuth } from "../_providers/auth"
+import { useAuth } from "@/app/_auth"
 import { getNotificationEngine } from "../_lib/notification-engine"
+import { getRedirectPath } from "../_providers/notification"
 import { notificationKeys } from "./queries/useNotifications"
+import type { AppNotification, UnreadCountData } from "../_types"
 
 // ── Helpers ──────────────────────────────────────────────────
 
@@ -43,21 +45,37 @@ function getDeviceId(): string {
 
 // ── Notification routing ─────────────────────────────────────
 
-const HISTORY_TYPES = new Set([
-  "booking:cancelled",
-  "booking:completed",
-  "booking:absent",
-])
-
-const UPCOMING_TYPES = new Set(["booking:created", "booking:confirmed"])
-
-function resolveRoute(type: string, data?: Record<string, string>): string {
-  if (HISTORY_TYPES.has(type)) return "/bookings?view=history"
-  if (UPCOMING_TYPES.has(type)) return "/bookings"
-  if (type === "booking:inQueue" || type.startsWith("queue:")) {
-    return data?.loungeId ? `/lounges/${data.loungeId}?tab=queue` : "/queue"
+/**
+ * Build a minimal AppNotification-like object from FCM data payload
+ * so we can reuse the shared getRedirectPath() logic.
+ */
+function resolveRouteFromFCM(data: Record<string, string>): string {
+  const pseudo: AppNotification = {
+    _id: "",
+    userId: "",
+    title: "",
+    body: "",
+    type: data.type || "",
+    category: data.category || "",
+    isRead: false,
+    createdAt: "",
+    updatedAt: "",
+    actionUrl: data.actionUrl,
+    metadata: {
+      bookingId: data.bookingId,
+      loungeId: data.loungeId,
+      clientId: data.clientId,
+      agentId: data.agentId,
+      postId: data.postId,
+      reelId: data.reelId,
+      commentId: data.commentId,
+      targetType: data.targetType as "post" | "reel" | "comment" | undefined,
+      followerId: data.followerId,
+      suggestionId: data.suggestionId,
+      reason: data.reason,
+    },
   }
-  return "/notifications"
+  return getRedirectPath(pseudo) ?? "/notifications"
 }
 
 // ── Hook ─────────────────────────────────────────────────────
@@ -161,12 +179,25 @@ export function usePushNotifications(): PushNotificationControls {
       const type = data.type || ""
 
       // Optimistically bump unread count and refetch list
-      queryClient.setQueryData<number>(
+      queryClient.setQueryData<UnreadCountData>(
         notificationKeys.unreadCount(),
-        (prev) => (prev ?? 0) + 1,
+        (prev) => ({
+          total: (prev?.total ?? 0) + 1,
+          byCategory: {
+            ...prev?.byCategory,
+            ...(data.category
+              ? {
+                  [data.category]:
+                    ((prev?.byCategory as Record<string, number>)?.[
+                      data.category
+                    ] ?? 0) + 1,
+                }
+              : {}),
+          },
+        }),
       )
       queryClient.invalidateQueries({
-        queryKey: notificationKeys.infinite(),
+        queryKey: notificationKeys.all,
       })
 
       // Sound
@@ -174,7 +205,7 @@ export function usePushNotifications(): PushNotificationControls {
 
       // In-app toast
       if (notification?.title) {
-        const route = resolveRoute(type, data)
+        const route = resolveRouteFromFCM(data)
         const isHighPriority =
           type === "queue:inService" ||
           type === "queue:reminder" ||

@@ -6,7 +6,6 @@ import { Button } from "../../ui/button"
 import { CameraIcon, X } from "lucide-react"
 
 interface ImageSelectorProps {
-  // eslint-disable-next-line no-unused-vars
   onImageSelect: (imageData: string) => void
   currentImage?: string | { url: string; publicId: string }
   placeholder?: string

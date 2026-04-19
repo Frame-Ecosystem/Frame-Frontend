@@ -1,5 +1,6 @@
 "use client"
 
+import { useEffect } from "react"
 import { ErrorBoundary } from "@/app/_components/common/errorBoundary"
 import { Button } from "@/app/_components/ui/button"
 import { useParams, useRouter } from "next/navigation"
@@ -45,6 +46,13 @@ export default function LoungePage() {
   const id = params.id as string
   const router = useRouter()
   const { lounge, isLoading, error, user } = useLoungeData(id)
+
+  // Redirect to own profile if visiting yourself
+  useEffect(() => {
+    if (user && user._id === id) {
+      router.replace("/profile/lounge")
+    }
+  }, [user, id, router])
 
   if (isLoading) return <LoungePageSkeleton />
 

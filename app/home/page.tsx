@@ -2,24 +2,24 @@
 
 import { useEffect } from "react"
 import { useRouter } from "next/navigation"
-import { useAuth } from "../_providers/auth"
+import { useAuth } from "@/app/_auth"
 import { ErrorBoundary } from "../_components/common/errorBoundary"
 import { PostFeed } from "../_components/posts/post-feed"
 import { HomeIcon } from "lucide-react"
 import { HomeFeedSkeleton } from "../_components/skeletons/home"
+import { useScrollToTarget } from "../_hooks/useScrollToTarget"
 
 const Home = () => {
   const { user, isLoading } = useAuth()
+  useScrollToTarget()
   const router = useRouter()
 
-  // Redirect authenticated users to their respective dashboards
   useEffect(() => {
     if (!isLoading && user) {
       // All user types share this home page
     }
   }, [user, isLoading, router])
 
-  // Show loading state while checking authentication
   if (isLoading) {
     return (
       <ErrorBoundary>
@@ -27,9 +27,6 @@ const Home = () => {
       </ErrorBoundary>
     )
   }
-
-  // Don't render anything for unauthenticated users (they'll be redirected)
-  // AuthGuard at the layout level handles unauthenticated redirects
 
   return (
     <ErrorBoundary>

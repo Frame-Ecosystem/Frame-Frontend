@@ -9,7 +9,7 @@ import type { BookingStatus } from "../../../_types"
 
 interface BookingListHeaderProps {
   statusFilter: BookingStatus | "all"
-  // eslint-disable-next-line no-unused-vars
+
   setStatusFilter: (value: BookingStatus | "all") => void
   show: boolean
 }

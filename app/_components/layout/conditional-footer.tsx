@@ -1,15 +1,15 @@
 "use client"
 
-import FooterDesktop from "./footerDesktop"
 import { usePathname } from "next/navigation"
 
 export default function ConditionalFooter() {
   const pathname = usePathname()
 
-  // Hide footer on verification/check-email pages
-  if (pathname === "/auth/verify" || pathname === "/auth/check-email") {
+  // Footer only appears on the root landing page (it has its own inline footer)
+  // All other pages have no footer
+  if (pathname !== "/") {
     return null
   }
 
-  return <FooterDesktop />
+  return null
 }

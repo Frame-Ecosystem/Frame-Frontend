@@ -4,9 +4,9 @@ import { Check, Palette, ChevronDown } from "lucide-react"
 import { useTheme } from "next-themes"
 import { useLayoutEffect, useState } from "react"
 import { themes } from "../../_constants/themes"
-import { authService } from "../../_services/auth.service"
+import { authService } from "@/app/_auth"
 import { isAuthError } from "../../_services/api"
-import { useAuth } from "../../_providers/auth"
+import { useAuth } from "@/app/_auth"
 import { toast } from "sonner"
 
 // themes are sourced from app/_constants/themes

@@ -11,7 +11,7 @@ interface PhoneSectionProps {
   toggle: () => void
   user: User | null | undefined
   profileData: { clientPhone: string; loungePhone: string }
-  // eslint-disable-next-line no-unused-vars
+
   onChange: (field: string, value: string) => void
   onSave: () => void
   phoneRef: React.RefObject<HTMLInputElement | null>

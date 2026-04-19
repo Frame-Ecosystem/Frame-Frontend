@@ -11,7 +11,7 @@ interface BioSectionProps {
   toggle: () => void
   user: User | null | undefined
   bio: string
-  // eslint-disable-next-line no-unused-vars
+
   onChange: (field: string, value: string) => void
   onSave: () => void
   bioRef: React.RefObject<HTMLTextAreaElement | null>

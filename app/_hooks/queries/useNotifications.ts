@@ -5,12 +5,16 @@ import {
   useInfiniteQuery,
 } from "@tanstack/react-query"
 import { notificationService } from "../../_services/notification.service"
-import { useAuth } from "../../_providers/auth"
+import { useAuth } from "@/app/_auth"
+import type { UnreadCountData, NotificationCategory } from "../../_types"
 
 // ── Query keys ──────────────────────────────────────────────
 export const notificationKeys = {
   all: ["notifications"] as const,
-  infinite: () => ["notifications", "infinite"] as const,
+  infinite: (category?: NotificationCategory) =>
+    category
+      ? (["notifications", "infinite", category] as const)
+      : (["notifications", "infinite"] as const),
   unreadCount: () => ["notifications", "unread-count"] as const,
 }
 
@@ -24,7 +28,7 @@ function useIsAuthenticated() {
 export function useUnreadNotificationCount() {
   const isAuthenticated = useIsAuthenticated()
 
-  return useQuery({
+  return useQuery<UnreadCountData>({
     queryKey: notificationKeys.unreadCount(),
     queryFn: () => notificationService.getUnreadCount(),
     enabled: isAuthenticated,
@@ -35,12 +39,13 @@ export function useUnreadNotificationCount() {
 }
 
 // ── Infinite-scroll notification list ───────────────────────
-export function useNotifications() {
+export function useNotifications(category?: NotificationCategory) {
   const isAuthenticated = useIsAuthenticated()
 
   return useInfiniteQuery({
-    queryKey: notificationKeys.infinite(),
-    queryFn: ({ pageParam = 1 }) => notificationService.getAll(pageParam, 20),
+    queryKey: notificationKeys.infinite(category),
+    queryFn: ({ pageParam = 1 }) =>
+      notificationService.getAll(pageParam, 20, category),
     getNextPageParam: (lastPage) =>
       lastPage.page < lastPage.totalPages ? lastPage.page + 1 : undefined,
     initialPageParam: 1,

@@ -1,7 +1,7 @@
 {
-  "name": "frame",
-  "short_name": "frame",
-  "description": "Sistema para Barbearias - Agendamento Online",
+  "name": "Frame Beauty",
+  "short_name": "Frame",
+  "description": "Discover trending beauty styles, shop professional products, and book appointments at top-rated salons near you.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",

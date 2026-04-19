@@ -5,14 +5,14 @@
  */
 
 import { io, Socket } from "socket.io-client"
-import { API_BASE_URL } from "./api"
+import { API_BASE_URL, apiClient } from "./api"
 
 let socket: Socket | null = null
 
 /**
  * Get (or lazily create) the singleton Socket.IO connection.
- * Sends the access token from localStorage as an auth credential
- * so the backend can authenticate the socket.
+ * Uses the Socket.IO `auth` option to securely pass the access token
+ * (never exposed in URLs or query strings).
  */
 export function getSocket(): Socket {
   if (!socket) {
@@ -22,6 +22,12 @@ export function getSocket(): Socket {
       reconnection: true,
       reconnectionAttempts: 10,
       reconnectionDelay: 1000,
+      reconnectionDelayMax: 10000,
+      timeout: 20000,
+      auth: (cb) => {
+        // Dynamically read token at connection time so reconnects use fresh tokens
+        cb({ token: apiClient.accessToken })
+      },
     })
 
     socket.on("connect", () => {
@@ -37,8 +43,8 @@ export function getSocket(): Socket {
     })
   }
 
-  // If the socket exists but is disconnected, reconnect
-  if (!socket.connected) {
+  // If the socket exists but is disconnected, reconnect (guard against concurrent calls)
+  if (!socket.connected && !socket.active) {
     socket.connect()
   }
 

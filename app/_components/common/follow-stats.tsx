@@ -99,7 +99,7 @@ function FollowListDialog({
   mode,
 }: {
   open: boolean
-  // eslint-disable-next-line no-unused-vars
+
   onOpenChange: (open: boolean) => void
   userId: string
   mode: "followers" | "following"

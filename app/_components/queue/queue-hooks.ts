@@ -86,9 +86,9 @@ export function useFullscreenState() {
 
 export function useResponsiveQueue(
   queues: Queue[],
-  // eslint-disable-next-line no-unused-vars
+
   setIsMobile: (isMobile: boolean) => void,
-  // eslint-disable-next-line no-unused-vars
+
   setShouldAutoScroll: (shouldAutoScroll: boolean) => void,
   containerRef: React.RefObject<HTMLDivElement | null>,
 ) {
@@ -186,7 +186,7 @@ export function useAutoScroll(shouldAutoScroll: boolean, queues: Queue[]) {
 
 export function useFullscreenHandlers(
   fullScreenContainerRef: React.RefObject<HTMLDivElement | null>,
-  // eslint-disable-next-line no-unused-vars
+
   setIsPseudoFullScreen: (isPseudo: boolean) => void,
   isPseudoFullScreen: boolean,
 ) {

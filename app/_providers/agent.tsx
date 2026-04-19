@@ -12,7 +12,7 @@ import { Agent, AgentFilters, AgentStats, Paginated } from "../_types"
 import { agentService } from "../_services"
 import { apiClient } from "../_services"
 import { isAuthError } from "../_services/api"
-import { useAuth } from "./auth"
+import { useAuth } from "@/app/_auth"
 
 interface AgentState {
   agents: Agent[]
@@ -130,19 +130,19 @@ function agentReducer(state: AgentState, action: AgentAction): AgentState {
 
 interface AgentContextType extends AgentState {
   // Actions
-  fetchAgents: (page?: number, limit?: number) => Promise<void> // eslint-disable-line no-unused-vars
-  fetchAgentById: (id: string) => Promise<void> // eslint-disable-line no-unused-vars
+  fetchAgents: (page?: number, limit?: number) => Promise<void>
+  fetchAgentById: (id: string) => Promise<void>
   fetchLounges: () => Promise<void>
-  createAgent: (data: any) => Promise<void> // eslint-disable-line no-unused-vars
-  updateAgent: (id: string, data: any) => Promise<void> // eslint-disable-line no-unused-vars
-  deleteAgent: (id: string) => Promise<void> // eslint-disable-line no-unused-vars
-  setFilters: (filters: AgentFilters) => void // eslint-disable-line no-unused-vars
+  createAgent: (data: any) => Promise<void>
+  updateAgent: (id: string, data: any) => Promise<void>
+  deleteAgent: (id: string) => Promise<void>
+  setFilters: (filters: AgentFilters) => void
   clearFilters: () => void
-  setPage: (page: number) => void // eslint-disable-line no-unused-vars
+  setPage: (page: number) => void
   refreshStats: () => Promise<void>
-  bulkBlock: (ids: string[]) => Promise<void> // eslint-disable-line no-unused-vars
-  bulkUnblock: (ids: string[]) => Promise<void> // eslint-disable-line no-unused-vars
-  bulkDelete: (ids: string[]) => Promise<void> // eslint-disable-line no-unused-vars
+  bulkBlock: (ids: string[]) => Promise<void>
+  bulkUnblock: (ids: string[]) => Promise<void>
+  bulkDelete: (ids: string[]) => Promise<void>
   clearError: () => void
 }
 

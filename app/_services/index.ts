@@ -2,14 +2,18 @@
 export { apiClient } from "./api"
 export { loungeVisitorService, centerService } from "./lounge-visitor.service"
 export { bookingService } from "./booking.service"
-export { authService } from "./auth.service"
+export { authService } from "@/app/_auth"
 export { serviceService } from "./service.service"
 export { loungeService } from "./lounge.service"
 export { serviceCategoryService } from "./service-category.service"
 export { serviceSuggestionsService } from "./service-suggestions.service"
 export { adminService } from "./admin.service"
 export { agentService } from "./agent.service"
-export { PostService } from "./post.service"
+export { postService, PostService } from "./post.service"
+export { reelService } from "./reel.service"
+export { commentService } from "./comment.service"
+export { feedService } from "./feed.service"
+export { reportService } from "./report.service"
 export { default as clientService } from "./client.service"
 export { queueService } from "./queue.service"
 export { getSocket, disconnectSocket } from "./socket"
@@ -34,11 +38,13 @@ export type {
   AgentFilters,
   AgentStats,
   Post,
+  Reel,
   Comment,
+  FeedItem,
+  Hashtag,
+  Report,
   CreatePostInput,
   CreateCommentInput,
-  LikePostInput,
-  LikeCommentInput,
   Queue,
   QueuePerson,
   QueuePersonStatus,

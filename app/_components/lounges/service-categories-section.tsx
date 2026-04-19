@@ -9,7 +9,7 @@ import { ServiceCategoriesSkeleton } from "../skeletons/lounges"
 
 interface ServiceCategoriesSectionProps {
   className?: string
-  // eslint-disable-next-line no-unused-vars
+
   onCategorySelect?: (categoryId: string | null) => void
   selectedCategoryId?: string | null
 }

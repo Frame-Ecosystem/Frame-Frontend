@@ -2,7 +2,7 @@
 
 import { Settings, ChevronDown } from "lucide-react"
 import { useState, useEffect, useRef } from "react"
-import { useAuth } from "../../_providers/auth"
+import { useAuth } from "@/app/_auth"
 import { toast } from "sonner"
 import { isAuthError } from "../../_services/api"
 import { useRouter } from "next/navigation"
@@ -49,7 +49,7 @@ export function AccountSettings({
     loungePhone: "",
     bio: "",
   })
-  const { user } = useAuth()
+  const { user, clearAuth } = useAuth()
   const router = useRouter()
 
   const firstNameRef = useRef<HTMLInputElement>(null)
@@ -151,13 +151,17 @@ export function AccountSettings({
     try {
       const result = await changePasswordMutation.mutateAsync(passwordData)
       if (result) {
-        toast.success("Password changed successfully")
+        toast.success("Password changed successfully. Please sign in again.")
         setPasswordData({
           currentPassword: "",
           newPassword: "",
           newPasswordConfirm: "",
         })
         setIsPasswordSectionOpen(false)
+        // Backend invalidates all sessions on password change —
+        // clear local auth state and redirect to sign-in.
+        clearAuth()
+        router.push("/?signin=true")
       }
     } catch (error: any) {
       if (isAuthError(error)) return

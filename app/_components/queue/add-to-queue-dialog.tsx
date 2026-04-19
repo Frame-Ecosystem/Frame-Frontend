@@ -15,9 +15,9 @@ import { Search } from "lucide-react"
 
 interface AddToQueueDialogProps {
   open: boolean
-  // eslint-disable-next-line no-unused-vars
+
   onOpenChange: (open: boolean) => void
-  // eslint-disable-next-line no-unused-vars
+
   onAdd: (bookingId: string, position?: number) => void
   isLoading: boolean
 }

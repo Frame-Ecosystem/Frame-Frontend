@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
-import { useAuth } from "../../_providers/auth"
+import { useAuth } from "@/app/_auth"
 import { AgentProvider } from "../../_providers/agent"
 import { AgentList } from "../../_components/agents/list/agent-list"
 import { AgentForm } from "../../_components/agents/form/agent-form"

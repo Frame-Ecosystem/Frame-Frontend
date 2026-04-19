@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect, useCallback, useRef } from "react"
-import { useAuth } from "../_providers/auth"
+import { useAuth } from "@/app/_auth"
 import { useRouter, useSearchParams } from "next/navigation"
 import clientService from "../_services/client.service"
 import { isAuthError } from "../_services/api"

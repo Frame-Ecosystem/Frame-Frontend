@@ -2,7 +2,7 @@
 
 import MobileNavbar from "./mobileNavbar"
 import TopBar from "./topBar"
-import { useAuth } from "../../_providers/auth"
+import { useAuth } from "@/app/_auth"
 import DesktopNavbar from "./desktopNavbar"
 
 const Header = () => {

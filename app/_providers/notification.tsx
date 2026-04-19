@@ -5,7 +5,7 @@ import { useQueryClient } from "@tanstack/react-query"
 import { toast } from "sonner"
 import { useRouter } from "next/navigation"
 
-import { useAuth } from "./auth"
+import { useAuth } from "@/app/_auth"
 import { useSocketRoom } from "../_hooks/useSocketRoom"
 import {
   notificationKeys,
@@ -13,7 +13,7 @@ import {
 } from "../_hooks/queries/useNotifications"
 import { useBadge } from "../_hooks/useBadge"
 import { getNotificationEngine } from "../_lib/notification-engine"
-import type { AppNotification } from "../_types"
+import type { AppNotification, UnreadCountData } from "../_types"
 import { NotificationType } from "../_types"
 
 // ── Toast configuration per notification type ────────────────
@@ -25,16 +25,32 @@ const HIGH_PRIORITY_TYPES: ReadonlySet<string> = new Set([
 
 const TOAST_TYPES: ReadonlySet<string> = new Set([
   ...HIGH_PRIORITY_TYPES,
+  // Booking
   NotificationType.BOOKING_CREATED,
   NotificationType.BOOKING_CONFIRMED,
   NotificationType.BOOKING_CANCELLED,
   NotificationType.BOOKING_ABSENT,
+  NotificationType.BOOKING_COMPLETED,
   NotificationType.BOOKING_IN_QUEUE,
-  NotificationType.QUEUE_COMPLETED,
-  NotificationType.QUEUE_ABSENT,
+  // Queue
   NotificationType.QUEUE_AUTO_CANCELLED,
   NotificationType.QUEUE_BACK_IN_QUEUE,
-  NotificationType.QUEUE_POSITION_CHANGED,
+  // Content
+  NotificationType.POST_LIKED,
+  NotificationType.POST_COMMENTED,
+  NotificationType.REEL_LIKED,
+  NotificationType.REEL_COMMENTED,
+  NotificationType.COMMENT_REPLIED,
+  NotificationType.COMMENT_LIKED,
+  // Social
+  NotificationType.NEW_FOLLOWER,
+  NotificationType.LOUNGE_LIKED,
+  NotificationType.LOUNGE_RATED,
+  // Admin
+  NotificationType.SUGGESTION_CREATED,
+  NotificationType.SUGGESTION_APPROVED,
+  NotificationType.SUGGESTION_REJECTED,
+  NotificationType.CONTENT_HIDDEN,
 ])
 
 // Booking types that belong to the "history" tab
@@ -50,12 +66,27 @@ const UPCOMING_BOOKING_TYPES: ReadonlySet<string> = new Set([
   NotificationType.BOOKING_CONFIRMED,
 ])
 
-/** Returns the redirect path for a notification, or null if no redirect. */
-function getRedirectPath(notification: AppNotification): string | null {
-  const { type, metadata } = notification
-  if (HISTORY_BOOKING_TYPES.has(type)) return "/bookings?view=history"
-  if (UPCOMING_BOOKING_TYPES.has(type)) return "/bookings"
-  // booking:inQueue + all queue:* types → center queue page with agent tab
+/**
+ * Returns the redirect path for a notification.
+ * Prefers actionUrl from backend, falls back to type-based routing.
+ * Appends scroll-to-target hash when a specific entity ID is available.
+ */
+export function getRedirectPath(notification: AppNotification): string | null {
+  const { type, metadata, actionUrl } = notification
+
+  // ── Booking → bookings page with highlight for scroll-to-target ──
+  if (HISTORY_BOOKING_TYPES.has(type)) {
+    const params = new URLSearchParams({ view: "history" })
+    if (metadata?.bookingId) params.set("highlight", metadata.bookingId)
+    return `/bookings?${params}`
+  }
+  if (UPCOMING_BOOKING_TYPES.has(type)) {
+    const params = new URLSearchParams()
+    if (metadata?.bookingId) params.set("highlight", metadata.bookingId)
+    return `/bookings?${params}`
+  }
+
+  // ── Queue → lounge queue tab ──
   if (type === NotificationType.BOOKING_IN_QUEUE || type.startsWith("queue:")) {
     if (metadata?.loungeId) {
       const params = new URLSearchParams({ tab: "queue" })
@@ -64,15 +95,82 @@ function getRedirectPath(notification: AppNotification): string | null {
     }
     return "/queue"
   }
-  return null
+
+  // ── Content → post or reel with scroll-to-target ──
+  if (
+    type === NotificationType.POST_LIKED ||
+    type === NotificationType.POST_COMMENTED
+  ) {
+    if (metadata?.postId) return `/home#post-${metadata.postId}`
+    return actionUrl ?? "/home"
+  }
+  if (
+    type === NotificationType.REEL_LIKED ||
+    type === NotificationType.REEL_COMMENTED
+  ) {
+    if (metadata?.reelId) return `/reels#reel-${metadata.reelId}`
+    return actionUrl ?? "/reels"
+  }
+  if (
+    type === NotificationType.COMMENT_REPLIED ||
+    type === NotificationType.COMMENT_LIKED
+  ) {
+    // Navigate to the parent post/reel, then scroll to the comment
+    const targetId = metadata?.postId || metadata?.reelId
+    const fallbackPage = metadata?.postId ? "/home" : "/reels"
+    if (targetId && metadata?.commentId) {
+      return `${fallbackPage}#comment-${metadata.commentId}`
+    }
+    if (targetId) return fallbackPage
+    return actionUrl ?? "/home"
+  }
+
+  // ── Social → profile ──
+  if (type === NotificationType.NEW_FOLLOWER) {
+    if (metadata?.followerId) return `/profile/${metadata.followerId}`
+    return actionUrl ?? "/notifications"
+  }
+  if (
+    type === NotificationType.LOUNGE_LIKED ||
+    type === NotificationType.LOUNGE_RATED
+  ) {
+    if (metadata?.loungeId) return `/lounges/${metadata.loungeId}`
+    return actionUrl ?? "/notifications"
+  }
+
+  // ── Admin ──
+  if (type === NotificationType.SUGGESTION_CREATED) {
+    if (metadata?.suggestionId)
+      return `/admin/suggestions/${metadata.suggestionId}`
+    return actionUrl ?? "/admin/suggestions"
+  }
+  if (
+    type === NotificationType.SUGGESTION_APPROVED ||
+    type === NotificationType.SUGGESTION_REJECTED
+  ) {
+    return actionUrl ?? "/lounge/suggestions"
+  }
+  if (type === NotificationType.CONTENT_HIDDEN) {
+    // Navigate to the hidden content's parent
+    if (metadata?.postId) return `/posts/${metadata.postId}`
+    if (metadata?.reelId) return `/reels/${metadata.reelId}`
+    return actionUrl ?? "/notifications"
+  }
+
+  // ── Fallback to actionUrl from backend ──
+  return actionUrl ?? null
 }
 
 // ── Context ──────────────────────────────────────────────────
 interface NotificationContextValue {
   unreadCount: number
+  unreadByCategory: Record<string, number>
 }
 
-const EMPTY_CTX: NotificationContextValue = { unreadCount: 0 }
+const EMPTY_CTX: NotificationContextValue = {
+  unreadCount: 0,
+  unreadByCategory: {},
+}
 const NotificationContext = createContext<NotificationContextValue>(EMPTY_CTX)
 
 export const useNotificationContext = () => useContext(NotificationContext)
@@ -106,7 +204,13 @@ function AuthenticatedNotifications({
   const { user } = useAuth()
   const queryClient = useQueryClient()
   const router = useRouter()
-  const { data: unreadCount = 0 } = useUnreadNotificationCount()
+  const { data: unreadData } = useUnreadNotificationCount()
+
+  const unreadCount = unreadData?.total ?? 0
+  const unreadByCategory = useMemo(
+    () => unreadData?.byCategory ?? {},
+    [unreadData?.byCategory],
+  )
 
   // Sync badge count to favicon + PWA home-screen icon
   useBadge(unreadCount)
@@ -122,12 +226,25 @@ function AuthenticatedNotifications({
       const { type, title, body } = payload.data
 
       // Optimistically bump unread count
-      queryClient.setQueryData<number>(
+      queryClient.setQueryData<UnreadCountData>(
         notificationKeys.unreadCount(),
-        (old) => (old ?? 0) + 1,
+        (old) => ({
+          total: (old?.total ?? 0) + 1,
+          byCategory: {
+            ...old?.byCategory,
+            ...(payload.data.category
+              ? {
+                  [payload.data.category]:
+                    ((old?.byCategory as Record<string, number>)?.[
+                      payload.data.category
+                    ] ?? 0) + 1,
+                }
+              : {}),
+          },
+        }),
       )
       queryClient.invalidateQueries({
-        queryKey: notificationKeys.infinite(),
+        queryKey: notificationKeys.all,
       })
 
       // Play notification sound
@@ -165,8 +282,8 @@ function AuthenticatedNotifications({
   useSocketRoom(rooms, socketEvents)
 
   const value = useMemo<NotificationContextValue>(
-    () => ({ unreadCount }),
-    [unreadCount],
+    () => ({ unreadCount, unreadByCategory }),
+    [unreadCount, unreadByCategory],
   )
 
   return (

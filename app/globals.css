@@ -60,6 +60,15 @@
   --header-offset-lg: 96px; /* desktop / large screens - increased to sit below desktop nav */
 }
 
+/* Hide scrollbar but keep scrolling */
+@utility scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
 @layer base {
   *,
   ::after,
@@ -346,6 +355,122 @@
     --green-500: 142 76% 65%;
     --radius: 0.5rem;
   }
+
+  /* =============================================================================
+     SILVER LIGHT THEME — "Platinum"
+     A pearlescent, cool-toned silver with subtle blue undertones.
+     Evokes polished platinum, silk, and frosted glass — luminous and elevated.
+     ============================================================================= */
+  .silver-light {
+    /* Base — pearlescent white with a whisper of blue */
+    --background: 220 20% 99%;
+    --foreground: 220 15% 12%;
+
+    /* Cards — pristine white with cool shadow-readiness */
+    --card: 0 0% 100%;
+    --card-foreground: 220 15% 12%;
+
+    /* Popovers — same white purity */
+    --popover: 0 0% 100%;
+    --popover-foreground: 220 15% 12%;
+
+    /* Primary — refined cool silver-slate with enough contrast to pop */
+    --primary: 220 12% 48%;
+    --primary-foreground: 0 0% 100%;
+
+    /* Secondary — soft platinum tint */
+    --secondary: 220 14% 94%;
+    --secondary-foreground: 220 12% 25%;
+
+    /* Muted — cloud-like neutral with cool cast */
+    --muted: 220 14% 95%;
+    --muted-foreground: 220 8% 46%;
+
+    /* Accent — subtle silver frost */
+    --accent: 220 14% 93%;
+    --accent-foreground: 220 12% 18%;
+
+    /* Destructive — restrained red that doesn't clash */
+    --destructive: 0 72% 55%;
+    --destructive-foreground: 0 0% 100%;
+
+    /* Borders — barely-there cool silver lines */
+    --border: 220 16% 90%;
+    --input: 220 16% 97%;
+    --ring: 220 14% 55%;
+
+    /* Utility grays */
+    --gray-400: 220 10% 38%;
+    --gray-500: 220 10% 50%;
+    --green-500: 142 76% 36%;
+
+    --radius: 0.5rem;
+
+    /* Chart palette — cool silver spectrum */
+    --chart-1: 220 12% 48%;
+    --chart-2: 220 16% 65%;
+    --chart-3: 220 8% 75%;
+    --chart-4: 200 15% 55%;
+    --chart-5: 240 10% 60%;
+  }
+
+  /* =============================================================================
+     SILVER DARK THEME — "Gunmetal"
+     Deep charcoal with luminous silver accents — polished metal in low light.
+     Cool, sophisticated, modern — like brushed steel under studio lighting.
+     ============================================================================= */
+  .silver-dark {
+    /* Base — deep gunmetal with blue undertone */
+    --background: 220 14% 10%;
+    --foreground: 220 15% 93%;
+
+    /* Cards — slightly lifted from background for depth */
+    --card: 220 13% 12%;
+    --card-foreground: 220 15% 93%;
+
+    /* Popovers — floating layer */
+    --popover: 220 12% 14%;
+    --popover-foreground: 220 15% 93%;
+
+    /* Primary — luminous silver that glows on dark */
+    --primary: 220 10% 72%;
+    --primary-foreground: 220 14% 10%;
+
+    /* Secondary — deep steel */
+    --secondary: 220 10% 17%;
+    --secondary-foreground: 220 15% 90%;
+
+    /* Muted — understated charcoal */
+    --muted: 220 10% 17%;
+    --muted-foreground: 220 8% 58%;
+
+    /* Accent — brushed steel highlight */
+    --accent: 220 10% 18%;
+    --accent-foreground: 220 15% 93%;
+
+    /* Destructive — warm red contrasting the cool palette */
+    --destructive: 0 72% 55%;
+    --destructive-foreground: 220 15% 95%;
+
+    /* Borders — subtle silver edges */
+    --border: 220 10% 20%;
+    --input: 220 10% 16%;
+    --ring: 220 12% 65%;
+
+    /* Utility grays */
+    --gray-400: 220 10% 62%;
+    --gray-500: 220 10% 52%;
+    --green-500: 142 76% 65%;
+
+    --radius: 0.5rem;
+
+    /* Chart palette — luminous silver spectrum on dark */
+    --chart-1: 220 10% 72%;
+    --chart-2: 220 14% 55%;
+    --chart-3: 220 8% 45%;
+    --chart-4: 200 12% 60%;
+    --chart-5: 240 8% 52%;
+  }
 }
 
 /* =============================================================================
@@ -397,6 +522,25 @@ body.queue-fullscreen [data-nav-desktop],
 body.queue-fullscreen [data-nav-tabs],
 body.queue-fullscreen [data-profile-edit] {
   display: none !important;
+}
+
+/* Infinite marquee scroll for social icons */
+@keyframes marquee-scroll {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.animate-marquee {
+  display: flex;
+  animation: marquee-scroll 20s linear infinite;
+}
+
+.animate-marquee:hover {
+  animation-play-state: paused;
 }
 
 /* Hourglass: spin once then pause — 4s total cycle */
@@ -455,6 +599,28 @@ body.queue-fullscreen [data-profile-edit] {
 
 .booking-highlight {
   animation: booking-highlight 1.5s ease-in-out 2;
+}
+
+/* =============================================================================
+   NOTIFICATION SCROLL-TO-TARGET HIGHLIGHT
+   Generic pulse animation used when navigating from a notification to any card.
+   ============================================================================= */
+@keyframes notif-highlight {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 hsl(var(--primary) / 0);
+  }
+  25%,
+  75% {
+    box-shadow: 0 0 0 4px hsl(var(--primary) / 0.35);
+  }
+  50% {
+    box-shadow: 0 0 0 6px hsl(var(--primary) / 0.5);
+  }
+}
+
+.notif-highlight {
+  animation: notif-highlight 1.5s ease-in-out 2;
 }
 
 /* =============================================================================

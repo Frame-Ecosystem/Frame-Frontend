@@ -10,25 +10,44 @@ import { NotificationType } from "../_types"
 import { getSoundManager, SoundId } from "./sound-manager"
 
 const SOUND_MAP: Record<string, SoundId> = {
+  // Booking
   [NotificationType.BOOKING_CREATED]: SoundId.BOOKING_CREATED,
   [NotificationType.BOOKING_CONFIRMED]: SoundId.BOOKING_CONFIRMED,
   [NotificationType.BOOKING_CANCELLED]: SoundId.BOOKING_CANCELLED,
   [NotificationType.BOOKING_COMPLETED]: SoundId.BOOKING_COMPLETED,
   [NotificationType.BOOKING_IN_QUEUE]: SoundId.QUEUE_BACK_IN_QUEUE,
   [NotificationType.BOOKING_ABSENT]: SoundId.BOOKING_CANCELLED,
+  // Queue
   [NotificationType.QUEUE_IN_SERVICE]: SoundId.QUEUE_IN_SERVICE,
-  [NotificationType.QUEUE_COMPLETED]: SoundId.QUEUE_COMPLETED,
-  [NotificationType.QUEUE_ABSENT]: SoundId.QUEUE_ABSENT,
   [NotificationType.QUEUE_AUTO_CANCELLED]: SoundId.QUEUE_AUTO_CANCELLED,
   [NotificationType.QUEUE_BACK_IN_QUEUE]: SoundId.QUEUE_BACK_IN_QUEUE,
   [NotificationType.QUEUE_REMINDER]: SoundId.QUEUE_REMINDER,
   [NotificationType.QUEUE_POSITION_CHANGED]: SoundId.QUEUE_BACK_IN_QUEUE,
+  // Content — all use DEFAULT sound
+  [NotificationType.POST_LIKED]: SoundId.DEFAULT,
+  [NotificationType.POST_COMMENTED]: SoundId.DEFAULT,
+  [NotificationType.REEL_LIKED]: SoundId.DEFAULT,
+  [NotificationType.REEL_COMMENTED]: SoundId.DEFAULT,
+  [NotificationType.COMMENT_REPLIED]: SoundId.DEFAULT,
+  [NotificationType.COMMENT_LIKED]: SoundId.DEFAULT,
+  // Social
+  [NotificationType.NEW_FOLLOWER]: SoundId.DEFAULT,
+  [NotificationType.LOUNGE_LIKED]: SoundId.DEFAULT,
+  [NotificationType.LOUNGE_RATED]: SoundId.DEFAULT,
+  // Admin
+  [NotificationType.SUGGESTION_CREATED]: SoundId.DEFAULT,
+  [NotificationType.SUGGESTION_APPROVED]: SoundId.DEFAULT,
+  [NotificationType.SUGGESTION_REJECTED]: SoundId.DEFAULT,
+  [NotificationType.CONTENT_HIDDEN]: SoundId.DEFAULT,
 }
 
 /** Routes where matching notification-type prefixes are suppressed. */
 const SUPPRESSED_PREFIXES: Record<string, string> = {
   "/bookings": "booking:",
   "/queue": "queue:",
+  "/posts": "post:",
+  "/reels": "reel:",
+  "/notifications": "*",
 }
 
 const COOLDOWN_MS = 800
@@ -54,7 +73,8 @@ class NotificationEngine {
   private isSuppressed(type: string): boolean {
     const path = window.location.pathname
     return Object.entries(SUPPRESSED_PREFIXES).some(
-      ([route, prefix]) => path.startsWith(route) && type.startsWith(prefix),
+      ([route, prefix]) =>
+        path.startsWith(route) && (prefix === "*" || type.startsWith(prefix)),
     )
   }
 

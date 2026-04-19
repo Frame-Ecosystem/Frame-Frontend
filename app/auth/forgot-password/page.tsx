@@ -1,6 +1,9 @@
 "use client"
 
-import { useState } from "react"
+import { useMemo, useState } from "react"
+import { useForm } from "react-hook-form"
+import { z } from "zod"
+import { zodResolver } from "@hookform/resolvers/zod"
 import { Button } from "@/app/_components/ui/button"
 import { Input } from "@/app/_components/ui/input"
 import { Label } from "@/app/_components/ui/label"
@@ -11,33 +14,61 @@ import {
   CardHeader,
   CardTitle,
 } from "@/app/_components/ui/card"
-import { authService } from "@/app/_services/auth.service"
+import { authService } from "@/app/_auth"
 import { ArrowLeft, Mail } from "lucide-react"
 import Link from "next/link"
+import { useAuthRateLimit } from "@/app/_auth"
 
 export default function ForgotPasswordPage() {
-  const [email, setEmail] = useState("")
-  const [error, setError] = useState("")
+  const [submitAttempted, setSubmitAttempted] = useState(false)
   const [success, setSuccess] = useState("")
   const [loading, setLoading] = useState(false)
+  const { isLocked, remainingSeconds, recordFailure, recordSuccess } =
+    useAuthRateLimit()
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setError("")
+  const schema = useMemo(
+    () =>
+      z.object({
+        email: z
+          .string()
+          .min(1, "Email is required")
+          .email("Please enter a valid email address"),
+      }),
+    [],
+  )
+
+  type Values = z.infer<typeof schema>
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isValid },
+    setError,
+  } = useForm<Values>({
+    resolver: zodResolver(schema),
+    mode: "onChange",
+    reValidateMode: "onChange",
+    defaultValues: { email: "" },
+  })
+
+  const onSubmit = async (values: Values) => {
+    if (isLocked) return
     setSuccess("")
     setLoading(true)
 
     try {
-      const response = await authService.forgotPassword(email)
+      const response = await authService.forgotPassword(values.email.trim())
       if (response) {
+        recordSuccess()
         setSuccess(
           "Password reset email sent! Check your inbox for instructions.",
         )
       }
     } catch (err) {
-      setError(
-        err instanceof Error ? err.message : "Failed to send reset email",
-      )
+      recordFailure()
+      const message =
+        err instanceof Error ? err.message : "Failed to send reset email"
+      setError("email", { type: "server", message })
     } finally {
       setLoading(false)
     }
@@ -68,20 +99,28 @@ export default function ForgotPasswordPage() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-4">
+            <form
+              onSubmit={handleSubmit(onSubmit, () => setSubmitAttempted(true))}
+              className="space-y-4"
+            >
               <div className="space-y-2">
                 <Label htmlFor="email">Email address</Label>
                 <Input
                   id="email"
                   type="email"
                   placeholder="you@example.com"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
                   required
+                  autoComplete="email"
+                  {...register("email", {
+                    onChange: () => setSubmitAttempted(false),
+                  })}
                 />
+                {errors.email?.message && (
+                  <p className="text-destructive text-sm">
+                    {errors.email.message}
+                  </p>
+                )}
               </div>
-
-              {error && <p className="text-destructive text-sm">{error}</p>}
 
               {success && <p className="text-sm text-green-600">{success}</p>}
 
@@ -89,9 +128,14 @@ export default function ForgotPasswordPage() {
                 type="submit"
                 variant="default"
                 className="w-full"
-                disabled={loading}
+                disabled={loading || isLocked || (!isValid && submitAttempted)}
+                onClick={() => setSubmitAttempted(true)}
               >
-                {loading ? "Sending..." : "Send reset link"}
+                {isLocked
+                  ? `Too many attempts (${remainingSeconds}s)`
+                  : loading
+                    ? "Sending..."
+                    : "Send reset link"}
               </Button>
             </form>
 

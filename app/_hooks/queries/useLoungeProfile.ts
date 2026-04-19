@@ -1,7 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query"
-import { authService } from "../../_services/auth.service"
+import { authService, useAuth } from "@/app/_auth"
 import type { User } from "../../_types"
-import { useAuth } from "../../_providers/auth"
 
 /**
  * Lounge profile hooks

@@ -30,9 +30,9 @@ import { AgentTable } from "./agent-table"
 
 interface AgentListProps {
   onCreateClick: () => void
-  // eslint-disable-next-line no-unused-vars
+
   onEditClick: (agent: Agent) => void
-  // eslint-disable-next-line no-unused-vars
+
   onViewClick: (agent: Agent) => void
   refreshTrigger?: number
 }

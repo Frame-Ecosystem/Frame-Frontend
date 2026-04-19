@@ -15,18 +15,15 @@ import {
 import { ImageSelector } from "../images/ImageSelector"
 import { ImageLightbox } from "../images/image-lightbox"
 import type { User } from "../../../_types"
-import {
-  getUserDisplayName,
-  getUserInitials,
-} from "../../../_services/auth.service"
+import { getUserDisplayName, getUserInitials } from "@/app/_auth"
 
 interface ProfileCoverProps {
   user: User | null
   /** Whether the user owns this profile and can edit */
   editable?: boolean
-  // eslint-disable-next-line no-unused-vars
+
   onProfileImageUpdate?: (file: File) => Promise<void>
-  // eslint-disable-next-line no-unused-vars
+
   onCoverImageUpdate?: (file: File) => Promise<void>
   updatingProfile?: boolean
   updatingCover?: boolean

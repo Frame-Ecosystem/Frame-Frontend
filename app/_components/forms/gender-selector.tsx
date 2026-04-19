@@ -2,7 +2,7 @@
 
 import { Check, Users, ChevronDown } from "lucide-react"
 import { useState } from "react"
-import { useAuth } from "../../_providers/auth"
+import { useAuth } from "@/app/_auth"
 import { isAuthError } from "../../_services/api"
 import { toast } from "sonner"
 import {

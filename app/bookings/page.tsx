@@ -7,7 +7,7 @@ import Link from "next/link"
 import { useSearchParams, useRouter } from "next/navigation"
 import { Card, CardContent } from "../_components/ui/card"
 import { ErrorBoundary } from "../_components/common/errorBoundary"
-import { useAuth } from "../_providers/auth"
+import { useAuth } from "@/app/_auth"
 import { BookingList } from "../_components/bookings/list/booking-list"
 import { BookingsPageSkeleton } from "../_components/skeletons/bookings"
 

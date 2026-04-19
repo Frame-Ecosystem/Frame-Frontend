@@ -174,7 +174,6 @@ async function _doRequestFCMToken(): Promise<string | null> {
 
 /** Subscribe to foreground messages. Returns an unsubscribe function. */
 export function onForegroundMessage(
-  // eslint-disable-next-line no-unused-vars
   callback: (payload: MessagePayload) => void,
 ): () => void {
   const msg = getFirebaseMessaging()

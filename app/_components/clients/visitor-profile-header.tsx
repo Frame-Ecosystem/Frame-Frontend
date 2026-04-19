@@ -17,7 +17,7 @@ interface VisitorProfileHeaderProps {
   profile: ClientProfile
   isMobile: boolean
   onBack: () => void
-  // eslint-disable-next-line no-unused-vars
+
   onImageClick: (src: string, alt: string) => void
 }
 

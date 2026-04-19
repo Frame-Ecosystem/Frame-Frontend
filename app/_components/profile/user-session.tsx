@@ -2,18 +2,18 @@
 
 import { useState } from "react"
 import { UserIcon, X } from "lucide-react"
-import SignInDialog from "../auth/sign-in-dialog"
+import {
+  SignInDialog,
+  useAuth,
+  SignupFlow,
+  getUserDisplayName,
+  getUserInitials,
+} from "@/app/_auth"
 import { Button } from "../ui/button"
 import { Popover, PopoverTrigger, PopoverContent } from "../ui/popover"
 import { Dialog, DialogContent } from "../ui/dialog"
 import UserInfo from "./user-info"
-import SignupFlow from "../auth/signup-flow"
-import { useAuth } from "../../_providers/auth"
 import { Avatar, AvatarImage, AvatarFallback } from "../ui/avatar"
-import {
-  getUserDisplayName,
-  getUserInitials,
-} from "../../_services/auth.service"
 
 /** Prevent Radix events from closing dialogs. */
 const prevent = (e: Event) => e.preventDefault()
@@ -43,13 +43,12 @@ const UserSession = ({ compact }: { compact?: boolean } = {}) => {
   const userButton = (
     <Button
       variant="ghost"
-      size="icon"
-      className="hover:bg-primary/10 relative flex items-center gap-2 rounded-full"
+      className="hover:bg-primary/10 relative flex h-auto w-auto items-center gap-2 rounded-full p-0.5"
     >
       {isLoggedIn ? (
         <div className="relative">
           <Avatar
-            className={`${compact ? "h-8 w-8" : "h-12 w-12"} ring-primary/50 ring-2`}
+            className={`${compact ? "h-10 w-10" : "h-12 w-12"} ring-primary/50 ring-2`}
           >
             {user?.profileImage && (
               <AvatarImage
@@ -94,7 +93,7 @@ const UserSession = ({ compact }: { compact?: boolean } = {}) => {
         (isLoggedIn ? (
           <Popover open={popoverOpen} onOpenChange={setPopoverOpen}>
             <PopoverTrigger asChild>{userButton}</PopoverTrigger>
-            <PopoverContent className="mt-2 w-72 p-0" align="end">
+            <PopoverContent className="z-[9999] mt-6 w-72 p-0" align="end">
               <UserInfo
                 user={user}
                 onAddAccount={handleAddAccount}
@@ -112,7 +111,7 @@ const UserSession = ({ compact }: { compact?: boolean } = {}) => {
       {/* Our own <button> calls closeSignIn() which is the ONLY close path.  */}
       <Dialog open={dialogOpen} onOpenChange={noop}>
         <DialogContent
-          className="max-h-[90vh] w-[90%] overflow-y-auto [&>button:last-child]:hidden"
+          className="z-[9999] max-h-[90vh] w-[90%] overflow-y-auto rounded-2xl [&>button:last-child]:hidden"
           onInteractOutside={prevent}
           onFocusOutside={prevent}
           onEscapeKeyDown={prevent}
@@ -140,7 +139,7 @@ const UserSession = ({ compact }: { compact?: boolean } = {}) => {
       {/* ── Sign-up dialog (always mounted, fully controlled) ── */}
       <Dialog open={signupOpen} onOpenChange={noop}>
         <DialogContent
-          className="w-[90%] [&>button:last-child]:hidden"
+          className="top-[55%] z-[9999] w-[90%] rounded-2xl [&>button:last-child]:hidden"
           onInteractOutside={prevent}
           onFocusOutside={prevent}
           onEscapeKeyDown={prevent}

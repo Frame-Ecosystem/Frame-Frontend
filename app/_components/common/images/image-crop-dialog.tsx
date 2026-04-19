@@ -15,7 +15,7 @@ import { ZoomIn, ZoomOut, RotateCw } from "lucide-react"
 
 interface ImageCropDialogProps {
   open: boolean
-  // eslint-disable-next-line no-unused-vars
+
   onOpenChange: (open: boolean) => void
   imageSrc: string
   /** Aspect ratio: 1 for profile (square/circle), 16/5 for cover */
@@ -23,7 +23,7 @@ interface ImageCropDialogProps {
   /** Shape of crop area */
   cropShape?: "round" | "rect"
   title?: string
-  // eslint-disable-next-line no-unused-vars
+
   onCropComplete: (croppedBlob: Blob) => void
 }
 

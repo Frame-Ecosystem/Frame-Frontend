@@ -6,18 +6,23 @@ import { formatDistanceToNow } from "date-fns"
 import {
   Heart,
   MessageCircle,
+  Bookmark,
   Trash2,
   ChevronLeft,
   ChevronRight,
 } from "lucide-react"
+import Link from "next/link"
 import { Button } from "../ui/button"
 import { Card, CardContent, CardHeader } from "../ui/card"
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar"
-import { Textarea } from "../ui/textarea"
-import { Post } from "../../_types"
-import { PostService } from "../../_services"
-import { useAuth } from "../../_providers/auth"
-import { useMutation, useQueryClient } from "@tanstack/react-query"
+import { CommentSheet } from "../content/comment-sheet"
+import type { Post } from "../../_types/content"
+import { useAuth } from "@/app/_auth"
+import {
+  useTogglePostLike,
+  useTogglePostSave,
+  useDeletePost,
+} from "../../_hooks/queries/useContent"
 
 interface PostCardProps {
   post: Post
@@ -27,15 +32,16 @@ interface PostCardProps {
 
 export function PostCard({ post, priority = false }: PostCardProps) {
   const { user } = useAuth()
-  const queryClient = useQueryClient()
-  const [showComments, setShowComments] = useState(false)
-  const [commentText, setCommentText] = useState("")
-  const [showCommentForm, setShowCommentForm] = useState(false)
+  const [showCommentSheet, setShowCommentSheet] = useState(false)
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
 
-  // Image navigation functions
+  const likeMutation = useTogglePostLike(post._id)
+  const saveMutation = useTogglePostSave(post._id)
+  const deleteMutation = useDeletePost()
+
+  // Image navigation
   const nextImage = () => {
-    if (post.images && currentImageIndex < post.images.length - 1) {
+    if (post.media && currentImageIndex < post.media.length - 1) {
       setCurrentImageIndex(currentImageIndex + 1)
     }
   }
@@ -50,91 +56,55 @@ export function PostCard({ post, priority = false }: PostCardProps) {
     setCurrentImageIndex(index)
   }
 
-  // Like post mutation
-  const likePostMutation = useMutation({
-    mutationFn: (postId: string) => PostService.toggleLikePost({ postId }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["posts"] })
-    },
-  })
-
-  // Add comment mutation
-  const addCommentMutation = useMutation({
-    mutationFn: (data: { postId: string; content: string }) =>
-      PostService.addComment(data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["posts"] })
-      setCommentText("")
-      setShowCommentForm(false)
-    },
-  })
-
-  // Delete post mutation
-  const deletePostMutation = useMutation({
-    mutationFn: (postId: string) => PostService.deletePost(postId),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["posts"] })
-    },
-  })
-
   const handleLike = () => {
-    if (user) {
-      likePostMutation.mutate(post.id)
-    }
+    if (user) likeMutation.mutate()
   }
 
-  const handleComment = () => {
-    if (user && commentText.trim()) {
-      addCommentMutation.mutate({
-        postId: post.id,
-        content: commentText.trim(),
-      })
-    }
+  const handleSave = () => {
+    if (user) saveMutation.mutate()
   }
 
   const handleDelete = () => {
-    if (user && user._id === post.author._id) {
-      deletePostMutation.mutate(post.id)
+    if (user && user._id === post.authorId._id) {
+      deleteMutation.mutate(post._id)
     }
   }
 
-  const isLiked = user ? post.likes.includes(user._id || "") : false
-  const canDelete = user && user._id === post.author._id
+  const author = post.authorId
+  const authorName = author.firstName || author.loungeTitle || "User"
+  const authorHref =
+    author.type === "lounge"
+      ? `/lounges/${author._id}`
+      : `/clients/${author._id}`
+  const canDelete = user && user._id === author._id
 
   return (
-    <Card className="w-full">
+    <Card id={`post-${post._id}`} className="w-full">
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-3">
-            <Avatar className="h-10 w-10">
-              <AvatarImage
-                src={
-                  typeof post.author.profileImage === "string"
-                    ? post.author.profileImage
-                    : post.author.profileImage?.url
-                }
-                alt={
-                  post.author.firstName ||
-                  post.author.loungeTitle ||
-                  post.author.email
-                }
-              />
-              <AvatarFallback>
-                {(
-                  post.author.firstName ||
-                  post.author.loungeTitle ||
-                  post.author.email
-                )
-                  .charAt(0)
-                  .toUpperCase()}
-              </AvatarFallback>
-            </Avatar>
+            <Link href={authorHref}>
+              <Avatar className="h-10 w-10 cursor-pointer transition-opacity hover:opacity-80">
+                <AvatarImage
+                  src={
+                    typeof author.profileImage === "string"
+                      ? author.profileImage
+                      : (author.profileImage as any)?.url
+                  }
+                  alt={authorName}
+                />
+                <AvatarFallback>
+                  {authorName.charAt(0).toUpperCase()}
+                </AvatarFallback>
+              </Avatar>
+            </Link>
             <div>
-              <p className="text-sm font-semibold">
-                {post.author.firstName ||
-                  post.author.loungeTitle ||
-                  post.author.email}
-              </p>
+              <Link
+                href={authorHref}
+                className="text-sm font-semibold hover:underline"
+              >
+                {authorName}
+              </Link>
               <p className="text-muted-foreground text-xs">
                 {formatDistanceToNow(new Date(post.createdAt), {
                   addSuffix: true,
@@ -158,15 +128,17 @@ export function PostCard({ post, priority = false }: PostCardProps) {
       <CardContent className="pt-0">
         <div className="space-y-3">
           {/* Post content */}
-          <p className="text-sm whitespace-pre-wrap">{post.content}</p>
+          {post.text && (
+            <p className="text-sm whitespace-pre-wrap">{post.text}</p>
+          )}
 
           {/* Post images */}
-          {post.images && post.images.length > 0 && (
+          {post.media && post.media.length > 0 && (
             <div className="relative overflow-hidden rounded-lg">
               {/* Main image display */}
               <div className="relative aspect-video">
                 <Image
-                  src={post.images[currentImageIndex]}
+                  src={post.media[currentImageIndex].url}
                   alt={`Post image ${currentImageIndex + 1}`}
                   fill
                   sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
@@ -175,8 +147,8 @@ export function PostCard({ post, priority = false }: PostCardProps) {
                   loading={priority ? "eager" : undefined}
                 />
 
-                {/* Navigation arrows - only show if more than 1 image */}
-                {post.images.length > 1 && (
+                {/* Navigation arrows */}
+                {post.media.length > 1 && (
                   <>
                     <button
                       onClick={prevImage}
@@ -187,7 +159,7 @@ export function PostCard({ post, priority = false }: PostCardProps) {
                     </button>
                     <button
                       onClick={nextImage}
-                      disabled={currentImageIndex === post.images.length - 1}
+                      disabled={currentImageIndex === post.media.length - 1}
                       className="absolute top-1/2 right-2 -translate-y-1/2 rounded-full bg-black/50 p-1 text-white transition-colors hover:bg-black/70 disabled:cursor-not-allowed disabled:opacity-30"
                     >
                       <ChevronRight className="h-4 w-4" />
@@ -196,10 +168,10 @@ export function PostCard({ post, priority = false }: PostCardProps) {
                 )}
               </div>
 
-              {/* Image indicators - only show if more than 1 image */}
-              {post.images.length > 1 && (
+              {/* Image indicators */}
+              {post.media.length > 1 && (
                 <div className="mt-2 flex justify-center space-x-1">
-                  {post.images.map((_, index) => (
+                  {post.media.map((_, index) => (
                     <button
                       key={index}
                       onClick={() => goToImage(index)}
@@ -223,115 +195,52 @@ export function PostCard({ post, priority = false }: PostCardProps) {
                 size="sm"
                 onClick={handleLike}
                 className={`flex items-center space-x-1 ${
-                  isLiked ? "text-red-500" : "text-muted-foreground"
+                  post.isLiked ? "text-red-500" : "text-muted-foreground"
                 }`}
-                disabled={likePostMutation.isPending}
               >
-                <Heart className={`h-4 w-4 ${isLiked ? "fill-current" : ""}`} />
-                <span className="text-xs">{post.likes.length}</span>
+                <Heart
+                  className={`h-4 w-4 ${post.isLiked ? "fill-current" : ""}`}
+                />
+                <span className="text-xs">{post.likeCount}</span>
               </Button>
 
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={() => setShowComments(!showComments)}
+                onClick={() => setShowCommentSheet(true)}
                 className="text-muted-foreground flex items-center space-x-1"
               >
                 <MessageCircle className="h-4 w-4" />
-                <span className="text-xs">{post.comments.length}</span>
+                <span className="text-xs">{post.commentCount}</span>
               </Button>
             </div>
 
             <Button
               variant="ghost"
               size="sm"
-              onClick={() => setShowCommentForm(!showCommentForm)}
-              className="text-muted-foreground"
+              onClick={handleSave}
+              className={`flex items-center space-x-1 ${
+                post.isSaved ? "text-foreground" : "text-muted-foreground"
+              }`}
             >
-              Reply
+              <Bookmark
+                className={`h-4 w-4 transition-colors ${
+                  post.isSaved ? "fill-current" : ""
+                }`}
+              />
             </Button>
           </div>
-
-          {/* Comment form */}
-          {showCommentForm && (
-            <div className="space-y-2 border-t pt-2">
-              <Textarea
-                placeholder="Write a comment..."
-                value={commentText}
-                onChange={(e) => setCommentText(e.target.value)}
-                className="min-h-[60px] resize-none"
-              />
-              <div className="flex justify-end space-x-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => {
-                    setShowCommentForm(false)
-                    setCommentText("")
-                  }}
-                >
-                  Cancel
-                </Button>
-                <Button
-                  size="sm"
-                  onClick={handleComment}
-                  disabled={!commentText.trim() || addCommentMutation.isPending}
-                >
-                  {addCommentMutation.isPending ? "Posting..." : "Comment"}
-                </Button>
-              </div>
-            </div>
-          )}
-
-          {/* Comments */}
-          {showComments && post.comments.length > 0 && (
-            <div className="space-y-3 border-t pt-2">
-              {post.comments.map((comment) => (
-                <div key={comment.id} className="flex space-x-2">
-                  <Avatar className="h-6 w-6 flex-shrink-0">
-                    <AvatarImage
-                      src={
-                        typeof comment.author.profileImage === "string"
-                          ? comment.author.profileImage
-                          : comment.author.profileImage?.url
-                      }
-                      alt={
-                        comment.author.firstName ||
-                        comment.author.loungeTitle ||
-                        comment.author.email
-                      }
-                    />
-                    <AvatarFallback className="text-xs">
-                      {(
-                        comment.author.firstName ||
-                        comment.author.loungeTitle ||
-                        comment.author.email
-                      )
-                        .charAt(0)
-                        .toUpperCase()}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div className="flex-1">
-                    <div className="bg-muted rounded-lg px-3 py-2">
-                      <p className="text-xs font-medium">
-                        {comment.author.firstName ||
-                          comment.author.loungeTitle ||
-                          comment.author.email}
-                      </p>
-                      <p className="text-sm">{comment.content}</p>
-                    </div>
-                    <p className="text-muted-foreground mt-1 text-xs">
-                      {formatDistanceToNow(new Date(comment.createdAt), {
-                        addSuffix: true,
-                      })}
-                    </p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
         </div>
       </CardContent>
+
+      {/* Comment bottom sheet */}
+      <CommentSheet
+        open={showCommentSheet}
+        onClose={() => setShowCommentSheet(false)}
+        targetType="post"
+        targetId={post._id}
+        commentCount={post.commentCount}
+      />
     </Card>
   )
 }

@@ -13,7 +13,7 @@ import {
 import { Label } from "../ui/label"
 import { Input } from "../ui/input"
 import { toast } from "sonner"
-import { useAuth } from "../../_providers/auth"
+import { useAuth } from "@/app/_auth"
 import { loungeService } from "../../_services"
 import { isAuthError } from "../../_services/api"
 

@@ -5,9 +5,9 @@ import { Button } from "../ui/button"
 import { Input } from "../ui/input"
 import { Label } from "../ui/label"
 import { MapPinIcon, SearchIcon, ChevronDown } from "lucide-react"
-import { authService } from "../../_services/auth.service"
+import { authService } from "@/app/_auth"
 import { isAuthError } from "../../_services/api"
-import { useAuth } from "../../_providers/auth"
+import { useAuth } from "@/app/_auth"
 import type { LocationData } from "../../_types"
 
 interface LocationSelectorProps {
@@ -16,7 +16,6 @@ interface LocationSelectorProps {
 }
 
 declare global {
-  // eslint-disable-next-line no-unused-vars
   interface Window {
     google: any
   }

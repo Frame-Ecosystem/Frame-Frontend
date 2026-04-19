@@ -1,8 +1,8 @@
 "use client"
 
-import { useAuth } from "../../_providers/auth"
+import { useAuth } from "@/app/_auth"
 import { useRouter } from "next/navigation"
-import { useEffect, useState } from "react"
+import { useCallback, useEffect, useState } from "react"
 import {
   Card,
   CardContent,
@@ -99,17 +99,7 @@ export default function LoungeServiceManagementPage() {
     }
   }, [user, isLoading, router])
 
-  useEffect(() => {
-    loadServices()
-    loadGlobalServices()
-  }, [])
-
-  // Load agents when user becomes available
-  useEffect(() => {
-    if (user?._id) loadLoungeAgents()
-  }, [user?._id])
-
-  const loadGlobalServices = async () => {
+  const loadGlobalServices = useCallback(async () => {
     try {
       const data = await serviceService.getAll()
       setGlobalServices(Array.isArray(data) ? data : [])
@@ -118,9 +108,9 @@ export default function LoungeServiceManagementPage() {
       console.error("Failed to load global services:", error)
       setGlobalServices([])
     }
-  }
+  }, [])
 
-  const loadLoungeAgents = async () => {
+  const loadLoungeAgents = useCallback(async () => {
     if (!user?._id) return
     try {
       const data = await loungeService.getAgentsByLoungeId(user._id)
@@ -130,9 +120,9 @@ export default function LoungeServiceManagementPage() {
       console.error("Failed to load lounge agents:", error)
       setLoungeAgents([])
     }
-  }
+  }, [user?._id])
 
-  const loadServices = async () => {
+  const loadServices = useCallback(async () => {
     try {
       const data = await loungeService.getAll()
       const svcList = Array.isArray(data) ? data : []
@@ -160,7 +150,17 @@ export default function LoungeServiceManagementPage() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [])
+
+  useEffect(() => {
+    void loadServices()
+    void loadGlobalServices()
+  }, [loadGlobalServices, loadServices])
+
+  // Load agents when user becomes available
+  useEffect(() => {
+    void loadLoungeAgents()
+  }, [loadLoungeAgents])
 
   const handleImageFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]

@@ -1,43 +1,24 @@
-// Social media / post types
+// Re-export content types for backwards compatibility
+// All post/reel/comment types now live in content.ts
+export type {
+  Post,
+  Reel,
+  Comment,
+  FeedItem,
+  PostMedia,
+  AuthorSummary,
+  Hashtag,
+  Report,
+  CreatePostInput,
+  UpdatePostInput,
+  CreateReelInput,
+  UpdateReelInput,
+  CreateCommentInput,
+  CreateReportInput,
+  ReviewReportInput,
+  PaginatedContentResponse,
+  SingleContentResponse,
+  ContentPagination,
+} from "./content"
 
-import type { User } from "./user"
-
-export interface Post {
-  _id: string
-  id: string
-  author: User
-  content: string
-  images?: string[]
-  likes: string[]
-  comments: Comment[]
-  createdAt: string
-  updatedAt: string
-}
-
-export interface Comment {
-  _id: string
-  id: string
-  author: User
-  content: string
-  likes: string[]
-  createdAt: string
-  updatedAt: string
-}
-
-export interface CreatePostInput {
-  content: string
-  images?: File[]
-}
-
-export interface CreateCommentInput {
-  postId: string
-  content: string
-}
-
-export interface LikePostInput {
-  postId: string
-}
-
-export interface LikeCommentInput {
-  commentId: string
-}
+export { ContentType, AuthorType, ReportStatus } from "./content"

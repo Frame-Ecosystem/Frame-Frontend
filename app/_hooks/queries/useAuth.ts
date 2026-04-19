@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query"
-import { authService } from "../../_services/auth.service"
-import { useAuth } from "../../_providers/auth"
+import { authService } from "@/app/_auth"
+import { useAuth } from "@/app/_auth"
 import { usePushNotificationContext } from "../../_providers/push-notification"
 
 /**
@@ -20,10 +20,11 @@ export function useSignIn() {
     }) => authService.signIn(emailOrPhone, password),
     onSuccess: (data) => {
       if (data) {
-        setAuth(data.data, data.token)
+        setAuth(data.data, data.token, data.expiresIn)
         queryClient.invalidateQueries({ queryKey: ["currentUser"] })
       }
     },
+    throwOnError: false,
   })
 }
 
@@ -38,6 +39,7 @@ export function useSignUp() {
       password: string
       type?: "client" | "lounge"
     }) => authService.signUp(data),
+    throwOnError: false,
   })
 }
 

@@ -5,7 +5,6 @@ import { cn } from "@/app/_lib/utils"
 import type { LoungeService, LoungeAgent } from "../../../_types"
 import Image from "next/image"
 
-/* eslint-disable no-unused-vars */
 interface BookingAgentStepProps {
   selectedServices: LoungeService[]
   agents: LoungeAgent[]
@@ -20,7 +19,6 @@ interface BookingAgentStepProps {
   getUnavailableServices: (agent: LoungeAgent) => LoungeService[]
   getAvailableAgentsForService: (serviceId: string) => LoungeAgent[]
 }
-/* eslint-enable no-unused-vars */
 
 export function BookingAgentStep({
   selectedServices,

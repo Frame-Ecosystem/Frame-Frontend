@@ -1,8 +1,8 @@
 "use client"
 
 import { useSearchParams } from "next/navigation"
-import { useAuth } from "../_providers/auth"
-import { getUserDisplayName } from "../_services/auth.service"
+import { useAuth } from "@/app/_auth"
+import { getUserDisplayName } from "@/app/_auth"
 import QueueDisplay from "../_components/queue/queue-display"
 
 export default function QueuePage() {

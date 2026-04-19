@@ -12,7 +12,7 @@ import { User, Calendar, Shield, ShieldCheck, Building } from "lucide-react"
 interface AgentDetailsProps {
   agent: Agent | null
   isOpen: boolean
-  onOpenChange: (open: boolean) => void // eslint-disable-line no-unused-vars
+  onOpenChange: (open: boolean) => void
 }
 
 export function AgentDetails({

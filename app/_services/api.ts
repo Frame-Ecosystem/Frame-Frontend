@@ -1,5 +1,5 @@
 // API Base Configuration
-import { withCsrfHeader, isStateChanging } from "../_lib/csrf"
+import { withCsrfHeader, isStateChanging } from "@/app/_auth"
 export const API_BASE_URL =
   typeof window !== "undefined"
     ? `${window.location.protocol}//${window.location.hostname}:3000`
@@ -12,17 +12,23 @@ export const GOOGLE_AUTH_BASE_URL =
 
 class ApiClient {
   private baseUrl: string
-  private getAccessToken: (() => string | null) | null = null
+  private _getAccessToken: (() => string | null) | null = null
   private refreshTokenCallback: (() => Promise<string | null>) | null = null
   private authFailureCallback: (() => void) | null = null
+  private defaultTimeout = 30_000 // 30 seconds
 
   constructor(baseUrl: string = API_BASE_URL) {
     this.baseUrl = baseUrl
   }
 
+  /** Read current access token (for use by socket or other non-fetch consumers). */
+  get accessToken(): string | null {
+    return this._getAccessToken?.() ?? null
+  }
+
   // Set access token getter (will be called from AuthProvider)
   setAccessTokenGetter(getter: () => string | null) {
-    this.getAccessToken = getter
+    this._getAccessToken = getter
   }
 
   // Set callback to refresh access token on 401
@@ -42,7 +48,7 @@ class ApiClient {
     const url = `${this.baseUrl}${endpoint}`
 
     // Get access token from memory (via context)
-    let token = this.getAccessToken?.()
+    let token = this._getAccessToken?.()
 
     let headers: HeadersInit = {
       Accept: "application/json",
@@ -75,11 +81,23 @@ class ApiClient {
     }
 
     try {
-      let response = await fetch(url, {
-        ...options,
-        headers,
-        credentials: "include", // Include HttpOnly cookies for refresh token
-      })
+      const controller = new AbortController()
+      const timeoutId = setTimeout(
+        () => controller.abort(),
+        this.defaultTimeout,
+      )
+
+      let response: Response
+      try {
+        response = await fetch(url, {
+          ...options,
+          headers,
+          credentials: "include", // Include HttpOnly cookies for refresh token
+          signal: controller.signal,
+        })
+      } finally {
+        clearTimeout(timeoutId)
+      }
 
       // For authenticated endpoints, try token refresh on 401
       if (
@@ -106,6 +124,7 @@ class ApiClient {
               ...options,
               headers,
               credentials: "include",
+              signal: AbortSignal.timeout(this.defaultTimeout),
             })
           } else {
             this.authFailureCallback?.()
@@ -123,6 +142,24 @@ class ApiClient {
       if (!response.ok) {
         const error = await response.json().catch(() => ({}))
         const message = error.message || `API Error: ${response.statusText}`
+        const errorCode: string | undefined = error.code
+
+        // Blocked/suspended account — surface a clear message instead of
+        // silently redirecting to sign-in.
+        if (
+          response.status === 403 &&
+          (errorCode === "ACCOUNT_BLOCKED" ||
+            errorCode === "ACCOUNT_SUSPENDED" ||
+            /account.*(?:blocked|suspended|disabled)/i.test(message))
+        ) {
+          const err = new Error("Account suspended. Please contact support.")
+          try {
+            ;(err as any).code = errorCode || "ACCOUNT_BLOCKED"
+          } catch {}
+          // Still clear auth so the user isn't stuck in a bad state
+          this.authFailureCallback?.()
+          throw err
+        }
 
         // Catch auth-related errors from non-401 responses (e.g. 403)
         // but NOT for public auth endpoints (login, signup, etc.)
@@ -140,7 +177,7 @@ class ApiClient {
 
         const err = new Error(message)
         try {
-          ;(err as any).code = error.code
+          ;(err as any).code = errorCode
         } catch {}
         throw err
       }
@@ -148,6 +185,9 @@ class ApiClient {
       return response.json()
     } catch (error) {
       if (error instanceof Error) {
+        if (error.name === "AbortError" || error.name === "TimeoutError") {
+          throw new Error("Request timed out. Please try again.")
+        }
         throw error
       }
       throw new Error("Network error: Unable to reach the server")

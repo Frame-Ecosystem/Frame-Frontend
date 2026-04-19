@@ -1,6 +1,9 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useEffect, useMemo, useState } from "react"
+import { Controller, useForm } from "react-hook-form"
+import { z } from "zod"
+import { zodResolver } from "@hookform/resolvers/zod"
 import { Button } from "@/app/_components/ui/button"
 import { Input } from "@/app/_components/ui/input"
 import { Label } from "@/app/_components/ui/label"
@@ -11,9 +14,16 @@ import {
   CardHeader,
   CardTitle,
 } from "@/app/_components/ui/card"
-import { authService } from "@/app/_services/auth.service"
+import {
+  authService,
+  validateSignupPassword,
+  usePasswordRules,
+  useAuthRateLimit,
+  useAuth,
+  mapAuthError,
+} from "@/app/_auth"
 import { useRouter, useSearchParams } from "next/navigation"
-import { ArrowLeft, Lock, Eye, EyeOff } from "lucide-react"
+import { ArrowLeft, Check, Eye, EyeOff, Lock, X } from "lucide-react"
 import Link from "next/link"
 
 export default function ResetPasswordPage() {
@@ -21,13 +31,15 @@ export default function ResetPasswordPage() {
   const searchParams = useSearchParams()
   const token = searchParams.get("token")
 
-  const [newPassword, setNewPassword] = useState("")
-  const [confirmPassword, setConfirmPassword] = useState("")
+  const [submitAttempted, setSubmitAttempted] = useState(false)
   const [error, setError] = useState("")
   const [success, setSuccess] = useState("")
   const [loading, setLoading] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
+  const { isLocked, remainingSeconds, recordFailure, recordSuccess } =
+    useAuthRateLimit()
+  const { clearAuth } = useAuth()
 
   useEffect(() => {
     if (!token) {
@@ -37,8 +49,69 @@ export default function ResetPasswordPage() {
     }
   }, [token])
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
+  const schema = useMemo(
+    () =>
+      z
+        .object({
+          newPassword: z
+            .string()
+            .min(1, "New password is required")
+            .min(8, "Password must be at least 8 characters")
+            .max(128, "Password must not exceed 128 characters"),
+          confirmPassword: z
+            .string()
+            .min(1, "Confirm password is required")
+            .min(8, "Password must be at least 8 characters"),
+        })
+        .superRefine(({ newPassword, confirmPassword }, ctx) => {
+          if (!newPassword || !confirmPassword) return
+
+          const validationError = validateSignupPassword(
+            newPassword,
+            confirmPassword,
+          )
+          if (!validationError) return
+
+          if (validationError === "Passwords do not match") {
+            ctx.addIssue({
+              code: "custom",
+              path: ["confirmPassword"],
+              message: validationError,
+            })
+            return
+          }
+
+          ctx.addIssue({
+            code: "custom",
+            path: ["newPassword"],
+            message: validationError,
+          })
+        }),
+    [],
+  )
+
+  type Values = z.infer<typeof schema>
+
+  const {
+    control,
+    handleSubmit,
+    formState: { errors, isValid },
+    register,
+    setError: setFieldError,
+    watch,
+  } = useForm<Values>({
+    resolver: zodResolver(schema),
+    mode: "onChange",
+    reValidateMode: "onChange",
+    defaultValues: { newPassword: "", confirmPassword: "" },
+  })
+
+  const newPassword = watch("newPassword")
+  const confirmPassword = watch("confirmPassword")
+  const { rules } = usePasswordRules(newPassword, confirmPassword)
+
+  const onSubmit = async (values: Values) => {
+    if (isLocked) return
     setError("")
     setSuccess("")
     setLoading(true)
@@ -49,28 +122,29 @@ export default function ResetPasswordPage() {
       return
     }
 
-    if (newPassword !== confirmPassword) {
-      setError("Passwords do not match")
-      setLoading(false)
-      return
-    }
-
-    if (newPassword.length < 6) {
-      setError("Password must be at least 6 characters long")
-      setLoading(false)
-      return
-    }
-
     try {
-      const response = await authService.resetPassword(token, newPassword)
+      const response = await authService.resetPassword(
+        token,
+        values.newPassword,
+      )
       if (response) {
+        recordSuccess()
+        // Server invalidates all sessions on password reset —
+        // clear any local auth state before redirecting.
+        clearAuth()
         setSuccess("Password reset successfully! Redirecting to sign in...")
         setTimeout(() => {
-          router.push("/")
+          router.push("/?signin=true")
         }, 2000)
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to reset password")
+      recordFailure()
+      const mapped = mapAuthError(err, "resetPassword")
+      setError(mapped.formError)
+      setFieldError("newPassword", {
+        type: "server",
+        message: mapped.formError,
+      })
     } finally {
       setLoading(false)
     }
@@ -134,19 +208,32 @@ export default function ResetPasswordPage() {
             <CardDescription>Enter your new password below.</CardDescription>
           </CardHeader>
           <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-4">
+            <form
+              onSubmit={handleSubmit(onSubmit, () => setSubmitAttempted(true))}
+              className="space-y-4"
+            >
               <div className="space-y-2">
                 <Label htmlFor="newPassword">New password</Label>
                 <div className="relative">
-                  <Input
-                    id="newPassword"
-                    type={showPassword ? "text" : "password"}
-                    placeholder="••••••••"
-                    value={newPassword}
-                    onChange={(e) => setNewPassword(e.target.value)}
-                    required
-                    minLength={6}
-                    className="pr-10"
+                  <Controller
+                    control={control}
+                    name="newPassword"
+                    render={({ field }) => (
+                      <Input
+                        id="newPassword"
+                        type={showPassword ? "text" : "password"}
+                        placeholder="••••••••"
+                        value={field.value}
+                        onChange={(e) => {
+                          setSubmitAttempted(false)
+                          field.onChange(e.target.value)
+                        }}
+                        required
+                        minLength={8}
+                        className="pr-10"
+                        autoComplete="new-password"
+                      />
+                    )}
                   />
                   <button
                     type="button"
@@ -160,6 +247,37 @@ export default function ResetPasswordPage() {
                     )}
                   </button>
                 </div>
+
+                <div className="space-y-2">
+                  <ul className="space-y-1 text-xs">
+                    {rules.map((rule) => (
+                      <li
+                        key={rule.id}
+                        className={
+                          rule.met
+                            ? "text-green-600 dark:text-green-400"
+                            : "text-foreground"
+                        }
+                        aria-label={rule.label}
+                      >
+                        <span className="inline-flex items-center gap-2">
+                          {rule.met ? (
+                            <Check className="h-3.5 w-3.5" aria-hidden />
+                          ) : (
+                            <X className="h-3.5 w-3.5" aria-hidden />
+                          )}
+                          <span>{rule.label}</span>
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+
+                {errors.newPassword?.message && (
+                  <p className="text-destructive text-sm">
+                    {errors.newPassword.message}
+                  </p>
+                )}
               </div>
 
               <div className="space-y-2">
@@ -169,11 +287,13 @@ export default function ResetPasswordPage() {
                     id="confirmPassword"
                     type={showConfirmPassword ? "text" : "password"}
                     placeholder="••••••••"
-                    value={confirmPassword}
-                    onChange={(e) => setConfirmPassword(e.target.value)}
                     required
-                    minLength={6}
+                    minLength={8}
                     className="pr-10"
+                    autoComplete="new-password"
+                    {...register("confirmPassword", {
+                      onChange: () => setSubmitAttempted(false),
+                    })}
                   />
                   <button
                     type="button"
@@ -187,6 +307,11 @@ export default function ResetPasswordPage() {
                     )}
                   </button>
                 </div>
+                {errors.confirmPassword?.message && (
+                  <p className="text-destructive text-sm">
+                    {errors.confirmPassword.message}
+                  </p>
+                )}
               </div>
 
               {error && <p className="text-destructive text-sm">{error}</p>}
@@ -197,9 +322,14 @@ export default function ResetPasswordPage() {
                 type="submit"
                 variant="default"
                 className="w-full"
-                disabled={loading}
+                disabled={loading || isLocked || (!isValid && submitAttempted)}
+                onClick={() => setSubmitAttempted(true)}
               >
-                {loading ? "Resetting..." : "Reset password"}
+                {isLocked
+                  ? `Too many attempts (${remainingSeconds}s)`
+                  : loading
+                    ? "Resetting..."
+                    : "Reset password"}
               </Button>
             </form>
 

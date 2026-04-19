@@ -22,7 +22,7 @@ import {
   useReorderPerson,
   useToggleQueueBooking,
 } from "../../_hooks/queries/useQueue"
-import { useAuth } from "../../_providers/auth"
+import { useAuth } from "@/app/_auth"
 import { loungeService } from "../../_services/lounge.service"
 import type { Queue, QueuePerson, LoungeAgent } from "../../_types"
 import { QueuePersonStatus } from "../../_types"

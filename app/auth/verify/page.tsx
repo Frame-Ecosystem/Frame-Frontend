@@ -58,11 +58,9 @@ export default function VerifyPage() {
             if (response.ok && data && (data.token || data.data)) {
               const newToken = data.token || data.data?.token
               const user = data.data || data.user || null
+              const expiresIn = data.expiresIn || 900
 
-              try {
-                if (newToken) localStorage.setItem("accessToken", newToken)
-              } catch {}
-
+              // Signal the opener window (main app) about verification
               try {
                 if (window.opener && !window.opener.closed) {
                   let targetOrigin = "*"
@@ -70,10 +68,20 @@ export default function VerifyPage() {
                     targetOrigin = window.opener.location?.origin || "*"
                   } catch {}
                   window.opener.postMessage(
-                    { type: "VERIFICATION_COMPLETED", token: newToken, user },
+                    {
+                      type: "VERIFICATION_COMPLETED",
+                      token: newToken,
+                      user,
+                      expiresIn,
+                    },
                     targetOrigin,
                   )
                 }
+              } catch {}
+
+              // Set session hint for cross-tab detection
+              try {
+                localStorage.setItem("hasRefreshToken", "true")
               } catch {}
 
               setStatus("success")
@@ -112,9 +120,8 @@ export default function VerifyPage() {
               if (res.ok && d && (d.token || d.data?.token)) {
                 const newToken = d.token || d.data?.token
                 const user = d.data || d.user || null
-                try {
-                  if (newToken) localStorage.setItem("accessToken", newToken)
-                } catch {}
+                const expiresIn = d.expiresIn || 900
+                // Signal the opener window (main app) about verification
                 try {
                   if (window.opener && !window.opener.closed) {
                     let targetOrigin = "*"
@@ -122,10 +129,19 @@ export default function VerifyPage() {
                       targetOrigin = window.opener.location?.origin || "*"
                     } catch {}
                     window.opener.postMessage(
-                      { type: "VERIFICATION_COMPLETED", token: newToken, user },
+                      {
+                        type: "VERIFICATION_COMPLETED",
+                        token: newToken,
+                        user,
+                        expiresIn,
+                      },
                       targetOrigin,
                     )
                   }
+                } catch {}
+                // Set session hint for cross-tab detection
+                try {
+                  localStorage.setItem("hasRefreshToken", "true")
                 } catch {}
                 setStatus("success")
                 setMessage("Email verified — you can close this tab.")
