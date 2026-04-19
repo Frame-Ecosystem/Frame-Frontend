@@ -5,6 +5,7 @@ import { Send, X, Loader2 } from "lucide-react"
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar"
 import { useAuth } from "@/app/_auth"
 import { useAddComment } from "../../_hooks/queries/useContent"
+import { useTranslation } from "@/app/_i18n"
 
 interface CommentInputProps {
   targetType: "post" | "reel"
@@ -23,6 +24,7 @@ export function CommentInput({
   const [text, setText] = useState("")
   const inputRef = useRef<HTMLInputElement>(null)
   const addComment = useAddComment(targetType, targetId)
+  const { t } = useTranslation()
 
   // Focus input when replying
   useEffect(() => {
@@ -67,7 +69,8 @@ export function CommentInput({
       {replyTo && (
         <div className="text-muted-foreground bg-muted/50 flex items-center justify-between px-4 py-1.5 text-xs">
           <span>
-            Replying to <strong>{replyTo.authorName}</strong>
+            {t("content.comments.replyingTo")}{" "}
+            <strong>{replyTo.authorName}</strong>
           </span>
           <button onClick={onCancelReply}>
             <X className="h-3.5 w-3.5" />
@@ -87,7 +90,11 @@ export function CommentInput({
           ref={inputRef}
           type="text"
           placeholder={
-            replyTo ? `Reply to ${replyTo.authorName}...` : "Add a comment..."
+            replyTo
+              ? t("content.comments.replyToPlaceholder", {
+                  name: replyTo.authorName,
+                })
+              : t("content.comments.addComment")
           }
           value={text}
           onChange={(e) => setText(e.target.value)}

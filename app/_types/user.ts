@@ -36,6 +36,7 @@ export interface User {
   verified?: boolean
   email_verified?: boolean
   theme?: string
+  language?: string
   averageRating?: number
   ratingCount?: number
   likeCount?: number

@@ -68,6 +68,7 @@ import type {
   CreateUserDto,
   UpdateUserDto,
 } from "../../_types/admin"
+import { useTranslation } from "@/app/_i18n"
 
 const LIMIT = 20
 
@@ -103,6 +104,7 @@ export default function UsersPage() {
   const toggleBlock = useToggleBlockUser()
   const resetPw = useResetPassword()
   const { confirm, dialog } = useConfirmDialog()
+  const { t } = useTranslation()
 
   const users = data?.data ?? []
   const totalPages = data?.totalPages ?? 1
@@ -111,12 +113,12 @@ export default function UsersPage() {
   return (
     <>
       <AdminHeader
-        title="User Management"
-        description="Manage all platform users"
+        title={t("admin.users.title")}
+        description={t("admin.users.desc")}
         icon={Users}
         actions={
           <Button onClick={() => setCreateOpen(true)}>
-            <Plus className="mr-2 h-4 w-4" /> Create User
+            <Plus className="mr-2 h-4 w-4" /> {t("admin.users.createUser")}
           </Button>
         }
       />
@@ -128,15 +130,17 @@ export default function UsersPage() {
           <DataTableToolbar
             search={search}
             onSearchChange={searchTimeout}
-            searchPlaceholder="Search by name or email..."
+            searchPlaceholder={t("admin.users.searchPlaceholder")}
           />
 
           {users.length === 0 ? (
             <EmptyState
               icon={<Users />}
-              title="No users found"
+              title={t("admin.users.noUsers")}
               description={
-                debouncedSearch ? "Try a different search" : "No users yet"
+                debouncedSearch
+                  ? t("admin.users.trySearch")
+                  : t("admin.users.noUsersYet")
               }
             />
           ) : (
@@ -144,10 +148,10 @@ export default function UsersPage() {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>User</TableHead>
-                    <TableHead>Type</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Joined</TableHead>
+                    <TableHead>{t("admin.users.headerUser")}</TableHead>
+                    <TableHead>{t("admin.users.headerType")}</TableHead>
+                    <TableHead>{t("admin.users.headerStatus")}</TableHead>
+                    <TableHead>{t("admin.users.headerJoined")}</TableHead>
                     <TableHead className="w-12" />
                   </TableRow>
                 </TableHeader>
@@ -186,9 +190,13 @@ export default function UsersPage() {
                         </TableCell>
                         <TableCell>
                           {u.isBlocked ? (
-                            <Badge variant="destructive">Blocked</Badge>
+                            <Badge variant="destructive">
+                              {t("admin.users.blocked")}
+                            </Badge>
                           ) : (
-                            <Badge variant="default">Active</Badge>
+                            <Badge variant="default">
+                              {t("admin.users.active")}
+                            </Badge>
                           )}
                         </TableCell>
                         <TableCell className="text-muted-foreground text-sm">
@@ -203,12 +211,12 @@ export default function UsersPage() {
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end">
                               <DropdownMenuItem onClick={() => setEditUser(u)}>
-                                Edit
+                                {t("admin.users.edit")}
                               </DropdownMenuItem>
                               <DropdownMenuItem
                                 onClick={() => setResetPwUser(u)}
                               >
-                                Reset Password
+                                {t("admin.users.resetPassword")}
                               </DropdownMenuItem>
                               <DropdownMenuSeparator />
                               <DropdownMenuItem
@@ -222,11 +230,12 @@ export default function UsersPage() {
                                 {u.isBlocked ? (
                                   <>
                                     <ShieldOff className="mr-2 h-4 w-4" />{" "}
-                                    Unblock
+                                    {t("admin.users.unblock")}
                                   </>
                                 ) : (
                                   <>
-                                    <Shield className="mr-2 h-4 w-4" /> Block
+                                    <Shield className="mr-2 h-4 w-4" />{" "}
+                                    {t("admin.users.block")}
                                   </>
                                 )}
                               </DropdownMenuItem>
@@ -234,9 +243,12 @@ export default function UsersPage() {
                                 className="text-destructive"
                                 onClick={() =>
                                   confirm({
-                                    title: "Delete user?",
-                                    description: `This will permanently delete ${u.email}. This action cannot be undone.`,
-                                    confirmLabel: "Delete",
+                                    title: t("admin.users.deleteUser"),
+                                    description: t(
+                                      "admin.common.deleteUserConfirmDesc",
+                                      { email: u.email },
+                                    ),
+                                    confirmLabel: t("admin.common.delete"),
                                     variant: "destructive",
                                     onConfirm: () =>
                                       deleteMut.mutateAsync(u._id),
@@ -303,15 +315,17 @@ export default function UsersPage() {
         >
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>Reset Password — {resetPwUser.email}</DialogTitle>
+              <DialogTitle>
+                {t("admin.users.resetPwTitle", { email: resetPwUser.email })}
+              </DialogTitle>
             </DialogHeader>
             <div className="space-y-3 py-4">
-              <Label>New Password</Label>
+              <Label>{t("admin.users.newPassword")}</Label>
               <Input
                 type="password"
                 value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}
-                placeholder="Enter new password"
+                placeholder={t("admin.users.enterNewPassword")}
               />
             </div>
             <DialogFooter>
@@ -322,7 +336,7 @@ export default function UsersPage() {
                   setNewPassword("")
                 }}
               >
-                Cancel
+                {t("common.cancel")}
               </Button>
               <Button
                 disabled={!newPassword || resetPw.isPending}
@@ -338,7 +352,9 @@ export default function UsersPage() {
                     })
                 }
               >
-                {resetPw.isPending ? "Resetting..." : "Reset"}
+                {resetPw.isPending
+                  ? t("admin.users.resetting")
+                  : t("admin.users.reset")}
               </Button>
             </DialogFooter>
           </DialogContent>
@@ -372,15 +388,17 @@ function CreateUserDialog({
   const set = (key: keyof CreateUserDto, val: string) =>
     setForm((f) => ({ ...f, [key]: val }))
 
+  const { t } = useTranslation()
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Create User</DialogTitle>
+          <DialogTitle>{t("admin.users.createUser")}</DialogTitle>
         </DialogHeader>
         <div className="space-y-4 py-4">
           <div className="space-y-2">
-            <Label>Email</Label>
+            <Label>{t("admin.users.email")}</Label>
             <Input
               type="email"
               value={form.email}
@@ -388,7 +406,7 @@ function CreateUserDialog({
             />
           </div>
           <div className="space-y-2">
-            <Label>Password</Label>
+            <Label>{t("admin.users.password")}</Label>
             <Input
               type="password"
               value={form.password}
@@ -396,28 +414,34 @@ function CreateUserDialog({
             />
           </div>
           <div className="space-y-2">
-            <Label>Type</Label>
+            <Label>{t("admin.users.type")}</Label>
             <Select value={form.type} onValueChange={(v) => set("type", v)}>
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="client">Client</SelectItem>
-                <SelectItem value="lounge">Lounge</SelectItem>
-                <SelectItem value="agent">Agent</SelectItem>
+                <SelectItem value="client">
+                  {t("admin.users.typeClient")}
+                </SelectItem>
+                <SelectItem value="lounge">
+                  {t("admin.users.typeLounge")}
+                </SelectItem>
+                <SelectItem value="agent">
+                  {t("admin.users.typeAgent")}
+                </SelectItem>
               </SelectContent>
             </Select>
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-2">
-              <Label>First Name</Label>
+              <Label>{t("admin.users.firstName")}</Label>
               <Input
                 value={form.firstName ?? ""}
                 onChange={(e) => set("firstName", e.target.value)}
               />
             </div>
             <div className="space-y-2">
-              <Label>Last Name</Label>
+              <Label>{t("admin.users.lastName")}</Label>
               <Input
                 value={form.lastName ?? ""}
                 onChange={(e) => set("lastName", e.target.value)}
@@ -425,7 +449,7 @@ function CreateUserDialog({
             </div>
           </div>
           <div className="space-y-2">
-            <Label>Phone</Label>
+            <Label>{t("admin.users.phone")}</Label>
             <Input
               value={form.phoneNumber ?? ""}
               onChange={(e) => set("phoneNumber", e.target.value)}
@@ -434,13 +458,13 @@ function CreateUserDialog({
         </div>
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>
-            Cancel
+            {t("common.cancel")}
           </Button>
           <Button
             disabled={!form.email || !form.password || loading}
             onClick={() => onSubmit(form)}
           >
-            {loading ? "Creating..." : "Create"}
+            {loading ? t("admin.users.creating") : t("admin.users.create")}
           </Button>
         </DialogFooter>
       </DialogContent>
@@ -474,15 +498,17 @@ function EditUserDialog({
   const set = (key: keyof UpdateUserDto, val: string) =>
     setForm((f) => ({ ...f, [key]: val }))
 
+  const { t } = useTranslation()
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Edit User</DialogTitle>
+          <DialogTitle>{t("admin.users.editUser")}</DialogTitle>
         </DialogHeader>
         <div className="space-y-4 py-4">
           <div className="space-y-2">
-            <Label>Email</Label>
+            <Label>{t("admin.users.email")}</Label>
             <Input
               type="email"
               value={form.email ?? ""}
@@ -490,28 +516,34 @@ function EditUserDialog({
             />
           </div>
           <div className="space-y-2">
-            <Label>Type</Label>
+            <Label>{t("admin.users.type")}</Label>
             <Select value={form.type} onValueChange={(v) => set("type", v)}>
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="client">Client</SelectItem>
-                <SelectItem value="lounge">Lounge</SelectItem>
-                <SelectItem value="agent">Agent</SelectItem>
+                <SelectItem value="client">
+                  {t("admin.users.typeClient")}
+                </SelectItem>
+                <SelectItem value="lounge">
+                  {t("admin.users.typeLounge")}
+                </SelectItem>
+                <SelectItem value="agent">
+                  {t("admin.users.typeAgent")}
+                </SelectItem>
               </SelectContent>
             </Select>
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-2">
-              <Label>First Name</Label>
+              <Label>{t("admin.users.firstName")}</Label>
               <Input
                 value={form.firstName ?? ""}
                 onChange={(e) => set("firstName", e.target.value)}
               />
             </div>
             <div className="space-y-2">
-              <Label>Last Name</Label>
+              <Label>{t("admin.users.lastName")}</Label>
               <Input
                 value={form.lastName ?? ""}
                 onChange={(e) => set("lastName", e.target.value)}
@@ -519,7 +551,7 @@ function EditUserDialog({
             </div>
           </div>
           <div className="space-y-2">
-            <Label>Phone</Label>
+            <Label>{t("admin.users.phone")}</Label>
             <Input
               value={form.phoneNumber ?? ""}
               onChange={(e) => set("phoneNumber", e.target.value)}
@@ -528,10 +560,10 @@ function EditUserDialog({
         </div>
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>
-            Cancel
+            {t("common.cancel")}
           </Button>
           <Button disabled={loading} onClick={() => onSubmit(form)}>
-            {loading ? "Saving..." : "Save"}
+            {loading ? t("admin.users.saving") : t("common.save")}
           </Button>
         </DialogFooter>
       </DialogContent>

@@ -10,27 +10,28 @@ import {
   CardTitle,
 } from "../../_components/ui/card"
 import { AdminHeader } from "../_components/admin-header"
+import { useTranslation } from "@/app/_i18n"
 import { useConfirmDialog } from "../_components/confirm-dialog"
 import { usePopulateDailyQueues } from "../../_hooks/queries/useAdmin"
 
 export default function QueuePage() {
+  const { t } = useTranslation()
   const populateMut = usePopulateDailyQueues()
   const { confirm, dialog } = useConfirmDialog()
 
   const handlePopulate = () =>
     confirm({
-      title: "Populate daily queues?",
-      description:
-        "This will generate today's queue slots for all active lounges. Existing slots for today will not be duplicated.",
-      confirmLabel: "Populate",
+      title: t("admin.queue.confirmTitle"),
+      description: t("admin.queue.confirmDesc"),
+      confirmLabel: t("admin.queue.confirmLabel"),
       onConfirm: () => populateMut.mutateAsync(),
     })
 
   return (
     <>
       <AdminHeader
-        title="Queue Management"
-        description="Manage daily queue generation for lounges"
+        title={t("admin.queue.title")}
+        description={t("admin.queue.desc")}
         icon={CalendarClock}
       />
 
@@ -38,12 +39,9 @@ export default function QueuePage() {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Play className="h-5 w-5" /> Populate Daily Queues
+              <Play className="h-5 w-5" /> {t("admin.queue.populateTitle")}
             </CardTitle>
-            <CardDescription>
-              Generate today&apos;s queue time slots for all active lounges
-              based on their working hours and service durations.
-            </CardDescription>
+            <CardDescription>{t("admin.queue.populateDesc")}</CardDescription>
           </CardHeader>
           <CardContent>
             <Button
@@ -51,7 +49,9 @@ export default function QueuePage() {
               disabled={populateMut.isPending}
               className="w-full"
             >
-              {populateMut.isPending ? "Populating..." : "Run Now"}
+              {populateMut.isPending
+                ? t("admin.queue.populating")
+                : t("admin.queue.runNow")}
             </Button>
           </CardContent>
         </Card>

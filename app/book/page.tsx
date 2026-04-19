@@ -2,6 +2,7 @@
 
 import { Suspense, useEffect, useState } from "react"
 import { useSearchParams } from "next/navigation"
+import { useTranslation } from "@/app/_i18n"
 import { BookingWizard } from "../_components/bookings/wizard/booking-wizard"
 import { LoungeService } from "../_types"
 import { useRouter } from "next/navigation"
@@ -21,6 +22,7 @@ const getValidImageUrl = (image: any): string => {
 function BookPageContent() {
   const searchParams = useSearchParams()
   const router = useRouter()
+  const { t, dir } = useTranslation()
   const [preSelectedServices, setPreSelectedServices] = useState<
     LoungeService[]
   >([])
@@ -89,13 +91,11 @@ function BookPageContent() {
 
   return (
     <div className="container mx-auto max-w-4xl px-4 py-6 pt-12">
-      <div className="mb-6 text-center">
+      <div className="mb-6 text-center" dir={dir}>
         <h1 className="text-2xl font-bold text-gray-900 sm:text-3xl">
-          Book Your Appointment
+          {t("book.title")}
         </h1>
-        <p className="mt-2 text-gray-600">
-          Choose your preferred date, time, and complete your booking
-        </p>
+        <p className="mt-2 text-gray-600">{t("book.subtitle")}</p>
       </div>
 
       <BookingWizard

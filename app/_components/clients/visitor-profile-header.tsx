@@ -10,23 +10,23 @@ import {
 } from "@/app/_components/ui/avatar"
 import { ExpandableBioVisitor } from "@/app/_components/common/profile-display/expandable-bio-visitor"
 import { FollowButton } from "@/app/_components/common/follow-button"
+import { FollowStats } from "@/app/_components/common/follow-stats"
 import type { ClientProfile } from "@/app/_types"
 import { getDisplayName, getInitials, toImageUrl } from "./utils"
+import { useTranslation } from "@/app/_i18n"
 
 interface VisitorProfileHeaderProps {
   profile: ClientProfile
-  isMobile: boolean
   onBack: () => void
-
   onImageClick: (src: string, alt: string) => void
 }
 
 export function VisitorProfileHeader({
   profile,
-  isMobile,
   onBack,
   onImageClick,
 }: VisitorProfileHeaderProps) {
+  const { t } = useTranslation()
   const displayName = getDisplayName(profile)
   const profileUrl = toImageUrl(profile.profileImage)
   const coverUrl = toImageUrl(profile.coverImage)
@@ -64,7 +64,7 @@ export function VisitorProfileHeader({
           className="absolute top-3 left-3 z-10 gap-1.5 rounded-lg bg-black/50 p-2 text-white backdrop-blur-sm hover:bg-black/70 sm:top-4 sm:left-4 sm:p-2.5"
         >
           <ArrowLeft className="h-4 w-4" />
-          <span className="hidden sm:inline">Back</span>
+          <span className="hidden sm:inline">{t("clients.back")}</span>
         </Button>
       </div>
 
@@ -79,7 +79,7 @@ export function VisitorProfileHeader({
             }}
             aria-label="View profile photo"
           >
-            <Avatar className="ring-background h-32 w-32 ring-4 md:h-40 md:w-40">
+            <Avatar className="ring-background h-28 w-28 shadow-xl ring-4 sm:h-36 sm:w-36 md:h-40 md:w-40">
               {profileUrl && (
                 <AvatarImage
                   src={profileUrl}
@@ -94,23 +94,27 @@ export function VisitorProfileHeader({
           </button>
 
           <div className="mb-2 min-w-0 flex-1 pb-1">
-            <h1 className="truncate text-xl font-bold md:text-2xl lg:text-3xl">
+            <h1 className="text-lg font-bold sm:text-xl md:text-2xl lg:text-3xl">
               {displayName}
             </h1>
           </div>
         </div>
       </div>
 
-      {/* Bio + Follow + Member Since */}
-      <div className="mx-auto max-w-5xl px-4 pt-4 sm:px-6 lg:px-8">
-        <div className="space-y-4">
-          {profile.bio && (
-            <ExpandableBioVisitor bio={profile.bio} isMobile={isMobile} />
-          )}
-
-          <div className="flex items-center gap-3">
-            <FollowButton targetId={profile._id} />
+      {/* Bio + Follow Stats + Follow Button */}
+      <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
+        {profile.bio && (
+          <div className="mt-2">
+            <ExpandableBioVisitor bio={profile.bio} />
           </div>
+        )}
+
+        <div className="mt-3">
+          <FollowStats userId={profile._id} />
+        </div>
+
+        <div className="mt-3 flex items-center gap-3">
+          <FollowButton targetId={profile._id} />
         </div>
       </div>
     </div>

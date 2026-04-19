@@ -4,6 +4,7 @@ import { User, Check, CheckCircle } from "lucide-react"
 import { cn } from "@/app/_lib/utils"
 import type { LoungeService, LoungeAgent } from "../../../_types"
 import Image from "next/image"
+import { useTranslation } from "@/app/_i18n"
 
 interface BookingAgentStepProps {
   selectedServices: LoungeService[]
@@ -32,6 +33,7 @@ export function BookingAgentStep({
   getUnavailableServices,
   getAvailableAgentsForService,
 }: BookingAgentStepProps) {
+  const { t } = useTranslation()
   return (
     <div className="space-y-4">
       <div className="sm:text-left">
@@ -97,9 +99,9 @@ export function BookingAgentStep({
                   <User className="text-primary h-5 w-5" />
                 </div>
                 <div>
-                  <p className="font-medium">No agents available</p>
+                  <p className="font-medium">{t("booking.wizard.noAgents")}</p>
                   <p className="text-muted-foreground text-sm">
-                    You can proceed without selecting an agent.
+                    {t("booking.wizard.proceedWithout")}
                   </p>
                 </div>
               </div>
@@ -116,12 +118,10 @@ export function BookingAgentStep({
                 </div>
                 <div>
                   <p className="font-medium text-amber-800">
-                    No agents available for selected services
+                    {t("booking.wizard.noAgentsForServices")}
                   </p>
                   <p className="text-sm text-amber-600">
-                    The available agents cannot perform all selected services.
-                    You can proceed without selecting an agent or go back to
-                    change your service selection.
+                    {t("booking.wizard.noAgentsForServicesDesc")}
                   </p>
                 </div>
               </div>

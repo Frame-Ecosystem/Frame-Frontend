@@ -5,6 +5,7 @@ import { useState, useEffect } from "react"
 import PhoneItem from "./phone-item"
 import { Button } from "../../ui/button"
 import { toast } from "sonner"
+import { useTranslation } from "@/app/_i18n"
 
 interface ContactInfoProps {
   phones?: string[]
@@ -12,6 +13,7 @@ interface ContactInfoProps {
 }
 
 export default function ContactInfo({ phones = [], email }: ContactInfoProps) {
+  const { t } = useTranslation()
   const [isExpanded, setIsExpanded] = useState(false)
   const [isMobile, setIsMobile] = useState(false)
 
@@ -30,7 +32,7 @@ export default function ContactInfo({ phones = [], email }: ContactInfoProps) {
       // Modern Clipboard API (requires HTTPS)
       if (navigator.clipboard && window.isSecureContext) {
         await navigator.clipboard.writeText(email)
-        toast.success("Email copied successfully!")
+        toast.success(t("contact.emailCopied"))
         return
       }
 
@@ -48,13 +50,13 @@ export default function ContactInfo({ phones = [], email }: ContactInfoProps) {
       document.body.removeChild(textArea)
 
       if (successful) {
-        toast.success("Email copied successfully!")
+        toast.success(t("contact.emailCopied"))
       } else {
         throw new Error("Copy command failed")
       }
     } catch (error) {
       console.error("Failed to copy email:", error)
-      toast.error("Copy not supported. Email: " + email)
+      toast.error(t("contact.emailCopyFailed", { email }))
     }
   }
 
@@ -73,7 +75,7 @@ export default function ContactInfo({ phones = [], email }: ContactInfoProps) {
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <PhoneIcon className="text-primary h-4 w-4" />
-            <p className="text-sm font-semibold">Contact</p>
+            <p className="text-sm font-semibold">{t("common.contact")}</p>
           </div>
           <ChevronDown
             className={`text-muted-foreground h-4 w-4 transition-transform ${isExpanded ? "" : "-rotate-90"}`}
@@ -102,14 +104,14 @@ export default function ContactInfo({ phones = [], email }: ContactInfoProps) {
                     size="sm"
                     onClick={() => handleCopyEmail(email)}
                   >
-                    Copy
+                    {t("common.copy")}
                   </Button>
                   <a href={`mailto:${email}`}>
                     <Button
                       size="sm"
                       className="bg-primary hover:bg-primary/90"
                     >
-                      Email
+                      {t("common.email")}
                     </Button>
                   </a>
                 </div>

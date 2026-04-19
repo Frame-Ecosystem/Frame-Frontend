@@ -5,6 +5,7 @@ import { ChevronDown, Lock, Eye, EyeOff } from "lucide-react"
 import { Button } from "../../ui/button"
 import { Input } from "../../ui/input"
 import { Label } from "../../ui/label"
+import { useTranslation } from "@/app/_i18n"
 
 interface PasswordSectionProps {
   isOpen: boolean
@@ -29,6 +30,7 @@ export function PasswordSection({
   onInputChange,
   currentPasswordRef,
 }: PasswordSectionProps) {
+  const { t } = useTranslation()
   const [visibility, setVisibility] = useState({
     current: false,
     new: false,
@@ -46,7 +48,7 @@ export function PasswordSection({
       >
         <div className="flex items-center gap-2">
           <Lock className="h-4 w-4" />
-          <span className="font-medium">Change Password</span>
+          <span className="font-medium">{t("settings.changePassword")}</span>
         </div>
         <ChevronDown
           className={`text-muted-foreground h-4 w-4 transition-transform ${isOpen ? "rotate-180" : ""}`}
@@ -58,7 +60,9 @@ export function PasswordSection({
           <form onSubmit={onSubmit} className="space-y-4">
             {/* Current Password */}
             <div>
-              <Label htmlFor="currentPassword">Current Password</Label>
+              <Label htmlFor="currentPassword">
+                {t("settings.currentPassword")}
+              </Label>
               <div className="relative mt-1">
                 <Input
                   ref={currentPasswordRef}
@@ -68,7 +72,7 @@ export function PasswordSection({
                   onChange={(e) =>
                     onInputChange("currentPassword", e.target.value)
                   }
-                  placeholder="Enter your current password"
+                  placeholder={t("settings.currentPasswordPlaceholder")}
                   required
                   className="pr-10"
                 />
@@ -88,14 +92,14 @@ export function PasswordSection({
 
             {/* New Password */}
             <div>
-              <Label htmlFor="newPassword">New Password</Label>
+              <Label htmlFor="newPassword">{t("settings.newPassword")}</Label>
               <div className="relative mt-1">
                 <Input
                   id="newPassword"
                   type={visibility.new ? "text" : "password"}
                   value={passwordData.newPassword}
                   onChange={(e) => onInputChange("newPassword", e.target.value)}
-                  placeholder="Enter your new password"
+                  placeholder={t("settings.newPasswordPlaceholder")}
                   required
                   minLength={6}
                   className="pr-10"
@@ -116,7 +120,9 @@ export function PasswordSection({
 
             {/* Confirm Password */}
             <div>
-              <Label htmlFor="newPasswordConfirm">Confirm New Password</Label>
+              <Label htmlFor="newPasswordConfirm">
+                {t("settings.confirmNewPassword")}
+              </Label>
               <div className="relative mt-1">
                 <Input
                   id="newPasswordConfirm"
@@ -125,7 +131,7 @@ export function PasswordSection({
                   onChange={(e) =>
                     onInputChange("newPasswordConfirm", e.target.value)
                   }
-                  placeholder="Confirm your new password"
+                  placeholder={t("settings.confirmPasswordPlaceholder")}
                   required
                   minLength={6}
                   className="pr-10"
@@ -145,7 +151,9 @@ export function PasswordSection({
             </div>
 
             <Button type="submit" disabled={isChanging} className="w-full">
-              {isChanging ? "Changing Password..." : "Change Password"}
+              {isChanging
+                ? t("settings.changingPassword")
+                : t("settings.changePassword")}
             </Button>
           </form>
         </div>

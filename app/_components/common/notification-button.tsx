@@ -178,18 +178,23 @@ export function getNotificationMeta(notification: {
 export { NOTIFICATION_META, DEFAULT_META, type NotificationMeta }
 
 // ── Time-ago helper ──────────────────────────────────────────
-export function timeAgo(dateStr: string): string {
+export function timeAgo(
+  dateStr: string,
+  t?: (key: string, params?: Record<string, string | number>) => string,
+): string {
   const now = Date.now()
   const diff = now - new Date(dateStr).getTime()
   const seconds = Math.floor(diff / 1000)
-  if (seconds < 60) return "Just now"
+  if (seconds < 60) return t ? t("time.justNow") : "Just now"
   const minutes = Math.floor(seconds / 60)
-  if (minutes < 60) return `${minutes}m ago`
+  if (minutes < 60)
+    return t ? t("time.minutesAgo", { count: minutes }) : `${minutes}m ago`
   const hours = Math.floor(minutes / 60)
-  if (hours < 24) return `${hours}h ago`
+  if (hours < 24)
+    return t ? t("time.hoursAgo", { count: hours }) : `${hours}h ago`
   const days = Math.floor(hours / 24)
-  if (days === 1) return "Yesterday"
-  if (days < 7) return `${days}d ago`
+  if (days === 1) return t ? t("time.yesterday") : "Yesterday"
+  if (days < 7) return t ? t("time.daysAgo", { count: days }) : `${days}d ago`
   return new Date(dateStr).toLocaleDateString()
 }
 

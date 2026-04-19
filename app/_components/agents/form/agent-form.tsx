@@ -12,6 +12,7 @@ import {
 import { useAgent } from "../../../_providers/agent"
 import { isAuthError } from "../../../_services/api"
 import { useAuth } from "@/app/_auth"
+import { useTranslation } from "@/app/_i18n"
 import { Agent, CreateAgentDto, UpdateAgentDto } from "../../../_types"
 import { Button } from "../../ui/button"
 import { Input } from "../../ui/input"
@@ -59,6 +60,7 @@ export function AgentForm({
   } = useAgent()
   const { user } = useAuth()
   const { toast } = useToast()
+  const { t } = useTranslation()
 
   const [formData, setFormData] = useState<
     | CreateAgentDto
@@ -179,7 +181,10 @@ export function AgentForm({
           idLoungeService: formData.idLoungeService ?? [],
         }
         await updateAgent(agent._id!, updateData)
-        toast({ title: "Success", description: "Agent updated successfully" })
+        toast({
+          title: t("common.success"),
+          description: t("agents.form.updateSuccess"),
+        })
       } else {
         const createData: CreateAgentDto = {
           agentName: formData.agentName!,
@@ -194,7 +199,10 @@ export function AgentForm({
           }),
         }
         await createAgent(createData)
-        toast({ title: "Success", description: "Agent created successfully" })
+        toast({
+          title: t("common.success"),
+          description: t("agents.form.createSuccess"),
+        })
       }
       onOpenChange(false)
       onSuccess?.()
@@ -202,15 +210,14 @@ export function AgentForm({
       if (isAuthError(error)) return
       if (error.code === "AGENT_NAME_EXISTS") {
         setErrors({
-          agentName:
-            "An agent with this name already exists. Please choose a different name.",
+          agentName: t("agents.form.agentNameExists"),
         })
         clearError()
         return
       }
       toast({
-        title: "Error",
-        description: error.message || "Failed to save agent",
+        title: t("common.error"),
+        description: error.message || t("agents.form.saveError"),
         variant: "destructive",
       })
     }
@@ -220,23 +227,25 @@ export function AgentForm({
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>{agent ? "Edit Agent" : "Create New Agent"}</DialogTitle>
+          <DialogTitle>
+            {agent ? t("agents.form.editTitle") : t("agents.form.createTitle")}
+          </DialogTitle>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* Agent Image */}
           <div className="space-y-2">
-            <Label>Agent Image</Label>
+            <Label>{t("agents.form.agentImage")}</Label>
             <ImageSelector
               onImageSelect={(img: string) => {
                 handleInputChange("profileImage", img)
                 setImageSelected(true)
               }}
               currentImage={agent?.profileImage}
-              placeholder="Select agent image"
+              placeholder={t("agents.form.selectImagePlaceholder")}
             />
             <p className="text-muted-foreground text-xs">
-              Supported formats: JPEG, PNG, GIF, WebP. Max size: 5MB
+              {t("agents.form.supportedFormats")}
             </p>
             {errors.profileImage && (
               <p className="text-destructive text-sm">{errors.profileImage}</p>
@@ -245,7 +254,7 @@ export function AgentForm({
 
           {/* Agent Name */}
           <div className="space-y-2">
-            <Label htmlFor="agentName">Agent Name *</Label>
+            <Label htmlFor="agentName">{t("agents.form.agentName")} *</Label>
             <div className="relative">
               <Input
                 id="agentName"
@@ -255,7 +264,7 @@ export function AgentForm({
                   const err = validateAgentNameOnBlur(formData.agentName)
                   setErrors((prev) => ({ ...prev, agentName: err }))
                 }}
-                placeholder="Enter agent name"
+                placeholder={t("agents.form.agentNamePlaceholder")}
                 className={
                   errors.agentName ? "border-destructive pr-10" : "pr-10"
                 }
@@ -298,7 +307,7 @@ export function AgentForm({
             )}
             {!errors.agentName && formData.agentName && (
               <p className="text-muted-foreground text-xs">
-                Agent name is available
+                {t("agents.form.agentNameAvailable")}
               </p>
             )}
           </div>
@@ -306,7 +315,8 @@ export function AgentForm({
           {/* Password */}
           <div className="space-y-2">
             <Label htmlFor="password">
-              Password {agent ? "(leave empty to keep current)" : "*"}
+              {t("agents.form.password")}{" "}
+              {agent ? t("agents.form.leaveEmpty") : "*"}
             </Label>
             <Input
               id="password"
@@ -317,12 +327,17 @@ export function AgentForm({
                 const err = validatePasswordOnBlur(formData.password)
                 if (err) setErrors((prev) => ({ ...prev, password: err }))
               }}
-              placeholder={agent ? "Enter new password" : "Enter password"}
+              placeholder={
+                agent
+                  ? t("agents.form.newPasswordPlaceholder")
+                  : t("agents.form.passwordPlaceholder")
+              }
               className={errors.password ? "border-destructive" : ""}
             />
             {formData.password && (
               <div className="text-muted-foreground text-xs">
-                Password strength: {getPasswordStrength(formData.password)}
+                {t("agents.form.passwordStrength")}:{" "}
+                {getPasswordStrength(formData.password)}
               </div>
             )}
             {errors.password && (
@@ -333,7 +348,9 @@ export function AgentForm({
           {/* Lounge Selection (Admin only) */}
           {isAdmin && !agent && (
             <div className="space-y-2">
-              <Label htmlFor="loungeId">Select Lounge *</Label>
+              <Label htmlFor="loungeId">
+                {t("agents.form.selectLounge")} *
+              </Label>
               <Select
                 value={formData.loungeId || ""}
                 onValueChange={(v) => handleInputChange("loungeId", v)}
@@ -341,14 +358,16 @@ export function AgentForm({
                 <SelectTrigger
                   className={errors.loungeId ? "border-destructive" : ""}
                 >
-                  <SelectValue placeholder="Choose a lounge" />
+                  <SelectValue
+                    placeholder={t("agents.form.choosePlaceholder")}
+                  />
                 </SelectTrigger>
                 <SelectContent>
                   {lounges.map((l) => (
                     <SelectItem key={l._id} value={l._id}>
                       {l.loungeTitle ||
                         l.firstName + " " + (l.lastName || "") ||
-                        "Unnamed Lounge"}
+                        t("agents.form.unnamedLounge")}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -372,9 +391,11 @@ export function AgentForm({
           {/* Blocked Status */}
           <div className="flex items-center justify-between">
             <div className="space-y-1">
-              <Label htmlFor="isBlocked">Blocked Status</Label>
+              <Label htmlFor="isBlocked">
+                {t("agents.form.blockedStatus")}
+              </Label>
               <p className="text-muted-foreground text-sm">
-                Block this agent to prevent login
+                {t("agents.form.blockDescription")}
               </p>
             </div>
             <Switch
@@ -393,18 +414,18 @@ export function AgentForm({
               onClick={() => onOpenChange(false)}
               disabled={loading}
             >
-              Cancel
+              {t("common.cancel")}
             </Button>
             <Button type="submit" disabled={loading} variant="success">
               {loading ? (
                 <>
                   <div className="bg-primary/10 mr-2 h-4 w-4 animate-pulse rounded-full"></div>
-                  {agent ? "Updating..." : "Creating..."}
+                  {agent ? t("agents.form.saving") : t("agents.form.creating")}
                 </>
               ) : agent ? (
-                "Update Agent"
+                t("agents.form.saveBtn")
               ) : (
-                "Create Agent"
+                t("agents.form.createBtn")
               )}
             </Button>
           </DialogFooter>

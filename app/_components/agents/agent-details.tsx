@@ -8,6 +8,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../ui/dialog"
 import { Avatar, AvatarImage, AvatarFallback } from "../ui/avatar"
 import { Separator } from "../ui/separator"
 import { User, Calendar, Shield, ShieldCheck, Building } from "lucide-react"
+import { useTranslation } from "@/app/_i18n"
 
 interface AgentDetailsProps {
   agent: Agent | null
@@ -20,6 +21,7 @@ export function AgentDetails({
   isOpen,
   onOpenChange,
 }: AgentDetailsProps) {
+  const { t } = useTranslation()
   if (!agent) return null
 
   const formatDate = (dateString: string) => {
@@ -47,7 +49,7 @@ export function AgentDetails({
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent className="max-h-[85vh] overflow-y-auto sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Agent Details</DialogTitle>
+          <DialogTitle>{t("agents.details.title")}</DialogTitle>
         </DialogHeader>
 
         <div className="space-y-6 pb-4">
@@ -70,11 +72,13 @@ export function AgentDetails({
               )}
             </Avatar>
             <h3 className="text-xl font-semibold">
-              {agent.agentName || "Unnamed Agent"}
+              {agent.agentName || t("agents.details.unnamedAgent")}
             </h3>
             <div className="mt-2">
               <Badge variant={agent.isBlocked ? "destructive" : "default"}>
-                {agent.isBlocked ? "Blocked" : "Active"}
+                {agent.isBlocked
+                  ? t("agents.details.blocked")
+                  : t("agents.details.active")}
               </Badge>
             </div>
           </div>
@@ -86,9 +90,11 @@ export function AgentDetails({
             <div className="flex items-center gap-3">
               <User className="text-muted-foreground h-5 w-5" />
               <div>
-                <p className="text-sm font-medium">Agent Name</p>
+                <p className="text-sm font-medium">
+                  {t("agents.details.agentName")}
+                </p>
                 <p className="text-muted-foreground text-sm">
-                  {agent.agentName || "Unnamed Agent"}
+                  {agent.agentName || t("agents.details.unnamedAgent")}
                 </p>
               </div>
             </div>
@@ -96,13 +102,15 @@ export function AgentDetails({
             <div className="flex items-center gap-3">
               <Building className="text-muted-foreground h-5 w-5" />
               <div>
-                <p className="text-sm font-medium">Lounge ID</p>
+                <p className="text-sm font-medium">
+                  {t("agents.details.loungeId")}
+                </p>
                 <p className="text-muted-foreground font-mono text-sm">
                   {typeof agent.loungeId === "object" && agent.loungeId
                     ? agent.loungeId._id ||
                       agent.loungeId.loungeTitle ||
-                      "Unknown"
-                    : agent.loungeId || "Unknown"}
+                      t("agents.details.unknown")
+                    : agent.loungeId || t("agents.details.unknown")}
                 </p>
               </div>
             </div>
@@ -110,20 +118,22 @@ export function AgentDetails({
             <div className="flex items-center gap-3">
               <Shield className="text-muted-foreground h-5 w-5" />
               <div>
-                <p className="text-sm font-medium">Status</p>
+                <p className="text-sm font-medium">
+                  {t("agents.details.status")}
+                </p>
                 <div className="flex items-center gap-2">
                   {agent.isBlocked ? (
                     <>
                       <Shield className="text-destructive h-4 w-4" />
                       <span className="text-muted-foreground text-sm">
-                        Blocked
+                        {t("agents.details.blocked")}
                       </span>
                     </>
                   ) : (
                     <>
                       <ShieldCheck className="h-4 w-4 text-green-600" />
                       <span className="text-muted-foreground text-sm">
-                        Active
+                        {t("agents.details.active")}
                       </span>
                     </>
                   )}
@@ -134,7 +144,9 @@ export function AgentDetails({
             <div className="flex items-center gap-3">
               <Calendar className="text-muted-foreground h-5 w-5" />
               <div>
-                <p className="text-sm font-medium">Created</p>
+                <p className="text-sm font-medium">
+                  {t("agents.details.created")}
+                </p>
                 <p className="text-muted-foreground text-sm">
                   {formatDate(agent.createdAt)}
                 </p>
@@ -144,7 +156,9 @@ export function AgentDetails({
             <div className="flex items-center gap-3">
               <Calendar className="text-muted-foreground h-5 w-5" />
               <div>
-                <p className="text-sm font-medium">Last Updated</p>
+                <p className="text-sm font-medium">
+                  {t("agents.details.lastUpdated")}
+                </p>
                 <p className="text-muted-foreground text-sm">
                   {formatDate(agent.updatedAt)}
                 </p>
@@ -156,7 +170,9 @@ export function AgentDetails({
             <>
               <Separator />
               <div>
-                <p className="mb-2 text-sm font-medium">Profile Image</p>
+                <p className="mb-2 text-sm font-medium">
+                  {t("agents.details.profileImage")}
+                </p>
                 <div className="overflow-hidden rounded-lg border">
                   <Image
                     src={
@@ -181,7 +197,7 @@ export function AgentDetails({
 
         <div className="flex justify-end pt-4 pb-2">
           <Button variant="outline" onClick={() => onOpenChange(false)}>
-            Close
+            {t("agents.details.close")}
           </Button>
         </div>
       </DialogContent>

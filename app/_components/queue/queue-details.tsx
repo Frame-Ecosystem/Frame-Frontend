@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader } from "../ui/card"
 import { Button } from "../ui/button"
 import { Users, CalendarClock, ChevronDown, Plus, Ban } from "lucide-react"
 import { Switch } from "../ui/switch"
+import { useTranslation } from "@/app/_i18n"
 import {
   DndContext,
   closestCenter,
@@ -70,6 +71,7 @@ export default function QueueDetails({
   isTogglingBooking = false,
   highlightBookingId,
 }: QueueDetailsProps) {
+  const { t } = useTranslation()
   // Filter out completed persons (status or position === 0) from the queue display
   const persons = rawPersons.filter(
     (p) => p.status !== QueuePersonStatus.COMPLETED && p.position >= 1,
@@ -116,11 +118,11 @@ export default function QueueDetails({
           <div className="flex items-center gap-2">
             <CalendarClock className="text-primary h-5 w-5" />
             <div>
-              <h3 className="text-lg font-semibold">Queue Details</h3>
+              <h3 className="text-lg font-semibold">{t("queue.details")}</h3>
               <p className="text-muted-foreground text-xs md:hidden">
                 {mode === "staff"
-                  ? "Tap and hold the grip icon to reorder"
-                  : "Queue position and status"}
+                  ? t("queue.reorderHint")
+                  : t("queue.positionAndStatus")}
               </p>
             </div>
           </div>
@@ -138,11 +140,13 @@ export default function QueueDetails({
           {mode === "staff" && (
             <div className="flex items-center justify-between rounded-lg border px-4 py-2">
               <div>
-                <p className="text-sm font-medium">Accept Queue Bookings</p>
+                <p className="text-sm font-medium">
+                  {t("queue.acceptBookings")}
+                </p>
                 <p className="text-muted-foreground text-xs">
                   {acceptQueueBooking
-                    ? "Clients can book a spot in this queue"
-                    : "Queue booking is currently disabled"}
+                    ? t("queue.acceptBookingsOn")
+                    : t("queue.acceptBookingsOff")}
                 </p>
               </div>
               <Switch
@@ -168,13 +172,13 @@ export default function QueueDetails({
                 <div>
                   <h3 className="text-sm font-semibold">
                     {mode === "staff"
-                      ? "Add Client to Queue"
-                      : "Join the Queue"}
+                      ? t("queue.addClientToQueue")
+                      : t("queue.joinTheQueue")}
                   </h3>
                   <p className="text-muted-foreground text-xs">
                     {mode === "staff"
-                      ? "Create a booking and add directly to this queue"
-                      : "Pick your services and join this agent\u0027s queue"}
+                      ? t("queue.addClientDesc")
+                      : t("queue.joinDesc")}
                   </p>
                 </div>
               </div>
@@ -184,7 +188,9 @@ export default function QueueDetails({
                 onClick={onAddPerson}
               >
                 <Plus className="h-3 w-3" />
-                {mode === "staff" ? "Add to Queue" : "Book a Spot"}
+                {mode === "staff"
+                  ? t("queue.addToQueue")
+                  : t("queue.bookASpot")}
               </Button>
             </div>
           ) : (
@@ -193,11 +199,10 @@ export default function QueueDetails({
                 <Ban className="mt-0.5 h-6 w-6 shrink-0 text-gray-400" />
                 <div>
                   <h3 className="text-sm font-semibold text-gray-500 dark:text-gray-400">
-                    Queue Booking Unavailable
+                    {t("queue.bookingUnavailable")}
                   </h3>
                   <p className="text-xs text-gray-400 dark:text-gray-500">
-                    This queue is not accepting bookings at the moment. Please
-                    check back later.
+                    {t("queue.bookingUnavailableDesc")}
                   </p>
                 </div>
               </div>
@@ -208,12 +213,12 @@ export default function QueueDetails({
             <div className="py-12 text-center">
               <Users className="text-muted-foreground/50 mx-auto mb-3 h-12 w-12" />
               <p className="text-muted-foreground font-medium">
-                This queue is empty
+                {t("queue.emptyQueue")}
               </p>
               <p className="text-muted-foreground mt-1 text-sm">
                 {mode === "staff"
-                  ? "Add clients from today's bookings to get started"
-                  : "No one is currently in this queue. Client booking from the queue is coming soon!"}
+                  ? t("queue.emptyStaffHint")
+                  : t("queue.emptyClientHint")}
               </p>
             </div>
           ) : mode === "staff" ? (

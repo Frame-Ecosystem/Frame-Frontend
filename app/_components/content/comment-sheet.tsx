@@ -9,6 +9,7 @@ import { EmptyState } from "./empty-state"
 import { useComments } from "../../_hooks/queries/useContent"
 import { cn } from "@/app/_lib/utils"
 import { useInView } from "react-intersection-observer"
+import { useTranslation } from "@/app/_i18n"
 
 interface CommentSheetProps {
   open: boolean
@@ -29,6 +30,7 @@ export function CommentSheet({
   targetId,
   commentCount,
 }: CommentSheetProps) {
+  const { t } = useTranslation()
   const [replyTo, setReplyTo] = useState<{
     commentId: string
     authorName: string
@@ -49,15 +51,21 @@ export function CommentSheet({
     setReplyTo({ commentId, authorName })
   }, [])
 
-  // Lock body scroll when open
+  // Lock body scroll and hide mobile navbar when open
   useEffect(() => {
+    const nav = document.querySelector(
+      "[data-nav-mobile]",
+    ) as HTMLElement | null
     if (open) {
       document.body.style.overflow = "hidden"
+      if (nav) nav.style.display = "none"
     } else {
       document.body.style.overflow = ""
+      if (nav) nav.style.display = ""
     }
     return () => {
       document.body.style.overflow = ""
+      if (nav) nav.style.display = ""
     }
   }, [open])
 
@@ -85,7 +93,8 @@ export function CommentSheet({
         {/* Header */}
         <div className="flex items-center justify-between border-b px-4 py-3">
           <h3 className="text-base font-semibold">
-            Comments{commentCount > 0 && ` (${commentCount})`}
+            {t("content.comments.title")}
+            {commentCount > 0 && ` (${commentCount})`}
           </h3>
           <Button
             variant="ghost"

@@ -17,6 +17,7 @@ import {
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu"
 import { Button } from "../ui/button"
+import { useTranslation } from "@/app/_i18n"
 
 interface ContentMenuProps {
   isOwner: boolean
@@ -41,12 +42,13 @@ export function ContentMenu({
   onUnhide,
   onAdminDelete,
 }: ContentMenuProps) {
+  const { t } = useTranslation()
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
           <MoreHorizontal className="h-4 w-4" />
-          <span className="sr-only">More options</span>
+          <span className="sr-only">{t("content.menu.moreOptions")}</span>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-48">
@@ -54,7 +56,7 @@ export function ContentMenu({
         {isOwner && onEdit && (
           <DropdownMenuItem onClick={onEdit}>
             <Pencil className="mr-2 h-4 w-4" />
-            Edit
+            {t("content.menu.edit")}
           </DropdownMenuItem>
         )}
         {isOwner && onDelete && (
@@ -63,7 +65,7 @@ export function ContentMenu({
             className="text-destructive focus:text-destructive"
           >
             <Trash2 className="mr-2 h-4 w-4" />
-            Delete
+            {t("content.menu.delete")}
           </DropdownMenuItem>
         )}
 
@@ -71,7 +73,7 @@ export function ContentMenu({
         {!isOwner && onReport && (
           <DropdownMenuItem onClick={onReport}>
             <Flag className="mr-2 h-4 w-4" />
-            Report
+            {t("content.menu.report")}
           </DropdownMenuItem>
         )}
 
@@ -82,13 +84,13 @@ export function ContentMenu({
             {!isHidden && onHide && (
               <DropdownMenuItem onClick={onHide}>
                 <EyeOff className="mr-2 h-4 w-4" />
-                Hide (Admin)
+                {t("content.menu.hide")}
               </DropdownMenuItem>
             )}
             {isHidden && onUnhide && (
               <DropdownMenuItem onClick={onUnhide}>
                 <Eye className="mr-2 h-4 w-4" />
-                Unhide (Admin)
+                {t("content.menu.unhide")}
               </DropdownMenuItem>
             )}
             {onAdminDelete && (
@@ -97,7 +99,7 @@ export function ContentMenu({
                 className="text-destructive focus:text-destructive"
               >
                 <ShieldAlert className="mr-2 h-4 w-4" />
-                Force Delete (Admin)
+                {t("content.menu.forceDelete")}
               </DropdownMenuItem>
             )}
           </>

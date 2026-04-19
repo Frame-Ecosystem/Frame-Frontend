@@ -1,3 +1,6 @@
+"use client"
+
+import { useTranslation } from "@/app/_i18n"
 import type { Booking } from "../../../_types"
 
 type BookingService = Booking["loungeServiceIds"][number]
@@ -7,9 +10,12 @@ interface BookingServicesListProps {
 }
 
 export function BookingServicesList({ services }: BookingServicesListProps) {
+  const { t } = useTranslation()
   return (
     <div className="mb-2">
-      <div className="mb-2 text-sm font-medium">Booked Services:</div>
+      <div className="mb-2 text-sm font-medium">
+        {t("booking.bookedServices")}
+      </div>
       <div className="space-y-2">
         {services && services.length > 0 ? (
           services.map((service, index) => (
@@ -28,20 +34,22 @@ export function BookingServicesList({ services }: BookingServicesListProps) {
                       className="h-full w-full object-cover"
                     />
                   ) : (
-                    <span className="text-muted-foreground">No Image</span>
+                    <span className="text-muted-foreground">
+                      {t("booking.noImage")}
+                    </span>
                   )}
                 </div>
                 <div className="flex-1">
                   <p className="text-sm font-medium">
                     {service.serviceId?.name ||
                       service.description ||
-                      "Unknown Service"}
+                      t("booking.unknownService")}
                   </p>
                   <p className="text-muted-foreground text-xs">
-                    {service.duration} minutes
+                    {service.duration} {t("booking.minutes")}
                   </p>
                   <p className="text-muted-foreground text-xs">
-                    {service.price} dt
+                    {service.price} {t("booking.dt")}
                   </p>
                 </div>
               </div>
@@ -49,7 +57,7 @@ export function BookingServicesList({ services }: BookingServicesListProps) {
           ))
         ) : (
           <div className="text-muted-foreground text-sm">
-            No services information available
+            {t("booking.noServicesInfo")}
           </div>
         )}
       </div>

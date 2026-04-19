@@ -2,6 +2,7 @@
 
 import { Checkbox } from "../../ui/checkbox"
 import { Label } from "../../ui/label"
+import { useTranslation } from "@/app/_i18n"
 
 interface LoungeServiceItem {
   _id: string
@@ -29,18 +30,20 @@ export function AgentServiceList({
   onChange,
   error,
 }: AgentServiceListProps) {
+  const { t } = useTranslation()
   return (
     <div className="space-y-2">
-      <Label>Select Lounge Services *</Label>
+      <Label>{t("agentServices.selectLabel")}</Label>
       {loading ? (
         <div className="text-muted-foreground flex items-center space-x-2">
           <div className="bg-primary/10 h-4 w-4 animate-pulse rounded-full"></div>
-          <span>Loading services...</span>
+          <span>{t("agentServices.loading")}</span>
         </div>
       ) : services.length === 0 ? (
         <p className="text-muted-foreground text-sm">
-          No active services found{" "}
-          {isAdmin ? "for this lounge" : "for your lounge"}
+          {isAdmin
+            ? t("agentServices.noServicesAdmin")
+            : t("agentServices.noServices")}
         </p>
       ) : (
         <div className="max-h-40 space-y-2 overflow-y-auto rounded-md border p-3">
@@ -61,7 +64,9 @@ export function AgentServiceList({
                 htmlFor={`service-${service._id}`}
                 className="flex-1 cursor-pointer text-sm"
               >
-                {service.serviceId?.name || service.name || "Unnamed Service"}
+                {service.serviceId?.name ||
+                  service.name ||
+                  t("agentServices.unnamed")}
                 {service.price && (
                   <span className="text-muted-foreground ml-2">
                     ({service.price} dt)

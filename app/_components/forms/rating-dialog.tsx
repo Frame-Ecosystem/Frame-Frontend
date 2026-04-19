@@ -15,14 +15,15 @@ import {
   useUpsertRating,
   useDeleteRating,
 } from "@/app/_hooks/queries"
+import { useTranslation } from "@/app/_i18n"
 
-const SCORE_LABELS = [
+const SCORE_LABEL_KEYS = [
   "",
-  "Poor",
-  "Fair",
-  "Good",
-  "Very Good!",
-  "Excellent!",
+  "rating.poor",
+  "rating.fair",
+  "rating.good",
+  "rating.veryGood",
+  "rating.excellent",
 ] as const
 const STARS = [1, 2, 3, 4, 5] as const
 const MAX_COMMENT_LENGTH = 1000
@@ -42,6 +43,7 @@ export default function RatingDialog({
   loungeName,
   onRatingChange,
 }: RatingDialogProps) {
+  const { t } = useTranslation()
   const { data: existingRating } = useMyRating(isOpen ? loungeId : undefined)
   const upsertMutation = useUpsertRating(loungeId)
   const deleteMutation = useDeleteRating(loungeId)
@@ -95,10 +97,10 @@ export default function RatingDialog({
             <StarIcon className="h-8 w-8 text-yellow-500" />
           </div>
           <DialogTitle className="text-center text-2xl font-bold">
-            {isUpdate ? "Update Your Rating" : "Rate Your Experience"}
+            {isUpdate ? t("rating.updateTitle") : t("rating.rateTitle")}
           </DialogTitle>
           <p className="text-muted-foreground text-center text-sm">
-            How would you rate {loungeName || "this lounge"}?
+            {t("rating.howWouldYouRate", { name: loungeName || "this lounge" })}
           </p>
         </DialogHeader>
 
@@ -136,12 +138,12 @@ export default function RatingDialog({
                   {activeScore} / 5
                 </p>
                 <p className="text-muted-foreground text-sm">
-                  {SCORE_LABELS[activeScore]}
+                  {t(SCORE_LABEL_KEYS[activeScore])}
                 </p>
               </>
             ) : (
               <p className="text-muted-foreground text-sm">
-                Tap a star to rate
+                {t("rating.tapStar")}
               </p>
             )}
           </div>
@@ -149,7 +151,7 @@ export default function RatingDialog({
           {/* Comment */}
           <div className="w-full space-y-1.5">
             <Textarea
-              placeholder="Share your experience (optional)"
+              placeholder={t("rating.commentPlaceholder")}
               value={comment}
               onChange={(e) =>
                 setUserComment(e.target.value.slice(0, MAX_COMMENT_LENGTH))
@@ -171,10 +173,10 @@ export default function RatingDialog({
               className="w-full"
             >
               {isBusy
-                ? "Saving..."
+                ? t("rating.saving")
                 : isUpdate
-                  ? "Update Rating"
-                  : "Submit Rating"}
+                  ? t("rating.update")
+                  : t("rating.submit")}
             </Button>
 
             {isUpdate && (
@@ -185,7 +187,7 @@ export default function RatingDialog({
                 className="text-destructive hover:text-destructive w-full gap-2"
               >
                 <Trash2 size={16} />
-                Remove Rating
+                {t("rating.remove")}
               </Button>
             )}
           </div>

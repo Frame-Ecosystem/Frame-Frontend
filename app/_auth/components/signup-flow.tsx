@@ -12,6 +12,7 @@ import {
 } from "@/app/_components/ui/dialog"
 import { useAuth } from "@/app/_auth"
 import { Mail } from "lucide-react"
+import { useTranslation } from "@/app/_i18n"
 
 export default function SignupFlow({
   onSuccess,
@@ -29,6 +30,7 @@ export default function SignupFlow({
   const [waitingForVerification, setWaitingForVerification] = useState(false)
   const [signupEmail, setSignupEmail] = useState("")
   const { user, accessToken, isLoading } = useAuth()
+  const { t } = useTranslation()
 
   // Poll for authentication when waiting for verification
   useEffect(() => {
@@ -56,10 +58,10 @@ export default function SignupFlow({
       <>
         <DialogHeader>
           <DialogTitle className="text-center">
-            Choose Your Account Type
+            {t("auth.signup.chooseAccountType")}
           </DialogTitle>
           <DialogDescription className="text-center">
-            Pick the experience that fits your need
+            {t("auth.signup.pickExperience")}
           </DialogDescription>
         </DialogHeader>
         <div className="w-full">
@@ -80,7 +82,9 @@ export default function SignupFlow({
                   height={80}
                   className="h-16 w-16 rounded-md object-contain sm:h-20 sm:w-20"
                 />
-                <p className="text-bold text-center">Continue as</p>
+                <p className="text-bold text-center">
+                  {t("auth.signup.continueAs")}
+                </p>
                 <Button
                   className="w-full text-sm sm:text-base"
                   onClick={(e) => {
@@ -88,7 +92,7 @@ export default function SignupFlow({
                     setFocusedCard("client")
                   }}
                 >
-                  Client
+                  {t("auth.signup.client")}
                 </Button>
               </Card>
             </div>
@@ -109,7 +113,9 @@ export default function SignupFlow({
                   height={80}
                   className="h-16 w-16 rounded-md object-contain sm:h-20 sm:w-20"
                 />
-                <p className="text-bold text-center">Continue as</p>
+                <p className="text-bold text-center">
+                  {t("auth.signup.continueAs")}
+                </p>
                 <Button
                   className="color-primary w-full text-sm sm:text-base"
                   onClick={(e) => {
@@ -117,7 +123,7 @@ export default function SignupFlow({
                     setFocusedCard("lounge")
                   }}
                 >
-                  Center
+                  {t("auth.signup.center")}
                 </Button>
               </Card>
             </div>
@@ -130,7 +136,7 @@ export default function SignupFlow({
                 className="bg-primary hover:bg-primary/90 text-primary-foreground px-8"
                 onClick={() => setSelectedType(focusedCard)}
               >
-                Next
+                {t("common.next")}
               </Button>
             </div>
           )}
@@ -143,32 +149,33 @@ export default function SignupFlow({
     return (
       <>
         <DialogHeader>
-          <DialogTitle className="text-center">Check Your Email</DialogTitle>
+          <DialogTitle className="text-center">
+            {t("auth.signup.checkEmail")}
+          </DialogTitle>
           <DialogDescription className="text-center">
-            We&apos;ve sent a verification link to {signupEmail}
+            {t("auth.signup.verificationSent", { email: signupEmail })}
           </DialogDescription>
         </DialogHeader>
         <div className="mx-auto w-full max-w-md space-y-4 px-4 text-center sm:space-y-6">
           <div className="rounded-lg border border-blue-200 bg-blue-50 p-4 sm:p-6">
             <Mail className="mx-auto mb-3 h-10 w-10 text-blue-500 sm:mb-4 sm:h-12 sm:w-12" />
             <h3 className="mb-2 text-base font-semibold text-blue-900 sm:text-lg">
-              Verification Email Sent
+              {t("auth.signup.verificationEmailSent")}
             </h3>
             <p className="mb-3 text-xs text-blue-700 sm:mb-4 sm:text-sm">
-              Click the link in your email to complete your account setup.
+              {t("auth.signup.clickLink")}
             </p>
             <div className="flex items-center justify-center space-x-2 text-blue-600">
               <div className="h-3 w-3 animate-pulse rounded-full bg-blue-400 sm:h-4 sm:w-4" />
               <span className="text-xs sm:text-sm">
-                Waiting for verification...
+                {t("auth.signup.waitingVerification")}
               </span>
             </div>
           </div>
 
           <div className="space-y-3">
             <p className="text-xs text-gray-600 sm:text-sm">
-              Didn&apos;t receive the email? Check your spam folder or try
-              signing up again.
+              {t("auth.signup.didntReceive")}
             </p>
             <div className="flex gap-2">
               <Button
@@ -179,7 +186,7 @@ export default function SignupFlow({
                 }}
                 className="flex-1 text-xs sm:text-sm"
               >
-                Try Different Email
+                {t("auth.signup.tryDifferentEmail")}
               </Button>
             </div>
           </div>
@@ -191,7 +198,9 @@ export default function SignupFlow({
   return (
     <>
       <DialogHeader>
-        <DialogTitle className="text-center">Create Account</DialogTitle>
+        <DialogTitle className="text-center">
+          {t("auth.signup.createAccount")}
+        </DialogTitle>
       </DialogHeader>
       <div className="mx-auto w-full max-w-md px-4">
         <SignUpForm

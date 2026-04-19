@@ -16,18 +16,20 @@ import {
   CardTitle,
 } from "../../_components/ui/card"
 import { AdminHeader } from "../_components/admin-header"
+import { useTranslation } from "@/app/_i18n"
 import { StatCard, StatCardSkeleton } from "../_components/stat-card"
 import { useSuggestionStats } from "../../_hooks/queries/useAdmin"
 
 export default function SuggestionsPage() {
+  const { t } = useTranslation()
   const { data: statsData, isLoading } = useSuggestionStats()
   const stats = statsData?.data
 
   return (
     <>
       <AdminHeader
-        title="Service Suggestions"
-        description="Overview of service suggestions submitted by lounges"
+        title={t("admin.suggestions.title")}
+        description={t("admin.suggestions.desc")}
         icon={Lightbulb}
       />
 
@@ -37,21 +39,33 @@ export default function SuggestionsPage() {
           Array.from({ length: 6 }).map((_, i) => <StatCardSkeleton key={i} />)
         ) : stats ? (
           <>
-            <StatCard title="Total" value={stats.total} icon={Lightbulb} />
-            <StatCard title="Pending" value={stats.pending} icon={Clock} />
             <StatCard
-              title="Under Review"
+              title={t("admin.suggestions.total")}
+              value={stats.total}
+              icon={Lightbulb}
+            />
+            <StatCard
+              title={t("admin.suggestions.pending")}
+              value={stats.pending}
+              icon={Clock}
+            />
+            <StatCard
+              title={t("admin.suggestions.underReview")}
               value={stats.underReview}
               icon={Eye}
             />
             <StatCard
-              title="Approved"
+              title={t("admin.suggestions.approved")}
               value={stats.approved}
               icon={CheckCircle}
             />
-            <StatCard title="Rejected" value={stats.rejected} icon={XCircle} />
             <StatCard
-              title="Implemented"
+              title={t("admin.suggestions.rejected")}
+              value={stats.rejected}
+              icon={XCircle}
+            />
+            <StatCard
+              title={t("admin.suggestions.implemented")}
               value={stats.implemented}
               icon={Rocket}
             />
@@ -61,20 +75,13 @@ export default function SuggestionsPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle>How Suggestions Work</CardTitle>
+          <CardTitle>{t("admin.suggestions.howItWorks")}</CardTitle>
           <CardDescription>
-            Lounges submit service suggestions through their dashboard. Use the
-            status and approval endpoints to process individual suggestions by
-            ID. When a suggestion is approved and implemented, the system
-            automatically creates the service, assigns it to the lounge, and
-            notifies the lounge owner.
+            {t("admin.suggestions.howItWorksDesc")}
           </CardDescription>
         </CardHeader>
         <CardContent className="text-muted-foreground space-y-2 text-sm">
-          <p>
-            <strong>Flow:</strong> Pending → Under Review → Approved / Rejected
-            → Implemented
-          </p>
+          <p>{t("admin.suggestions.flow")}</p>
           <p>
             Use{" "}
             <code className="bg-muted rounded px-1">

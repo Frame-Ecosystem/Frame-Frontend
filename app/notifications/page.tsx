@@ -28,18 +28,25 @@ import {
   NotificationsPageSkeleton,
   NotificationRowSkeleton,
 } from "../_components/skeletons/notifications"
+import { useTranslation } from "../_i18n"
 
 // ── Category tab config ──────────────────────────────────────
-const CATEGORY_TABS: {
-  label: string
-  value: NotificationCategory | undefined
-}[] = [
-  { label: "All", value: undefined },
-  { label: "Bookings", value: NotificationCategory.BOOKING },
-  { label: "Queue", value: NotificationCategory.QUEUE },
-  { label: "Content", value: NotificationCategory.CONTENT },
-  { label: "Social", value: NotificationCategory.SOCIAL },
-  { label: "Admin", value: NotificationCategory.ADMIN },
+const CATEGORY_TAB_VALUES: (NotificationCategory | undefined)[] = [
+  undefined,
+  NotificationCategory.BOOKING,
+  NotificationCategory.QUEUE,
+  NotificationCategory.CONTENT,
+  NotificationCategory.SOCIAL,
+  NotificationCategory.ADMIN,
+]
+
+const CATEGORY_TAB_KEYS = [
+  "notifications.catAll",
+  "notifications.catBookings",
+  "notifications.catQueue",
+  "notifications.catContent",
+  "notifications.catSocial",
+  "notifications.catAdmin",
 ]
 
 // ── Full notification row (with delete + actor avatar) ───────
@@ -47,10 +54,12 @@ function NotificationRow({
   notification,
   onDelete,
   onClick,
+  t,
 }: {
   notification: AppNotification
   onDelete: () => void
   onClick: () => void
+  t: (key: string, params?: Record<string, string | number>) => string
 }) {
   const { Icon, color } = getNotificationMeta(notification)
 
@@ -98,7 +107,7 @@ function NotificationRow({
         </p>
         <div className="mt-1.5 flex items-center gap-2">
           <p className="text-muted-foreground/70 text-xs">
-            {timeAgo(notification.createdAt)}
+            {timeAgo(notification.createdAt, t)}
           </p>
           {notification.category && (
             <span className="bg-muted text-muted-foreground rounded-full px-2 py-0.5 text-[10px] capitalize">
@@ -129,6 +138,7 @@ export default function NotificationsPage() {
   const { user, isLoading: authLoading } = useAuth()
   const { unreadCount, unreadByCategory } = useNotificationContext()
   const router = useRouter()
+  const { t, dir } = useTranslation()
   const scrollRef = useRef<HTMLDivElement>(null)
   const [activeCategory, setActiveCategory] = useState<
     NotificationCategory | undefined
@@ -202,10 +212,10 @@ export default function NotificationsPage() {
                     <Bell className="text-primary h-16 w-16" />
                   </div>
                   <h3 className="mb-4 text-2xl font-bold lg:text-3xl">
-                    Sign in to view your notifications
+                    {t("notifications.signInTitle")}
                   </h3>
                   <p className="text-muted-foreground mx-auto mb-8 max-w-md lg:text-lg">
-                    You need to be logged in to see your notifications.
+                    {t("notifications.signInDesc")}
                   </p>
                   <Button
                     size="lg"
@@ -213,7 +223,7 @@ export default function NotificationsPage() {
                     className="shadow-lg"
                     asChild
                   >
-                    <Link href="/">Sign In</Link>
+                    <Link href="/">{t("notifications.signIn")}</Link>
                   </Button>
                 </div>
               </CardContent>
@@ -232,7 +242,7 @@ export default function NotificationsPage() {
           {/* Page Header */}
           <div className="mb-6 lg:mb-8">
             <div className="mt-4 mb-3 flex items-center justify-between">
-              <div className="flex items-center gap-3">
+              <div dir={dir} className="flex items-center gap-3">
                 <Button
                   variant="ghost"
                   size="icon"
@@ -243,10 +253,10 @@ export default function NotificationsPage() {
                 </Button>
                 <div>
                   <h1 className="text-2xl font-bold lg:text-3xl">
-                    Notifications
+                    {t("notifications.title")}
                   </h1>
                   <p className="text-muted-foreground mt-0.5 text-sm">
-                    Stay up to date with your activity
+                    {t("notifications.stayUpToDate")}
                   </p>
                 </div>
               </div>
@@ -255,7 +265,7 @@ export default function NotificationsPage() {
                   variant="secondary"
                   className="bg-primary/10 text-primary border-primary/20 border text-xs"
                 >
-                  {unreadCount} new
+                  {t("notifications.new", { count: unreadCount })}
                 </Badge>
               )}
             </div>
@@ -263,22 +273,21 @@ export default function NotificationsPage() {
 
           {/* Category Tabs */}
           <div className="mb-4 flex gap-2 overflow-x-auto pb-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-            {CATEGORY_TABS.map((tab) => {
-              const isActive = activeCategory === tab.value
-              const count = tab.value
-                ? (unreadByCategory[tab.value] ?? 0)
-                : unreadCount
+            {CATEGORY_TAB_VALUES.map((value, i) => {
+              const isActive = activeCategory === value
+              const label = t(CATEGORY_TAB_KEYS[i])
+              const count = value ? (unreadByCategory[value] ?? 0) : unreadCount
               return (
                 <button
-                  key={tab.label}
-                  onClick={() => setActiveCategory(tab.value)}
+                  key={i}
+                  onClick={() => setActiveCategory(value)}
                   className={`relative shrink-0 rounded-full px-4 py-1.5 text-sm font-medium transition-all ${
                     isActive
                       ? "bg-primary text-primary-foreground shadow-sm"
                       : "bg-muted/60 text-muted-foreground hover:bg-muted"
                   }`}
                 >
-                  {tab.label}
+                  {label}
                   {count > 0 && (
                     <span
                       className={`ml-1.5 inline-flex h-5 min-w-5 items-center justify-center rounded-full px-1 text-[10px] font-bold ${
@@ -306,7 +315,7 @@ export default function NotificationsPage() {
                 disabled={markRead.isPending}
               >
                 <CheckCheck className="h-3.5 w-3.5" />
-                Mark All Read
+                {t("notifications.markAllReadBtn")}
               </Button>
               <Button
                 variant="outline"
@@ -316,7 +325,7 @@ export default function NotificationsPage() {
                 disabled={deleteAll.isPending}
               >
                 <Trash2 className="h-3.5 w-3.5" />
-                Clear All
+                {t("notifications.clearAll")}
               </Button>
             </div>
           )}
@@ -340,13 +349,15 @@ export default function NotificationsPage() {
                 </div>
                 <p className="text-foreground text-base font-medium">
                   {activeCategory
-                    ? `No ${activeCategory} notifications`
-                    : "No notifications yet"}
+                    ? t("notifications.noCategory", {
+                        category: activeCategory,
+                      })
+                    : t("notifications.empty")}
                 </p>
                 <p className="text-muted-foreground mt-1 text-sm">
                   {activeCategory
-                    ? "Try switching to a different category."
-                    : "When you receive notifications, they'll appear here."}
+                    ? t("notifications.trySwitching")
+                    : t("notifications.emptyHint")}
                 </p>
               </div>
             ) : (
@@ -357,6 +368,7 @@ export default function NotificationsPage() {
                     notification={n}
                     onDelete={() => deleteOne.mutate(n._id)}
                     onClick={() => handleNotificationClick(n)}
+                    t={t}
                   />
                 ))}
                 {isFetchingNextPage && (
@@ -368,7 +380,7 @@ export default function NotificationsPage() {
                 )}
                 {!hasNextPage && notifications.length > 0 && (
                   <p className="text-muted-foreground/50 py-6 text-center text-xs">
-                    You&apos;re all caught up
+                    {t("notifications.allCaughtUp")}
                   </p>
                 )}
               </>

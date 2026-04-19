@@ -7,6 +7,7 @@ import { FeedList } from "./feed-list"
 import { ContentGrid } from "./content-grid"
 import { cn } from "@/app/_lib/utils"
 import type { FeedItem, Post, Reel } from "../../_types/content"
+import { useTranslation } from "@/app/_i18n"
 
 /**
  * Renders the user's saved/bookmarked content split into Posts and Reels sub-tabs.
@@ -14,6 +15,7 @@ import type { FeedItem, Post, Reel } from "../../_types/content"
  * Clicking a saved reel navigates to /reels?id=<reelId>.
  */
 export function SavedContentTab() {
+  const { t } = useTranslation()
   const router = useRouter()
   const savedQuery = useSavedFeed()
   const [subTab, setSubTab] = useState<"posts" | "reels">("posts")
@@ -58,7 +60,7 @@ export function SavedContentTab() {
               : "text-muted-foreground hover:text-foreground",
           )}
         >
-          Posts
+          {t("savedContent.posts")}
         </button>
         <button
           onClick={() => setSubTab("reels")}
@@ -69,7 +71,7 @@ export function SavedContentTab() {
               : "text-muted-foreground hover:text-foreground",
           )}
         >
-          Reels
+          {t("savedContent.reels")}
         </button>
       </div>
 

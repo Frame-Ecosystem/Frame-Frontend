@@ -4,6 +4,7 @@ import { useSearchParams } from "next/navigation"
 import { useAuth } from "@/app/_auth"
 import { getUserDisplayName } from "@/app/_auth"
 import QueueDisplay from "../_components/queue/queue-display"
+import { useTranslation } from "@/app/_i18n"
 
 export default function QueuePage() {
   const searchParams = useSearchParams()
@@ -11,6 +12,7 @@ export default function QueuePage() {
   const loungeIdParam = searchParams.get("lounge")
   const highlightBookingId = searchParams.get("bookingId")
   const { user } = useAuth()
+  const { t } = useTranslation()
 
   const isLounge = user?.type === "lounge"
 
@@ -21,7 +23,7 @@ export default function QueuePage() {
         centerName={
           isLounge
             ? user?.loungeTitle || getUserDisplayName(user)
-            : "Salon Lounge"
+            : t("queue.defaultCenter")
         }
         mode={isLounge ? "staff" : "client"}
         loungeId={isLounge ? user?._id : (loungeIdParam ?? undefined)}

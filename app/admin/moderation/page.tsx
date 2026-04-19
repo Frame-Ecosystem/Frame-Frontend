@@ -47,6 +47,7 @@ import type {
   AdminReportStatus,
   ReviewReportDto,
 } from "../../_types/admin"
+import { useTranslation } from "@/app/_i18n"
 
 const LIMIT = 20
 
@@ -76,6 +77,7 @@ export default function ModerationPage() {
   const unhide = useAdminUnhideContent()
   const del = useAdminDeleteContent()
   const { confirm, dialog } = useConfirmDialog()
+  const { t } = useTranslation()
 
   const reports = data?.data ?? []
   const totalPages = data?.totalPages ?? 1
@@ -83,7 +85,7 @@ export default function ModerationPage() {
 
   const reporterName = (r: AdminReport) => {
     const rep = r.reporter
-    if (!rep) return "Unknown"
+    if (!rep) return t("common.unknown")
     if (rep.firstName) return `${rep.firstName} ${rep.lastName ?? ""}`.trim()
     if (rep.loungeTitle) return rep.loungeTitle
     return rep._id
@@ -92,8 +94,8 @@ export default function ModerationPage() {
   return (
     <>
       <AdminHeader
-        title="Content Moderation"
-        description="Review reports and moderate platform content"
+        title={t("admin.moderation.title")}
+        description={t("admin.moderation.desc")}
         icon={Flag}
       />
 
@@ -103,7 +105,9 @@ export default function ModerationPage() {
         <div className="space-y-4">
           {/* Filter */}
           <div className="flex items-center gap-3">
-            <Label className="text-sm">Status:</Label>
+            <Label className="text-sm">
+              {t("admin.moderation.statusLabel")}
+            </Label>
             <Select
               value={statusFilter}
               onValueChange={(v) => {
@@ -115,11 +119,21 @@ export default function ModerationPage() {
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All</SelectItem>
-                <SelectItem value="pending">Pending</SelectItem>
-                <SelectItem value="reviewed">Reviewed</SelectItem>
-                <SelectItem value="dismissed">Dismissed</SelectItem>
-                <SelectItem value="action_taken">Action Taken</SelectItem>
+                <SelectItem value="all">
+                  {t("admin.moderation.filterAll")}
+                </SelectItem>
+                <SelectItem value="pending">
+                  {t("admin.moderation.filterPending")}
+                </SelectItem>
+                <SelectItem value="reviewed">
+                  {t("admin.moderation.filterReviewed")}
+                </SelectItem>
+                <SelectItem value="dismissed">
+                  {t("admin.moderation.filterDismissed")}
+                </SelectItem>
+                <SelectItem value="action_taken">
+                  {t("admin.moderation.filterActionTaken")}
+                </SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -127,20 +141,24 @@ export default function ModerationPage() {
           {reports.length === 0 ? (
             <EmptyState
               icon={<Flag />}
-              title="No reports"
-              description="No reports match the current filter"
+              title={t("admin.moderation.noReports")}
+              description={t("admin.moderation.noReportsFilter")}
             />
           ) : (
             <div className="rounded-lg border">
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Reporter</TableHead>
-                    <TableHead>Target</TableHead>
-                    <TableHead>Reason</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Date</TableHead>
-                    <TableHead className="w-48">Actions</TableHead>
+                    <TableHead>
+                      {t("admin.moderation.headerReporter")}
+                    </TableHead>
+                    <TableHead>{t("admin.moderation.headerTarget")}</TableHead>
+                    <TableHead>{t("admin.moderation.headerReason")}</TableHead>
+                    <TableHead>{t("admin.moderation.headerStatus")}</TableHead>
+                    <TableHead>{t("admin.moderation.headerDate")}</TableHead>
+                    <TableHead className="w-48">
+                      {t("admin.moderation.headerActions")}
+                    </TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -170,7 +188,7 @@ export default function ModerationPage() {
                           <Button
                             variant="ghost"
                             size="icon"
-                            title="Review"
+                            title={t("admin.moderation.review")}
                             onClick={() => {
                               setReviewReport(r)
                               setReviewForm({
@@ -184,7 +202,7 @@ export default function ModerationPage() {
                           <Button
                             variant="ghost"
                             size="icon"
-                            title="Hide content"
+                            title={t("admin.moderation.hideContent")}
                             onClick={() =>
                               hide.mutate({
                                 type: r.targetType,
@@ -197,7 +215,7 @@ export default function ModerationPage() {
                           <Button
                             variant="ghost"
                             size="icon"
-                            title="Unhide content"
+                            title={t("admin.moderation.unhideContent")}
                             onClick={() =>
                               unhide.mutate({
                                 type: r.targetType,
@@ -210,14 +228,15 @@ export default function ModerationPage() {
                           <Button
                             variant="ghost"
                             size="icon"
-                            title="Delete content"
+                            title={t("admin.moderation.deleteContent")}
                             className="text-destructive hover:text-destructive"
                             onClick={() =>
                               confirm({
-                                title: "Delete content?",
-                                description:
-                                  "This will permanently delete the reported content.",
-                                confirmLabel: "Delete",
+                                title: t("admin.moderation.deleteConfirm"),
+                                description: t(
+                                  "admin.moderation.deleteConfirmDesc",
+                                ),
+                                confirmLabel: t("admin.common.delete"),
                                 variant: "destructive",
                                 onConfirm: () =>
                                   del.mutateAsync({
@@ -255,7 +274,7 @@ export default function ModerationPage() {
         >
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>Review Report</DialogTitle>
+              <DialogTitle>{t("admin.moderation.reviewReport")}</DialogTitle>
             </DialogHeader>
             <div className="space-y-4 py-4">
               <div className="space-y-2">
@@ -273,26 +292,32 @@ export default function ModerationPage() {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="reviewed">Reviewed</SelectItem>
-                    <SelectItem value="dismissed">Dismissed</SelectItem>
-                    <SelectItem value="action_taken">Action Taken</SelectItem>
+                    <SelectItem value="reviewed">
+                      {t("admin.moderation.filterReviewed")}
+                    </SelectItem>
+                    <SelectItem value="dismissed">
+                      {t("admin.moderation.filterDismissed")}
+                    </SelectItem>
+                    <SelectItem value="action_taken">
+                      {t("admin.moderation.filterActionTaken")}
+                    </SelectItem>
                   </SelectContent>
                 </Select>
               </div>
               <div className="space-y-2">
-                <Label>Admin Note</Label>
+                <Label>{t("admin.moderation.adminNote")}</Label>
                 <Textarea
                   value={reviewForm.adminNote ?? ""}
                   onChange={(e) =>
                     setReviewForm((f) => ({ ...f, adminNote: e.target.value }))
                   }
-                  placeholder="Optional note about the decision..."
+                  placeholder={t("admin.moderation.adminNotePlaceholder")}
                 />
               </div>
             </div>
             <DialogFooter>
               <Button variant="outline" onClick={() => setReviewReport(null)}>
-                Cancel
+                {t("common.cancel")}
               </Button>
               <Button
                 disabled={review.isPending}
@@ -305,7 +330,9 @@ export default function ModerationPage() {
                     .then(() => setReviewReport(null))
                 }
               >
-                {review.isPending ? "Submitting..." : "Submit Review"}
+                {review.isPending
+                  ? t("admin.moderation.submitting")
+                  : t("admin.moderation.submitReview")}
               </Button>
             </DialogFooter>
           </DialogContent>

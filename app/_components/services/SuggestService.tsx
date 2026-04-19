@@ -21,8 +21,10 @@ import { useAuth } from "@/app/_auth"
 import type { ServiceSuggestion } from "../../_types"
 import { validateSuggestionForm } from "./_lib/validate-suggestion"
 import { SuggestServiceSkeleton } from "../skeletons/services"
+import { useTranslation } from "@/app/_i18n"
 
 export default function SuggestService() {
+  const { t } = useTranslation()
   const { user } = useAuth()
   const [open, setOpen] = useState(false)
   const [showSuggestions, setShowSuggestions] = useState(false)
@@ -51,7 +53,7 @@ export default function SuggestService() {
     } catch (error) {
       if (isAuthError(error)) return
       console.error("Failed to fetch suggestions:", error)
-      toast.error("Failed to load your suggestions")
+      toast.error(t("services.suggest.loadFailed"))
       setUserSuggestions([])
     } finally {
       setLoadingSuggestions(false)
@@ -94,9 +96,7 @@ export default function SuggestService() {
       }
 
       await apiClient.post("/v1/service-suggestions", payload)
-      toast.success(
-        "Service suggestion submitted successfully! It will be reviewed by an administrator and added to available services once approved.",
-      )
+      toast.success(t("services.suggest.submitted"))
       setShowSuggestions(true)
       fetchUserSuggestions()
       setForm({
@@ -133,10 +133,10 @@ export default function SuggestService() {
               "Too many suggestions submitted. Please try again later",
           )
         } else {
-          toast.error(error.message || "Failed to submit suggestion")
+          toast.error(error.message || t("services.suggest.submitFailed"))
         }
       } else {
-        toast.error("Failed to submit suggestion")
+        toast.error(t("services.suggest.submitFailed"))
       }
     }
   }
@@ -145,20 +145,20 @@ export default function SuggestService() {
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button type="button" variant="default">
-          Suggest a service
+          {t("services.suggest.button")}
         </Button>
       </DialogTrigger>
       <DialogContent className="max-h-[100vh] overflow-y-auto md:max-h-[80vh]">
         <DialogHeader>
           <DialogTitle>
             {showSuggestions
-              ? "My Service Suggestions"
-              : "Suggest a New Service"}
+              ? t("services.suggest.myTitle")
+              : t("services.suggest.title")}
           </DialogTitle>
           <DialogDescription>
             {showSuggestions
-              ? "Track the status of your service suggestions"
-              : "Submit a new service suggestion for review by administrators"}
+              ? t("services.suggest.myDesc")
+              : t("services.suggest.desc")}
           </DialogDescription>
         </DialogHeader>
 
@@ -167,7 +167,7 @@ export default function SuggestService() {
             <div className="flex items-center justify-between">
               <p className="text-muted-foreground text-sm"></p>
               <Button onClick={handleBackToForm} variant="default" size="sm">
-                Suggest New Service
+                {t("services.suggest.suggestNew")}
               </Button>
             </div>
 
@@ -176,14 +176,14 @@ export default function SuggestService() {
             ) : userSuggestions.length === 0 ? (
               <div className="py-8 text-center">
                 <p className="text-muted-foreground">
-                  You haven&apos;t submitted any service suggestions yet.
+                  {t("services.suggest.noSuggestions")}
                 </p>
                 <Button
                   onClick={handleBackToForm}
                   className="mt-4"
                   variant="default"
                 >
-                  Suggest Your First Service
+                  {t("services.suggest.suggestFirst")}
                 </Button>
               </div>
             ) : (
@@ -212,20 +212,27 @@ export default function SuggestService() {
                     </p>
                     <div className="text-muted-foreground flex gap-4 text-xs">
                       {suggestion.estimatedPrice && (
-                        <span>Price: {suggestion.estimatedPrice} dt</span>
+                        <span>
+                          {t("services.suggest.price")}{" "}
+                          {suggestion.estimatedPrice} dt
+                        </span>
                       )}
                       {suggestion.estimatedDuration && (
                         <span>
-                          Duration: {suggestion.estimatedDuration} min
+                          {t("services.suggest.durationLabel")}{" "}
+                          {suggestion.estimatedDuration} min
                         </span>
                       )}
                       {suggestion.targetGender && (
-                        <span>Gender: {suggestion.targetGender}</span>
+                        <span>
+                          {t("services.suggest.gender")}{" "}
+                          {suggestion.targetGender}
+                        </span>
                       )}
                     </div>
                     {(suggestion as any).adminNote && (
                       <p className="text-muted-foreground bg-muted rounded p-2 text-xs">
-                        <strong>Admin note:</strong>{" "}
+                        <strong>{t("services.suggest.adminNote")}</strong>{" "}
                         {(suggestion as any).adminNote}
                       </p>
                     )}
@@ -243,13 +250,13 @@ export default function SuggestService() {
                 size="sm"
                 className="border-primary text-primary hover:bg-primary/10 hover:text-primary"
               >
-                View My Suggestions
+                {t("services.suggest.viewMy")}
               </Button>
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <Label htmlFor="s-name">Name *</Label>
+                <Label htmlFor="s-name">{t("services.suggest.name")}</Label>
                 <Input
                   id="s-name"
                   value={form.name}
@@ -260,7 +267,9 @@ export default function SuggestService() {
                 />
               </div>
               <div>
-                <Label htmlFor="s-desc">Description *</Label>
+                <Label htmlFor="s-desc">
+                  {t("services.suggest.description")}
+                </Label>
                 <Textarea
                   id="s-desc"
                   value={form.description}
@@ -275,7 +284,9 @@ export default function SuggestService() {
               </div>
               <div className="grid grid-cols-2 gap-2">
                 <div>
-                  <Label htmlFor="s-price"> Price (dt) *</Label>
+                  <Label htmlFor="s-price">
+                    {t("services.suggest.priceLabel")}
+                  </Label>
                   <Input
                     id="s-price"
                     type="number"
@@ -290,7 +301,9 @@ export default function SuggestService() {
                   />
                 </div>
                 <div>
-                  <Label htmlFor="s-duration">Duration (minutes) *</Label>
+                  <Label htmlFor="s-duration">
+                    {t("services.suggest.duration")}
+                  </Label>
                   <Input
                     id="s-duration"
                     type="number"
@@ -306,7 +319,9 @@ export default function SuggestService() {
                 </div>
               </div>
               <div>
-                <Label htmlFor="s-target">Target Gender *</Label>
+                <Label htmlFor="s-target">
+                  {t("services.suggest.targetGender")}
+                </Label>
                 <select
                   id="s-target"
                   value={form.targetGender}
@@ -318,11 +333,11 @@ export default function SuggestService() {
                   }
                   className="border-input bg-background flex h-10 w-full rounded-md border px-3 py-2 text-sm"
                 >
-                  <option value="">No target</option>
-                  <option value="men">Men</option>
-                  <option value="women">Women</option>
-                  <option value="unisex">Unisex</option>
-                  <option value="kids">Kids</option>
+                  <option value="">{t("services.gender.none")}</option>
+                  <option value="men">{t("services.gender.men")}</option>
+                  <option value="women">{t("services.gender.women")}</option>
+                  <option value="unisex">{t("services.gender.unisex")}</option>
+                  <option value="kids">{t("services.gender.kids")}</option>
                 </select>
               </div>
               {/* category removed per schema */}
@@ -333,10 +348,10 @@ export default function SuggestService() {
                   variant="destructive"
                   onClick={() => setOpen(false)}
                 >
-                  Cancel
+                  {t("common.cancel")}
                 </Button>
                 <Button type="submit" variant="success">
-                  Submit Suggestion
+                  {t("services.suggest.submitSuggestion")}
                 </Button>
               </div>
             </form>

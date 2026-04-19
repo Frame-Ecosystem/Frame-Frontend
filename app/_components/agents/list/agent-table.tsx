@@ -21,6 +21,7 @@ import { MoreHorizontal, Edit, Trash2, Eye, UserX } from "lucide-react"
 import { Avatar, AvatarImage, AvatarFallback } from "../../ui/avatar"
 import { Checkbox } from "../../ui/checkbox"
 import { AgentTableRowsSkeleton } from "../../skeletons/agents"
+import { useTranslation } from "@/app/_i18n"
 
 interface AgentTableProps {
   agents: Agent[]
@@ -60,6 +61,7 @@ export function AgentTable({
   onEdit,
   onDelete,
 }: AgentTableProps) {
+  const { t } = useTranslation()
   return (
     <Table>
       <TableHeader>
@@ -74,10 +76,10 @@ export function AgentTable({
               />
             </TableHead>
           )}
-          <TableHead>Agent</TableHead>
-          <TableHead>Status</TableHead>
-          <TableHead>Created</TableHead>
-          {isAdmin && <TableHead>Lounge</TableHead>}
+          <TableHead>{t("agents.headerAgent")}</TableHead>
+          <TableHead>{t("agents.headerStatus")}</TableHead>
+          <TableHead>{t("agents.headerCreated")}</TableHead>
+          {isAdmin && <TableHead>{t("agents.headerLounge")}</TableHead>}
           <TableHead className="w-12"></TableHead>
         </TableRow>
       </TableHeader>
@@ -89,9 +91,9 @@ export function AgentTable({
             <TableCell colSpan={isAdmin ? 6 : 5} className="py-8 text-center">
               <div className="text-muted-foreground">
                 <UserX className="mx-auto mb-4 h-12 w-12" />
-                <p>No agents found</p>
+                <p>{t("agents.noAgents")}</p>
                 {searchTerm && (
-                  <p className="text-sm">Try adjusting your search terms</p>
+                  <p className="text-sm">{t("agents.trySearch")}</p>
                 )}
               </div>
             </TableCell>
@@ -134,13 +136,13 @@ export function AgentTable({
                     </Avatar>
                   </button>
                   <p className="font-medium">
-                    {agent.agentName || "Unnamed Agent"}
+                    {agent.agentName || t("agents.unnamedAgent")}
                   </p>
                 </div>
               </TableCell>
               <TableCell>
                 <Badge variant={agent.isBlocked ? "destructive" : "default"}>
-                  {agent.isBlocked ? "Blocked" : "Active"}
+                  {agent.isBlocked ? t("agents.blocked") : t("agents.active")}
                 </Badge>
               </TableCell>
               <TableCell className="text-muted-foreground">
@@ -151,8 +153,8 @@ export function AgentTable({
                   {typeof agent.loungeId === "object" && agent.loungeId
                     ? agent.loungeId.loungeTitle ||
                       agent.loungeId.email ||
-                      "Unknown Lounge"
-                    : agent.loungeId || "Unknown Lounge"}
+                      t("agents.unknownLounge")
+                    : agent.loungeId || t("agents.unknownLounge")}
                 </TableCell>
               )}
               <TableCell>
@@ -165,18 +167,18 @@ export function AgentTable({
                   <DropdownMenuContent align="end">
                     <DropdownMenuItem onClick={() => onView(agent)}>
                       <Eye className="mr-2 h-4 w-4" />
-                      View Details
+                      {t("agents.viewDetails")}
                     </DropdownMenuItem>
                     <DropdownMenuItem onClick={() => onEdit(agent)}>
                       <Edit className="mr-2 h-4 w-4" />
-                      Edit
+                      {t("agents.edit")}
                     </DropdownMenuItem>
                     <DropdownMenuItem
                       onClick={() => onDelete(agent)}
                       className="text-destructive"
                     >
                       <Trash2 className="mr-2 h-4 w-4" />
-                      Delete
+                      {t("agents.delete")}
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>

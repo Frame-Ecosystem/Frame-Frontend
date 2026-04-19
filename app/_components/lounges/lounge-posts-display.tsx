@@ -16,6 +16,7 @@ import {
   Sparkles,
 } from "lucide-react"
 import Image from "next/image"
+import { useTranslation } from "@/app/_i18n"
 
 interface Post {
   id: string
@@ -110,6 +111,7 @@ export default function PostsDisplay({
   posts = MOCK_POSTS,
   centerName,
 }: PostsDisplayProps) {
+  const { t } = useTranslation()
   const [postStates, setPostStates] = useState<
     Map<string, { isLiked: boolean; isBookmarked: boolean; likes: number }>
   >(
@@ -159,15 +161,17 @@ export default function PostsDisplay({
             <Sparkles className="text-primary h-5 w-5" />
           </div>
           <div>
-            <h3 className="text-lg font-semibold">Latest Updates</h3>
+            <h3 className="text-lg font-semibold">
+              {t("loungePosts.latestUpdates")}
+            </h3>
             <p className="text-muted-foreground text-sm">
-              {centerName || "Stay connected with us"}
+              {centerName || t("loungePosts.stayConnected")}
             </p>
           </div>
         </div>
         <Badge variant="secondary" className="gap-1">
           <TrendingUp className="h-3 w-3" />
-          {posts.length} posts
+          {t("loungePosts.postsCount", { count: posts.length })}
         </Badge>
       </div>
 
@@ -176,9 +180,11 @@ export default function PostsDisplay({
         <Card className="border-dashed">
           <CardContent className="flex flex-col items-center justify-center py-12">
             <ImageIcon className="text-muted-foreground/50 mb-3 h-12 w-12" />
-            <p className="text-muted-foreground font-medium">No posts yet</p>
+            <p className="text-muted-foreground font-medium">
+              {t("loungePosts.noPosts")}
+            </p>
             <p className="text-muted-foreground mt-1 text-sm">
-              Check back later for updates
+              {t("loungePosts.checkBack")}
             </p>
           </CardContent>
         </Card>
@@ -269,15 +275,14 @@ export default function PostsDisplay({
                   {/* Engagement Stats */}
                   <div className="text-muted-foreground flex items-center justify-between border-t border-b px-4 py-2 text-sm">
                     <button className="hover:underline">
-                      {state.likes} {state.likes === 1 ? "like" : "likes"}
+                      {t("loungePosts.likes", { count: state.likes })}
                     </button>
                     <div className="flex gap-3">
                       <button className="hover:underline">
-                        {post.comments}{" "}
-                        {post.comments === 1 ? "comment" : "comments"}
+                        {t("loungePosts.comments", { count: post.comments })}
                       </button>
                       <button className="hover:underline">
-                        {post.shares} {post.shares === 1 ? "share" : "shares"}
+                        {t("loungePosts.shares", { count: post.shares })}
                       </button>
                     </div>
                   </div>
@@ -295,15 +300,21 @@ export default function PostsDisplay({
                           state.isLiked ? "fill-red-500" : ""
                         }`}
                       />
-                      <span className="hidden sm:inline">Like</span>
+                      <span className="hidden sm:inline">
+                        {t("loungePosts.like")}
+                      </span>
                     </Button>
                     <Button variant="ghost" size="sm" className="flex-1 gap-2">
                       <MessageCircle className="h-4 w-4" />
-                      <span className="hidden sm:inline">Comment</span>
+                      <span className="hidden sm:inline">
+                        {t("loungePosts.comment")}
+                      </span>
                     </Button>
                     <Button variant="ghost" size="sm" className="flex-1 gap-2">
                       <Share2 className="h-4 w-4" />
-                      <span className="hidden sm:inline">Share</span>
+                      <span className="hidden sm:inline">
+                        {t("loungePosts.share")}
+                      </span>
                     </Button>
                     <Button
                       variant="ghost"
@@ -329,7 +340,7 @@ export default function PostsDisplay({
       {posts.length > 0 && (
         <div className="pt-4 text-center">
           <Button variant="outline" className="w-full sm:w-auto">
-            Load More Posts
+            {t("loungePosts.loadMore")}
           </Button>
         </div>
       )}

@@ -5,11 +5,13 @@ import { useAuth } from "@/app/_auth"
 import { getHomePath } from "../../_lib/profile"
 import { NAV_LINKS } from "../../_constants/navigation"
 import { useScrollDirection } from "../../_hooks/useScrollDirection"
+import { useTranslation } from "../../_i18n"
 
 const MobileNavbar = () => {
   const { user, isLoading } = useAuth()
   const pathname = usePathname()
   const scrollDir = useScrollDirection(50)
+  const { t } = useTranslation()
   const isHomePage = pathname === "/home"
   const hidden = isHomePage && scrollDir === "down"
 
@@ -29,7 +31,7 @@ const MobileNavbar = () => {
     <>
       <nav
         data-nav-mobile
-        className={`bg-card/95 border-border fixed right-0 bottom-0 left-0 z-[9999] h-[85px] border-t shadow-[0_-2px_12px_0_rgba(0,0,0,0.04)] backdrop-blur-sm transition-transform duration-300 ease-in-out lg:hidden ${hidden ? "translate-y-[200%]" : "translate-y-0"}`}
+        className={`bg-card/95 border-border fixed right-0 bottom-0 left-0 z-[9999] h-[100px] border-t shadow-[0_-2px_12px_0_rgba(0,0,0,0.04)] backdrop-blur-sm transition-transform duration-300 ease-in-out lg:hidden ${hidden ? "translate-y-[200%]" : "translate-y-0"}`}
       >
         <div className="relative mb-2 flex h-full items-center justify-between gap-1 px-3 py-2 pb-10">
           {filteredNavLinks.map((link) => {
@@ -71,7 +73,7 @@ const MobileNavbar = () => {
                   <span
                     className={`flex h-[20px] items-center justify-center text-[13px] font-semibold transition-all duration-300 ${isActive ? "text-primary -translate-y-3 scale-110" : "text-muted-foreground group-hover:text-primary translate-y-0 scale-100"}`}
                   >
-                    {link.label}
+                    {t(`nav.${link.label.toLowerCase()}`)}
                   </span>
                 </div>
               </Link>

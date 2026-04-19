@@ -16,6 +16,7 @@ import { ImageSelector } from "../images/ImageSelector"
 import { ImageLightbox } from "../images/image-lightbox"
 import type { User } from "../../../_types"
 import { getUserDisplayName, getUserInitials } from "@/app/_auth"
+import { useTranslation } from "@/app/_i18n"
 
 interface ProfileCoverProps {
   user: User | null
@@ -49,6 +50,7 @@ export function ProfileCover({
   updatingProfile = false,
   updatingCover = false,
 }: ProfileCoverProps) {
+  const { t } = useTranslation()
   const [profileDialogOpen, setProfileDialogOpen] = useState(false)
   const [coverDialogOpen, setCoverDialogOpen] = useState(false)
   const [lightboxSrc, setLightboxSrc] = useState<string | null>(null)
@@ -90,7 +92,7 @@ export function ProfileCover({
               type="button"
               className="relative h-full w-full cursor-pointer"
               onClick={() => openLightbox(coverUrl, "Cover photo")}
-              aria-label="View cover photo"
+              aria-label={t("cover.viewCover")}
             >
               <Image
                 src={coverUrl}
@@ -121,19 +123,19 @@ export function ProfileCover({
                   className="absolute right-3 bottom-3 z-10 gap-1.5 rounded-lg bg-black/50 p-2 text-white backdrop-blur-sm hover:bg-black/70 sm:right-4 sm:bottom-4 sm:p-2.5"
                 >
                   <CameraIcon className="h-4 w-4" />
-                  <span className="hidden sm:inline">Edit cover photo</span>
+                  <span className="hidden sm:inline">{t("cover.edit")}</span>
                 </Button>
               </DialogTrigger>
               <DialogContent>
                 <DialogHeader>
-                  <DialogTitle>Update Cover Photo</DialogTitle>
+                  <DialogTitle>{t("cover.dialogTitleCover")}</DialogTitle>
                 </DialogHeader>
                 <ImageSelector
                   onUpdate={handleCoverUpdate}
                   updating={updatingCover}
                   aspect={16 / 5}
                   cropShape="rect"
-                  label="Choose a cover photo"
+                  label={t("cover.chooseCover")}
                 />
               </DialogContent>
             </Dialog>
@@ -142,7 +144,7 @@ export function ProfileCover({
 
         {/* Profile Image — overlapping the cover */}
         <div className="relative mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
-          <div className="relative -mt-16 flex items-end gap-4 md:-mt-20">
+          <div className="relative -mt-16 flex items-end gap-4 sm:-mt-20">
             {/* Avatar with ring */}
             <div className="relative shrink-0">
               {/* Clickable avatar for fullscreen preview */}
@@ -157,9 +159,9 @@ export function ProfileCover({
                     )
                   }
                 }}
-                aria-label="View profile photo"
+                aria-label={t("cover.viewProfile")}
               >
-                <Avatar className="ring-background h-32 w-32 ring-4 md:h-40 md:w-40">
+                <Avatar className="ring-background h-28 w-28 shadow-xl ring-4 sm:h-36 sm:w-36 md:h-40 md:w-40">
                   {profileUrl && (
                     <AvatarImage
                       src={profileUrl}
@@ -167,7 +169,7 @@ export function ProfileCover({
                       className="object-cover"
                     />
                   )}
-                  <AvatarFallback className="bg-primary/10 text-primary text-3xl font-bold md:text-4xl">
+                  <AvatarFallback className="bg-primary/10 text-primary text-2xl font-bold sm:text-3xl md:text-4xl">
                     {getUserInitials(user)}
                   </AvatarFallback>
                 </Avatar>
@@ -190,27 +192,32 @@ export function ProfileCover({
                   </DialogTrigger>
                   <DialogContent>
                     <DialogHeader>
-                      <DialogTitle>Update Profile Photo</DialogTitle>
+                      <DialogTitle>{t("cover.dialogTitleProfile")}</DialogTitle>
                     </DialogHeader>
                     <ImageSelector
                       onUpdate={handleProfileUpdate}
                       updating={updatingProfile}
                       aspect={1}
                       cropShape="round"
-                      label="Choose a profile photo"
+                      label={t("cover.chooseProfile")}
                     />
                   </DialogContent>
                 </Dialog>
               )}
             </div>
 
-            {/* Name & info beside avatar (below cover) */}
-            <div className="mb-2 min-w-0 flex-1 pb-1">
-              <h1 className="truncate text-xl font-bold md:text-2xl lg:text-3xl">
+            {/* Name beside avatar (below cover) */}
+            <div className="mb-1 min-w-0 flex-1 pb-1">
+              <h1 className="truncate text-lg font-bold sm:text-xl md:text-2xl lg:text-3xl">
                 {user?.type === "lounge"
                   ? user.loungeTitle || getUserDisplayName(user)
                   : getUserDisplayName(user)}
               </h1>
+              {user?.type === "lounge" && user?.location?.address && (
+                <p className="text-muted-foreground mt-0.5 truncate text-xs sm:text-sm">
+                  {user.location.address}
+                </p>
+              )}
             </div>
           </div>
         </div>

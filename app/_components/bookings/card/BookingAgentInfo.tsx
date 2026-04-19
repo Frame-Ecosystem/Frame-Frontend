@@ -1,3 +1,6 @@
+"use client"
+
+import { useTranslation } from "@/app/_i18n"
 import { resolveImageUrl } from "../booking-utils"
 import type { Agent } from "../../../_types"
 
@@ -7,6 +10,7 @@ interface BookingAgentInfoProps {
 }
 
 function AgentRow({ agent }: { agent: Agent }) {
+  const { t } = useTranslation()
   const imgUrl = resolveImageUrl(agent.profileImage)
 
   return (
@@ -20,18 +24,21 @@ function AgentRow({ agent }: { agent: Agent }) {
             className="h-full w-full object-cover"
           />
         ) : (
-          <span className="text-muted-foreground">No Image</span>
+          <span className="text-muted-foreground">{t("common.noImage")}</span>
         )}
       </div>
       <div className="leading-tight">
-        <p className="text-muted-foreground text-xs">Handled</p>
-        <p className="text-sm font-medium">by {agent.agentName}</p>
+        <p className="text-muted-foreground text-xs">{t("booking.handled")}</p>
+        <p className="text-sm font-medium">
+          {t("booking.by", { name: agent.agentName })}
+        </p>
       </div>
     </div>
   )
 }
 
 export function BookingAgentInfo({ agent, agents }: BookingAgentInfoProps) {
+  const { t } = useTranslation()
   const hasAgents = agents && agents.length > 0
   if (!agent && !hasAgents) return null
 
@@ -39,7 +46,8 @@ export function BookingAgentInfo({ agent, agents }: BookingAgentInfoProps) {
     return (
       <div className="mb-2">
         <div className="mb-1 text-sm font-medium">
-          Handled By: ({agents.length} agents)
+          {t("booking.handledByLabel")} (
+          {t("booking.agentsCount", { count: agents.length })})
         </div>
         <div className="space-y-2">
           {agents.map((a, index) => (

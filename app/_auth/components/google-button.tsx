@@ -2,6 +2,7 @@
 
 import React from "react"
 import { Button } from "@/app/_components/ui/button"
+import { useTranslation } from "@/app/_i18n"
 
 type GoogleButtonProps = {
   onClick?: () => void
@@ -14,6 +15,7 @@ const GoogleButton: React.FC<GoogleButtonProps> = ({
   disabled = false,
   className = "",
 }) => {
+  const { t } = useTranslation()
   return (
     <>
       {/* Divider */}
@@ -23,7 +25,7 @@ const GoogleButton: React.FC<GoogleButtonProps> = ({
         </div>
         <div className="relative flex justify-center text-xs uppercase">
           <span className="bg-background text-muted-foreground px-2">
-            Or continue with
+            {t("auth.orContinueWith")}
           </span>
         </div>
       </div>

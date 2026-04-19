@@ -34,6 +34,7 @@ import {
   FooterBrandLogo,
 } from "./_components/common/brand-logo"
 import { LandingSkeleton } from "./_components/skeletons/auth"
+import { useTranslation } from "./_i18n"
 
 /* ═══════════════════════════════════════════════════════════════════════════
    SOCIAL ICONS (not available in lucide-react)
@@ -154,70 +155,16 @@ function useParallax(speed = 0.3) {
    DATA
    ═══════════════════════════════════════════════════════════════════════════ */
 
-const PILLARS = [
-  {
-    number: "01",
-    icon: Newspaper,
-    title: "Feed",
-    tagline: "Get inspired. Inspire others.",
-    description:
-      "A living stream of creativity where styles, trends, and ideas collide. Follow artists, discover fresh looks, and let the community reshape how you think about beauty. Every scroll is a new perspective — save what moves you, share what defines you.",
-    features: [
-      "Discover trending styles & techniques",
-      "Follow your favorite artists & lounges",
-      "Save looks that inspire your next visit",
-      "Share your own transformation stories",
-    ],
-  },
-  {
-    number: "02",
-    icon: ShoppingBag,
-    title: "Shop",
-    tagline: "Everything beauty, one place.",
-    description:
-      "A curated marketplace where professionals and beauty lovers find exactly what they need. From premium haircare to skincare essentials — keep your look shining with products recommended by the people you trust most.",
-    features: [
-      "Curated products from trusted brands",
-      "Recommendations from professionals",
-      "Exclusive deals & new arrivals",
-      "Real reviews from real customers",
-    ],
-  },
-  {
-    number: "03",
-    icon: Calendar,
-    title: "Book",
-    tagline: "Your time, respected.",
-    description:
-      "Find top-rated lounges near you, browse their services, and lock in your spot in seconds. Real-time queue tracking means no more guessing — you'll always know exactly when it's your turn.",
-    features: [
-      "Instant booking with live availability",
-      "Real-time queue tracking & updates",
-      "Verified ratings & reviews",
-      "Smart recommendations near you",
-    ],
-  },
+const PILLAR_META = [
+  { number: "01", icon: Newspaper, key: "feed" },
+  { number: "02", icon: ShoppingBag, key: "shop" },
+  { number: "03", icon: Calendar, key: "book" },
 ] as const
 
-const STEPS = [
-  {
-    step: "01",
-    title: "Discover",
-    description:
-      "Scroll your feed for inspiration, explore trending styles, and find lounges and products that match your vibe.",
-  },
-  {
-    step: "02",
-    title: "Choose",
-    description:
-      "Shop the products you love, pick a service, choose your time slot, and confirm — all in a few taps.",
-  },
-  {
-    step: "03",
-    title: "Shine",
-    description:
-      "Show up looking your best, enjoy a premium experience, and share your transformation with the community.",
-  },
+const STEP_META = [
+  { step: "01", key: "discover" },
+  { step: "02", key: "choose" },
+  { step: "03", key: "shine" },
 ] as const
 
 /* ═══════════════════════════════════════════════════════════════════════════
@@ -228,9 +175,41 @@ const LandingPage = () => {
   const { user, isLoading } = useAuth()
   const router = useRouter()
   const searchParams = useSearchParams()
+  const { t } = useTranslation()
   const [signupOpen, setSignupOpen] = useState(false)
   const [signinOpen, setSigninOpen] = useState(false)
   const hasProcessedSigninRef = useRef(false)
+
+  const PILLARS = useMemo(
+    () =>
+      PILLAR_META.map((m, i) => {
+        const n = i + 1
+        return {
+          ...m,
+          icon: m.icon,
+          title: t(`landing.pillar${n}Title`),
+          tagline: t(`landing.pillar${n}Tagline`),
+          description: t(`landing.pillar${n}Desc`),
+          features: [
+            t(`landing.pillar${n}Feat1`),
+            t(`landing.pillar${n}Feat2`),
+            t(`landing.pillar${n}Feat3`),
+            t(`landing.pillar${n}Feat4`),
+          ],
+        }
+      }),
+    [t],
+  )
+
+  const STEPS = useMemo(
+    () =>
+      STEP_META.map((m, i) => ({
+        ...m,
+        title: t(`landing.step${i + 1}Title`),
+        description: t(`landing.step${i + 1}Desc`),
+      })),
+    [t],
+  )
 
   /* ── Scroll-based hooks ── */
   const heroInView = useInView(0.05)
@@ -374,9 +353,14 @@ const LandingPage = () => {
                 transitionDelay: heroInView.inView ? "150ms" : "0ms",
               }}
             >
-              Your beauty journey
-              <br />
-              starts with
+              {t("landing.heroTitle")
+                .split("\n")
+                .map((line, i) => (
+                  <span key={i}>
+                    {line}
+                    {i === 0 && <br />}
+                  </span>
+                ))}
             </h1>
             <HeroBrandLogo
               className="mb-4 transition-all duration-1000 ease-out"
@@ -390,7 +374,7 @@ const LandingPage = () => {
             >
               <span className="bg-primary/10 text-primary inline-flex items-center gap-2 rounded-full px-5 py-2 text-sm font-medium">
                 <Sparkles className="h-3.5 w-3.5" />
-                Feed · Shop · Book
+                {t("landing.heroBadge")}
               </span>
             </div>
 
@@ -399,9 +383,7 @@ const LandingPage = () => {
               className={`text-muted-foreground mx-auto mb-12 max-w-2xl text-lg leading-relaxed transition-all duration-700 ease-out sm:text-xl ${heroInView.inView ? "translate-y-0 opacity-100" : "translate-y-6 opacity-0"}`}
               style={{ transitionDelay: heroInView.inView ? "300ms" : "0ms" }}
             >
-              Discover trending styles in your feed, shop curated beauty
-              products, and book appointments at top-rated lounges near you —
-              all in one place.
+              {t("landing.heroSubtitle")}
             </p>
 
             {/* CTA buttons — staggered */}
@@ -414,7 +396,7 @@ const LandingPage = () => {
                 className="group shadow-primary/20 hover:shadow-primary/30 h-13 min-w-[220px] px-8 text-base font-semibold shadow-lg transition-shadow hover:shadow-xl"
                 onClick={openSignUp}
               >
-                Get Started Free
+                {t("landing.getStartedFree")}
                 <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
               </Button>
               <Button
@@ -423,7 +405,7 @@ const LandingPage = () => {
                 className="h-13 min-w-[220px] px-8 text-base font-semibold"
                 onClick={openSignIn}
               >
-                Sign In
+                {t("landing.signIn")}
               </Button>
             </div>
 
@@ -433,9 +415,9 @@ const LandingPage = () => {
               style={{ transitionDelay: heroInView.inView ? "650ms" : "0ms" }}
             >
               {[
-                "Free to use",
-                "No credit card required",
-                "Instant booking",
+                t("landing.freeToUse"),
+                t("landing.noCreditCard"),
+                t("landing.instantBooking"),
               ].map((text) => (
                 <span key={text} className="inline-flex items-center gap-1.5">
                   <CheckCircle2 className="h-4 w-4 text-green-500" />
@@ -459,17 +441,16 @@ const LandingPage = () => {
               className={`mb-16 text-center transition-all duration-700 ease-out ${pillarsInView.inView ? "translate-y-0 opacity-100" : "translate-y-8 opacity-0"}`}
             >
               <span className="text-primary mb-3 block text-sm font-semibold tracking-wider uppercase">
-                The Platform
+                {t("landing.thePlatform")}
               </span>
               <h2
                 className="text-foreground mb-4 text-3xl font-bold tracking-tight sm:text-4xl lg:text-5xl"
                 style={{ fontFamily: "var(--font-nunito), sans-serif" }}
               >
-                Everything you need
+                {t("landing.everythingYouNeed")}
               </h2>
               <p className="text-muted-foreground mx-auto max-w-xl text-lg">
-                One platform, three powerful experiences designed to elevate
-                every part of your beauty journey.
+                {t("landing.platformSubtitle")}
               </p>
             </div>
 
@@ -557,16 +538,16 @@ const LandingPage = () => {
               className={`mb-16 text-center transition-all duration-700 ease-out ${stepsInView.inView ? "translate-y-0 opacity-100" : "translate-y-8 opacity-0"}`}
             >
               <span className="text-primary mb-3 block text-sm font-semibold tracking-wider uppercase">
-                Simple & Fast
+                {t("landing.simpleAndFast")}
               </span>
               <h2
                 className="text-foreground mb-4 text-3xl font-bold tracking-tight sm:text-4xl lg:text-5xl"
                 style={{ fontFamily: "var(--font-nunito), sans-serif" }}
               >
-                How it works
+                {t("landing.howItWorks")}
               </h2>
               <p className="text-muted-foreground mx-auto max-w-xl text-lg">
-                From discovery to doorstep — here&apos;s how Frame works.
+                {t("landing.stepsSubtitle")}
               </p>
             </div>
 
@@ -634,17 +615,17 @@ const LandingPage = () => {
               {[
                 {
                   value: `${centersCount}+`,
-                  label: "Partner Lounges",
+                  label: t("landing.partnerLounges"),
                   icon: Users,
                 },
                 {
                   value: `${customersCount.toLocaleString()}+`,
-                  label: "Happy Customers",
+                  label: t("landing.happyCustomers"),
                   icon: Zap,
                 },
                 {
                   value: (ratingCount / 10).toFixed(1),
-                  label: "Average Rating",
+                  label: t("landing.averageRating"),
                   icon: Star,
                 },
               ].map((stat, i) => {
@@ -698,18 +679,18 @@ const LandingPage = () => {
                     </div>
                     <div>
                       <div className="text-foreground text-lg font-bold">
-                        Your Beauty Hub
+                        {t("landing.clientsCardTitle")}
                       </div>
                       <div className="text-muted-foreground text-sm">
-                        Everything in one place
+                        {t("landing.clientsCardSubtitle")}
                       </div>
                     </div>
                   </div>
                   <div className="space-y-3">
                     {[
-                      { label: "Trending Styles", icon: "🔥" },
-                      { label: "Saved Lounges", icon: "💜" },
-                      { label: "Upcoming Booking", icon: "📅" },
+                      { label: t("landing.trendingStyles"), icon: "🔥" },
+                      { label: t("landing.savedLounges"), icon: "💜" },
+                      { label: t("landing.upcomingBooking"), icon: "📅" },
                     ].map((item) => (
                       <div
                         key={item.label}
@@ -724,10 +705,10 @@ const LandingPage = () => {
                   </div>
                   <div className="mt-6 flex gap-3">
                     <div className="bg-primary/10 text-primary flex-1 rounded-lg py-2.5 text-center text-sm font-semibold">
-                      5 new posts
+                      {t("landing.newPosts")}
                     </div>
                     <div className="flex-1 rounded-lg bg-green-500/10 py-2.5 text-center text-sm font-semibold text-green-500">
-                      2 bookings
+                      {t("landing.bookingsCount")}
                     </div>
                   </div>
                 </div>
@@ -738,27 +719,38 @@ const LandingPage = () => {
                 className={`transition-all duration-800 ease-out ${clientsInView.inView ? "translate-x-0 opacity-100" : "translate-x-12 opacity-0"}`}
               >
                 <span className="bg-primary/10 text-primary mb-4 inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-semibold tracking-wider uppercase">
-                  For Clients
+                  {t("landing.forClients")}
                 </span>
                 <h2
                   className="text-foreground mb-4 text-3xl font-bold tracking-tight sm:text-4xl lg:text-5xl"
                   style={{ fontFamily: "var(--font-nunito), sans-serif" }}
                 >
-                  Your beauty,
-                  <br />
-                  your <span className="text-primary">way</span>
+                  {t("landing.clientsTitle")
+                    .split("\n")
+                    .map((line, i) => (
+                      <span key={i}>
+                        {i === 0 ? (
+                          line
+                        ) : (
+                          <>
+                            {line.replace("way", "")}{" "}
+                            <span className="text-primary">{"way"}</span>
+                          </>
+                        )}
+                        {i === 0 && <br />}
+                      </span>
+                    ))}
                 </h2>
                 <p className="text-muted-foreground mb-8 text-lg leading-relaxed">
-                  Discover trending styles in the feed, shop products from top
-                  lounges, and book your next appointment — all in one app.
+                  {t("landing.clientsSubtitle")}
                 </p>
                 <ul className="space-y-3">
                   {[
-                    "Browse trending posts & reels from top lounges",
-                    "Shop beauty products directly from the marketplace",
-                    "Book appointments & join live queues",
-                    "Save your favorite lounges & styles",
-                    "Rate & review your experiences",
+                    t("landing.clientsFeat1"),
+                    t("landing.clientsFeat2"),
+                    t("landing.clientsFeat3"),
+                    t("landing.clientsFeat4"),
+                    t("landing.clientsFeat5"),
                   ].map((item, i) => (
                     <li
                       key={item}
@@ -778,7 +770,7 @@ const LandingPage = () => {
                   className="group mt-8 h-11 px-6 font-semibold"
                   onClick={openSignUp}
                 >
-                  Get Started
+                  {t("landing.getStartedFree")}
                   <ChevronRight className="ml-1 h-4 w-4 transition-transform group-hover:translate-x-0.5" />
                 </Button>
               </div>
@@ -800,27 +792,38 @@ const LandingPage = () => {
                 className={`transition-all duration-800 ease-out ${b2bInView.inView ? "translate-x-0 opacity-100" : "-translate-x-12 opacity-0"}`}
               >
                 <span className="bg-primary/10 text-primary mb-4 inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-semibold tracking-wider uppercase">
-                  For Lounges
+                  {t("landing.forLounges")}
                 </span>
                 <h2
                   className="text-foreground mb-4 text-3xl font-bold tracking-tight sm:text-4xl lg:text-5xl"
                   style={{ fontFamily: "var(--font-nunito), sans-serif" }}
                 >
-                  Grow your business
-                  <br />
-                  with <InlineBrandLogo />
+                  {t("landing.loungesTitle")
+                    .split("\n")
+                    .map((line, i) => (
+                      <span key={i}>
+                        {line}
+                        {i === 0 ? (
+                          <br />
+                        ) : (
+                          <>
+                            {" "}
+                            <InlineBrandLogo />
+                          </>
+                        )}
+                      </span>
+                    ))}
                 </h2>
                 <p className="text-muted-foreground mb-8 text-lg leading-relaxed">
-                  Publish to the feed, list your products in the marketplace,
-                  and manage your bookings — all from one powerful dashboard.
+                  {t("landing.loungesSubtitle")}
                 </p>
                 <ul className="space-y-3">
                   {[
-                    "Publish posts & reels to the feed",
-                    "List & sell products in the shop",
-                    "Online booking & live queue management",
-                    "Ratings & reviews to build trust",
-                    "Analytics & client insights dashboard",
+                    t("landing.loungesFeat1"),
+                    t("landing.loungesFeat2"),
+                    t("landing.loungesFeat3"),
+                    t("landing.loungesFeat4"),
+                    t("landing.loungesFeat5"),
                   ].map((item, i) => (
                     <li
                       key={item}
@@ -840,7 +843,7 @@ const LandingPage = () => {
                   className="group mt-8 h-11 px-6 font-semibold"
                   onClick={openSignUp}
                 >
-                  Register Your Lounge
+                  {t("landing.registerLounge")}
                   <ChevronRight className="ml-1 h-4 w-4 transition-transform group-hover:translate-x-0.5" />
                 </Button>
               </div>
@@ -859,38 +862,47 @@ const LandingPage = () => {
                     </div>
                     <div>
                       <div className="text-foreground text-lg font-bold">
-                        Studio Elite
+                        {t("landing.studioElite")}
                       </div>
                       <div className="text-muted-foreground text-sm">
-                        Premium Salon — 4.9 ★
+                        {t("landing.premiumSalon")}
                       </div>
                     </div>
                   </div>
                   <div className="space-y-3">
                     {[
-                      "Haircut — 25 TND",
-                      "Beard Trim — 15 TND",
-                      "Full Package — 45 TND",
+                      {
+                        name: t("landing.haircut"),
+                        price: t("landing.haircutPrice"),
+                      },
+                      {
+                        name: t("landing.beardTrim"),
+                        price: t("landing.beardTrimPrice"),
+                      },
+                      {
+                        name: t("landing.fullPackage"),
+                        price: t("landing.fullPackagePrice"),
+                      },
                     ].map((service) => (
                       <div
-                        key={service}
+                        key={service.name}
                         className="bg-muted/50 flex items-center justify-between rounded-lg px-4 py-3"
                       >
                         <span className="text-foreground text-sm font-medium">
-                          {service.split(" — ")[0]}
+                          {service.name}
                         </span>
                         <span className="text-primary text-sm font-bold">
-                          {service.split(" — ")[1]}
+                          {service.price}
                         </span>
                       </div>
                     ))}
                   </div>
                   <div className="mt-6 flex gap-3">
                     <div className="bg-primary/10 text-primary flex-1 rounded-lg py-2.5 text-center text-sm font-semibold">
-                      12 bookings today
+                      {t("landing.bookingsToday")}
                     </div>
                     <div className="flex-1 rounded-lg bg-green-500/10 py-2.5 text-center text-sm font-semibold text-green-500">
-                      3 in queue
+                      {t("landing.inQueue")}
                     </div>
                   </div>
                 </div>
@@ -913,11 +925,10 @@ const LandingPage = () => {
               className="text-foreground mb-4 text-3xl font-bold tracking-tight sm:text-4xl lg:text-5xl"
               style={{ fontFamily: "var(--font-nunito), sans-serif" }}
             >
-              Ready to experience <InlineBrandLogo />?
+              {t("landing.ctaTitle")} <InlineBrandLogo />?
             </h2>
             <p className="text-muted-foreground mx-auto mb-10 max-w-xl text-lg">
-              Join thousands of customers and lounges who already trust Frame
-              Beauty. Your next great experience is one tap away.
+              {t("landing.ctaSubtitle")}
             </p>
             <div className="flex flex-col items-center justify-center gap-4 sm:flex-row">
               <Button
@@ -925,7 +936,7 @@ const LandingPage = () => {
                 className="group shadow-primary/20 hover:shadow-primary/30 h-13 min-w-[220px] px-8 text-base font-semibold shadow-lg transition-shadow hover:shadow-xl"
                 onClick={openSignUp}
               >
-                Create Free Account
+                {t("landing.createFreeAccount")}
                 <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
               </Button>
               <Button
@@ -934,7 +945,7 @@ const LandingPage = () => {
                 className="text-muted-foreground h-13 px-8 text-base font-medium"
                 onClick={openSignIn}
               >
-                I already have an account
+                {t("landing.alreadyHaveAccount")}
               </Button>
             </div>
           </div>
@@ -951,8 +962,7 @@ const LandingPage = () => {
                   <FooterBrandLogo />
                 </div>
                 <p className="text-muted-foreground mb-5 max-w-xs text-sm leading-relaxed">
-                  The all-in-one platform to discover trends, shop beauty
-                  products, and book appointments at top-rated lounges near you.
+                  {t("footer.description")}
                 </p>
                 <div className="overflow-hidden">
                   <div className="animate-marquee flex w-max items-center gap-2">
@@ -1037,7 +1047,7 @@ const LandingPage = () => {
               {/* Platform column */}
               <div>
                 <h4 className="text-foreground mb-3 text-sm font-semibold">
-                  Platform
+                  {t("footer.platform")}
                 </h4>
                 <ul className="text-muted-foreground space-y-2.5 text-sm">
                   <li>
@@ -1045,7 +1055,7 @@ const LandingPage = () => {
                       onClick={openSignUp}
                       className="hover:text-foreground transition-colors"
                     >
-                      Feed
+                      {t("footer.feed")}
                     </button>
                   </li>
                   <li>
@@ -1053,7 +1063,7 @@ const LandingPage = () => {
                       onClick={openSignUp}
                       className="hover:text-foreground transition-colors"
                     >
-                      Shop
+                      {t("footer.shop")}
                     </button>
                   </li>
                   <li>
@@ -1061,7 +1071,7 @@ const LandingPage = () => {
                       onClick={openSignUp}
                       className="hover:text-foreground transition-colors"
                     >
-                      Book
+                      {t("footer.book")}
                     </button>
                   </li>
                 </ul>
@@ -1070,7 +1080,7 @@ const LandingPage = () => {
               {/* For Clients column */}
               <div>
                 <h4 className="text-foreground mb-3 text-sm font-semibold">
-                  For Clients
+                  {t("footer.forClients")}
                 </h4>
                 <ul className="text-muted-foreground space-y-2.5 text-sm">
                   <li>
@@ -1078,7 +1088,7 @@ const LandingPage = () => {
                       onClick={openSignUp}
                       className="hover:text-foreground transition-colors"
                     >
-                      Discover Styles
+                      {t("footer.discoverStyles")}
                     </button>
                   </li>
                   <li>
@@ -1086,7 +1096,7 @@ const LandingPage = () => {
                       onClick={openSignUp}
                       className="hover:text-foreground transition-colors"
                     >
-                      Book Appointments
+                      {t("footer.bookAppointments")}
                     </button>
                   </li>
                   <li>
@@ -1094,7 +1104,7 @@ const LandingPage = () => {
                       onClick={openSignUp}
                       className="hover:text-foreground transition-colors"
                     >
-                      Saved & Favorites
+                      {t("footer.savedFavorites")}
                     </button>
                   </li>
                 </ul>
@@ -1103,7 +1113,7 @@ const LandingPage = () => {
               {/* For Lounges column */}
               <div>
                 <h4 className="text-foreground mb-3 text-sm font-semibold">
-                  For Lounges
+                  {t("footer.forLounges")}
                 </h4>
                 <ul className="text-muted-foreground space-y-2.5 text-sm">
                   <li>
@@ -1111,7 +1121,7 @@ const LandingPage = () => {
                       onClick={openSignUp}
                       className="hover:text-foreground transition-colors"
                     >
-                      Register Your Lounge
+                      {t("footer.registerLounge")}
                     </button>
                   </li>
                   <li>
@@ -1119,7 +1129,7 @@ const LandingPage = () => {
                       onClick={openSignUp}
                       className="hover:text-foreground transition-colors"
                     >
-                      Dashboard
+                      {t("footer.dashboard")}
                     </button>
                   </li>
                   <li>
@@ -1127,7 +1137,7 @@ const LandingPage = () => {
                       onClick={openSignUp}
                       className="hover:text-foreground transition-colors"
                     >
-                      Analytics
+                      {t("footer.analytics")}
                     </button>
                   </li>
                 </ul>
@@ -1136,7 +1146,7 @@ const LandingPage = () => {
               {/* Contact column */}
               <div>
                 <h4 className="text-foreground mb-3 text-sm font-semibold">
-                  Contact
+                  {t("footer.contact")}
                 </h4>
                 <ul className="text-muted-foreground space-y-2.5 text-sm">
                   <li>
@@ -1167,11 +1177,10 @@ const LandingPage = () => {
             {/* Bottom row — copyright */}
             <div className="mt-6 flex flex-col items-center justify-between gap-3 sm:flex-row">
               <p className="text-muted-foreground text-xs">
-                &copy; {new Date().getFullYear()} Frame Beauty. All rights
-                reserved.
+                &copy; {new Date().getFullYear()} {t("footer.copyright")}
               </p>
               <p className="text-muted-foreground/60 text-xs">
-                Crafted with care in Tunisia
+                {t("footer.madeIn")}
               </p>
             </div>
           </div>

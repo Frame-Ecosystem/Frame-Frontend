@@ -2,6 +2,7 @@
 
 import { LogOutIcon } from "lucide-react"
 import { Button } from "../../ui/button"
+import { useTranslation } from "@/app/_i18n"
 
 interface LogoutSectionProps {
   onLogout: () => void
@@ -9,6 +10,7 @@ interface LogoutSectionProps {
 }
 
 export function LogoutSection({ onLogout, onLogoutAll }: LogoutSectionProps) {
+  const { t } = useTranslation()
   return (
     <div className="border-border border-t pt-4">
       <div className="space-y-3">
@@ -18,7 +20,7 @@ export function LogoutSection({ onLogout, onLogoutAll }: LogoutSectionProps) {
           className="border-destructive hover:bg-destructive/10 flex w-full items-center gap-2"
         >
           <LogOutIcon className="h-4 w-4" />
-          Logout
+          {t("settings.logout")}
         </Button>
         <Button
           onClick={onLogoutAll}
@@ -26,7 +28,7 @@ export function LogoutSection({ onLogout, onLogoutAll }: LogoutSectionProps) {
           className="border-destructive hover:bg-destructive/10 flex w-full items-center gap-2"
         >
           <LogOutIcon className="h-4 w-4" />
-          Logout from All Devices
+          {t("settings.logoutAll")}
         </Button>
       </div>
     </div>

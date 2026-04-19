@@ -3,10 +3,12 @@
 import { useEffect, useState } from "react"
 import { useSearchParams } from "next/navigation"
 import { Button } from "../../_components/ui/button"
+import { useTranslation } from "@/app/_i18n"
 import { API_BASE_URL, GOOGLE_AUTH_BASE_URL } from "../../_services/api"
 import { getLoginRedirectPath } from "../../_lib/profile"
 
 export default function VerifyPage() {
+  const { t } = useTranslation()
   const searchParams = useSearchParams()
   const token = searchParams.get("token")
   // Do not call setAuth in this window. We will notify the main app (opener)
@@ -21,13 +23,13 @@ export default function VerifyPage() {
     const verifyMagicLink = async () => {
       if (!token) {
         setStatus("error")
-        setMessage("Invalid verification link. No token provided.")
+        setMessage(t("auth.verify.invalidLink"))
         return
       }
 
       if (token.length < 10) {
         setStatus("error")
-        setMessage("Invalid verification token.")
+        setMessage(t("auth.verify.invalidToken"))
         return
       }
 
@@ -85,7 +87,7 @@ export default function VerifyPage() {
               } catch {}
 
               setStatus("success")
-              setMessage("Email verified — you can close this tab.")
+              setMessage(t("auth.verify.emailVerified"))
               succeeded = true
               break
             }
@@ -144,7 +146,7 @@ export default function VerifyPage() {
                   localStorage.setItem("hasRefreshToken", "true")
                 } catch {}
                 setStatus("success")
-                setMessage("Email verified — you can close this tab.")
+                setMessage(t("auth.verify.emailVerified"))
                 succeeded = true
                 break
               }
@@ -156,7 +158,7 @@ export default function VerifyPage() {
 
         if (!succeeded) {
           setStatus("error")
-          setMessage(String(lastError || "Verification failed"))
+          setMessage(String(lastError || t("auth.verify.failed")))
         }
       } catch (err) {
         setStatus("error")
@@ -204,21 +206,21 @@ export default function VerifyPage() {
             )}
           </div>
 
-          <h2 className="text-lg font-semibold">Verification</h2>
+          <h2 className="text-lg font-semibold">{t("auth.verify.title")}</h2>
 
           {status === "loading" && (
-            <p className="text-gray-600">Verifying your account…</p>
+            <p className="text-gray-600">{t("auth.verify.verifying")}</p>
           )}
 
           {status === "success" && (
             <p className="text-green-600">
-              {message || "Verified. You may close this tab."}
+              {message || t("auth.verify.verified")}
             </p>
           )}
 
           {status === "error" && (
             <p className="text-destructive">
-              {message || "Verification failed."}
+              {message || t("auth.verify.failedShort")}
             </p>
           )}
 
@@ -234,7 +236,7 @@ export default function VerifyPage() {
                 }
               }}
             >
-              Close tab
+              {t("auth.verify.closeTab")}
             </Button>
 
             <Button
@@ -252,7 +254,7 @@ export default function VerifyPage() {
                 }
               }}
             >
-              Open App
+              {t("auth.verify.openApp")}
             </Button>
           </div>
         </div>

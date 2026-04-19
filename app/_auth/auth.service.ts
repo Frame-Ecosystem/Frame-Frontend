@@ -328,6 +328,17 @@ class AuthService {
     }
   }
 
+  async updateLanguage(language: string): Promise<User | null> {
+    try {
+      const data = await apiClient.put<{ data: User }>("/v1/me/language", {
+        language,
+      })
+      return data.data
+    } catch (err) {
+      throw err instanceof Error ? err : new Error("Failed to update language")
+    }
+  }
+
   async changePassword(passwordData: {
     currentPassword: string
     newPassword: string

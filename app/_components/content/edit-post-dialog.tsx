@@ -7,6 +7,7 @@ import { Button } from "../ui/button"
 import { Textarea } from "../ui/textarea"
 import type { Post } from "../../_types"
 import { useUpdatePost } from "../../_hooks/queries/useContent"
+import { useTranslation } from "@/app/_i18n"
 
 interface EditPostDialogProps {
   post: Post
@@ -25,6 +26,7 @@ export function EditPostDialog({
   const [hashtags, setHashtags] = useState<string[]>(post.hashtags ?? [])
   const [hashtagInput, setHashtagInput] = useState("")
   const updatePost = useUpdatePost()
+  const { t } = useTranslation()
 
   const addHashtag = useCallback(() => {
     const tag = hashtagInput.trim().replace(/^#/, "").replace(/\s+/g, "")
@@ -65,14 +67,14 @@ export function EditPostDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle>Edit Post</DialogTitle>
+          <DialogTitle>{t("content.post.edit")}</DialogTitle>
         </DialogHeader>
 
         <div className="space-y-4">
           {/* Text */}
           <div>
             <Textarea
-              placeholder="What's on your mind?"
+              placeholder={t("content.post.placeholder")}
               value={text}
               onChange={(e) => setText(e.target.value)}
               maxLength={MAX_TEXT}
@@ -105,7 +107,7 @@ export function EditPostDialog({
             <Hash className="text-muted-foreground h-4 w-4 shrink-0" />
             <input
               type="text"
-              placeholder="Add hashtag..."
+              placeholder={t("content.hashtag.placeholder")}
               value={hashtagInput}
               onChange={(e) => setHashtagInput(e.target.value)}
               onKeyDown={(e) => {
@@ -118,7 +120,7 @@ export function EditPostDialog({
             />
             {hashtagInput && (
               <Button variant="ghost" size="sm" onClick={addHashtag}>
-                Add
+                {t("common.add")}
               </Button>
             )}
           </div>
@@ -126,7 +128,7 @@ export function EditPostDialog({
           {/* Submit */}
           <div className="flex justify-end gap-2 border-t pt-3">
             <Button variant="outline" onClick={() => onOpenChange(false)}>
-              Cancel
+              {t("common.cancel")}
             </Button>
             <Button
               onClick={handleSubmit}
@@ -135,10 +137,10 @@ export function EditPostDialog({
               {updatePost.isPending ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Saving...
+                  {t("content.saving")}
                 </>
               ) : (
-                "Save Changes"
+                t("content.saveChanges")
               )}
             </Button>
           </div>

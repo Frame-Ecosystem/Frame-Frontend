@@ -6,6 +6,7 @@ import { Button } from "../ui/button"
 import { useReplies } from "../../_hooks/queries/useContent"
 import { cn } from "@/app/_lib/utils"
 import type { Comment } from "../../_types"
+import { useTranslation } from "@/app/_i18n"
 
 interface CommentRepliesProps {
   comment: Comment
@@ -18,6 +19,7 @@ interface CommentRepliesProps {
  * Handles fetching, loading state, and "Load more" pagination.
  */
 export function CommentReplies({ comment, renderReply }: CommentRepliesProps) {
+  const { t } = useTranslation()
   const [showReplies, setShowReplies] = useState(false)
 
   const {
@@ -42,8 +44,8 @@ export function CommentReplies({ comment, renderReply }: CommentRepliesProps) {
       >
         <div className="bg-muted-foreground h-px w-6" />
         {showReplies
-          ? "Hide replies"
-          : `View ${count} ${count === 1 ? "reply" : "replies"}`}
+          ? t("content.hideReplies")
+          : t("content.viewReplies", { count: count })}
         <ChevronDown
           className={cn("h-3 w-3 transition", showReplies && "rotate-180")}
         />
@@ -66,7 +68,9 @@ export function CommentReplies({ comment, renderReply }: CommentRepliesProps) {
               disabled={isFetchingNextPage}
               className="text-muted-foreground text-xs"
             >
-              {isFetchingNextPage ? "Loading..." : "Load more replies"}
+              {isFetchingNextPage
+                ? t("common.loadingDots")
+                : t("content.loadMoreReplies")}
             </Button>
           )}
         </div>

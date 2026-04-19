@@ -1,5 +1,6 @@
 "use client"
 
+import { useTranslation } from "@/app/_i18n"
 import { openMapsNavigation, getLoungeDestination } from "../booking-utils"
 
 interface BookingLocationLinkProps {
@@ -11,6 +12,7 @@ interface BookingLocationLinkProps {
 }
 
 export function BookingLocationLink({ lounge }: BookingLocationLinkProps) {
+  const { t } = useTranslation()
   if (!lounge || typeof lounge !== "object") return null
 
   const destination = getLoungeDestination(lounge)
@@ -18,7 +20,7 @@ export function BookingLocationLink({ lounge }: BookingLocationLinkProps) {
     lounge.location?.placeName ||
     lounge.location?.address ||
     lounge.loungeTitle ||
-    "Location not available"
+    t("booking.locationNotAvailable")
 
   return (
     <button
@@ -26,7 +28,7 @@ export function BookingLocationLink({ lounge }: BookingLocationLinkProps) {
       onClick={() => openMapsNavigation(destination)}
       type="button"
     >
-      <span>Location:</span>
+      <span>{t("booking.location")}</span>
       <span>{displayText}</span>
     </button>
   )

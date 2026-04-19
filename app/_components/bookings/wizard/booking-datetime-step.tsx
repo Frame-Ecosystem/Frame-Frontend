@@ -15,6 +15,7 @@ import { CalendarIcon } from "lucide-react"
 import { format } from "date-fns"
 import { cn } from "@/app/_lib/utils"
 import { useEffect, useMemo } from "react"
+import { useTranslation } from "@/app/_i18n"
 
 interface BookingDateTimeStepProps {
   bookingDate: Date | undefined
@@ -74,6 +75,7 @@ export function BookingDateTimeStep({
   availability = { unavailableSlots: [], loungeOpeningHours: {} },
   isLoadingAvailability = false,
 }: BookingDateTimeStepProps) {
+  const { t } = useTranslation()
   // Get opening hours for a given date
   const getOpeningHoursForDate = (date: Date) => {
     const dayOfWeek = DAYS_OF_WEEK[date.getDay()]
@@ -202,7 +204,9 @@ export function BookingDateTimeStep({
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-6">
         {/* Date Selection */}
         <div className="space-y-3">
-          <Label className="text-sm font-medium">Select Date</Label>
+          <Label className="text-sm font-medium">
+            {t("booking.wizard.selectDate")}
+          </Label>
           <Popover open={isDatePopoverOpen} onOpenChange={setIsDatePopoverOpen}>
             <PopoverTrigger asChild>
               <Button
@@ -213,7 +217,9 @@ export function BookingDateTimeStep({
                 )}
               >
                 <CalendarIcon className="mr-3 h-5 w-5" />
-                {bookingDate ? format(bookingDate, "PPP") : "Pick a date"}
+                {bookingDate
+                  ? format(bookingDate, "PPP")
+                  : t("booking.wizard.pickDate")}
               </Button>
             </PopoverTrigger>
             <PopoverContent className="w-auto p-0" align="start">
@@ -247,7 +253,9 @@ export function BookingDateTimeStep({
 
         {/* Time Selection */}
         <div className="space-y-3">
-          <Label className="text-sm font-medium">Select Time</Label>
+          <Label className="text-sm font-medium">
+            {t("booking.wizard.selectTime")}
+          </Label>
           <Select
             value={bookingTime}
             onValueChange={(time) => {
@@ -263,17 +271,17 @@ export function BookingDateTimeStep({
               <SelectValue
                 placeholder={
                   isLoadingAvailability
-                    ? "Loading available times..."
+                    ? t("booking.wizard.loadingTimes")
                     : !bookingDate
-                      ? "Pick a date first"
-                      : "Select time"
+                      ? t("booking.wizard.pickDateFirst")
+                      : t("booking.wizard.selectTime2")
                 }
               />
             </SelectTrigger>
             <SelectContent className="max-h-60">
               {isLoadingAvailability ? (
                 <div className="text-muted-foreground p-2 text-center text-sm">
-                  Loading available times...
+                  {t("booking.wizard.loadingTimes")}
                 </div>
               ) : availableTimeSlots.length > 0 ? (
                 availableTimeSlots.map((time) => (
@@ -284,8 +292,8 @@ export function BookingDateTimeStep({
               ) : (
                 <div className="text-muted-foreground p-2 text-center text-sm">
                   {!bookingDate
-                    ? "Please select a date first"
-                    : "No available times for this date"}
+                    ? t("booking.wizard.selectDateFirst")
+                    : t("booking.wizard.noTimes")}
                 </div>
               )}
             </SelectContent>

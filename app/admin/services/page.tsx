@@ -51,6 +51,7 @@ import {
   useAdminCategories,
 } from "../../_hooks/queries/useAdmin"
 import type { AdminService, CreateServiceDto } from "../../_types/admin"
+import { useTranslation } from "@/app/_i18n"
 
 const LIMIT = 20
 
@@ -79,6 +80,7 @@ export default function ServicesPage() {
   const updateMut = useUpdateService()
   const deleteMut = useDeleteService()
   const { confirm, dialog } = useConfirmDialog()
+  const { t } = useTranslation()
 
   const services = data?.data ?? []
   const totalPages = data?.totalPages ?? 1
@@ -95,12 +97,12 @@ export default function ServicesPage() {
   return (
     <>
       <AdminHeader
-        title="Services"
-        description="Manage the platform service catalog"
+        title={t("admin.services.title")}
+        description={t("admin.services.desc")}
         icon={Package}
         actions={
           <Button onClick={() => setCreateOpen(true)}>
-            <Plus className="mr-2 h-4 w-4" /> Add Service
+            <Plus className="mr-2 h-4 w-4" /> {t("admin.services.addService")}
           </Button>
         }
       />
@@ -112,21 +114,22 @@ export default function ServicesPage() {
           <DataTableToolbar
             search={search}
             onSearchChange={searchTimeout}
-            searchPlaceholder="Search services..."
+            searchPlaceholder={t("admin.services.searchPlaceholder")}
           />
 
           {services.length === 0 ? (
             <EmptyState
               icon={<Package />}
-              title="No services"
+              title={t("admin.services.noServices")}
               description={
                 debouncedSearch
-                  ? "Try a different search"
-                  : "Add your first service"
+                  ? t("admin.services.trySearch")
+                  : t("admin.services.addFirst")
               }
               action={
                 <Button onClick={() => setCreateOpen(true)}>
-                  <Plus className="mr-2 h-4 w-4" /> Add Service
+                  <Plus className="mr-2 h-4 w-4" />{" "}
+                  {t("admin.services.addService")}
                 </Button>
               }
             />
@@ -135,9 +138,11 @@ export default function ServicesPage() {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Name</TableHead>
-                    <TableHead>Category</TableHead>
-                    <TableHead>Description</TableHead>
+                    <TableHead>{t("admin.services.headerName")}</TableHead>
+                    <TableHead>{t("admin.services.headerCategory")}</TableHead>
+                    <TableHead>
+                      {t("admin.services.headerDescription")}
+                    </TableHead>
                     <TableHead className="w-12" />
                   </TableRow>
                 </TableHeader>
@@ -160,21 +165,26 @@ export default function ServicesPage() {
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
                             <DropdownMenuItem onClick={() => setEditItem(s)}>
-                              <Pencil className="mr-2 h-4 w-4" /> Edit
+                              <Pencil className="mr-2 h-4 w-4" />{" "}
+                              {t("admin.common.edit")}
                             </DropdownMenuItem>
                             <DropdownMenuItem
                               className="text-destructive"
                               onClick={() =>
                                 confirm({
-                                  title: "Delete service?",
-                                  description: `"${s.name}" will be permanently deleted.`,
-                                  confirmLabel: "Delete",
+                                  title: t("admin.services.deleteConfirm"),
+                                  description: t(
+                                    "admin.common.deleteConfirmDesc",
+                                    { name: s.name },
+                                  ),
+                                  confirmLabel: t("admin.common.delete"),
                                   variant: "destructive",
                                   onConfirm: () => deleteMut.mutateAsync(s._id),
                                 })
                               }
                             >
-                              <Trash2 className="mr-2 h-4 w-4" /> Delete
+                              <Trash2 className="mr-2 h-4 w-4" />{" "}
+                              {t("admin.common.delete")}
                             </DropdownMenuItem>
                           </DropdownMenuContent>
                         </DropdownMenu>
@@ -258,28 +268,34 @@ function ServiceFormDialog({
   const set = (key: string, val: string) =>
     setForm((f) => ({ ...f, [key]: val }))
 
+  const { t } = useTranslation()
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>{initial ? "Edit Service" : "Add Service"}</DialogTitle>
+          <DialogTitle>
+            {initial
+              ? t("admin.services.editService")
+              : t("admin.services.addService")}
+          </DialogTitle>
         </DialogHeader>
         <div className="space-y-4 py-4">
           <div className="space-y-2">
-            <Label>Name</Label>
+            <Label>{t("common.name")}</Label>
             <Input
               value={form.name}
               onChange={(e) => set("name", e.target.value)}
             />
           </div>
           <div className="space-y-2">
-            <Label>Category</Label>
+            <Label>{t("admin.services.headerCategory")}</Label>
             <Select
               value={form.categoryId}
               onValueChange={(v) => set("categoryId", v)}
             >
               <SelectTrigger>
-                <SelectValue placeholder="Select category" />
+                <SelectValue placeholder={t("admin.services.selectCategory")} />
               </SelectTrigger>
               <SelectContent>
                 {categories.map((c) => (
@@ -291,7 +307,7 @@ function ServiceFormDialog({
             </Select>
           </div>
           <div className="space-y-2">
-            <Label>Description</Label>
+            <Label>{t("common.description")}</Label>
             <Textarea
               value={form.description}
               onChange={(e) => set("description", e.target.value)}
@@ -306,7 +322,11 @@ function ServiceFormDialog({
             disabled={!form.name || !form.categoryId || loading}
             onClick={() => onSubmit(form)}
           >
-            {loading ? "Saving..." : initial ? "Save" : "Create"}
+            {loading
+              ? t("admin.services.saving")
+              : initial
+                ? "Save"
+                : t("admin.services.create")}
           </Button>
         </DialogFooter>
       </DialogContent>

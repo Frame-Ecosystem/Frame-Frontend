@@ -2,12 +2,14 @@
 
 import { useState } from "react"
 import { ClockIcon, ChevronDown } from "lucide-react"
+import { useTranslation } from "@/app/_i18n"
 
 interface OpeningHoursProps {
   openingHours: Record<string, string>
 }
 
 export default function OpeningHours({ openingHours }: OpeningHoursProps) {
+  const { t } = useTranslation()
   const [isExpanded, setIsExpanded] = useState(false)
 
   return (
@@ -19,7 +21,7 @@ export default function OpeningHours({ openingHours }: OpeningHoursProps) {
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <ClockIcon className="text-primary h-4 w-4" />
-            <p className="text-sm font-semibold">Opening Hours</p>
+            <p className="text-sm font-semibold">{t("openingHours.title")}</p>
           </div>
           <ChevronDown
             className={`text-muted-foreground h-4 w-4 transition-transform ${

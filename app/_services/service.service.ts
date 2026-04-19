@@ -4,7 +4,9 @@ import type { Service } from "../_types"
 class ServiceService {
   async getAll(): Promise<Service[]> {
     try {
-      const response = await apiClient.get<any>("/v1/services")
+      const response = await apiClient.get<any>("/v1/services", {
+        suppressAuthFailure: true,
+      })
       // Handle different response formats
       let services: any[] = []
       if (Array.isArray(response)) {
@@ -18,11 +20,17 @@ class ServiceService {
         } else if (response.items && Array.isArray(response.items)) {
           services = response.items
         } else {
-          console.warn("Unexpected response format for /v1/services:", response)
+          console.warn(
+            "Unexpected response format for /v1/admin/services:",
+            response,
+          )
           return []
         }
       } else {
-        console.warn("Unexpected response format for /v1/services:", response)
+        console.warn(
+          "Unexpected response format for /v1/admin/services:",
+          response,
+        )
         return []
       }
 
@@ -37,15 +45,14 @@ class ServiceService {
       })) as Service[]
 
       return mappedServices
-    } catch (error) {
-      console.error("Failed to fetch services:", error)
+    } catch {
       return []
     }
   }
 
   async getById(id: string): Promise<Service | null> {
     try {
-      const response = await apiClient.get<any>(`/v1/admin/services/${id}`)
+      const response = await apiClient.get<any>(`/v1/services/${id}`)
       // Handle different response formats
       let service: any = null
       if (response && typeof response === "object") {

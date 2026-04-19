@@ -44,6 +44,7 @@ class ApiClient {
   private async request<T>(
     endpoint: string,
     options: RequestInit = {},
+    apiOptions?: { suppressAuthFailure?: boolean },
   ): Promise<T> {
     const url = `${this.baseUrl}${endpoint}`
 
@@ -109,7 +110,7 @@ class ApiClient {
           typeof window !== "undefined" &&
           localStorage.getItem("hasRefreshToken") === "true"
         if (!hasSessionFlag && !token) {
-          this.authFailureCallback?.()
+          if (!apiOptions?.suppressAuthFailure) this.authFailureCallback?.()
           throw new Error("AUTH_FAILURE")
         } else {
           const newToken = await this.refreshTokenCallback()
@@ -127,7 +128,7 @@ class ApiClient {
               signal: AbortSignal.timeout(this.defaultTimeout),
             })
           } else {
-            this.authFailureCallback?.()
+            if (!apiOptions?.suppressAuthFailure) this.authFailureCallback?.()
             throw new Error("AUTH_FAILURE")
           }
         }
@@ -135,7 +136,7 @@ class ApiClient {
 
       // Still 401 after refresh — auth failure (skip for public auth endpoints)
       if (response.status === 401 && !isPublicAuth) {
-        this.authFailureCallback?.()
+        if (!apiOptions?.suppressAuthFailure) this.authFailureCallback?.()
         throw new Error("AUTH_FAILURE")
       }
 
@@ -157,7 +158,7 @@ class ApiClient {
             ;(err as any).code = errorCode || "ACCOUNT_BLOCKED"
           } catch {}
           // Still clear auth so the user isn't stuck in a bad state
-          this.authFailureCallback?.()
+          if (!apiOptions?.suppressAuthFailure) this.authFailureCallback?.()
           throw err
         }
 
@@ -170,7 +171,7 @@ class ApiClient {
               message,
             )
           if (isAuthError) {
-            this.authFailureCallback?.()
+            if (!apiOptions?.suppressAuthFailure) this.authFailureCallback?.()
             throw new Error("AUTH_FAILURE")
           }
         }
@@ -194,8 +195,11 @@ class ApiClient {
     }
   }
 
-  async get<T>(endpoint: string): Promise<T> {
-    return this.request<T>(endpoint, { method: "GET" })
+  async get<T>(
+    endpoint: string,
+    apiOptions?: { suppressAuthFailure?: boolean },
+  ): Promise<T> {
+    return this.request<T>(endpoint, { method: "GET" }, apiOptions)
   }
 
   async post<T>(endpoint: string, data?: unknown): Promise<T> {

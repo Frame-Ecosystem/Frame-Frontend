@@ -7,6 +7,7 @@ import { Badge } from "../_components/ui/badge"
 import { Input } from "../_components/ui/input"
 import Image from "next/image"
 import { useState } from "react"
+import { useTranslation } from "@/app/_i18n"
 
 // Sample products data - replace with real API data later
 const SAMPLE_PRODUCTS = [
@@ -73,6 +74,7 @@ const SAMPLE_PRODUCTS = [
 ]
 
 export default function StorePage() {
+  const { t, dir } = useTranslation()
   const [searchTerm, setSearchTerm] = useState("")
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
 
@@ -93,12 +95,14 @@ export default function StorePage() {
         <div className="p-5 lg:px-8 lg:py-12">
           {/* Header */}
           <div className="mb-8 lg:mb-12">
-            <div className="mt-6 mb-4 flex items-center gap-3">
+            <div dir={dir} className="mt-6 mb-4 flex items-center gap-3">
               <Store className="text-primary h-8 w-8 lg:h-10 lg:w-10" />
-              <h1 className="text-3xl font-bold lg:text-4xl">Store</h1>
+              <h1 className="text-3xl font-bold lg:text-4xl">
+                {t("store.title")}
+              </h1>
             </div>
             <p className="text-muted-foreground lg:text-lg">
-              Browse our collection of premium grooming products
+              {t("store.subtitle")}
             </p>
           </div>
 
@@ -106,7 +110,7 @@ export default function StorePage() {
           <div className="mb-8 space-y-4">
             <Input
               type="text"
-              placeholder="Search products..."
+              placeholder={t("store.searchPlaceholder")}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="max-w-md"
@@ -119,7 +123,7 @@ export default function StorePage() {
                 onClick={() => setSelectedCategory(null)}
                 size="sm"
               >
-                All Products
+                {t("store.allProducts")}
               </Button>
               {categories.map((category) => (
                 <Button
@@ -162,7 +166,7 @@ export default function StorePage() {
                         className="absolute top-2 left-2"
                         variant="destructive"
                       >
-                        Out of Stock
+                        {t("store.outOfStock")}
                       </Badge>
                     )}
 
@@ -204,7 +208,7 @@ export default function StorePage() {
                         className="gap-2"
                       >
                         <ShoppingCart className="h-4 w-4" />
-                        Add
+                        {t("store.addToCart")}
                       </Button>
                     </div>
                   </div>
@@ -216,9 +220,7 @@ export default function StorePage() {
           {/* No Results */}
           {filteredProducts.length === 0 && (
             <div className="py-12 text-center">
-              <p className="text-muted-foreground">
-                No products found matching your search.
-              </p>
+              <p className="text-muted-foreground">{t("store.noResults")}</p>
             </div>
           )}
         </div>

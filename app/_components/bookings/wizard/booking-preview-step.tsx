@@ -4,6 +4,7 @@ import { Label } from "../../ui/label"
 import { Textarea } from "../../ui/textarea"
 import { format } from "date-fns"
 import type { LoungeService, LoungeAgent } from "../../../_types"
+import { useTranslation } from "@/app/_i18n"
 
 interface BookingPreviewStepProps {
   bookingDate: Date | undefined
@@ -30,16 +31,17 @@ export function BookingPreviewStep({
   notes,
   setNotes,
 }: BookingPreviewStepProps) {
+  const { t } = useTranslation()
   return (
     <div className="space-y-4">
       {/* Notes */}
       <div className="space-y-3">
         <Label htmlFor="notes" className="text-base font-medium">
-          Additional Notes (Optional)
+          {t("booking.wizard.additionalNotes")}
         </Label>
         <Textarea
           id="notes"
-          placeholder="Any special requests or notes..."
+          placeholder={t("booking.wizard.notesPlaceholder")}
           value={notes}
           onChange={(e) => setNotes(e.target.value)}
           rows={3}
@@ -52,7 +54,7 @@ export function BookingPreviewStep({
         <div className="border-border bg-card space-y-3 rounded-xl border-2 p-4 shadow-sm">
           <div className="flex flex-col space-y-3 sm:flex-row sm:items-center sm:justify-between sm:space-y-0">
             <span className="text-muted-foreground font-medium">
-              Date & Time:
+              {t("booking.wizard.dateTime")}
             </span>
             <div className="text-left">
               <p className="font-medium">
@@ -64,7 +66,10 @@ export function BookingPreviewStep({
 
           <div className="flex flex-col space-y-1 sm:flex-row sm:items-center sm:justify-between sm:space-y-0">
             <span className="text-muted-foreground font-medium">
-              Agent{useMultipleAgents ? "s" : ""}:
+              {useMultipleAgents
+                ? t("booking.wizard.agents")
+                : t("booking.wizard.agent")}
+              :
             </span>
             <div className="text-right">
               {useMultipleAgents ? (
@@ -90,29 +95,34 @@ export function BookingPreviewStep({
                 </div>
               ) : (
                 <span className="font-medium">
-                  {selectedAgent?.agentName || "Any available agent"}
+                  {selectedAgent?.agentName || t("booking.wizard.anyAgent")}
                 </span>
               )}
             </div>
           </div>
 
           <div className="flex flex-col space-y-1 sm:flex-row sm:items-center sm:justify-between sm:space-y-0">
-            <span className="text-muted-foreground font-medium">Services:</span>
+            <span className="text-muted-foreground font-medium">
+              {t("booking.wizard.services")}
+            </span>
             <span className="font-medium">
-              {selectedServices.length} service
-              {selectedServices.length !== 1 ? "s" : ""}
+              {t("booking.wizard.serviceCount", {
+                count: selectedServices.length,
+              })}
             </span>
           </div>
 
           <div className="border-border border-t-2 pt-4">
             <div className="flex flex-col space-y-2 sm:flex-row sm:items-center sm:justify-between sm:space-y-0">
-              <span className="text-primary text-lg font-bold">Total:</span>
+              <span className="text-primary text-lg font-bold">
+                {t("booking.wizard.totalLabel")}
+              </span>
               <div className="text-right sm:text-left">
                 <span className="text-primary block text-xl font-bold">
                   {totalPrice} dt
                 </span>
                 <span className="text-muted-foreground text-sm">
-                  {totalDuration} minutes
+                  {t("booking.wizard.minutes", { count: totalDuration })}
                 </span>
               </div>
             </div>

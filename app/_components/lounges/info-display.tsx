@@ -12,7 +12,7 @@ interface InfoDisplayProps {
   latitude?: number
   longitude?: number
   openingHours: Record<string, string>
-  isMobile: boolean
+  isMobile?: boolean
 }
 
 export default function InfoDisplay({
@@ -22,7 +22,7 @@ export default function InfoDisplay({
   latitude,
   longitude,
   openingHours,
-  isMobile,
+  isMobile = false,
 }: InfoDisplayProps) {
   return (
     <div className="mb-12 space-y-4 xl:mx-auto xl:w-3/5">

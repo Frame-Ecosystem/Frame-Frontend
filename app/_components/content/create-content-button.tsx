@@ -7,6 +7,7 @@ import { Button } from "../ui/button"
 import { Popover, PopoverTrigger, PopoverContent } from "../ui/popover"
 import { CreatePostDialog } from "./create-post-dialog"
 import { CreateReelDialog } from "./create-reel-dialog"
+import { useTranslation } from "../../_i18n"
 
 /**
  * Top-bar button for creating posts and reels.
@@ -14,6 +15,7 @@ import { CreateReelDialog } from "./create-reel-dialog"
  */
 export function CreateContentButton({ compact }: { compact?: boolean } = {}) {
   const { user } = useAuth()
+  const { t } = useTranslation()
   const [open, setOpen] = useState(false)
   const [showPostDialog, setShowPostDialog] = useState(false)
   const [showReelDialog, setShowReelDialog] = useState(false)
@@ -54,7 +56,7 @@ export function CreateContentButton({ compact }: { compact?: boolean } = {}) {
             className="hover:bg-primary/10 flex w-full items-center gap-2.5 rounded-md px-3 py-2.5 text-sm font-medium transition-colors"
           >
             <FileText className="h-4 w-4" />
-            New Post
+            {t("content.newPost")}
           </button>
           <button
             onClick={() => {
@@ -64,7 +66,7 @@ export function CreateContentButton({ compact }: { compact?: boolean } = {}) {
             className="hover:bg-primary/10 flex w-full items-center gap-2.5 rounded-md px-3 py-2.5 text-sm font-medium transition-colors"
           >
             <Film className="h-4 w-4" />
-            New Reel
+            {t("content.newReel")}
           </button>
         </PopoverContent>
       </Popover>

@@ -107,53 +107,10 @@ export function PostCard({
         />
       </div>
 
-      {/* Media carousel */}
-      {post.media.length > 0 && (
-        <div className="relative">
-          <ImageCarousel
-            images={post.media}
-            alt="Post image"
-            priority={priority}
-            onDoubleClick={handleDoubleTap}
-          />
-          {/* Double-tap heart animation */}
-          {showDoubleTapHeart && (
-            <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
-              <Heart className="h-20 w-20 animate-ping fill-white text-white drop-shadow-lg" />
-            </div>
-          )}
-        </div>
-      )}
-
-      {/* Action bar */}
-      <ActionBar
-        likeCount={post.likeCount}
-        commentCount={post.commentCount}
-        saveCount={post.saveCount}
-        isLiked={isLiked}
-        isSaved={isSaved}
-        onLike={() => likeMutation.mutate()}
-        onComment={() => onCommentClick?.()}
-        onSave={() => saveMutation.mutate()}
-        isLikeDisabled={likeMutation.isRateLimited}
-        className="px-4 py-1"
-      />
-
-      {/* Likes count */}
-      {post.likeCount > 0 && (
-        <p className="px-4 text-sm font-semibold">
-          {post.likeCount.toLocaleString()}{" "}
-          {post.likeCount === 1 ? "like" : "likes"}
-        </p>
-      )}
-
-      {/* Text content */}
+      {/* Text content — above media */}
       {textContent && (
         <div className="px-4 pt-1 pb-2">
           <p className="text-sm">
-            <span className="mr-1 font-semibold">
-              {post.authorId.loungeTitle || post.authorId.firstName}
-            </span>
             <HashtagText text={displayText} />
           </p>
           {shouldTruncate && (
@@ -180,13 +137,46 @@ export function PostCard({
         </div>
       )}
 
+      {/* Media carousel */}
+      {post.media.length > 0 && (
+        <div className="relative">
+          <ImageCarousel
+            images={post.media}
+            alt="Post image"
+            aspectRatio="portrait"
+            priority={priority}
+            onDoubleClick={handleDoubleTap}
+          />
+          {/* Double-tap heart animation */}
+          {showDoubleTapHeart && (
+            <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
+              <Heart className="h-20 w-20 animate-ping fill-white text-white drop-shadow-lg" />
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Action bar */}
+      <ActionBar
+        likeCount={post.likeCount}
+        commentCount={post.commentCount}
+        saveCount={post.saveCount}
+        isLiked={isLiked}
+        isSaved={isSaved}
+        onLike={() => likeMutation.mutate()}
+        onComment={() => onCommentClick?.()}
+        onSave={() => saveMutation.mutate()}
+        isLikeDisabled={likeMutation.isRateLimited}
+        className="px-4 py-1"
+      />
+
       {/* Comment preview / button */}
       {post.commentCount > 0 && onCommentClick && (
         <button
           onClick={onCommentClick}
           className="text-muted-foreground block px-4 pb-3 text-sm"
         >
-          View all {post.commentCount} comments
+          {post.commentCount} comments · view all
         </button>
       )}
 

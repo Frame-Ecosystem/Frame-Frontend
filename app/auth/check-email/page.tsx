@@ -4,8 +4,10 @@ import { useEffect } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { Button } from "../../_components/ui/button"
 import { Mail, ArrowLeft } from "lucide-react"
+import { useTranslation } from "@/app/_i18n"
 
 export default function CheckEmailPage() {
+  const { t } = useTranslation()
   const router = useRouter()
   const searchParams = useSearchParams()
   const email = searchParams.get("email")
@@ -27,11 +29,9 @@ export default function CheckEmailPage() {
         <div className="mb-6">
           <Mail className="mx-auto mb-4 h-16 w-16 text-blue-500" />
           <h1 className="mb-2 text-2xl font-bold text-gray-900">
-            Check your email
+            {t("auth.checkEmail.title")}
           </h1>
-          <p className="mb-4 text-gray-600">
-            We&apos;ve sent a verification link to
-          </p>
+          <p className="mb-4 text-gray-600">{t("auth.checkEmail.sentTo")}</p>
           <p className="rounded-lg bg-blue-50 px-4 py-2 text-lg font-semibold text-blue-600">
             {email}
           </p>
@@ -39,15 +39,14 @@ export default function CheckEmailPage() {
 
         <div className="space-y-4">
           <p className="text-sm text-gray-500">
-            Click the link in the email to verify your account and complete your
-            registration.
+            {t("auth.checkEmail.clickLink")}
           </p>
 
           <div className="rounded-lg border border-yellow-200 bg-yellow-50 p-4">
             <p className="text-sm text-yellow-800">
-              <strong>Didn&apos;t receive the email?</strong>
+              <strong>{t("auth.checkEmail.didntReceive")}</strong>
               <br />
-              Check your spam folder or try signing up again.
+              {t("auth.checkEmail.checkSpam")}
             </p>
           </div>
 
@@ -58,14 +57,14 @@ export default function CheckEmailPage() {
               className="w-full"
             >
               <ArrowLeft className="mr-2 h-4 w-4" />
-              Back to Home
+              {t("auth.backToHome")}
             </Button>
 
             <Button
               onClick={() => router.push("/auth/signup")}
               className="w-full"
             >
-              Sign up with different email
+              {t("auth.checkEmail.signUpDifferent")}
             </Button>
           </div>
         </div>

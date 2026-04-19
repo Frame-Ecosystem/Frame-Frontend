@@ -5,6 +5,7 @@ import { ErrorBoundary } from "@/app/_components/common/errorBoundary"
 import { Button } from "@/app/_components/ui/button"
 import { useParams, useRouter } from "next/navigation"
 import { AlertTriangle, Lock, SearchX } from "lucide-react"
+import { useTranslation } from "@/app/_i18n"
 import { useLoungeData } from "./_lib/use-lounge-data"
 import { LoungePageSkeleton } from "./_components/lounge-page-skeleton"
 import { LoungeHero } from "./_components/lounge-hero"
@@ -46,6 +47,7 @@ export default function LoungePage() {
   const id = params.id as string
   const router = useRouter()
   const { lounge, isLoading, error, user } = useLoungeData(id)
+  const { t } = useTranslation()
 
   // Redirect to own profile if visiting yourself
   useEffect(() => {
@@ -60,9 +62,11 @@ export default function LoungePage() {
     return (
       <StatusPage
         icon={<AlertTriangle className="mx-auto h-12 w-12 text-red-500" />}
-        title="Error Loading Lounge"
+        title={t("lounge.errorLoading")}
         description={error}
-        action={<Button onClick={() => router.back()}>Go Back</Button>}
+        action={
+          <Button onClick={() => router.back()}>{t("lounge.goBack")}</Button>
+        }
       />
     )
   }
@@ -71,10 +75,12 @@ export default function LoungePage() {
     return (
       <StatusPage
         icon={<Lock className="text-muted-foreground mx-auto h-12 w-12" />}
-        title="Authentication Required"
-        description="Please sign in to view lounge details."
+        title={t("lounge.authRequired")}
+        description={t("lounge.signInToView")}
         action={
-          <Button onClick={() => router.push("/choose-type")}>Sign In</Button>
+          <Button onClick={() => router.push("/choose-type")}>
+            {t("lounge.signIn")}
+          </Button>
         }
       />
     )
@@ -84,11 +90,11 @@ export default function LoungePage() {
     return (
       <StatusPage
         icon={<SearchX className="text-muted-foreground mx-auto h-12 w-12" />}
-        title="Lounge Not Found"
-        description="The requested lounge could not be found."
+        title={t("lounge.notFound")}
+        description={t("lounge.notFoundDesc")}
         action={
           <Button onClick={() => router.push("/lounges")}>
-            Browse Lounges
+            {t("lounge.browseLounges")}
           </Button>
         }
       />

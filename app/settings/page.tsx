@@ -10,16 +10,19 @@ import { getProfilePath } from "../_lib/profile"
 
 import { ErrorBoundary } from "../_components/common/errorBoundary"
 import { ThemeSelector } from "../_components/forms/theme-selector"
+import { LanguageSelector } from "../_components/forms/language-selector"
 import { LocationSelector } from "../_components/forms/LocationSelector"
 import { GenderSelector } from "../_components/forms/gender-selector"
 import { OpeningHoursSelector } from "../_components/forms/opening-hours-selector"
 import { SettingsPageSkeleton } from "../_components/skeletons/settings"
+import { useTranslation } from "../_i18n"
 
 export default function SettingsPage() {
   // === AUTH STATE ===
   const { user, isLoading } = useAuth()
   const searchParams = useSearchParams()
   const openLocation = searchParams.get("section") === "location"
+  const { t } = useTranslation()
 
   // Show loading state while checking authentication
   if (isLoading) {
@@ -73,6 +76,9 @@ export default function SettingsPage() {
             {/* === THEME SELECTOR === */}
             <ThemeSelector />
 
+            {/* === LANGUAGE SELECTOR === */}
+            <LanguageSelector />
+
             {/* === LOCATION SELECTOR === */}
             {user && user.type !== "admin" && (
               <LocationSelector defaultOpen={openLocation} />
@@ -91,7 +97,9 @@ export default function SettingsPage() {
                   <div className="border-border hover:bg-card/50 flex w-full cursor-pointer items-center justify-between rounded-lg border p-4 transition-colors">
                     <div className="flex items-center gap-3">
                       <Layers className="text-muted-foreground h-5 w-5" />
-                      <span className="font-medium">Service Management</span>
+                      <span className="font-medium">
+                        {t("settings.serviceManagement")}
+                      </span>
                     </div>
                     <ChevronRightIcon className="text-muted-foreground h-5 w-5" />
                   </div>
@@ -101,7 +109,9 @@ export default function SettingsPage() {
                   <div className="border-border hover:bg-card/50 mt-6 flex w-full cursor-pointer items-center justify-between rounded-lg border p-4 transition-colors">
                     <div className="flex items-center gap-3">
                       <Users className="text-muted-foreground h-5 w-5" />
-                      <span className="font-medium">Agent Management</span>
+                      <span className="font-medium">
+                        {t("settings.agentManagement")}
+                      </span>
                     </div>
                     <ChevronRightIcon className="text-muted-foreground h-5 w-5" />
                   </div>

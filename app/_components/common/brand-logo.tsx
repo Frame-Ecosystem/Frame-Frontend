@@ -15,6 +15,7 @@ export function HeroBrandLogo({
 }) {
   return (
     <div
+      dir="ltr"
       className={`hero-logo flex items-baseline justify-center gap-2 sm:gap-3 ${className} ${inView ? "translate-y-0 scale-100 opacity-100" : "translate-y-8 scale-95 opacity-0"}`}
       style={{
         fontFamily: "var(--font-nunito), sans-serif",
@@ -41,7 +42,7 @@ export function NavBrandLogo({
   frameClassName?: string
 }) {
   return (
-    <span className="hero-logo inline-flex items-baseline">
+    <span dir="ltr" className="hero-logo inline-flex items-baseline">
       <span
         className={`hero-logo-text text-foreground tracking-tight ${frameClassName}`}
         style={{ fontFamily: "var(--font-nunito), sans-serif" }}
@@ -65,7 +66,7 @@ export function InlineBrandLogo({
   beautyClassName?: string
 }) {
   return (
-    <span className="hero-logo inline-flex items-baseline gap-1">
+    <span dir="ltr" className="hero-logo inline-flex items-baseline gap-1">
       <span className="hero-logo-text text-foreground">Frame</span>
       <span
         className={`hero-logo-text text-primary decoration-primary/50 underline ${beautyClassName}`}
@@ -82,7 +83,7 @@ export function InlineBrandLogo({
  */
 export function FooterBrandLogo() {
   return (
-    <span className="hero-logo inline-flex items-baseline">
+    <span dir="ltr" className="hero-logo inline-flex items-baseline">
       <span
         className="hero-logo-text text-foreground text-2xl font-bold tracking-tight"
         style={{ fontFamily: "var(--font-nunito), sans-serif" }}

@@ -4,6 +4,7 @@ import type { LucideIcon } from "lucide-react"
 import { Button } from "../../_components/ui/button"
 import { ArrowLeft } from "lucide-react"
 import { useRouter } from "next/navigation"
+import { useTranslation } from "@/app/_i18n"
 
 interface AdminHeaderProps {
   title: string
@@ -21,6 +22,7 @@ export function AdminHeader({
   actions,
 }: AdminHeaderProps) {
   const router = useRouter()
+  const { dir } = useTranslation()
 
   return (
     <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -36,7 +38,7 @@ export function AdminHeader({
           </Button>
         )}
         <div>
-          <div className="flex items-center gap-2">
+          <div dir={dir} className="flex items-center gap-2">
             {Icon && <Icon className="text-primary h-6 w-6" />}
             <h1 className="text-2xl font-bold tracking-tight lg:text-3xl">
               {title}

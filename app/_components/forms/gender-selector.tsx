@@ -5,6 +5,7 @@ import { useState } from "react"
 import { useAuth } from "@/app/_auth"
 import { isAuthError } from "../../_services/api"
 import { toast } from "sonner"
+import { useTranslation } from "@/app/_i18n"
 import {
   clientGenderOptions,
   loungeGenderOptions,
@@ -13,6 +14,7 @@ import { useUpdateGender } from "../../_hooks/queries"
 import type { Gender } from "../../_types"
 
 export function GenderSelector() {
+  const { t } = useTranslation()
   const [isOpen, setIsOpen] = useState(false)
   const { user, refreshUser } = useAuth()
   const updateGenderMutation = useUpdateGender()
@@ -26,9 +28,11 @@ export function GenderSelector() {
     genderOptions[2]
 
   const headerText = isLounge
-    ? "What is your target audience?"
-    : "What gender service do you want to receive?"
-  const buttonText = isLounge ? "Target Audience" : "Gender Preference"
+    ? t("genderSelector.targetAudience")
+    : t("genderSelector.whatGender")
+  const buttonText = isLounge
+    ? t("genderSelector.buttonLounge")
+    : t("genderSelector.buttonClient")
 
   const handleGenderUpdate = async (gender: Gender) => {
     if (!user) return
@@ -36,12 +40,12 @@ export function GenderSelector() {
     try {
       await updateGenderMutation.mutateAsync(gender)
       await refreshUser()
-      toast.success("Gender preference updated successfully")
+      toast.success(t("genderSelector.updated"))
       setIsOpen(false)
     } catch (error) {
       if (isAuthError(error)) return
       console.error("Failed to update gender preference:", error)
-      toast.error("Failed to update gender preference")
+      toast.error(t("genderSelector.updateFailed"))
     }
   }
 

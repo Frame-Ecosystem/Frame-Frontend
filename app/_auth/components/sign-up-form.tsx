@@ -21,6 +21,7 @@ import { validateSignupPassword } from "../lib/signup-validators"
 import { usePasswordRules } from "../hooks/use-password-rules"
 import { mapAuthError } from "../lib/error-mapper"
 import { useAuthRateLimit } from "../hooks/use-rate-limit"
+import { useTranslation } from "@/app/_i18n"
 
 export default function SignUpForm({
   onSuccess,
@@ -51,6 +52,7 @@ export default function SignUpForm({
   const { setAuth } = useAuth()
   const router = useRouter()
   const signUpMutation = useSignUp()
+  const { t } = useTranslation()
 
   const signUpSchema = useMemo(
     () =>
@@ -215,7 +217,7 @@ export default function SignUpForm({
       className="space-y-1.5"
     >
       <div className="space-y-1">
-        <Label htmlFor="phoneNumber">Phone Number</Label>
+        <Label htmlFor="phoneNumber">{t("auth.signup.phoneNumber")}</Label>
         <div className="relative">
           <div className="text-muted-foreground pointer-events-none absolute top-1/2 left-3 flex -translate-y-1/2 items-center gap-1 text-sm">
             <span className="font-medium">+216</span>
@@ -246,7 +248,7 @@ export default function SignUpForm({
           />
         </div>
         <p className="text-muted-foreground text-xs">
-          Enter 8 digits for Tunisia
+          {t("auth.signup.phoneHint")}
         </p>
         {errors.phoneNumber?.message && (
           <p className="text-destructive text-sm">
@@ -256,11 +258,11 @@ export default function SignUpForm({
       </div>
 
       <div className="space-y-1">
-        <Label htmlFor="email">Email</Label>
+        <Label htmlFor="email">{t("auth.signup.email")}</Label>
         <Input
           id="email"
           type="email"
-          placeholder="you@example.com"
+          placeholder={t("auth.signup.emailPlaceholder")}
           required
           autoComplete="email"
           {...register("email", {
@@ -273,7 +275,7 @@ export default function SignUpForm({
       </div>
 
       <div className="space-y-1">
-        <Label htmlFor="password">Password</Label>
+        <Label htmlFor="password">{t("auth.signup.password")}</Label>
         <div className="relative">
           <Input
             id="password"
@@ -348,7 +350,9 @@ export default function SignUpForm({
       </div>
 
       <div className="space-y-1">
-        <Label htmlFor="confirmPassword">Confirm Password</Label>
+        <Label htmlFor="confirmPassword">
+          {t("auth.signup.confirmPassword")}
+        </Label>
         <div className="relative">
           <Input
             id="confirmPassword"
@@ -414,12 +418,12 @@ export default function SignUpForm({
         onClick={() => setSubmitAttempted(true)}
       >
         {isLocked
-          ? `Too many attempts (${remainingSeconds}s)`
+          ? t("auth.rateLimit", { remainingSeconds: String(remainingSeconds) })
           : emailSending
-            ? "Sending verification email..."
+            ? t("auth.signup.sendingVerification")
             : loading
-              ? "Creating account..."
-              : "Sign Up"}
+              ? t("auth.signup.creatingAccount")
+              : t("auth.signup.submit")}
       </Button>
 
       <GoogleButton
@@ -443,7 +447,7 @@ export default function SignUpForm({
           }}
           className="text-primary hover:underline"
         >
-          Already have an account? Sign in
+          {t("auth.signup.hasAccount")}
         </button>
       </div>
     </form>

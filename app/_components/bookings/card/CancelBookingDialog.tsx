@@ -1,5 +1,6 @@
 "use client"
 
+import { useTranslation } from "@/app/_i18n"
 import { useState } from "react"
 import { Button } from "../../ui/button"
 import { Textarea } from "../../ui/textarea"
@@ -28,6 +29,7 @@ export function CancelBookingDialog({
   onConfirm,
   loading = false,
 }: CancelBookingDialogProps) {
+  const { t } = useTranslation()
   const [note, setNote] = useState("")
 
   const trimmed = note.trim()
@@ -47,17 +49,15 @@ export function CancelBookingDialog({
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="max-w-md">
         <DialogHeader>
-          <DialogTitle>Cancel Booking</DialogTitle>
-          <DialogDescription>
-            Are you sure you want to cancel this booking?
-          </DialogDescription>
+          <DialogTitle>{t("booking.cancelTitle")}</DialogTitle>
+          <DialogDescription>{t("booking.cancelConfirm")}</DialogDescription>
         </DialogHeader>
 
         <div className="space-y-2 py-2">
-          <Label htmlFor="cancellation-note">Reason for cancellation</Label>
+          <Label htmlFor="cancellation-note">{t("booking.cancelReason")}</Label>
           <Textarea
             id="cancellation-note"
-            placeholder="e.g. Schedule conflict, no longer needed..."
+            placeholder={t("booking.cancelPlaceholder")}
             value={note}
             onChange={(e) => {
               if (e.target.value.length <= MAX_NOTE_LENGTH) {
@@ -78,14 +78,14 @@ export function CancelBookingDialog({
             onClick={() => handleOpenChange(false)}
             disabled={loading}
           >
-            Go Back
+            {t("booking.goBackBtn")}
           </Button>
           <Button
             variant="destructive"
             onClick={handleConfirm}
             disabled={loading || !trimmed}
           >
-            {loading ? "Cancelling..." : "Cancel Booking"}
+            {loading ? t("booking.cancelling") : t("booking.cancelBookingBtn")}
           </Button>
         </DialogFooter>
       </DialogContent>

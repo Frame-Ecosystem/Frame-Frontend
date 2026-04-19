@@ -13,6 +13,7 @@ import { useRouter } from "next/navigation"
 import { useAuth } from "@/app/_auth"
 import { useNotificationContext } from "../../_providers/notification"
 import { useScrollDirection } from "../../_hooks/useScrollDirection"
+import { useTranslation } from "../../_i18n"
 
 interface TopBarProps {
   onGetStarted?: () => void
@@ -35,6 +36,7 @@ const TopBar: React.FC<TopBarProps> = ({
 }) => {
   const { user } = useAuth()
   const router = useRouter()
+  const { t } = useTranslation()
   const [trayOpen, setTrayOpen] = useState(true)
   const autoMode = useRef(true)
   const { unreadCount } = useNotificationContext()
@@ -51,6 +53,7 @@ const TopBar: React.FC<TopBarProps> = ({
 
   return (
     <div
+      dir="ltr"
       data-nav-topbar
       className={`bg-background border-border border-b-primary fixed top-0 right-0 left-0 z-[9999] flex items-center justify-between gap-2 border-b px-3 py-4 pr-4 shadow-xl backdrop-blur-sm transition-transform duration-300 ease-in-out md:py-5 lg:px-10 lg:py-5 lg:pr-20 ${user ? "lg:hidden" : ""} ${className}`}
     >
@@ -76,7 +79,7 @@ const TopBar: React.FC<TopBarProps> = ({
               router.push("/choose-type")
             }}
           >
-            Get Started
+            {t("common.getStarted")}
           </Button>
         )}
         {/* ── Mobile: arrow toggle with icons behind it, UserSession always visible ── */}

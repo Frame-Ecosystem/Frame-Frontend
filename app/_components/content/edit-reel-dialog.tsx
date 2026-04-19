@@ -7,6 +7,7 @@ import { Button } from "../ui/button"
 import { Textarea } from "../ui/textarea"
 import type { Reel } from "../../_types"
 import { useUpdateReel } from "../../_hooks/queries/useContent"
+import { useTranslation } from "@/app/_i18n"
 
 interface EditReelDialogProps {
   reel: Reel
@@ -25,6 +26,7 @@ export function EditReelDialog({
   const [hashtags, setHashtags] = useState<string[]>(reel.hashtags ?? [])
   const [hashtagInput, setHashtagInput] = useState("")
   const updateReel = useUpdateReel()
+  const { t } = useTranslation()
 
   const addHashtag = useCallback(() => {
     const tag = hashtagInput.trim().replace(/^#/, "").replace(/\s+/g, "")
@@ -65,7 +67,7 @@ export function EditReelDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle>Edit Reel</DialogTitle>
+          <DialogTitle>{t("content.reel.edit")}</DialogTitle>
         </DialogHeader>
 
         <div className="space-y-4">
@@ -84,7 +86,7 @@ export function EditReelDialog({
           {/* Caption */}
           <div>
             <Textarea
-              placeholder="Write a caption..."
+              placeholder={t("content.reel.captionPlaceholder")}
               value={caption}
               onChange={(e) => setCaption(e.target.value)}
               maxLength={MAX_CAPTION}
@@ -117,7 +119,7 @@ export function EditReelDialog({
             <Hash className="text-muted-foreground h-4 w-4 shrink-0" />
             <input
               type="text"
-              placeholder="Add hashtag..."
+              placeholder={t("content.hashtag.placeholder")}
               value={hashtagInput}
               onChange={(e) => setHashtagInput(e.target.value)}
               onKeyDown={(e) => {
@@ -130,7 +132,7 @@ export function EditReelDialog({
             />
             {hashtagInput && (
               <Button variant="ghost" size="sm" onClick={addHashtag}>
-                Add
+                {t("common.add")}
               </Button>
             )}
           </div>
@@ -138,7 +140,7 @@ export function EditReelDialog({
           {/* Submit */}
           <div className="flex justify-end gap-2 border-t pt-3">
             <Button variant="outline" onClick={() => onOpenChange(false)}>
-              Cancel
+              {t("common.cancel")}
             </Button>
             <Button
               onClick={handleSubmit}
@@ -147,10 +149,10 @@ export function EditReelDialog({
               {updateReel.isPending ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Saving...
+                  {t("content.saving")}
                 </>
               ) : (
-                "Save Changes"
+                t("content.saveChanges")
               )}
             </Button>
           </div>

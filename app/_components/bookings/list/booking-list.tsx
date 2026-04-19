@@ -11,6 +11,7 @@ import { useAuth } from "@/app/_auth"
 import type { Booking, BookingStatus } from "../../../_types"
 import { bookingService } from "@/app/_services"
 import { useSocketRoom } from "../../../_hooks/useSocketRoom"
+import { useTranslation } from "@/app/_i18n"
 
 interface BookingListProps {
   showActions?: boolean
@@ -26,6 +27,7 @@ export function BookingList({
   mode = "active",
 }: BookingListProps) {
   const { user } = useAuth()
+  const { t } = useTranslation()
   const [bookings, setBookings] = useState<Booking[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [statusFilter, setStatusFilter] = useState<BookingStatus | "all">("all")
@@ -88,33 +90,33 @@ export function BookingList({
   ) => {
     try {
       await bookingService.update(bookingId, { status: newStatus })
-      toast.success("Booking status updated")
+      toast.success(t("booking.toast.statusUpdated"))
       loadBookings()
     } catch (error) {
       console.error("Failed to update booking status:", error)
-      toast.error("Failed to update booking status")
+      toast.error(t("booking.toast.statusFailed"))
     }
   }
 
   const handleCancel = async (bookingId: string, note?: string) => {
     try {
       await bookingService.cancel(bookingId, note)
-      toast.success("Booking cancelled")
+      toast.success(t("booking.toast.cancelled"))
       loadBookings()
     } catch (error) {
       console.error("Failed to cancel booking:", error)
-      toast.error("Failed to cancel booking")
+      toast.error(t("booking.toast.cancelFailed"))
     }
   }
 
   const handleDelete = async (bookingId: string) => {
     try {
       await bookingService.delete(bookingId)
-      toast.success("Booking deleted successfully")
+      toast.success(t("booking.toast.deleted"))
       loadBookings()
     } catch (error) {
       console.error("Failed to delete booking:", error)
-      toast.error("Failed to delete booking")
+      toast.error(t("booking.toast.deleteFailed"))
     }
   }
 

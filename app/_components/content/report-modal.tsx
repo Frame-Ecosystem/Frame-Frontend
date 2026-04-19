@@ -11,6 +11,7 @@ import {
 import { Button } from "../ui/button"
 import { Textarea } from "../ui/textarea"
 import { useCreateReport } from "../../_hooks/queries/useContent"
+import { useTranslation } from "@/app/_i18n"
 
 interface ReportModalProps {
   open: boolean
@@ -19,14 +20,17 @@ interface ReportModalProps {
   targetId: string
 }
 
-const REPORT_REASONS = [
-  "Inappropriate content",
-  "Spam or misleading",
-  "Harassment or bullying",
-  "Violence or dangerous acts",
-  "Hate speech",
-  "Intellectual property violation",
-]
+const REPORT_REASON_KEYS = [
+  { value: "Inappropriate content", key: "content.report.inappropriate" },
+  { value: "Spam or misleading", key: "content.report.spam" },
+  { value: "Harassment or bullying", key: "content.report.harassment" },
+  { value: "Violence or dangerous acts", key: "content.report.violence" },
+  { value: "Hate speech", key: "content.report.hateSpeech" },
+  {
+    value: "Intellectual property violation",
+    key: "content.report.ipViolation",
+  },
+] as const
 
 export function ReportModal({
   open,
@@ -37,6 +41,7 @@ export function ReportModal({
   const [reason, setReason] = useState("")
   const [customReason, setCustomReason] = useState("")
   const reportMutation = useCreateReport()
+  const { t } = useTranslation()
 
   const handleSubmit = () => {
     const finalReason = reason === "Other" ? customReason : reason
@@ -57,23 +62,23 @@ export function ReportModal({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Report {targetType}</DialogTitle>
+          <DialogTitle>{t("content.report.title", { targetType })}</DialogTitle>
         </DialogHeader>
 
         <div className="space-y-3 py-2">
           <p className="text-muted-foreground text-sm">
-            Why are you reporting this {targetType}?
+            {t("content.report.whyReporting", { targetType })}
           </p>
 
           <div className="flex flex-wrap gap-2">
-            {REPORT_REASONS.map((r) => (
+            {REPORT_REASON_KEYS.map((r) => (
               <Button
-                key={r}
-                variant={reason === r ? "default" : "outline"}
+                key={r.value}
+                variant={reason === r.value ? "default" : "outline"}
                 size="sm"
-                onClick={() => setReason(r)}
+                onClick={() => setReason(r.value)}
               >
-                {r}
+                {t(r.key)}
               </Button>
             ))}
             <Button
@@ -81,13 +86,13 @@ export function ReportModal({
               size="sm"
               onClick={() => setReason("Other")}
             >
-              Other
+              {t("content.report.other")}
             </Button>
           </div>
 
           {reason === "Other" && (
             <Textarea
-              placeholder="Describe the issue..."
+              placeholder={t("content.report.describePlaceholder")}
               value={customReason}
               onChange={(e) => setCustomReason(e.target.value)}
               maxLength={500}
@@ -98,7 +103,7 @@ export function ReportModal({
 
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>
-            Cancel
+            {t("common.cancel")}
           </Button>
           <Button
             onClick={handleSubmit}
@@ -108,7 +113,9 @@ export function ReportModal({
               reportMutation.isPending
             }
           >
-            {reportMutation.isPending ? "Submitting..." : "Submit Report"}
+            {reportMutation.isPending
+              ? t("content.report.submitting")
+              : t("content.report.submit")}
           </Button>
         </DialogFooter>
       </DialogContent>

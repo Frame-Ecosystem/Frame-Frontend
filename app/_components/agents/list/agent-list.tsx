@@ -27,6 +27,7 @@ import {
   ChevronRight,
 } from "lucide-react"
 import { AgentTable } from "./agent-table"
+import { useTranslation } from "@/app/_i18n"
 
 interface AgentListProps {
   onCreateClick: () => void
@@ -58,6 +59,7 @@ export function AgentList({
     bulkUnblock,
     bulkDelete,
   } = useAgent()
+  const { t } = useTranslation()
 
   useEffect(() => {
     fetchAgents(1, pagination.limit)
@@ -105,11 +107,11 @@ export function AgentList({
       fetchAgents(pagination.page, pagination.limit)
     } catch (error: any) {
       if (isAuthError(error)) return
-      let msg = "Failed to delete agent"
+      let msg = t("agents.deleteError")
       if (error.code === "AGENT_NOT_FOUND") {
         msg = isAdmin
-          ? "Agent not found or already deleted."
-          : "Unable to delete this agent. Please contact support."
+          ? t("agents.agentNotFound")
+          : t("agents.deleteContactSupport")
       } else if (error.message) msg = error.message
       alert(msg)
       fetchAgents(pagination.page, pagination.limit)
@@ -143,7 +145,7 @@ export function AgentList({
               className="mt-4"
               onClick={() => fetchAgents()}
             >
-              Try Again
+              {t("common.tryAgain")}
             </Button>
           </div>
         </CardContent>
@@ -156,14 +158,14 @@ export function AgentList({
       {/* Header */}
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>
-          <h2 className="text-2xl font-bold">Agents</h2>
+          <h2 className="text-2xl font-bold">{t("agents.heading")}</h2>
           <p className="text-muted-foreground">
-            Manage {isAdmin ? "all" : "your"} agents
+            {isAdmin ? t("agents.subtitleAdmin") : t("agents.subtitleOwner")}
           </p>
         </div>
         <Button onClick={onCreateClick}>
           <Plus className="mr-2 h-4 w-4" />
-          Add Agent
+          {t("agents.addAgent")}
         </Button>
       </div>
 
@@ -174,7 +176,7 @@ export function AgentList({
             <div className="relative flex-1">
               <Search className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
               <Input
-                placeholder="Search agents..."
+                placeholder={t("agents.searchPlaceholder")}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="pl-9"
@@ -190,7 +192,7 @@ export function AgentList({
                   }
                 >
                   <UserX className="mr-2 h-4 w-4" />
-                  Block Selected
+                  {t("agents.blockSelected")}
                 </Button>
                 <Button
                   variant="outline"
@@ -200,7 +202,7 @@ export function AgentList({
                   }
                 >
                   <UserCheck className="mr-2 h-4 w-4" />
-                  Unblock Selected
+                  {t("agents.unblockSelected")}
                 </Button>
                 <Button
                   variant="destructive"
@@ -210,7 +212,7 @@ export function AgentList({
                   }
                 >
                   <Trash2 className="mr-2 h-4 w-4" />
-                  Delete Selected
+                  {t("agents.deleteSelected")}
                 </Button>
               </div>
             )}
@@ -243,7 +245,10 @@ export function AgentList({
       {pagination.totalPages > 1 && (
         <div className="flex items-center justify-between">
           <p className="text-muted-foreground text-sm">
-            Showing {agents.length} of {pagination.total} agents
+            {t("agents.showingOf", {
+              count: agents.length,
+              total: pagination.total,
+            })}
           </p>
           <div className="flex items-center gap-2">
             <Button
@@ -253,10 +258,13 @@ export function AgentList({
               disabled={pagination.page <= 1}
             >
               <ChevronLeft className="h-4 w-4" />
-              Previous
+              {t("common.previous")}
             </Button>
             <span className="text-sm">
-              Page {pagination.page} of {pagination.totalPages}
+              {t("agents.pageOf", {
+                page: pagination.page,
+                totalPages: pagination.totalPages,
+              })}
             </span>
             <Button
               variant="outline"
@@ -264,7 +272,7 @@ export function AgentList({
               onClick={() => setPage(pagination.page + 1)}
               disabled={pagination.page >= pagination.totalPages}
             >
-              Next
+              {t("common.next")}
               <ChevronRight className="h-4 w-4" />
             </Button>
           </div>
@@ -275,19 +283,20 @@ export function AgentList({
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete Agent</AlertDialogTitle>
+            <AlertDialogTitle>{t("agents.deleteTitle")}</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to delete {agentToDelete?.agentName}? This
-              action cannot be undone.
+              {t("agents.deleteConfirm", {
+                name: agentToDelete?.agentName ?? "",
+              })}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>{t("common.cancel")}</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleDelete}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
-              Delete
+              {t("agents.delete")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -301,20 +310,26 @@ export function AgentList({
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>
-              {bulkActionDialog.action === "block" && "Block Agents"}
-              {bulkActionDialog.action === "unblock" && "Unblock Agents"}
-              {bulkActionDialog.action === "delete" && "Delete Agents"}
+              {bulkActionDialog.action === "block" &&
+                t("agents.bulkBlockTitle")}
+              {bulkActionDialog.action === "unblock" &&
+                t("agents.bulkUnblockTitle")}
+              {bulkActionDialog.action === "delete" &&
+                t("agents.bulkDeleteTitle")}
             </AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to {bulkActionDialog.action}{" "}
-              {selectedAgents.length} selected agent
-              {selectedAgents.length !== 1 ? "s" : ""}?
+              {bulkActionDialog.action === "block" &&
+                t("agents.bulkBlockConfirm", { count: selectedAgents.length })}
+              {bulkActionDialog.action === "unblock" &&
+                t("agents.bulkUnblockConfirm", {
+                  count: selectedAgents.length,
+                })}
               {bulkActionDialog.action === "delete" &&
-                " This action cannot be undone."}
+                t("agents.bulkDeleteConfirm", { count: selectedAgents.length })}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>{t("common.cancel")}</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleBulkAction}
               className={
@@ -323,9 +338,9 @@ export function AgentList({
                   : ""
               }
             >
-              {bulkActionDialog.action === "block" && "Block"}
-              {bulkActionDialog.action === "unblock" && "Unblock"}
-              {bulkActionDialog.action === "delete" && "Delete"}
+              {bulkActionDialog.action === "block" && t("agents.block")}
+              {bulkActionDialog.action === "unblock" && t("agents.unblock")}
+              {bulkActionDialog.action === "delete" && t("agents.delete")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

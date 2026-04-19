@@ -18,8 +18,10 @@ import { authService } from "@/app/_auth"
 import { ArrowLeft, Mail } from "lucide-react"
 import Link from "next/link"
 import { useAuthRateLimit } from "@/app/_auth"
+import { useTranslation } from "@/app/_i18n"
 
 export default function ForgotPasswordPage() {
+  const { t } = useTranslation()
   const [submitAttempted, setSubmitAttempted] = useState(false)
   const [success, setSuccess] = useState("")
   const [loading, setLoading] = useState(false)
@@ -31,8 +33,8 @@ export default function ForgotPasswordPage() {
       z.object({
         email: z
           .string()
-          .min(1, "Email is required")
-          .email("Please enter a valid email address"),
+          .min(1, t("auth.forgot.emailRequired"))
+          .email(t("auth.forgot.invalidEmail")),
       }),
     [],
   )
@@ -60,14 +62,12 @@ export default function ForgotPasswordPage() {
       const response = await authService.forgotPassword(values.email.trim())
       if (response) {
         recordSuccess()
-        setSuccess(
-          "Password reset email sent! Check your inbox for instructions.",
-        )
+        setSuccess(t("auth.forgot.successMessage"))
       }
     } catch (err) {
       recordFailure()
       const message =
-        err instanceof Error ? err.message : "Failed to send reset email"
+        err instanceof Error ? err.message : t("auth.forgot.failedToSend")
       setError("email", { type: "server", message })
     } finally {
       setLoading(false)
@@ -83,7 +83,7 @@ export default function ForgotPasswordPage() {
             className="text-muted-foreground hover:text-foreground inline-flex items-center text-sm"
           >
             <ArrowLeft className="mr-2 h-4 w-4" />
-            Back to home
+            {t("auth.backToHome")}
           </Link>
         </div>
 
@@ -92,11 +92,8 @@ export default function ForgotPasswordPage() {
             <div className="bg-primary/10 mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full">
               <Mail className="text-primary h-6 w-6" />
             </div>
-            <CardTitle className="text-2xl">Forgot your password?</CardTitle>
-            <CardDescription>
-              Enter your email address and we&apos;ll send you a link to reset
-              your password.
-            </CardDescription>
+            <CardTitle className="text-2xl">{t("auth.forgot.title")}</CardTitle>
+            <CardDescription>{t("auth.forgot.description")}</CardDescription>
           </CardHeader>
           <CardContent>
             <form
@@ -104,7 +101,7 @@ export default function ForgotPasswordPage() {
               className="space-y-4"
             >
               <div className="space-y-2">
-                <Label htmlFor="email">Email address</Label>
+                <Label htmlFor="email">{t("auth.forgot.emailLabel")}</Label>
                 <Input
                   id="email"
                   type="email"
@@ -132,16 +129,18 @@ export default function ForgotPasswordPage() {
                 onClick={() => setSubmitAttempted(true)}
               >
                 {isLocked
-                  ? `Too many attempts (${remainingSeconds}s)`
+                  ? t("auth.rateLimit", {
+                      remainingSeconds: String(remainingSeconds),
+                    })
                   : loading
-                    ? "Sending..."
-                    : "Send reset link"}
+                    ? t("auth.forgot.sending")
+                    : t("auth.forgot.submit")}
               </Button>
             </form>
 
             <div className="mt-6 text-center text-sm">
               <Link href="/" className="text-primary hover:underline">
-                Back to sign in
+                {t("auth.backToSignIn")}
               </Link>
             </div>
           </CardContent>

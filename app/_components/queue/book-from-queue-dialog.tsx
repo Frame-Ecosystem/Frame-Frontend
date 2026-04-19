@@ -27,6 +27,7 @@ import { useQuery } from "@tanstack/react-query"
 import { loungeService } from "../../_services/lounge.service"
 import clientService from "../../_services/client.service"
 import { useAuth } from "@/app/_auth"
+import { useTranslation } from "@/app/_i18n"
 import {
   useBookFromQueue,
   useLoungeBookFromQueue,
@@ -60,6 +61,7 @@ export default function BookFromQueueDialog({
   const [selectedServiceIds, setSelectedServiceIds] = useState<string[]>([])
   const [notes, setNotes] = useState("")
   const { user } = useAuth()
+  const { t } = useTranslation()
   const bookFromQueue = useBookFromQueue()
   const loungeBookFromQueue = useLoungeBookFromQueue()
 
@@ -202,14 +204,14 @@ export default function BookFromQueueDialog({
       <DialogContent className="max-h-[85vh] overflow-y-auto sm:max-w-lg">
         <DialogHeader>
           <DialogTitle>
-            {mode === "staff" ? "Add to Queue" : "Join the Queue"}
+            {mode === "staff" ? t("queue.addToQueue") : t("queue.joinTheQueue")}
           </DialogTitle>
           <DialogDescription>
             {agentName
               ? mode === "staff"
-                ? `Add a visitor or existing client to ${agentName}'s queue`
-                : `Select services for ${agentName}'s queue`
-              : "Select services and join the queue"}
+                ? t("queue.addVisitorOrClient", { name: agentName })
+                : t("queue.selectServicesFor", { name: agentName })
+              : t("queue.selectServicesJoin")}
           </DialogDescription>
         </DialogHeader>
 
@@ -217,7 +219,9 @@ export default function BookFromQueueDialog({
           {/* ── Booking Mode Toggle (staff only) ────────────── */}
           {mode === "staff" && (
             <div className="space-y-3">
-              <Label className="text-sm font-semibold">Booking Type</Label>
+              <Label className="text-sm font-semibold">
+                {t("queue.bookingType")}
+              </Label>
               <div className="flex gap-2">
                 <Button
                   type="button"
@@ -231,7 +235,7 @@ export default function BookFromQueueDialog({
                   }}
                 >
                   <UserPlus className="h-4 w-4" />
-                  Visitor
+                  {t("queue.visitor")}
                 </Button>
                 <Button
                   type="button"
@@ -244,7 +248,7 @@ export default function BookFromQueueDialog({
                   }}
                 >
                   <Search className="h-4 w-4" />
-                  Existing Client
+                  {t("queue.existingClient")}
                 </Button>
               </div>
 
@@ -252,11 +256,12 @@ export default function BookFromQueueDialog({
               {bookingMode === "visitor" && (
                 <div className="space-y-2">
                   <Label htmlFor="visitorName" className="text-sm">
-                    Visitor Name <span className="text-destructive">*</span>
+                    {t("queue.visitorName")}{" "}
+                    <span className="text-destructive">*</span>
                   </Label>
                   <Input
                     id="visitorName"
-                    placeholder="Enter visitor's name"
+                    placeholder={t("queue.enterVisitorName")}
                     value={visitorName}
                     onChange={(e) => setVisitorName(e.target.value)}
                     maxLength={100}
@@ -269,27 +274,28 @@ export default function BookFromQueueDialog({
                 <div className="space-y-2">
                   <div>
                     <Label htmlFor="clientPhone" className="text-sm">
-                      Phone Number <span className="text-destructive">*</span>
+                      {t("queue.phoneNumber")}{" "}
+                      <span className="text-destructive">*</span>
                     </Label>
                     <Input
                       id="clientPhone"
                       type="tel"
-                      placeholder="Enter client's phone number"
+                      placeholder={t("queue.enterPhone")}
                       value={clientPhone}
                       onChange={(e) => setClientPhone(e.target.value)}
                     />
                   </div>
                   <div>
                     <Label htmlFor="clientEmail" className="text-sm">
-                      Email{" "}
+                      {t("queue.email")}{" "}
                       <span className="text-muted-foreground text-xs font-normal">
-                        (optional)
+                        ({t("queue.optional")})
                       </span>
                     </Label>
                     <Input
                       id="clientEmail"
                       type="email"
-                      placeholder="Enter client's email"
+                      placeholder={t("queue.enterEmail")}
                       value={clientEmail}
                       onChange={(e) => setClientEmail(e.target.value)}
                     />
@@ -301,10 +307,10 @@ export default function BookFromQueueDialog({
 
           {/* Service List */}
           <Label className="text-sm font-semibold">
-            Select Services
+            {t("queue.selectServices")}
             {mode === "staff" && (
               <span className="text-muted-foreground ml-1 text-xs font-normal">
-                (optional)
+                ({t("queue.optional")})
               </span>
             )}
           </Label>
@@ -328,7 +334,7 @@ export default function BookFromQueueDialog({
             <div className="flex items-center gap-2 rounded-lg border border-dashed p-4 text-center">
               <AlertCircle className="text-muted-foreground h-5 w-5" />
               <p className="text-muted-foreground text-sm">
-                No services available for this agent.
+                {t("queue.noServicesAvailable")}
               </p>
             </div>
           ) : (
@@ -390,8 +396,12 @@ export default function BookFromQueueDialog({
           {selectedServiceIds.length > 0 && (
             <div className="bg-muted/50 flex items-center justify-between rounded-lg border p-3">
               <span className="text-sm font-medium">
-                {selectedServiceIds.length} service
-                {selectedServiceIds.length > 1 ? "s" : ""} selected
+                {t(
+                  selectedServiceIds.length > 1
+                    ? "queue.servicesSelected_other"
+                    : "queue.servicesSelected",
+                  { count: selectedServiceIds.length },
+                )}
               </span>
               <div className="text-muted-foreground flex items-center gap-3 text-sm">
                 <span className="flex items-center gap-1">{totalPrice} dt</span>
@@ -406,14 +416,14 @@ export default function BookFromQueueDialog({
           {/* Notes */}
           <div className="space-y-2">
             <Label htmlFor="queueNotes" className="text-sm font-semibold">
-              Notes{" "}
+              {t("queue.notes")}{" "}
               <span className="text-muted-foreground text-xs font-normal">
-                (optional)
+                ({t("queue.optional")})
               </span>
             </Label>
             <Textarea
               id="queueNotes"
-              placeholder="Any special requests or notes..."
+              placeholder={t("queue.specialRequests")}
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
               rows={2}
@@ -424,11 +434,11 @@ export default function BookFromQueueDialog({
           {/* Actions */}
           <div className="flex justify-end gap-2 pt-2">
             <Button type="button" variant="outline" onClick={resetAndClose}>
-              Cancel
+              {t("common.cancel")}
             </Button>
             <Button onClick={handleSubmit} disabled={isSubmitDisabled}>
               {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              {mode === "staff" ? "Add to Queue" : "Join Queue"}
+              {mode === "staff" ? t("queue.addToQueue") : t("queue.joinQueue")}
             </Button>
           </div>
         </div>

@@ -3,8 +3,10 @@
 import { Mail, Instagram } from "lucide-react"
 import Link from "next/link"
 import { FooterBrandLogo as _FooterBrandLogo } from "../common/brand-logo"
+import { useTranslation } from "../../_i18n"
 
 const FooterDesktop = () => {
+  const { t } = useTranslation()
   return (
     <footer className="border-border/50 border-t px-4 pt-16 pb-8 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-6xl">
@@ -24,8 +26,7 @@ const FooterDesktop = () => {
               </span>
             </div>
             <p className="text-muted-foreground mb-5 max-w-xs text-sm leading-relaxed">
-              The all-in-one platform to discover trends, shop beauty products,
-              and book appointments at top-rated centers near you.
+              {t("footer.description")}
             </p>
             <div className="flex items-center gap-3">
               <a
@@ -50,7 +51,7 @@ const FooterDesktop = () => {
           {/* Platform column */}
           <div>
             <h4 className="text-foreground mb-3 text-sm font-semibold">
-              Platform
+              {t("footer.platform")}
             </h4>
             <ul className="text-muted-foreground space-y-2.5 text-sm">
               <li>
@@ -58,7 +59,7 @@ const FooterDesktop = () => {
                   href="/home"
                   className="hover:text-foreground transition-colors"
                 >
-                  Feed
+                  {t("footer.feed")}
                 </Link>
               </li>
               <li>
@@ -66,7 +67,7 @@ const FooterDesktop = () => {
                   href="/store"
                   className="hover:text-foreground transition-colors"
                 >
-                  Shop
+                  {t("footer.shop")}
                 </Link>
               </li>
               <li>
@@ -74,7 +75,7 @@ const FooterDesktop = () => {
                   href="/bookings"
                   className="hover:text-foreground transition-colors"
                 >
-                  Book
+                  {t("footer.book")}
                 </Link>
               </li>
             </ul>
@@ -83,7 +84,7 @@ const FooterDesktop = () => {
           {/* For Clients column */}
           <div>
             <h4 className="text-foreground mb-3 text-sm font-semibold">
-              For Clients
+              {t("footer.forClients")}
             </h4>
             <ul className="text-muted-foreground space-y-2.5 text-sm">
               <li>
@@ -91,7 +92,7 @@ const FooterDesktop = () => {
                   href="/home"
                   className="hover:text-foreground transition-colors"
                 >
-                  Discover Styles
+                  {t("footer.discoverStyles")}
                 </Link>
               </li>
               <li>
@@ -99,7 +100,7 @@ const FooterDesktop = () => {
                   href="/bookings"
                   className="hover:text-foreground transition-colors"
                 >
-                  Book Appointments
+                  {t("footer.bookAppointments")}
                 </Link>
               </li>
               <li>
@@ -107,7 +108,7 @@ const FooterDesktop = () => {
                   href="/saved"
                   className="hover:text-foreground transition-colors"
                 >
-                  Saved &amp; Favorites
+                  {t("footer.savedFavorites")}
                 </Link>
               </li>
             </ul>
@@ -116,7 +117,7 @@ const FooterDesktop = () => {
           {/* For Centers column */}
           <div>
             <h4 className="text-foreground mb-3 text-sm font-semibold">
-              For Centers
+              {t("footer.forCenters")}
             </h4>
             <ul className="text-muted-foreground space-y-2.5 text-sm">
               <li>
@@ -124,7 +125,7 @@ const FooterDesktop = () => {
                   href="/settings"
                   className="hover:text-foreground transition-colors"
                 >
-                  Dashboard
+                  {t("footer.dashboard")}
                 </Link>
               </li>
               <li>
@@ -132,7 +133,7 @@ const FooterDesktop = () => {
                   href="/clients"
                   className="hover:text-foreground transition-colors"
                 >
-                  Clients
+                  {t("footer.clients")}
                 </Link>
               </li>
               <li>
@@ -140,7 +141,7 @@ const FooterDesktop = () => {
                   href="/queue"
                   className="hover:text-foreground transition-colors"
                 >
-                  Queue
+                  {t("footer.queue")}
                 </Link>
               </li>
             </ul>
@@ -149,7 +150,7 @@ const FooterDesktop = () => {
           {/* Contact column */}
           <div>
             <h4 className="text-foreground mb-3 text-sm font-semibold">
-              Contact
+              {t("footer.contact")}
             </h4>
             <ul className="text-muted-foreground space-y-2.5 text-sm">
               <li>
@@ -180,10 +181,10 @@ const FooterDesktop = () => {
         {/* Bottom row — copyright */}
         <div className="mt-6 flex flex-col items-center justify-between gap-3 sm:flex-row">
           <p className="text-muted-foreground text-xs">
-            &copy; {new Date().getFullYear()} Frame Beauty. All rights reserved.
+            &copy; {new Date().getFullYear()} {t("footer.copyright")}
           </p>
           <p className="text-muted-foreground/60 text-xs">
-            Crafted with care in Tunisia
+            {t("footer.madeIn")}
           </p>
         </div>
       </div>

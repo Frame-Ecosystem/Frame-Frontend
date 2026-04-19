@@ -8,16 +8,22 @@ import { z } from "zod"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Form, FormControl, FormField, FormItem, FormMessage } from "../ui/form"
+import { useTranslation } from "@/app/_i18n"
 
 export const searchInputRef = { current: null as null | HTMLInputElement }
 
-const formSchema = z.object({
-  title: z.string().trim().min(1, {
-    message: "Enter something to search",
-  }),
-})
-
 const Search = () => {
+  const { t } = useTranslation()
+
+  const formSchema = z.object({
+    title: z
+      .string()
+      .trim()
+      .min(1, {
+        message: t("search.validation"),
+      }),
+  })
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -50,7 +56,7 @@ const Search = () => {
                     field.ref(el)
                     searchInputRef.current = el
                   }}
-                  placeholder="Search center by name..."
+                  placeholder={t("search.placeholder")}
                   className="border bg-transparent shadow-sm backdrop-blur-sm transition-shadow focus:shadow-md lg:h-14 lg:rounded-xl lg:px-6 lg:text-base"
                   suppressHydrationWarning={true}
                 />
@@ -64,7 +70,7 @@ const Search = () => {
           className="text-primary hover:bg-primary/10 border bg-transparent shadow-sm transition-all hover:scale-105 hover:shadow-md lg:h-14 lg:rounded-xl lg:px-8"
         >
           <SearchIcon className="lg:h-5 lg:w-5" />
-          <span className="ml-2 hidden lg:inline">Search</span>
+          <span className="ml-2 hidden lg:inline">{t("search.button")}</span>
         </Button>
       </form>
     </Form>

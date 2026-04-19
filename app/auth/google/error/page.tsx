@@ -2,8 +2,10 @@
 
 import { useEffect, Suspense } from "react"
 import { useSearchParams } from "next/navigation"
+import { useTranslation } from "@/app/_i18n"
 
 function GoogleAuthErrorContent() {
+  const { t } = useTranslation()
   const searchParams = useSearchParams()
   const message = searchParams.get("message") || "Authentication failed"
 
@@ -47,13 +49,15 @@ function GoogleAuthErrorContent() {
         </div>
 
         <h1 className="text-foreground mb-4 text-center text-2xl font-bold">
-          {isUserExists ? "Account Already Exists" : "Account Not Found"}
+          {isUserExists
+            ? t("auth.google.accountExists")
+            : t("auth.google.accountNotFound")}
         </h1>
 
         <p className="text-muted-foreground mb-6 text-center">
           {isUserExists
-            ? "An account with this email already exists. Would you like to sign in?"
-            : "No account was found with this email address. Would you like to sign up?"}
+            ? t("auth.google.accountExistsDesc")
+            : t("auth.google.accountNotFoundDesc")}
         </p>
 
         <div className="space-y-3">
@@ -73,19 +77,21 @@ function GoogleAuthErrorContent() {
             }}
             className="bg-primary text-primary-foreground hover:bg-primary/90 w-full rounded-lg px-4 py-3 font-medium transition-colors"
           >
-            {isUserExists ? "Sign In Instead" : "Sign Up Instead"}
+            {isUserExists
+              ? t("auth.google.signInInstead")
+              : t("auth.google.signUpInstead")}
           </button>
 
           <button
             onClick={() => window.close()}
             className="border-border bg-card text-card-foreground hover:bg-accent w-full rounded-lg border px-4 py-3 font-medium transition-colors"
           >
-            Close Window
+            {t("auth.google.closeWindow")}
           </button>
         </div>
 
         <p className="text-muted-foreground mt-6 text-center text-sm">
-          This window will close automatically in a few seconds
+          {t("auth.google.autoClose")}
         </p>
       </div>
     </div>
@@ -93,11 +99,12 @@ function GoogleAuthErrorContent() {
 }
 
 export default function GoogleAuthError() {
+  const { t } = useTranslation()
   return (
     <Suspense
       fallback={
         <div className="flex min-h-screen items-center justify-center">
-          Loading...
+          {t("auth.google.loading")}
         </div>
       }
     >

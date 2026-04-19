@@ -2,12 +2,14 @@
 
 import { useEffect, useState } from "react"
 import { GOOGLE_OAUTH_ERROR_MESSAGES } from "@/app/_auth/auth.types"
+import { useTranslation } from "@/app/_i18n"
 
 export default function GoogleCallbackPage() {
+  const { t } = useTranslation()
   const [status, setStatus] = useState<"loading" | "success" | "error">(
     "loading",
   )
-  const [message, setMessage] = useState("Please wait...")
+  const [message, setMessage] = useState(t("auth.google.pleaseWait"))
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search)
@@ -42,13 +44,13 @@ export default function GoogleCallbackPage() {
     // ── Success: popup signals parent and closes ──
     if (isPopup) {
       setStatus("success")
-      setMessage("Authentication successful! Closing...")
+      setMessage(t("auth.google.authSuccess"))
       setTimeout(() => window.close(), 500)
       return
     }
 
     // Standalone tab — try to close, otherwise show a friendly message.
-    setMessage("Finalizing authentication...")
+    setMessage(t("auth.google.finalizing"))
     setTimeout(() => {
       try {
         window.close()
@@ -57,7 +59,7 @@ export default function GoogleCallbackPage() {
       }
       setTimeout(() => {
         setStatus("error")
-        setMessage("Please close this window and return to the main app.")
+        setMessage(t("auth.google.closeAndReturn"))
       }, 500)
     }, 1000)
   }, [])
@@ -84,21 +86,23 @@ export default function GoogleCallbackPage() {
                 </svg>
               </div>
               <h2 className="mb-2 text-lg font-semibold">
-                Authentication Complete
+                {t("auth.google.authComplete")}
               </h2>
               <p className="text-muted-foreground mb-4 text-sm">{message}</p>
               <button
                 onClick={() => window.close()}
                 className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-md px-4 py-2 transition-colors"
               >
-                Close Window
+                {t("auth.google.closeWindow")}
               </button>
             </>
           ) : (
             <>
               <div className="bg-primary/10 mx-auto mb-4 h-8 w-8 animate-pulse rounded-full" />
               <h2 className="mb-2 font-semibold">
-                {status === "success" ? "Success!" : "Completing Sign In"}
+                {status === "success"
+                  ? t("auth.google.success")
+                  : t("auth.google.completingSignIn")}
               </h2>
               <p className="text-muted-foreground text-sm">{message}</p>
             </>

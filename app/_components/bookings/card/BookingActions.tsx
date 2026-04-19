@@ -13,6 +13,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "../../ui/alert-dialog"
+import { useTranslation } from "@/app/_i18n"
 import { CancelBookingDialog } from "./CancelBookingDialog"
 import type { BookingStatus } from "../../../_types"
 
@@ -40,6 +41,7 @@ export function BookingActions({
   onCancel,
   onDelete,
 }: BookingActionsProps) {
+  const { t } = useTranslation()
   const [cancelDialogOpen, setCancelDialogOpen] = useState(false)
 
   return (
@@ -55,7 +57,7 @@ export function BookingActions({
               variant="destructive"
               onClick={() => setCancelDialogOpen(true)}
             >
-              Cancel
+              {t("booking.cancel")}
             </Button>
           )}
 
@@ -70,7 +72,7 @@ export function BookingActions({
                   variant="success"
                   onClick={() => onStatusUpdate?.(bookingId, "confirmed")}
                 >
-                  Confirm
+                  {t("booking.confirm")}
                 </Button>
               )}
             {status !== "inQueue" && status !== "cancelled" && (
@@ -79,7 +81,7 @@ export function BookingActions({
                 variant="info"
                 onClick={() => onStatusUpdate?.(bookingId, "inQueue")}
               >
-                Mark In Queue
+                {t("booking.markInQueue")}
               </Button>
             )}
             {status !== "cancelled" &&
@@ -90,7 +92,7 @@ export function BookingActions({
                   variant="destructive"
                   onClick={() => setCancelDialogOpen(true)}
                 >
-                  Cancel
+                  {t("booking.cancel")}
                 </Button>
               )}
           </div>
@@ -107,19 +109,18 @@ export function BookingActions({
           </AlertDialogTrigger>
           <AlertDialogContent>
             <AlertDialogHeader>
-              <AlertDialogTitle>Delete Booking</AlertDialogTitle>
+              <AlertDialogTitle>{t("booking.deleteBooking")}</AlertDialogTitle>
               <AlertDialogDescription>
-                Are you sure you want to permanently delete this booking? This
-                action cannot be undone and will remove all booking data.
+                {t("booking.deleteConfirm")}
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
-              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogCancel>{t("booking.cancel")}</AlertDialogCancel>
               <AlertDialogAction
                 onClick={() => onDelete?.(bookingId)}
                 className="border border-red-500 bg-transparent text-red-600 hover:bg-red-500 hover:text-white dark:border-red-400 dark:text-red-400 dark:hover:bg-red-400"
               >
-                Delete Booking
+                {t("booking.deleteBooking")}
               </AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>

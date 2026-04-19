@@ -3,7 +3,6 @@
 import { useState } from "react"
 import Link from "next/link"
 import { BookOpen } from "lucide-react"
-import { Card, CardContent } from "@/app/_components/ui/card"
 import {
   Avatar,
   AvatarImage,
@@ -15,6 +14,7 @@ import { useClientBookings } from "@/app/_hooks/queries/useClientVisitorProfile"
 import type { ClientBookingItem } from "@/app/_types"
 import { SimpleListSkeleton } from "@/app/_components/skeletons/clients"
 import { resolveProfileImage } from "@/app/_lib/image-utils"
+import { useTranslation } from "@/app/_i18n"
 
 interface VisitorBookingsTabProps {
   clientId: string
@@ -22,51 +22,50 @@ interface VisitorBookingsTabProps {
 
 function BookingRow({ booking }: { booking: ClientBookingItem }) {
   return (
-    <Card className="bg-card border shadow-sm">
-      <CardContent className="flex items-center gap-4 p-4">
-        <Link href={`/lounges/${booking.loungeId._id}`} className="shrink-0">
-          <Avatar className="h-12 w-12">
-            {booking.loungeId.profileImage && (
-              <AvatarImage
-                src={resolveProfileImage(booking.loungeId.profileImage)}
-                alt={booking.loungeId.loungeTitle}
-              />
-            )}
-            <AvatarFallback className="bg-primary/10 text-primary text-sm">
-              {booking.loungeId.loungeTitle?.[0] || "L"}
-            </AvatarFallback>
-          </Avatar>
-        </Link>
-
-        <div className="min-w-0 flex-1">
-          <Link
-            href={`/lounges/${booking.loungeId._id}`}
-            className="hover:text-primary truncate font-medium transition-colors"
-          >
-            {booking.loungeId.loungeTitle}
-          </Link>
-          <p className="text-muted-foreground text-xs">
-            {new Date(booking.bookingDate).toLocaleDateString("en-US", {
-              month: "short",
-              day: "numeric",
-              year: "numeric",
-            })}
-          </p>
-          {booking.loungeServiceIds?.length > 0 && (
-            <p className="text-muted-foreground text-xs">
-              {booking.loungeServiceIds.length} service
-              {booking.loungeServiceIds.length > 1 ? "s" : ""}
-            </p>
+    <div className="border-border/60 flex items-center gap-4 rounded-xl border p-4">
+      <Link href={`/lounges/${booking.loungeId._id}`} className="shrink-0">
+        <Avatar className="h-12 w-12">
+          {booking.loungeId.profileImage && (
+            <AvatarImage
+              src={resolveProfileImage(booking.loungeId.profileImage)}
+              alt={booking.loungeId.loungeTitle}
+            />
           )}
-        </div>
+          <AvatarFallback className="bg-primary/10 text-primary text-sm">
+            {booking.loungeId.loungeTitle?.[0] || "L"}
+          </AvatarFallback>
+        </Avatar>
+      </Link>
 
-        <StatusBadge status={booking.status} />
-      </CardContent>
-    </Card>
+      <div className="min-w-0 flex-1">
+        <Link
+          href={`/lounges/${booking.loungeId._id}`}
+          className="hover:text-primary truncate font-medium transition-colors"
+        >
+          {booking.loungeId.loungeTitle}
+        </Link>
+        <p className="text-muted-foreground text-xs">
+          {new Date(booking.bookingDate).toLocaleDateString("en-US", {
+            month: "short",
+            day: "numeric",
+            year: "numeric",
+          })}
+        </p>
+        {booking.loungeServiceIds?.length > 0 && (
+          <p className="text-muted-foreground text-xs">
+            {booking.loungeServiceIds.length} service
+            {booking.loungeServiceIds.length > 1 ? "s" : ""}
+          </p>
+        )}
+      </div>
+
+      <StatusBadge status={booking.status} />
+    </div>
   )
 }
 
 export function VisitorBookingsTab({ clientId }: VisitorBookingsTabProps) {
+  const { t } = useTranslation()
   const [page, setPage] = useState(1)
 
   const { data, isLoading } = useClientBookings(clientId, page)
@@ -75,12 +74,10 @@ export function VisitorBookingsTab({ clientId }: VisitorBookingsTabProps) {
 
   if (!data?.bookings?.length) {
     return (
-      <Card className="bg-card border shadow-sm">
-        <CardContent className="py-12 text-center">
-          <BookOpen className="text-muted-foreground mx-auto mb-3 h-10 w-10" />
-          <p className="text-muted-foreground">No bookings yet</p>
-        </CardContent>
-      </Card>
+      <div className="border-border/60 rounded-xl border py-12 text-center">
+        <BookOpen className="text-muted-foreground mx-auto mb-3 h-10 w-10" />
+        <p className="text-muted-foreground">{t("clients.noBookings")}</p>
+      </div>
     )
   }
 
