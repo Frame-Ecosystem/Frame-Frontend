@@ -1,0 +1,57 @@
+/*
+  Hero logo — sequential glow ➜ pause ➜ shimmer ➜ pause ➜ repeat
+  Total cycle = 8s
+    0%–25%   (0-2s)   glow plays
+   25%–37.5% (2-3s)   idle pause
+   37.5%–62.5% (3-5s) shimmer plays
+   62.5%–100% (5-8s)  idle pause before next loop
+*/
+@keyframes hero-glow-seq {
+  0% {
+    filter: drop-shadow(0 0 0px transparent);
+  }
+  12.5% {
+    filter: drop-shadow(0 0 12px var(--color-primary));
+  }
+  25% {
+    filter: drop-shadow(0 0 0px transparent);
+  }
+  100% {
+    filter: drop-shadow(0 0 0px transparent);
+  }
+}
+
+@keyframes hero-shimmer-seq {
+  0% {
+    background-position: -200% center;
+  }
+  37.5% {
+    background-position: -200% center;
+  }
+  62.5% {
+    background-position: 200% center;
+  }
+  100% {
+    background-position: 200% center;
+  }
+}
+
+.hero-logo {
+  animation: hero-glow-seq 8s ease-in-out infinite;
+}
+
+.hero-logo .hero-logo-text {
+  background: linear-gradient(
+    90deg,
+    currentColor 0%,
+    currentColor 40%,
+    color-mix(in srgb, currentColor 60%, white) 50%,
+    currentColor 60%,
+    currentColor 100%
+  );
+  background-size: 200% auto;
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: hero-shimmer-seq 8s ease-in-out infinite;
+}
