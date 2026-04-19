@@ -1,4 +1,4 @@
-import {
+﻿import {
   useQuery,
   useMutation,
   useQueryClient,
@@ -13,7 +13,7 @@ import {
   adminSuggestions,
   adminLoungeServices,
   adminQueue,
-} from "../../_services/admin.service"
+} from "@/app/_services/admin.service"
 import type {
   PaginatedParams,
   CreateUserDto,
@@ -27,7 +27,7 @@ import type {
   ApproveSuggestionDto,
   CreateLoungeServiceDto,
   AuditLogInput,
-} from "../../_types/admin"
+} from "@/app/_types/admin"
 import { toast } from "sonner"
 
 /* ═══════════════════════════════════════════════

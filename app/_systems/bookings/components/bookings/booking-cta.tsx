@@ -1,8 +1,8 @@
-"use client"
+﻿"use client"
 
-import { Button } from "../ui/button"
+import { Button } from "@/app/_components/ui/button"
 import { CalendarIcon, Plus } from "lucide-react"
-import { LoungeService } from "../../_types"
+import { LoungeService } from "@/app/_types"
 import { useRouter } from "next/navigation"
 import { useTheme } from "next-themes"
 import { useTranslation } from "@/app/_i18n"

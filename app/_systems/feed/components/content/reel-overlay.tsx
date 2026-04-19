@@ -1,9 +1,9 @@
-"use client"
+﻿"use client"
 
 import { useState } from "react"
 import { AuthorHeader } from "./author-header"
 import { HashtagText } from "./hashtag-text"
-import type { Reel } from "../../_types"
+import type { Reel } from "@/app/_types"
 
 interface ReelOverlayProps {
   reel: Reel

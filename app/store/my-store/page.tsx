@@ -17,7 +17,7 @@ import {
 import { Button } from "@/app/_components/ui/button"
 import {
   useMyStore,
-  useStoreOrders,
+  useMyStoreOrders,
   useMyStoreAnalytics,
 } from "@/app/_hooks/queries/useMarketplace"
 
@@ -56,7 +56,7 @@ const STATUS_CONFIG = {
 
 export default function MyStoreDashboard() {
   const { data: store, isLoading } = useMyStore()
-  const { data: ordersData } = useStoreOrders({ status: "pending" })
+  const { data: ordersData } = useMyStoreOrders({ status: "pending" })
   const { data: analytics } = useMyStoreAnalytics()
 
   if (isLoading) {

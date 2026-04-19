@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import React, { useState, useMemo } from "react"
 import {
@@ -7,14 +7,14 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
-} from "../ui/dialog"
-import { Button } from "../ui/button"
-import { Checkbox } from "../ui/checkbox"
-import { Textarea } from "../ui/textarea"
-import { Input } from "../ui/input"
-import { Label } from "../ui/label"
-import { Badge } from "../ui/badge"
-import { Skeleton } from "../ui/skeleton"
+} from "@/app/_components/ui/dialog"
+import { Button } from "@/app/_components/ui/button"
+import { Checkbox } from "@/app/_components/ui/checkbox"
+import { Textarea } from "@/app/_components/ui/textarea"
+import { Input } from "@/app/_components/ui/input"
+import { Label } from "@/app/_components/ui/label"
+import { Badge } from "@/app/_components/ui/badge"
+import { Skeleton } from "@/app/_components/ui/skeleton"
 import {
   Scissors,
   Clock,
@@ -24,15 +24,15 @@ import {
   Search,
 } from "lucide-react"
 import { useQuery } from "@tanstack/react-query"
-import { loungeService } from "../../_services/lounge.service"
-import clientService from "../../_services/client.service"
+import { loungeService } from "@/app/_services/lounge.service"
+import clientService from "@/app/_services/client.service"
 import { useAuth } from "@/app/_auth"
 import { useTranslation } from "@/app/_i18n"
 import {
   useBookFromQueue,
   useLoungeBookFromQueue,
-} from "../../_hooks/queries/useQueue"
-import type { LoungeServiceItem } from "../../_types"
+} from "@/app/_hooks/queries/useQueue"
+import type { LoungeServiceItem } from "@/app/_types"
 
 // ── Booking mode for lounge staff ────────────────────────────
 type BookingMode = "visitor" | "client"

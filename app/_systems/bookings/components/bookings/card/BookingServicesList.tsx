@@ -1,7 +1,7 @@
-"use client"
+﻿"use client"
 
 import { useTranslation } from "@/app/_i18n"
-import type { Booking } from "../../../_types"
+import type { Booking } from "@/app/_types"
 
 type BookingService = Booking["loungeServiceIds"][number]
 

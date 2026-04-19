@@ -1,6 +1,6 @@
-import React from "react"
-import { Card, CardContent } from "../../ui/card"
-import { Button } from "../../ui/button"
+﻿import React from "react"
+import { Card, CardContent } from "@/app/_components/ui/card"
+import { Button } from "@/app/_components/ui/button"
 import {
   AlertDialog,
   AlertDialogAction,
@@ -11,21 +11,21 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from "../../ui/alert-dialog"
+} from "@/app/_components/ui/alert-dialog"
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "../../ui/select"
+} from "@/app/_components/ui/select"
 import { BookingAvatar } from "../card/booking-avatar"
 import { BookingStatusBadge } from "../card/BookingStatusBadge"
 import { BookingLocationLink } from "../card/BookingLocationLink"
 import { BookingServicesList } from "../card/BookingServicesList"
 import { BookingAgentInfo } from "../card/BookingAgentInfo"
 import { BookingTotalSummary } from "../card/BookingTotalSummary"
-import type { Booking, BookingStatus } from "../../../_types"
+import type { Booking, BookingStatus } from "@/app/_types"
 import { useTranslation } from "@/app/_i18n"
 
 type HistoryFilter =

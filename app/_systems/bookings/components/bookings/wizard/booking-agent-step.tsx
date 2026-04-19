@@ -1,8 +1,8 @@
-"use client"
+﻿"use client"
 
 import { User, Check, CheckCircle } from "lucide-react"
 import { cn } from "@/app/_lib/utils"
-import type { LoungeService, LoungeAgent } from "../../../_types"
+import type { LoungeService, LoungeAgent } from "@/app/_types"
 import Image from "next/image"
 import { useTranslation } from "@/app/_i18n"
 

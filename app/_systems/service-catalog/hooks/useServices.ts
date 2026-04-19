@@ -1,6 +1,6 @@
-import { useQuery } from "@tanstack/react-query"
-import { serviceService } from "../../_services/service.service"
-import { serviceCategoryService } from "../../_services/service-category.service"
+﻿import { useQuery } from "@tanstack/react-query"
+import { serviceService } from "@/app/_services/service.service"
+import { serviceCategoryService } from "@/app/_services/service-category.service"
 
 /* ═══════════════════════════════════════════════
    Query Key Factory

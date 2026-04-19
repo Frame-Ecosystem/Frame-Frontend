@@ -1,9 +1,9 @@
-"use client"
+﻿"use client"
 
 import type { LucideIcon } from "lucide-react"
-import { Card, CardContent } from "../../_components/ui/card"
-import { cn } from "../../_lib/utils"
-import { Skeleton } from "../../_components/ui/skeleton"
+import { Card, CardContent } from "@/app/_components/ui/card"
+import { cn } from "@/app/_lib/utils"
+import { Skeleton } from "@/app/_components/ui/skeleton"
 
 interface StatCardProps {
   title: string

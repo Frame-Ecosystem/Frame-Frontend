@@ -1,4 +1,4 @@
-import { apiClient } from "./api"
+﻿import { apiClient } from "@/app/_core/api/api"
 import type {
   PaginatedParams,
   PaginatedResponse,
@@ -29,7 +29,7 @@ import type {
   CreateLoungeServiceDto,
   AdminApiResponse as ApiResponse,
   AdminApiListResponse as ApiListResponse,
-} from "../_types/admin"
+} from "@/app/_types/admin"
 
 const BASE = "/v1/admin"
 

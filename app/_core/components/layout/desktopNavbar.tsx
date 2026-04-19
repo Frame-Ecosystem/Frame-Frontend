@@ -1,19 +1,19 @@
-"use client"
+﻿"use client"
 
 import { Shield, Search, MessageCircle } from "lucide-react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { Card, CardContent } from "../ui/card"
-import { Button } from "../ui/button"
-import UserSession from "../profile/user-session"
+import { Card, CardContent } from "@/app/_core/ui/card"
+import { Button } from "@/app/_core/ui/button"
+import UserSession from "@/app/_components/profile/user-session"
 import NotificationButton from "../common/notification-button"
-import { CreateContentButton } from "../content/create-content-button"
+import { CreateContentButton } from "@/app/_components/content/create-content-button"
 import { NavBrandLogo } from "../common/brand-logo"
 import { useAuth } from "@/app/_auth"
-import { NAV_LINKS } from "../../_constants/navigation"
-import { getProfilePath, getHomePath } from "../../_lib/profile"
-import { useScrollDirection } from "../../_hooks/useScrollDirection"
-import { useTranslation } from "../../_i18n"
+import { NAV_LINKS } from "@/app/_constants/navigation"
+import { getProfilePath, getHomePath } from "@/app/_lib/profile"
+import { useScrollDirection } from "@/app/_hooks/useScrollDirection"
+import { useTranslation } from "@/app/_i18n"
 
 const DesktopNavbar = () => {
   const pathname = usePathname()

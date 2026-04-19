@@ -1,9 +1,10 @@
 // Booking-related types
 
-import type { User } from "./user"
-import type { Lounge, ServiceItem } from "./lounge-visitor"
-import type { Service } from "./service"
-import { Agent } from "./agent"
+import type { User } from "@/app/_systems/user/types/user"
+import type { Lounge } from "@/app/_systems/user/types/lounge"
+import type { LoungeServiceItem as ServiceItem } from "@/app/_systems/service-catalog/types/service"
+import type { Service } from "@/app/_systems/service-catalog/types/service"
+import type { Agent } from "@/app/_systems/user/types/agent"
 
 export type BookingStatus =
   | "pending"

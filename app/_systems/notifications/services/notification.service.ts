@@ -1,10 +1,10 @@
-import { apiClient } from "./api"
+﻿import { apiClient } from "@/app/_core/api/api"
 import type {
   NotificationsResponse,
   UnreadCountResponse,
   UnreadCountData,
   NotificationCategory,
-} from "../_types"
+} from "@/app/_types"
 
 const EMPTY_PAGE = (page: number, limit: number): NotificationsResponse => ({
   success: false,

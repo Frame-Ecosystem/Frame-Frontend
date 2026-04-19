@@ -1,13 +1,13 @@
-"use client"
+﻿"use client"
 
 import { Check, ChevronDown, Globe } from "lucide-react"
 import { useLayoutEffect, useState } from "react"
-import { useTranslation } from "../../_i18n"
-import type { Locale } from "../../_i18n"
-import { LANGUAGES } from "../../_constants/languages"
+import { useTranslation } from "@/app/_i18n"
+import type { Locale } from "@/app/_i18n"
+import { LANGUAGES } from "@/app/_constants/languages"
 import { authService } from "@/app/_auth"
 import { useAuth } from "@/app/_auth"
-import { isAuthError } from "../../_services/api"
+import { isAuthError } from "@/app/_services/api"
 import { toast } from "sonner"
 
 export function LanguageSelector() {

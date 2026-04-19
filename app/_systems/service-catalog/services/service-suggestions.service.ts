@@ -1,20 +1,10 @@
-// Service Suggestions Service
-import { apiClient } from "./api"
-import { AdminStatusUpdateDto, AdminApprovalResponse } from "../_types"
-
-export interface ServiceSuggestion {
-  _id: string
-  name: string
-  description: string
-  estimatedPrice?: number
-  estimatedDuration?: number
-  targetGender?: string
-  status: "pending" | "rejected" | "implemented"
-  loungeId?: string
-  createdAt: string
-  updatedAt: string
-  adminComment?: string
-}
+﻿// Service Suggestions Service
+import { apiClient } from "@/app/_core/api/api"
+import type {
+  AdminStatusUpdateDto,
+  AdminApprovalResponse,
+  ServiceSuggestion,
+} from "@/app/_types"
 
 class ServiceSuggestionsService {
   async getMySuggestions(loungeId?: string): Promise<ServiceSuggestion[]> {

@@ -1,4 +1,4 @@
-import { GOOGLE_AUTH_BASE_URL, apiClient } from "../../_services/api"
+﻿import { GOOGLE_AUTH_BASE_URL, apiClient } from "@/app/_services/api"
 import { authService } from "../auth.service"
 
 // ── Types ────────────────────────────────────────────────────

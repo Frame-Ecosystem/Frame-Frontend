@@ -68,4 +68,4 @@ export {
   useAdminHideComment,
   useAdminUnhideComment,
   useAdminDeleteComment,
-} from "./useAdminContent"
+} from "@/app/_systems/admin/hooks/useAdminContent"

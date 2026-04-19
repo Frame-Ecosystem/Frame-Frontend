@@ -1,13 +1,19 @@
-"use client"
+﻿"use client"
 
 import { SearchIcon } from "lucide-react"
-import { Button } from "../ui/button"
-import { Input } from "../ui/input"
+import { Button } from "@/app/_core/ui/button"
+import { Input } from "@/app/_core/ui/input"
 import { useRouter } from "next/navigation"
 import { z } from "zod"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { Form, FormControl, FormField, FormItem, FormMessage } from "../ui/form"
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormMessage,
+} from "@/app/_core/ui/form"
 import { useTranslation } from "@/app/_i18n"
 
 export const searchInputRef = { current: null as null | HTMLInputElement }

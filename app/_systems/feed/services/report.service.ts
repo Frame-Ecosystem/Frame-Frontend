@@ -1,11 +1,11 @@
-import { apiClient } from "./api"
+﻿import { apiClient } from "@/app/_core/api/api"
 import type {
   Report,
   CreateReportInput,
   ReviewReportInput,
   PaginatedContentResponse,
   SingleContentResponse,
-} from "../_types"
+} from "@/app/_types"
 
 class ReportServiceClass {
   /** Report a post, reel, or comment */

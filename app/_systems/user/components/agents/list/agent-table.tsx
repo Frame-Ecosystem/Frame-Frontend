@@ -1,8 +1,8 @@
-"use client"
+﻿"use client"
 
-import { Agent } from "../../../_types"
-import { Badge } from "../../ui/badge"
-import { Button } from "../../ui/button"
+import { Agent } from "@/app/_types"
+import { Badge } from "@/app/_components/ui/badge"
+import { Button } from "@/app/_components/ui/button"
 import {
   Table,
   TableBody,
@@ -10,17 +10,21 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "../../ui/table"
+} from "@/app/_components/ui/table"
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "../../ui/dropdown-menu"
+} from "@/app/_components/ui/dropdown-menu"
 import { MoreHorizontal, Edit, Trash2, Eye, UserX } from "lucide-react"
-import { Avatar, AvatarImage, AvatarFallback } from "../../ui/avatar"
-import { Checkbox } from "../../ui/checkbox"
-import { AgentTableRowsSkeleton } from "../../skeletons/agents"
+import {
+  Avatar,
+  AvatarImage,
+  AvatarFallback,
+} from "@/app/_components/ui/avatar"
+import { Checkbox } from "@/app/_components/ui/checkbox"
+import { AgentTableRowsSkeleton } from "@/app/_components/skeletons/agents"
 import { useTranslation } from "@/app/_i18n"
 
 interface AgentTableProps {

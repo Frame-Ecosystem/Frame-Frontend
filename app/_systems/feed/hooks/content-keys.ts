@@ -1,4 +1,4 @@
-import type { PaginatedContentResponse } from "../../_types"
+﻿import type { PaginatedContentResponse } from "@/app/_types"
 
 /* ────────────────────────────────────────────────────────────────── */
 /*  Query key factories                                               */

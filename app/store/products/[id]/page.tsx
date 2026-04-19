@@ -20,16 +20,16 @@ import {
   useWishlist,
 } from "@/app/_hooks/queries/useMarketplace"
 import { toast } from "sonner"
-import { useAuthContext } from "@/app/_auth"
+import { useAuth } from "@/app/_auth"
 
 export default function ProductDetailPage() {
   const { id } = useParams<{ id: string }>()
   const router = useRouter()
-  const { user } = useAuthContext()
+  const { user } = useAuth()
   const [quantity, setQuantity] = useState(1)
-  const [selectedVariants, setSelectedVariants] = useState<
-    Record<string, string>
-  >({})
+  const [variantIndex, setVariantIndex] = useState<number | undefined>(
+    undefined,
+  )
   const [tab, setTab] = useState<"description" | "reviews">("description")
 
   const { data: product, isLoading, isError } = useProductById(id)
@@ -51,7 +51,7 @@ export default function ProductDetailPage() {
       return
     }
     addToCart.mutate(
-      { productId: id, quantity, variants: selectedVariants },
+      { productId: id, quantity, variantIndex },
       {
         onSuccess: () => toast.success("Added to cart!"),
         onError: () => toast.error("Failed to add to cart"),
@@ -109,7 +109,10 @@ export default function ProductDetailPage() {
         <div className="grid gap-8 lg:grid-cols-2">
           {/* Gallery */}
           <div>
-            <ProductGallery images={product.images} />
+            <ProductGallery
+              images={product.images}
+              productName={product.name}
+            />
           </div>
 
           {/* Details */}
@@ -126,7 +129,7 @@ export default function ProductDetailPage() {
             <h1 className="text-2xl leading-snug font-bold">{product.name}</h1>
 
             {/* Rating */}
-            {product.averageRating > 0 && (
+            {(product.averageRating ?? 0) > 0 && (
               <div className="flex items-center gap-2">
                 <div className="flex items-center gap-0.5">
                   {Array.from({ length: 5 }).map((_, i) => (
@@ -134,7 +137,7 @@ export default function ProductDetailPage() {
                       key={i}
                       size={14}
                       className={
-                        i < Math.round(product.averageRating)
+                        i < Math.round(product.averageRating ?? 0)
                           ? "fill-yellow-400 text-yellow-400"
                           : "fill-muted text-muted"
                       }
@@ -142,8 +145,8 @@ export default function ProductDetailPage() {
                   ))}
                 </div>
                 <span className="text-muted-foreground text-sm">
-                  {product.averageRating.toFixed(1)} ({product.reviewCount}{" "}
-                  reviews)
+                  {(product.averageRating ?? 0).toFixed(1)} (
+                  {product.reviewCount} reviews)
                 </span>
               </div>
             )}
@@ -172,10 +175,8 @@ export default function ProductDetailPage() {
             {product.variants && product.variants.length > 0 && (
               <ProductVariants
                 variants={product.variants}
-                selected={selectedVariants}
-                onSelect={(group, value) =>
-                  setSelectedVariants((prev) => ({ ...prev, [group]: value }))
-                }
+                selectedIndex={variantIndex}
+                onSelect={(idx) => setVariantIndex(idx)}
               />
             )}
 
@@ -282,8 +283,8 @@ export default function ProductDetailPage() {
                       Write a Review
                     </h3>
                     <ReviewForm
-                      targetId={id}
-                      targetType="product"
+                      productId={id}
+                      orderId=""
                       onSuccess={() => setTab("reviews")}
                     />
                   </div>

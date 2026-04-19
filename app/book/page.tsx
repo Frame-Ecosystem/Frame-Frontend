@@ -59,6 +59,7 @@ function BookPageContent() {
             )
 
             return {
+              _id: service._id,
               id: service._id,
               name: globalService?.name || "Service",
               description: service.description || "",

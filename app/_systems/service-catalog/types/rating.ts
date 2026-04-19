@@ -1,4 +1,4 @@
-import type { ProfileImage } from "./user"
+import type { ProfileImage } from "@/app/_systems/user/types/user"
 
 export interface PopulatedClient {
   _id: string

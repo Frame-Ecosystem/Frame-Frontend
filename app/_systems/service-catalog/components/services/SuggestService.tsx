@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import { useState } from "react"
 import {
@@ -8,19 +8,19 @@ import {
   DialogTitle,
   DialogDescription,
   DialogTrigger,
-} from "../ui/dialog"
-import { Button } from "../ui/button"
-import { Input } from "../ui/input"
-import { Label } from "../ui/label"
-import { Textarea } from "../ui/textarea"
-import { Badge } from "../ui/badge"
+} from "@/app/_components/ui/dialog"
+import { Button } from "@/app/_components/ui/button"
+import { Input } from "@/app/_components/ui/input"
+import { Label } from "@/app/_components/ui/label"
+import { Textarea } from "@/app/_components/ui/textarea"
+import { Badge } from "@/app/_components/ui/badge"
 import { toast } from "sonner"
-import { apiClient, serviceSuggestionsService } from "../../_services"
-import { isAuthError } from "../../_services/api"
+import { apiClient, serviceSuggestionsService } from "@/app/_services"
+import { isAuthError } from "@/app/_services/api"
 import { useAuth } from "@/app/_auth"
-import type { ServiceSuggestion } from "../../_types"
+import type { ServiceSuggestion } from "@/app/_types"
 import { validateSuggestionForm } from "./_lib/validate-suggestion"
-import { SuggestServiceSkeleton } from "../skeletons/services"
+import { SuggestServiceSkeleton } from "@/app/_components/skeletons/services"
 import { useTranslation } from "@/app/_i18n"
 
 export default function SuggestService() {

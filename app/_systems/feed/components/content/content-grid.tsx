@@ -1,11 +1,11 @@
-"use client"
+﻿"use client"
 
 import { useEffect } from "react"
 import { useInView } from "react-intersection-observer"
 import { useRouter as _useRouter } from "next/navigation"
 import { Loader2 } from "lucide-react"
 import Image from "next/image"
-import type { Post, Reel } from "../../_types/content"
+import type { Post, Reel } from "@/app/_types/content"
 import { ReelCard } from "./reel-card"
 import { EmptyState } from "./empty-state"
 

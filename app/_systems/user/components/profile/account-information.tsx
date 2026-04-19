@@ -1,8 +1,8 @@
-"use client"
+﻿"use client"
 
 import { MailIcon, PhoneIcon, ChevronDown, Info, MapPin } from "lucide-react"
-import { formatMemberSinceDate } from "../../_lib/utils"
-import type { User } from "../../_types"
+import { formatMemberSinceDate } from "@/app/_lib/utils"
+import type { User } from "@/app/_types"
 import { useTranslation } from "@/app/_i18n"
 
 interface AccountInformationProps {

@@ -1,10 +1,10 @@
-"use client"
+﻿"use client"
 
 import { ChevronDown, Pencil } from "lucide-react"
-import { Button } from "../../ui/button"
-import { Label } from "../../ui/label"
-import { Textarea } from "../../ui/textarea"
-import type { User } from "../../../_types"
+import { Button } from "@/app/_components/ui/button"
+import { Label } from "@/app/_components/ui/label"
+import { Textarea } from "@/app/_components/ui/textarea"
+import type { User } from "@/app/_types"
 import { useTranslation } from "@/app/_i18n"
 
 interface BioSectionProps {

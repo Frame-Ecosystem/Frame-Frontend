@@ -1,7 +1,7 @@
-"use client"
+﻿"use client"
 
 import { useState } from "react"
-import { formatBioText } from "../../../_lib/utils"
+import { formatBioText } from "@/app/_lib/utils"
 
 interface ExpandableBioProps {
   bio: string

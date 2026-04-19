@@ -1,11 +1,11 @@
-/**
+﻿/**
  * @file socket.ts
  * @description Singleton Socket.IO client for real-time WebSocket subscriptions.
  * Connects to the same backend as the REST API (port 3000).
  */
 
 import { io, Socket } from "socket.io-client"
-import { API_BASE_URL, apiClient } from "./api"
+import { API_BASE_URL, apiClient } from "@/app/_core/api/api"
 
 let socket: Socket | null = null
 

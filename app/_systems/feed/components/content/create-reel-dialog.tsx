@@ -1,15 +1,24 @@
-"use client"
+﻿"use client"
 
 import { useState, useRef, useCallback } from "react"
 import { Video, X, Loader2, Hash, ImageIcon } from "lucide-react"
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../ui/dialog"
-import { Button } from "../ui/button"
-import { Textarea } from "../ui/textarea"
-import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar"
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/app/_components/ui/dialog"
+import { Button } from "@/app/_components/ui/button"
+import { Textarea } from "@/app/_components/ui/textarea"
+import {
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
+} from "@/app/_components/ui/avatar"
 import Link from "next/link"
 import { useAuth } from "@/app/_auth"
-import { useCreateReel } from "../../_hooks/queries/useContent"
-import { getProfilePath } from "../../_lib/profile"
+import { useCreateReel } from "@/app/_hooks/queries/useContent"
+import { getProfilePath } from "@/app/_lib/profile"
 import { useTranslation } from "@/app/_i18n"
 
 interface CreateReelDialogProps {

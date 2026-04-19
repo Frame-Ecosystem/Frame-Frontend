@@ -1,6 +1,6 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query"
+﻿import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { authService, useAuth } from "@/app/_auth"
-import type { User, Gender } from "../../_types"
+import type { User, Gender } from "@/app/_types"
 
 /**
  * Client profile hooks

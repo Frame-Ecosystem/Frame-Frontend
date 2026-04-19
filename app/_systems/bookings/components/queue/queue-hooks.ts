@@ -1,7 +1,7 @@
-"use client"
+﻿"use client"
 
 import { useState, useEffect, useRef } from "react"
-import type { Queue } from "../../_types"
+import type { Queue } from "@/app/_types"
 
 export function usePseudoFullscreen(isPseudoFullScreen: boolean) {
   const PSEUDO_HEIGHT_VAR = "--queue-pseudo-fullscreen-height"

@@ -1,10 +1,10 @@
-import { apiClient } from "./api"
+﻿import { apiClient } from "@/app/_core/api/api"
 import type {
   Post,
   UpdatePostInput,
   PaginatedContentResponse,
   SingleContentResponse,
-} from "../_types"
+} from "@/app/_types"
 
 class PostServiceClass {
   /** Create a new post (multipart/form-data) */

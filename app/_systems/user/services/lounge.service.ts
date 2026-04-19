@@ -1,10 +1,10 @@
-import { apiClient } from "./api"
+﻿import { apiClient } from "@/app/_core/api/api"
 import type {
   Service,
   CreateLoungeServicePayload,
   LoungeServiceItem,
   LoungeAgentsResponse,
-} from "../_types"
+} from "@/app/_types"
 
 class LoungeService {
   async getAll(): Promise<LoungeServiceItem[]> {
@@ -106,6 +106,12 @@ class LoungeService {
         return {
           _id: created._id || created.id,
           id: created.id || created._id,
+          name:
+            created.name ??
+            (typeof created.serviceId === "object"
+              ? (created.serviceId as any)?.name
+              : "") ??
+            "",
           loungeId: created.loungeId,
           serviceId: created.serviceId,
           agentIds: created.agentIds,

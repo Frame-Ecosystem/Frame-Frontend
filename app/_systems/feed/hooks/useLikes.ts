@@ -1,11 +1,11 @@
-import {
+﻿import {
   useQuery,
   useMutation,
   useQueryClient,
   useInfiniteQuery,
 } from "@tanstack/react-query"
 import { useEffect, useRef, useState } from "react"
-import { likeService } from "../../_services/like.service"
+import { likeService } from "@/app/_services/like.service"
 import { toast } from "sonner"
 
 export const likeKeys = {

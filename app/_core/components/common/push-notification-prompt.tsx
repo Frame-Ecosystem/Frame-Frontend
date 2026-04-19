@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @file push-notification-prompt.tsx
  * @description Non-intrusive banner prompting the user to enable push
  * notifications. Only shown when permission is still "default".
@@ -9,7 +9,7 @@
 
 import { useState, useEffect, useCallback } from "react"
 import { Bell, X } from "lucide-react"
-import { Button } from "../ui/button"
+import { Button } from "@/app/_core/ui/button"
 import { useTranslation } from "@/app/_i18n"
 
 // ── Constants ────────────────────────────────────────────────

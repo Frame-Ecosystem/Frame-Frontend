@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import React, { useState } from "react"
 import {
@@ -7,10 +7,10 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
-} from "../ui/dialog"
-import { Button } from "../ui/button"
-import { Input } from "../ui/input"
-import { Label } from "../ui/label"
+} from "@/app/_components/ui/dialog"
+import { Button } from "@/app/_components/ui/button"
+import { Input } from "@/app/_components/ui/input"
+import { Label } from "@/app/_components/ui/label"
 import { Search } from "lucide-react"
 import { useTranslation } from "@/app/_i18n"
 

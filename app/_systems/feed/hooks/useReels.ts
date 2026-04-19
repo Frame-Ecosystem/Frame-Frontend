@@ -1,13 +1,13 @@
-import {
+﻿import {
   useQuery,
   useMutation,
   useQueryClient,
   useInfiniteQuery,
 } from "@tanstack/react-query"
 import { useEffect, useRef, useState } from "react"
-import { reelService } from "../../_services/reel.service"
+import { reelService } from "@/app/_services/reel.service"
 import { toast } from "sonner"
-import type { Reel } from "../../_types"
+import type { Reel } from "@/app/_types"
 import {
   contentKeys,
   extractPagination,

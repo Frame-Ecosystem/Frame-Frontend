@@ -1,10 +1,10 @@
-import { apiClient } from "./api"
+﻿import { apiClient } from "@/app/_core/api/api"
 import type {
   Reel,
   UpdateReelInput,
   PaginatedContentResponse,
   SingleContentResponse,
-} from "../_types"
+} from "@/app/_types"
 
 class ReelServiceClass {
   /** Create a new reel (multipart/form-data) */

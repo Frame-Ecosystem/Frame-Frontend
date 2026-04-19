@@ -1,8 +1,8 @@
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
+﻿import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import {
   marketplaceService,
   type AdminDisputeResolutionDto,
-} from "../../_services/marketplace.service"
+} from "@/app/_services/marketplace.service"
 import type {
   StoreDiscoverParams,
   ProductDiscoverParams,
@@ -16,7 +16,7 @@ import type {
   StoreStatus,
   ProductStatus,
   StoreBadge,
-} from "../../_types/marketplace"
+} from "@/app/_types/marketplace"
 
 /* ═══════════════════════════════════════════════
    Query Key Factory
@@ -132,7 +132,8 @@ export function useUpdateStore() {
 export function useUploadStoreLogo() {
   const qc = useQueryClient()
   return useMutation({
-    mutationFn: (file: File) => marketplaceService.uploadStoreLogo(file),
+    mutationFn: (file: File | FormData) =>
+      marketplaceService.uploadStoreLogo(file),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: marketplaceKeys.myStore() })
     },
@@ -142,7 +143,8 @@ export function useUploadStoreLogo() {
 export function useUploadStoreBanner() {
   const qc = useQueryClient()
   return useMutation({
-    mutationFn: (file: File) => marketplaceService.uploadStoreBanner(file),
+    mutationFn: (file: File | FormData) =>
+      marketplaceService.uploadStoreBanner(file),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: marketplaceKeys.myStore() })
     },
@@ -204,25 +206,35 @@ export function useCreateProduct() {
   })
 }
 
-export function useUpdateProduct(id: string) {
+export function useUpdateProduct(id?: string) {
   const qc = useQueryClient()
   return useMutation({
-    mutationFn: (dto: UpdateProductDto) =>
-      marketplaceService.updateProduct(id, dto),
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: marketplaceKeys.productById(id) })
+    mutationFn: (payload: UpdateProductDto & { id?: string }) => {
+      const productId = id ?? payload.id ?? ""
+      const { id: _id, ...dto } = payload
+      return marketplaceService.updateProduct(productId, dto)
+    },
+    onSuccess: (_data, vars) => {
+      const productId = id ?? vars.id ?? ""
+      qc.invalidateQueries({ queryKey: marketplaceKeys.productById(productId) })
       qc.invalidateQueries({ queryKey: marketplaceKeys.products() })
     },
   })
 }
 
-export function useUploadProductImages(productId: string) {
+export function useUploadProductImages(productId?: string) {
   const qc = useQueryClient()
   return useMutation({
-    mutationFn: (files: File[]) =>
-      marketplaceService.uploadProductImages(productId, files),
+    mutationFn: (payload: File[] | { id: string; files: File[] }) => {
+      if (Array.isArray(payload)) {
+        return marketplaceService.uploadProductImages(productId ?? "", payload)
+      }
+      return marketplaceService.uploadProductImages(payload.id, payload.files)
+    },
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: marketplaceKeys.productById(productId) })
+      qc.invalidateQueries({
+        queryKey: marketplaceKeys.productById(productId ?? ""),
+      })
     },
   })
 }
@@ -274,6 +286,14 @@ export function useStoreOrders(storeId: string, page = 1) {
     queryKey: marketplaceKeys.storeOrders(storeId, page),
     queryFn: () => marketplaceService.getStoreOrders(storeId, page),
     enabled: !!storeId,
+    staleTime: 1 * 60 * 1000,
+  })
+}
+
+export function useMyStoreOrders(filter?: { status?: OrderStatus }, page = 1) {
+  return useQuery({
+    queryKey: ["marketplace", "orders", "my-store", filter, page],
+    queryFn: () => marketplaceService.getMyStoreOrders(filter, page),
     staleTime: 1 * 60 * 1000,
   })
 }
@@ -445,10 +465,13 @@ export function useWishlist(page = 1) {
 export function useToggleWishlist(productId: string, isInWishlist: boolean) {
   const qc = useQueryClient()
   return useMutation({
-    mutationFn: () =>
-      isInWishlist
-        ? marketplaceService.removeFromWishlist(productId)
-        : marketplaceService.addToWishlist(productId),
+    mutationFn: async (): Promise<void> => {
+      if (isInWishlist) {
+        await marketplaceService.removeFromWishlist(productId)
+      } else {
+        await marketplaceService.addToWishlist(productId)
+      }
+    },
     onMutate: async () => {
       // Optimistic update — invalidate will re-fetch
     },

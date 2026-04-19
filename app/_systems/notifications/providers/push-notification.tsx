@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @file push-notification.tsx
  * @description Context provider for FCM push notifications.
  *
@@ -11,8 +11,8 @@
 
 import React, { createContext, useContext, useCallback, useMemo } from "react"
 import { useAuth } from "@/app/_auth"
-import { usePushNotifications } from "../_hooks/usePushNotifications"
-import PushNotificationPrompt from "../_components/common/push-notification-prompt"
+import { usePushNotifications } from "@/app/_hooks/usePushNotifications"
+import PushNotificationPrompt from "@/app/_components/common/push-notification-prompt"
 
 // ── Context ──────────────────────────────────────────────────
 

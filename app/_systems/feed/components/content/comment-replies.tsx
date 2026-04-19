@@ -1,11 +1,11 @@
-"use client"
+﻿"use client"
 
 import { useState } from "react"
 import { ChevronDown, Loader2 } from "lucide-react"
-import { Button } from "../ui/button"
-import { useReplies } from "../../_hooks/queries/useContent"
+import { Button } from "@/app/_components/ui/button"
+import { useReplies } from "@/app/_hooks/queries/useContent"
 import { cn } from "@/app/_lib/utils"
-import type { Comment } from "../../_types"
+import type { Comment } from "@/app/_types"
 import { useTranslation } from "@/app/_i18n"
 
 interface CommentRepliesProps {

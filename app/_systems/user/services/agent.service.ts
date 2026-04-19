@@ -1,4 +1,4 @@
-import { apiClient } from "./api"
+﻿import { apiClient } from "@/app/_core/api/api"
 import {
   Agent,
   CreateAgentDto,
@@ -6,7 +6,7 @@ import {
   AgentFilters,
   AgentStats,
   Paginated,
-} from "../_types"
+} from "@/app/_types"
 
 class AgentService {
   // Admin Routes

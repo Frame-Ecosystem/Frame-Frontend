@@ -1,5 +1,5 @@
-import { Card, CardContent } from "../ui/card"
-import { Skeleton } from "../ui/skeleton"
+﻿import { Card, CardContent } from "@/app/_components/ui/card"
+import { Skeleton } from "@/app/_components/ui/skeleton"
 
 interface QueueLoadingSkeletonProps {
   mode?: "client" | "staff"

@@ -14,14 +14,22 @@ export type StoreCategory =
   | "spa_wellness"
   | "other"
 
-export type StoreStatus =
-  | "pending"
-  | "active"
-  | "suspended"
-  | "closed"
-  | "rejected"
+export const StoreStatus = {
+  PENDING: "pending",
+  ACTIVE: "active",
+  SUSPENDED: "suspended",
+  CLOSED: "closed",
+  REJECTED: "rejected",
+} as const
+export type StoreStatus = (typeof StoreStatus)[keyof typeof StoreStatus]
 
-export type StoreBadge = "none" | "verified" | "premium" | "top_seller"
+export const StoreBadge = {
+  NONE: "none",
+  VERIFIED: "verified",
+  PREMIUM: "premium",
+  TOP_SELLER: "top_seller",
+} as const
+export type StoreBadge = (typeof StoreBadge)[keyof typeof StoreBadge]
 
 export type ProductCategory =
   | "shampoo"
@@ -66,30 +74,35 @@ export type ProductCategory =
   | "organizer"
   | "other"
 
-export type ProductStatus =
-  | "draft"
-  | "active"
-  | "inactive"
-  | "out_of_stock"
-  | "pending_review"
-  | "rejected"
+export const ProductStatus = {
+  DRAFT: "draft",
+  ACTIVE: "active",
+  INACTIVE: "inactive",
+  OUT_OF_STOCK: "out_of_stock",
+  PENDING_REVIEW: "pending_review",
+  REJECTED: "rejected",
+} as const
+export type ProductStatus = (typeof ProductStatus)[keyof typeof ProductStatus]
 
-export type OrderStatus =
-  | "pending"
-  | "confirmed"
-  | "processing"
-  | "shipped"
-  | "delivered"
-  | "cancelled"
-  | "refunded"
-  | "disputed"
-  | "returned"
+export const OrderStatus = {
+  PENDING: "pending",
+  CONFIRMED: "confirmed",
+  PROCESSING: "processing",
+  SHIPPED: "shipped",
+  DELIVERED: "delivered",
+  CANCELLED: "cancelled",
+  REFUNDED: "refunded",
+  DISPUTED: "disputed",
+  RETURNED: "returned",
+} as const
+export type OrderStatus = (typeof OrderStatus)[keyof typeof OrderStatus]
 
 export type PaymentMethod =
   | "cash_on_delivery"
   | "bank_transfer"
   | "card"
   | "wallet"
+  | "online_payment"
 
 export type PaymentStatus =
   | "pending"
@@ -172,6 +185,8 @@ export interface Store {
   badge: StoreBadge
   stats: StoreStats
   settings: StoreSettings
+  /** @alias stats.totalProducts */
+  totalProducts?: number
   createdAt: string
   updatedAt: string
 }
@@ -241,6 +256,10 @@ export interface Product {
   isDigital: boolean
   isFeatured: boolean
   stats: ProductStats
+  /** @alias stats.averageRating */
+  averageRating?: number
+  /** @alias stats.ratingCount */
+  reviewCount?: number
   createdAt: string
 }
 
@@ -248,6 +267,8 @@ export interface Product {
 
 export interface OrderItem {
   productId: string | Product
+  /** @alias productId */
+  product?: Product
   productSnapshot: {
     name: string
     price: number
@@ -256,7 +277,11 @@ export interface OrderItem {
   quantity: number
   unitPrice: number
   totalPrice: number
+  /** @alias unitPrice */
+  price?: number
   variantInfo?: string
+  /** @alias variantInfo */
+  variants?: any[]
 }
 
 export interface OrderStatusHistory {
@@ -267,18 +292,22 @@ export interface OrderStatusHistory {
 }
 
 export interface ShippingAddress {
-  fullName: string
-  phone: string
+  fullName?: string
+  phone?: string
   street: string
   city: string
   state?: string
   country: string
   zipCode?: string
+  /** @alias zipCode */
+  postalCode?: string
 }
 
 export interface Order {
   _id: string
   orderNumber: string
+  /** @alias total */
+  totalAmount?: number
   buyerId:
     | string
     | {
@@ -316,10 +345,15 @@ export interface Order {
 
 export interface CartItem {
   productId: Product
+  /** @alias productId */
+  product: Product
   storeId: Store
   quantity: number
   variantIndex?: number
   addedAt: string
+  /** @alias unitPrice from API */
+  price?: number
+  variants?: any[]
 }
 
 export interface Cart {
@@ -327,6 +361,7 @@ export interface Cart {
   userId: string
   items: CartItem[]
   updatedAt: string
+  totalPrice?: number
 }
 
 // ── Review ───────────────────────────────────────────────────────────────────
@@ -365,6 +400,8 @@ export interface WishlistItem {
   _id: string
   userId: string
   productId: Product
+  /** @alias productId */
+  product: Product
   createdAt: string
 }
 
@@ -372,11 +409,19 @@ export interface WishlistItem {
 
 export interface DailyRevenue {
   _id: string // date string
+  /** @alias _id */
+  date?: string
   revenue: number
   orders: number
 }
 
 export interface StoreAnalytics {
+  /** @alias overview.totalRevenue */
+  totalRevenue?: number
+  /** @alias overview.totalOrders */
+  totalOrders?: number
+  /** @alias overview.totalProducts */
+  totalProducts?: number
   overview: {
     totalRevenue: number
     totalOrders: number
@@ -431,7 +476,9 @@ export interface CreateProductDto {
   lowStockThreshold?: number
 }
 
-export interface UpdateProductDto extends Partial<CreateProductDto> {}
+export interface UpdateProductDto extends Partial<CreateProductDto> {
+  status?: "active" | "draft" | "archived" | "out_of_stock"
+}
 
 export interface CreateOrderDto {
   storeId: string

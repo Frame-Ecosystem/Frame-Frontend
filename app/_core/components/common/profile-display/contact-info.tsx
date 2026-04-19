@@ -1,9 +1,9 @@
-"use client"
+﻿"use client"
 
 import { MailIcon, PhoneIcon, ChevronDown } from "lucide-react"
 import { useState, useEffect } from "react"
 import PhoneItem from "./phone-item"
-import { Button } from "../../ui/button"
+import { Button } from "@/app/_core/ui/button"
 import { toast } from "sonner"
 import { useTranslation } from "@/app/_i18n"
 

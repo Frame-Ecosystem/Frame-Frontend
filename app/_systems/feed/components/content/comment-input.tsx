@@ -1,10 +1,14 @@
-"use client"
+﻿"use client"
 
 import { useState, useRef, useEffect } from "react"
 import { Send, X, Loader2 } from "lucide-react"
-import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar"
+import {
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
+} from "@/app/_components/ui/avatar"
 import { useAuth } from "@/app/_auth"
-import { useAddComment } from "../../_hooks/queries/useContent"
+import { useAddComment } from "@/app/_hooks/queries/useContent"
 import { useTranslation } from "@/app/_i18n"
 
 interface CommentInputProps {

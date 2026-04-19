@@ -1,17 +1,17 @@
-"use client"
+﻿"use client"
 
 import { Check, Users, ChevronDown } from "lucide-react"
 import { useState } from "react"
 import { useAuth } from "@/app/_auth"
-import { isAuthError } from "../../_services/api"
+import { isAuthError } from "@/app/_services/api"
 import { toast } from "sonner"
 import { useTranslation } from "@/app/_i18n"
 import {
   clientGenderOptions,
   loungeGenderOptions,
-} from "../../_constants/gender"
-import { useUpdateGender } from "../../_hooks/queries"
-import type { Gender } from "../../_types"
+} from "@/app/_constants/gender"
+import { useUpdateGender } from "@/app/_hooks/queries"
+import type { Gender } from "@/app/_types"
 
 export function GenderSelector() {
   const { t } = useTranslation()

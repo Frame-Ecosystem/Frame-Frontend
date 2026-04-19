@@ -1,21 +1,21 @@
-"use client"
+﻿"use client"
 
 import { useState, useEffect } from "react"
 import { Clock } from "lucide-react"
-import { Button } from "../ui/button"
+import { Button } from "@/app/_core/ui/button"
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "../ui/dialog"
-import { Label } from "../ui/label"
-import { Input } from "../ui/input"
+} from "@/app/_core/ui/dialog"
+import { Label } from "@/app/_core/ui/label"
+import { Input } from "@/app/_core/ui/input"
 import { toast } from "sonner"
 import { useAuth } from "@/app/_auth"
-import { loungeService } from "../../_services"
-import { isAuthError } from "../../_services/api"
+import { loungeService } from "@/app/_services"
+import { isAuthError } from "@/app/_services/api"
 import { useTranslation } from "@/app/_i18n"
 
 const DAYS = [

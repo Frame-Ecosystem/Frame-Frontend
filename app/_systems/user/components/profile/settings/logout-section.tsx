@@ -1,7 +1,7 @@
-"use client"
+﻿"use client"
 
 import { LogOutIcon } from "lucide-react"
-import { Button } from "../../ui/button"
+import { Button } from "@/app/_components/ui/button"
 import { useTranslation } from "@/app/_i18n"
 
 interface LogoutSectionProps {

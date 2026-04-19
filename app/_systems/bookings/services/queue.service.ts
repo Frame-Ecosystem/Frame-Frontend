@@ -1,10 +1,10 @@
-import { apiClient } from "./api"
+﻿import { apiClient } from "@/app/_core/api/api"
 import type {
   Queue,
   QueueResponse,
   LoungeQueuesResponse,
   QueuePersonStatus,
-} from "../_types"
+} from "@/app/_types"
 
 const QUEUE_BASE = "/v1/queues"
 

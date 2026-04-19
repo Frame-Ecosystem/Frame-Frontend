@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import { useState } from "react"
 import {
@@ -7,10 +7,10 @@ import {
   DialogHeader,
   DialogTitle,
   DialogFooter,
-} from "../ui/dialog"
-import { Button } from "../ui/button"
-import { Textarea } from "../ui/textarea"
-import { useCreateReport } from "../../_hooks/queries/useContent"
+} from "@/app/_components/ui/dialog"
+import { Button } from "@/app/_components/ui/button"
+import { Textarea } from "@/app/_components/ui/textarea"
+import { useCreateReport } from "@/app/_hooks/queries/useContent"
 import { useTranslation } from "@/app/_i18n"
 
 interface ReportModalProps {

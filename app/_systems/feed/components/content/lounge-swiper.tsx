@@ -1,10 +1,10 @@
-"use client"
+﻿"use client"
 
 import Image from "next/image"
 import Link from "next/link"
 import { StarIcon, Store } from "lucide-react"
-import { Badge } from "../ui/badge"
-import { FollowButton } from "../common/follow-button"
+import { Badge } from "@/app/_components/ui/badge"
+import { FollowButton } from "@/app/_components/common/follow-button"
 import { useTranslation } from "@/app/_i18n"
 
 interface LoungeSuggestion {

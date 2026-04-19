@@ -1,7 +1,7 @@
-import { apiClient } from "../_services/api"
-import { API_BASE_URL } from "../_services/api"
+﻿import { apiClient } from "@/app/_services/api"
+import { API_BASE_URL } from "@/app/_services/api"
 import { getCsrfTokenFromCookie } from "./lib/csrf"
-import type { User, Gender } from "../_types"
+import type { User, Gender } from "@/app/_types"
 import type {
   AuthTokenResponse,
   SignupDto,

@@ -1,7 +1,7 @@
-"use client"
+﻿"use client"
 
 import { SmartphoneIcon } from "lucide-react"
-import { Button } from "../../ui/button"
+import { Button } from "@/app/_core/ui/button"
 import { toast } from "sonner"
 import { useTranslation } from "@/app/_i18n"
 

@@ -1,17 +1,22 @@
-"use client"
+﻿"use client"
 
 import { useState, useEffect, useCallback } from "react"
-import { Card, CardContent, CardHeader, CardTitle } from "../../ui/card"
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/app/_components/ui/card"
 import { toast } from "sonner"
 import { useAuth } from "@/app/_auth"
-import { loungeService } from "../../../_services/lounge.service"
-import { bookingService } from "../../../_services/booking.service"
-import { isAuthError } from "../../../_services/api"
+import { loungeService } from "@/app/_services/lounge.service"
+import { bookingService } from "@/app/_services/booking.service"
+import { isAuthError } from "@/app/_services/api"
 import type {
   CreateBookingInput,
   LoungeService,
   LoungeAgent,
-} from "../../../_types"
+} from "@/app/_types"
 import { BookingProgress } from "./booking-progress"
 import { BookingNavigation } from "./booking-navigation"
 import { BookingDateTimeStep } from "./booking-datetime-step"
@@ -154,7 +159,7 @@ export function BookingWizard({
   // Calculate total price and duration when selected services change
   useEffect(() => {
     const total = selectedServices.reduce(
-      (sum, service) => sum + service.price,
+      (sum, service) => sum + (service.price ?? 0),
       0,
     )
     setTotalPrice(total)

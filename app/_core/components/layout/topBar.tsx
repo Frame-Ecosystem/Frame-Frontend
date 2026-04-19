@@ -1,19 +1,19 @@
-"use client"
+﻿"use client"
 
 import Link from "next/link"
 import React, { useState, useEffect, useRef } from "react"
-import UserSession from "../profile/user-session"
+import UserSession from "@/app/_components/profile/user-session"
 import NotificationButton from "../common/notification-button"
-import { CreateContentButton } from "../content/create-content-button"
-import { Button } from "../ui/button"
+import { CreateContentButton } from "@/app/_components/content/create-content-button"
+import { Button } from "@/app/_core/ui/button"
 import { Search, MessageCircle, ChevronLeft } from "lucide-react"
-import { Badge } from "../ui/badge"
+import { Badge } from "@/app/_core/ui/badge"
 import { NavBrandLogo } from "../common/brand-logo"
 import { useRouter } from "next/navigation"
 import { useAuth } from "@/app/_auth"
-import { useNotificationContext } from "../../_providers/notification"
-import { useScrollDirection } from "../../_hooks/useScrollDirection"
-import { useTranslation } from "../../_i18n"
+import { useNotificationContext } from "@/app/_providers/notification"
+import { useScrollDirection } from "@/app/_hooks/useScrollDirection"
+import { useTranslation } from "@/app/_i18n"
 
 interface TopBarProps {
   onGetStarted?: () => void

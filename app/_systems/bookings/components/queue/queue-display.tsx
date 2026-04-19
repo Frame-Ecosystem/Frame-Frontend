@@ -1,7 +1,7 @@
-"use client"
+﻿"use client"
 
 import { useState, useRef, useMemo, useCallback } from "react"
-import { Button } from "../ui/button"
+import { Button } from "@/app/_components/ui/button"
 import { CalendarDays, RefreshCw } from "lucide-react"
 
 import { format } from "date-fns"
@@ -21,11 +21,11 @@ import {
   useRemovePersonFromQueue,
   useReorderPerson,
   useToggleQueueBooking,
-} from "../../_hooks/queries/useQueue"
+} from "@/app/_hooks/queries/useQueue"
 import { useAuth } from "@/app/_auth"
-import { loungeService } from "../../_services/lounge.service"
-import type { Queue, QueuePerson, LoungeAgent } from "../../_types"
-import { QueuePersonStatus } from "../../_types"
+import { loungeService } from "@/app/_services/lounge.service"
+import type { Queue, QueuePerson, LoungeAgent } from "@/app/_types"
+import { QueuePersonStatus } from "@/app/_types"
 import QueueHeader from "./queue-header"
 import QueueStats from "./queue-stats"
 import QueueDetails from "./queue-details"

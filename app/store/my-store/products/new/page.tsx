@@ -86,10 +86,8 @@ export default function NewProductPage() {
       {
         onSuccess: async (product) => {
           if (imageFiles.length > 0) {
-            const fd = new FormData()
-            imageFiles.forEach((f) => fd.append("images", f))
             await uploadImages
-              .mutateAsync({ id: product._id, formData: fd })
+              .mutateAsync({ id: product._id, files: imageFiles })
               .catch(() => {})
           }
           toast.success("Product created!")

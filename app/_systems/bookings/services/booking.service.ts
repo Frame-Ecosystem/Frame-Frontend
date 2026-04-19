@@ -1,4 +1,4 @@
-import { apiClient, isAuthError } from "./api"
+﻿import { apiClient, isAuthError } from "@/app/_core/api/api"
 import type {
   Booking,
   CreateBookingInput,
@@ -6,8 +6,8 @@ import type {
   BookingStats,
   BookingService as BookingServiceType,
   Agent,
-} from "../_types"
-import { agentService } from "./agent.service"
+} from "@/app/_types"
+import { agentService } from "@/app/_services/agent.service"
 
 class BookingService {
   // Helper: Extract array from various response formats

@@ -4,11 +4,17 @@ import Link from "next/link"
 import { ShoppingCart } from "lucide-react"
 import { Button } from "@/app/_components/ui/button"
 import { CartStoreGroup } from "@/app/_components/marketplace/cart-store-group"
-import { useMyCart } from "@/app/_hooks/queries/useMarketplace"
+import {
+  useMyCart,
+  useUpdateCartItem,
+  useRemoveFromCart,
+} from "@/app/_hooks/queries/useMarketplace"
 import { useRouter } from "next/navigation"
 
 export default function CartPage() {
   const { data: cart, isLoading } = useMyCart()
+  const updateItem = useUpdateCartItem()
+  const removeItem = useRemoveFromCart()
   const router = useRouter()
 
   const storeIds = cart
@@ -17,8 +23,8 @@ export default function CartPage() {
           cart.items
             .map((item) => {
               const store =
-                typeof item.product.storeId === "object"
-                  ? (item.product.storeId as { _id: string })
+                typeof item.productId.storeId === "object"
+                  ? (item.productId.storeId as { _id: string })
                   : null
               return store?._id ?? ""
             })
@@ -75,16 +81,21 @@ export default function CartPage() {
           {storeIds.map((storeId) => {
             const storeItems = cart.items.filter((item) => {
               const s =
-                typeof item.product.storeId === "object"
-                  ? (item.product.storeId as { _id: string })
+                typeof item.productId.storeId === "object"
+                  ? (item.productId.storeId as { _id: string })
                   : null
               return s?._id === storeId
             })
+            const storeRef = storeItems[0]?.storeId ?? storeId
             return (
               <CartStoreGroup
                 key={storeId}
-                storeId={storeId}
+                store={storeRef}
                 items={storeItems}
+                onQuantityChange={(productId, qty) =>
+                  updateItem.mutate({ productId, quantity: qty })
+                }
+                onRemove={(productId) => removeItem.mutate(productId)}
                 onCheckout={(sid) => router.push(`/store/checkout/${sid}`)}
               />
             )

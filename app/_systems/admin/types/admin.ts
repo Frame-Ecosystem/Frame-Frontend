@@ -1,6 +1,6 @@
 // Admin module types — fully synced with backend ADMIN_README
 
-import type { Gender as _Gender } from "./user"
+import type { Gender as _Gender } from "@/app/_systems/user/types/user"
 
 /* ═══════════════════════════════════════════════
    Pagination

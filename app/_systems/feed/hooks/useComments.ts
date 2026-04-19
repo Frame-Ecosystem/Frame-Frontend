@@ -1,9 +1,9 @@
-import {
+﻿import {
   useMutation,
   useQueryClient,
   useInfiniteQuery,
 } from "@tanstack/react-query"
-import { commentService } from "../../_services/comment.service"
+import { commentService } from "@/app/_services/comment.service"
 import { toast } from "sonner"
 import {
   contentKeys,

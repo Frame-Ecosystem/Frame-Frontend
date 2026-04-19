@@ -8,7 +8,7 @@ import { ReportModal } from "./report-modal"
 import { EditReelDialog } from "./edit-reel-dialog"
 import { useReelPlayback } from "./hooks/use-reel-playback"
 import { useReelTap } from "./hooks/use-reel-tap"
-import type { Reel } from "../../_types"
+import type { Reel } from "@/app/_types"
 import { useAuth } from "@/app/_auth"
 import {
   useToggleReelLike,
@@ -17,7 +17,7 @@ import {
   useAdminHideReel,
   useAdminUnhideReel,
   useAdminDeleteReel,
-} from "../../_hooks/queries/useContent"
+} from "@/app/_hooks/queries/useContent"
 
 interface ReelPlayerProps {
   reel: Reel

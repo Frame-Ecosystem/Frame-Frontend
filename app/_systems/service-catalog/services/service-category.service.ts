@@ -1,5 +1,5 @@
-import { apiClient } from "./api"
-import type { ServiceCategory } from "../_types"
+﻿import { apiClient } from "@/app/_core/api/api"
+import type { ServiceCategory } from "@/app/_types"
 
 class ServiceCategoryService {
   async getAll(): Promise<ServiceCategory[]> {

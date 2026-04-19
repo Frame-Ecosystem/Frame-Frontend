@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import { useState, useCallback } from "react"
 import {
@@ -10,7 +10,7 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from "../../_components/ui/alert-dialog"
+} from "@/app/_components/ui/alert-dialog"
 
 interface ConfirmDialogProps {
   open: boolean

@@ -1,7 +1,7 @@
-"use client"
+﻿"use client"
 
 import React from "react"
-import { Button } from "../ui/button"
+import { Button } from "@/app/_components/ui/button"
 import { Maximize2, Minimize2 } from "lucide-react"
 import { useTranslation } from "@/app/_i18n"
 

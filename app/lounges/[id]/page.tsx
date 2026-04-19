@@ -209,6 +209,7 @@ export default function LoungePage() {
             }
 
             return {
+              _id: service._id,
               id: service._id,
               name: service.serviceId?.name || "Unnamed Service",
               description: service.serviceId?.description || "",

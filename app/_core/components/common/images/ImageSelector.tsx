@@ -1,8 +1,8 @@
-"use client"
+﻿"use client"
 
 import { useState, useCallback } from "react"
-import { Button } from "../../ui/button"
-import { Input } from "../../ui/input"
+import { Button } from "@/app/_core/ui/button"
+import { Input } from "@/app/_core/ui/input"
 import { CameraIcon, X } from "lucide-react"
 import { ImageCropDialog } from "./image-crop-dialog"
 import Image from "next/image"

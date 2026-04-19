@@ -1,7 +1,7 @@
-"use client"
+﻿"use client"
 
-import { Checkbox } from "../../ui/checkbox"
-import { Label } from "../../ui/label"
+import { Checkbox } from "@/app/_components/ui/checkbox"
+import { Label } from "@/app/_components/ui/label"
 import { useTranslation } from "@/app/_i18n"
 
 interface LoungeServiceItem {

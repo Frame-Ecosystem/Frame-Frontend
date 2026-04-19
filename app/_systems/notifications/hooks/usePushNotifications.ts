@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @file usePushNotifications.ts
  * @description Hook managing the full FCM push-notification lifecycle:
  *
@@ -20,13 +20,13 @@ import { useRouter } from "next/navigation"
 import { toast } from "sonner"
 import { useQueryClient } from "@tanstack/react-query"
 
-import { requestFCMToken, onForegroundMessage } from "../_lib/firebase"
-import { pushNotificationService } from "../_services/push-notification.service"
+import { requestFCMToken, onForegroundMessage } from "@/app/_lib/firebase"
+import { pushNotificationService } from "@/app/_services/push-notification.service"
 import { useAuth } from "@/app/_auth"
-import { getNotificationEngine } from "../_lib/notification-engine"
-import { getRedirectPath } from "../_providers/notification"
-import { notificationKeys } from "./queries/useNotifications"
-import type { AppNotification, UnreadCountData } from "../_types"
+import { getNotificationEngine } from "@/app/_lib/notification-engine"
+import { getRedirectPath } from "@/app/_providers/notification"
+import { notificationKeys } from "./useNotifications"
+import type { AppNotification, UnreadCountData } from "@/app/_types"
 
 // ── Helpers ──────────────────────────────────────────────────
 

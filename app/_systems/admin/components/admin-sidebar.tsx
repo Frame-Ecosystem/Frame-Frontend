@@ -1,17 +1,17 @@
-"use client"
+﻿"use client"
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { cn } from "../../_lib/utils"
+import { cn } from "@/app/_lib/utils"
 import {
   ADMIN_NAV,
   isNavGroup,
   type AdminNavEntry,
   type AdminNavItem,
-} from "../_constants/navigation"
+} from "@/app/_systems/admin/constants/navigation"
 import { Shield, PanelLeftClose, PanelLeft } from "lucide-react"
 import { useState } from "react"
-import { Button } from "../../_components/ui/button"
+import { Button } from "@/app/_components/ui/button"
 
 function NavLink({
   item,

@@ -1,14 +1,14 @@
-"use client"
+﻿"use client"
 
 import { Check, Palette, ChevronDown } from "lucide-react"
 import { useTheme } from "next-themes"
 import { useLayoutEffect, useState } from "react"
-import { themes } from "../../_constants/themes"
+import { themes } from "@/app/_constants/themes"
 import { authService } from "@/app/_auth"
-import { isAuthError } from "../../_services/api"
+import { isAuthError } from "@/app/_services/api"
 import { useAuth } from "@/app/_auth"
 import { toast } from "sonner"
-import { useTranslation } from "../../_i18n"
+import { useTranslation } from "@/app/_i18n"
 
 // themes are sourced from app/_constants/themes
 

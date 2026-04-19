@@ -1,12 +1,12 @@
-"use client"
+﻿"use client"
 
 import { useEffect, useMemo } from "react"
 import { Loader2 } from "lucide-react"
 import { useInView } from "react-intersection-observer"
-import { useUserPosts } from "../../_hooks/queries/useContent"
-import { PostCard } from "../posts/post-card"
-import { EmptyState } from "../content/empty-state"
-import type { Post } from "../../_types/content"
+import { useUserPosts } from "@/app/_hooks/queries/useContent"
+import { PostCard } from "@/app/_components/posts/post-card"
+import { EmptyState } from "@/app/_components/content/empty-state"
+import type { Post } from "@/app/_types/content"
 
 interface UserPostsTabProps {
   userId: string

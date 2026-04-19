@@ -25,7 +25,6 @@ export { followService } from "./follow.service"
 export { marketplaceService } from "./marketplace.service"
 export type {
   Lounge,
-  Center,
   Booking,
   CreateBookingInput,
   User,

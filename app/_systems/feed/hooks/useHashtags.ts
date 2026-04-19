@@ -1,5 +1,5 @@
-import { useQuery } from "@tanstack/react-query"
-import { feedService } from "../../_services/feed.service"
+﻿import { useQuery } from "@tanstack/react-query"
+import { feedService } from "@/app/_services/feed.service"
 import { contentKeys } from "./content-keys"
 
 export function useTrendingHashtags(limit = 20) {

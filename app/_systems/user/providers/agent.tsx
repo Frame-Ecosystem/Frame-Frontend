@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import {
   createContext,
@@ -8,10 +8,10 @@ import {
   ReactNode,
   useCallback,
 } from "react"
-import { Agent, AgentFilters, AgentStats, Paginated } from "../_types"
-import { agentService } from "../_services"
-import { apiClient } from "../_services"
-import { isAuthError } from "../_services/api"
+import { Agent, AgentFilters, AgentStats, Paginated } from "@/app/_types"
+import { agentService } from "@/app/_services"
+import { apiClient } from "@/app/_services"
+import { isAuthError } from "@/app/_services/api"
 import { useAuth } from "@/app/_auth"
 
 interface AgentState {

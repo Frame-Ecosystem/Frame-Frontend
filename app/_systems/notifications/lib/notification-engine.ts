@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @file notification-engine.ts
  * @description Mediator between WebSocket notifications and SoundManager.
  *
@@ -6,7 +6,7 @@
  * and suppresses sounds when the user is already viewing the relevant page.
  */
 
-import { NotificationType } from "../_types"
+import { NotificationType } from "@/app/_types"
 import { getSoundManager, SoundId } from "./sound-manager"
 
 const SOUND_MAP: Record<string, SoundId> = {

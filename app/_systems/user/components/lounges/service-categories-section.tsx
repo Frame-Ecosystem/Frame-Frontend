@@ -1,11 +1,11 @@
-"use client"
+﻿"use client"
 
 import { useState, useEffect, useRef } from "react"
-import { Button } from "../ui/button"
-import { serviceCategoryService } from "../../_services"
-import { isAuthError } from "../../_services/api"
-import type { ServiceCategory } from "../../_types"
-import { ServiceCategoriesSkeleton } from "../skeletons/lounges"
+import { Button } from "@/app/_components/ui/button"
+import { serviceCategoryService } from "@/app/_services"
+import { isAuthError } from "@/app/_services/api"
+import type { ServiceCategory } from "@/app/_types"
+import { ServiceCategoriesSkeleton } from "@/app/_components/skeletons/lounges"
 
 interface ServiceCategoriesSectionProps {
   className?: string

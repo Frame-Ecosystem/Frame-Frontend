@@ -1,10 +1,10 @@
-"use client"
+﻿"use client"
 
 import { useState } from "react"
 import { ChevronDown, Lock, Eye, EyeOff } from "lucide-react"
-import { Button } from "../../ui/button"
-import { Input } from "../../ui/input"
-import { Label } from "../../ui/label"
+import { Button } from "@/app/_components/ui/button"
+import { Input } from "@/app/_components/ui/input"
+import { Label } from "@/app/_components/ui/label"
 import { useTranslation } from "@/app/_i18n"
 
 interface PasswordSectionProps {

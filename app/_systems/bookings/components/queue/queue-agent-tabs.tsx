@@ -1,13 +1,17 @@
-"use client"
+﻿"use client"
 
-import { Badge } from "../ui/badge"
-import { Card, CardContent } from "../ui/card"
-import { Skeleton } from "../ui/skeleton"
+import { Badge } from "@/app/_components/ui/badge"
+import { Card, CardContent } from "@/app/_components/ui/card"
+import { Skeleton } from "@/app/_components/ui/skeleton"
 import { Info, Armchair, Plus } from "lucide-react"
-import { Avatar, AvatarImage, AvatarFallback } from "../ui/avatar"
+import {
+  Avatar,
+  AvatarImage,
+  AvatarFallback,
+} from "@/app/_components/ui/avatar"
 import { useRouter } from "next/navigation"
 import { calculateQueueStats } from "./queue-utils"
-import type { Queue } from "../../_types"
+import type { Queue } from "@/app/_types"
 
 interface QueueAgentTabsProps {
   queues: Queue[]

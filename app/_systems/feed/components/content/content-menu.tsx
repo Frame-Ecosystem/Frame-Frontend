@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import {
   MoreHorizontal,
@@ -15,8 +15,8 @@ import {
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "../ui/dropdown-menu"
-import { Button } from "../ui/button"
+} from "@/app/_components/ui/dropdown-menu"
+import { Button } from "@/app/_components/ui/button"
 import { useTranslation } from "@/app/_i18n"
 
 interface ContentMenuProps {

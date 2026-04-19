@@ -1,10 +1,14 @@
-"use client"
+﻿"use client"
 
 import { useState } from "react"
-import { Card, CardContent } from "../ui/card"
-import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar"
-import { Button } from "../ui/button"
-import { Badge } from "../ui/badge"
+import { Card, CardContent } from "@/app/_components/ui/card"
+import {
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
+} from "@/app/_components/ui/avatar"
+import { Button } from "@/app/_components/ui/button"
+import { Badge } from "@/app/_components/ui/badge"
 import {
   Heart,
   MessageCircle,

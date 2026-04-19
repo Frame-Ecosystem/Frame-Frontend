@@ -1,9 +1,9 @@
-"use client"
+﻿"use client"
 
-import { Input } from "../../_components/ui/input"
-import { Button } from "../../_components/ui/button"
+import { Input } from "@/app/_components/ui/input"
+import { Button } from "@/app/_components/ui/button"
 import { Search, ChevronLeft, ChevronRight } from "lucide-react"
-import { Skeleton } from "../../_components/ui/skeleton"
+import { Skeleton } from "@/app/_components/ui/skeleton"
 
 interface DataTableToolbarProps {
   search: string

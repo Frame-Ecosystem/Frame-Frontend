@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @file auth-provider.tsx
  * @description Authentication context provider for managing user state and tokens.
  *
@@ -26,12 +26,12 @@ import React, {
 import { useRouter } from "next/navigation"
 import { authService } from "./auth.service"
 import { tokenManager } from "./lib/token-manager"
-import type { User } from "../_types"
-import { apiClient } from "../_services/api"
-import { getSocket, disconnectSocket } from "../_services/socket"
+import type { User } from "@/app/_types"
+import { apiClient } from "@/app/_services/api"
+import { getSocket, disconnectSocket } from "@/app/_services/socket"
 import { useTheme } from "next-themes"
-import { useTranslation } from "../_i18n"
-import type { Locale } from "../_i18n"
+import { useTranslation } from "@/app/_i18n"
+import type { Locale } from "@/app/_i18n"
 
 /** Default token lifetime (seconds) when backend doesn't provide expiresIn. */
 const DEFAULT_EXPIRES_IN = 900

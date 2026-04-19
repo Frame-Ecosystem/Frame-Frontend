@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import { useState, useEffect } from "react"
 import { ImageSelector } from "./ImageSelector"
@@ -9,31 +9,31 @@ import {
   validatePasswordOnBlur,
   getPasswordStrength,
 } from "./validate-agent-form"
-import { useAgent } from "../../../_providers/agent"
-import { isAuthError } from "../../../_services/api"
+import { useAgent } from "@/app/_providers/agent"
+import { isAuthError } from "@/app/_services/api"
 import { useAuth } from "@/app/_auth"
 import { useTranslation } from "@/app/_i18n"
-import { Agent, CreateAgentDto, UpdateAgentDto } from "../../../_types"
-import { Button } from "../../ui/button"
-import { Input } from "../../ui/input"
-import { Label } from "../../ui/label"
+import { Agent, CreateAgentDto, UpdateAgentDto } from "@/app/_types"
+import { Button } from "@/app/_components/ui/button"
+import { Input } from "@/app/_components/ui/input"
+import { Label } from "@/app/_components/ui/label"
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogFooter,
-} from "../../ui/dialog"
-import { Switch } from "../../ui/switch"
+} from "@/app/_components/ui/dialog"
+import { Switch } from "@/app/_components/ui/switch"
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "../../ui/select"
-import { useToast } from "../../ui/use-toast"
-import { clientService } from "../../../_services"
+} from "@/app/_components/ui/select"
+import { useToast } from "@/app/_components/ui/use-toast"
+import { clientService } from "@/app/_services"
 
 interface AgentFormProps {
   isOpen: boolean

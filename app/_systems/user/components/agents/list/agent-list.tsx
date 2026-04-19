@@ -1,12 +1,12 @@
-"use client"
+﻿"use client"
 
 import { useState, useEffect } from "react"
-import { useAgent } from "../../../_providers/agent"
-import { isAuthError } from "../../../_services/api"
-import { Agent } from "../../../_types"
-import { Button } from "../../ui/button"
-import { Input } from "../../ui/input"
-import { Card, CardContent } from "../../ui/card"
+import { useAgent } from "@/app/_providers/agent"
+import { isAuthError } from "@/app/_services/api"
+import { Agent } from "@/app/_types"
+import { Button } from "@/app/_components/ui/button"
+import { Input } from "@/app/_components/ui/input"
+import { Card, CardContent } from "@/app/_components/ui/card"
 import {
   AlertDialog,
   AlertDialogAction,
@@ -16,7 +16,7 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from "../../ui/alert-dialog"
+} from "@/app/_components/ui/alert-dialog"
 import {
   Search,
   Plus,

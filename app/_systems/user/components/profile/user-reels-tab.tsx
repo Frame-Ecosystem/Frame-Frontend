@@ -1,10 +1,10 @@
-"use client"
+﻿"use client"
 
 import { useMemo, useCallback } from "react"
 import { useRouter } from "next/navigation"
-import { useUserReels } from "../../_hooks/queries/useContent"
-import { ContentGrid } from "../content/content-grid"
-import type { Reel } from "../../_types/content"
+import { useUserReels } from "@/app/_hooks/queries/useContent"
+import { ContentGrid } from "@/app/_components/content/content-grid"
+import type { Reel } from "@/app/_types/content"
 
 interface UserReelsTabProps {
   userId: string

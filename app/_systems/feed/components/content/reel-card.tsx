@@ -1,9 +1,9 @@
-"use client"
+﻿"use client"
 
 import Image from "next/image"
 import { Play } from "lucide-react"
 import { cn } from "@/app/_lib/utils"
-import type { Reel } from "../../_types"
+import type { Reel } from "@/app/_types"
 
 interface ReelCardProps {
   reel: Reel

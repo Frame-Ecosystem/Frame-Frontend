@@ -11,7 +11,7 @@ import {
 } from "react"
 import type { Locale, Direction } from "./types"
 import { translate } from "./engine"
-import { dictionaries, fallbackDictionary } from "./locales"
+import { dictionaries, fallbackDictionary } from "@/app/_i18n/locales"
 
 // ── Constants ────────────────────────────────────────────────────────────
 

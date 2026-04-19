@@ -1,4 +1,4 @@
-import { Card, CardContent } from "../../ui/card"
+﻿import { Card, CardContent } from "@/app/_components/ui/card"
 
 export function BookingSkeleton() {
   return (

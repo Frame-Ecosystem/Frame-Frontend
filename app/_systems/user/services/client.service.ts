@@ -1,4 +1,4 @@
-import { apiClient } from "./api"
+﻿import { apiClient } from "@/app/_core/api/api"
 
 interface GetLoungesParams {
   page?: number
@@ -136,13 +136,13 @@ const clientService = {
   // ── Client Visitor Profile ──────────────────────────────────────
 
   async getClientProfile(clientId: string): Promise<{
-    profile: import("../_types").ClientProfile
-    stats: import("../_types").ClientStats
+    profile: import("@/app/_types").ClientProfile
+    stats: import("@/app/_types").ClientStats
   }> {
     const response = await apiClient.get<{
       data: {
-        profile: import("../_types").ClientProfile
-        stats: import("../_types").ClientStats
+        profile: import("@/app/_types").ClientProfile
+        stats: import("@/app/_types").ClientStats
       }
     }>(`/v1/client/profile/${clientId}`)
     return response.data
@@ -152,7 +152,7 @@ const clientService = {
     clientId: string,
     params?: { page?: number; limit?: number; status?: string },
   ): Promise<{
-    bookings: import("../_types").ClientBookingItem[]
+    bookings: import("@/app/_types").ClientBookingItem[]
     pagination: {
       currentPage: number
       totalPages: number
@@ -169,7 +169,7 @@ const clientService = {
     const qs = qp.toString()
     // bookings & pagination are at top level, not nested under data
     const response = await apiClient.get<{
-      bookings: import("../_types").ClientBookingItem[]
+      bookings: import("@/app/_types").ClientBookingItem[]
       pagination: {
         currentPage: number
         totalPages: number
@@ -186,7 +186,7 @@ const clientService = {
     clientId: string,
     params?: { page?: number; limit?: number },
   ): Promise<{
-    lounges: import("../_types").ClientLikedLounge[]
+    lounges: import("@/app/_types").ClientLikedLounge[]
     total: number
     page: number
     limit: number
@@ -197,7 +197,7 @@ const clientService = {
     const qs = qp.toString()
     const response = await apiClient.get<{
       data: {
-        lounges: import("../_types").ClientLikedLounge[]
+        lounges: import("@/app/_types").ClientLikedLounge[]
         total: number
         page: number
         limit: number
@@ -210,7 +210,7 @@ const clientService = {
     clientId: string,
     params?: { page?: number; limit?: number },
   ): Promise<{
-    ratings: import("../_types").ClientRatingItem[]
+    ratings: import("@/app/_types").ClientRatingItem[]
     total: number
     page: number
     limit: number
@@ -221,7 +221,7 @@ const clientService = {
     const qs = qp.toString()
     const response = await apiClient.get<{
       data: {
-        ratings: import("../_types").ClientRatingItem[]
+        ratings: import("@/app/_types").ClientRatingItem[]
         total: number
         page: number
         limit: number

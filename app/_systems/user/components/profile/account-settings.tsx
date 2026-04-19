@@ -1,18 +1,18 @@
-"use client"
+﻿"use client"
 
 import { Settings, ChevronDown } from "lucide-react"
 import { useState, useEffect, useRef } from "react"
 import { useAuth } from "@/app/_auth"
 import { toast } from "sonner"
-import { isAuthError } from "../../_services/api"
+import { isAuthError } from "@/app/_services/api"
 import { useRouter } from "next/navigation"
-import { useChangePassword, useLogoutAll } from "../../_hooks/queries"
+import { useChangePassword, useLogoutAll } from "@/app/_hooks/queries"
 import {
   useUpdateClientName,
   useUpdateLoungeTitle,
   useUpdatePhone,
   useUpdateBio,
-} from "../../_hooks/queries"
+} from "@/app/_hooks/queries"
 import { NameSection } from "./settings/name-section"
 import { PhoneSection } from "./settings/phone-section"
 import { BioSection } from "./settings/bio-section"

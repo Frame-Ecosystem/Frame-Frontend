@@ -1,8 +1,12 @@
-"use client"
-import { Button } from "../ui/button"
-import { Avatar, AvatarImage, AvatarFallback } from "../ui/avatar"
+﻿"use client"
+import { Button } from "@/app/_components/ui/button"
+import {
+  Avatar,
+  AvatarImage,
+  AvatarFallback,
+} from "@/app/_components/ui/avatar"
 import { authService, getUserDisplayName, getUserInitials } from "@/app/_auth"
-import type { User } from "../../_types"
+import type { User } from "@/app/_types"
 import { useAuth } from "@/app/_auth"
 import { useRouter } from "next/navigation"
 import { UserPlusIcon, LogOutIcon, Settings } from "lucide-react"

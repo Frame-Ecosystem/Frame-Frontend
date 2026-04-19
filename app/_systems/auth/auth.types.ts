@@ -1,4 +1,4 @@
-import type { User } from "../_types"
+﻿import type { User } from "@/app/_types"
 
 // ── Auth Error Codes (backend-aligned) ────────────────────────
 

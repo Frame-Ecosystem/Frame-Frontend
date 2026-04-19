@@ -2,6 +2,7 @@
 // Import from here for backwards compatibility, or directly from domain files.
 
 export * from "./user"
+export * from "./lounge"
 export * from "./lounge-visitor"
 export * from "./booking"
 export * from "./service"

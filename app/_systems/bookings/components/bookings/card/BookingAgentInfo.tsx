@@ -1,8 +1,8 @@
-"use client"
+﻿"use client"
 
 import { useTranslation } from "@/app/_i18n"
 import { resolveImageUrl } from "../booking-utils"
-import type { Agent } from "../../../_types"
+import type { Agent } from "@/app/_types"
 
 interface BookingAgentInfoProps {
   agent?: Agent | null

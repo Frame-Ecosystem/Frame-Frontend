@@ -1,9 +1,9 @@
-"use client"
+﻿"use client"
 
 import { Mail, Instagram } from "lucide-react"
 import Link from "next/link"
 import { FooterBrandLogo as _FooterBrandLogo } from "../common/brand-logo"
-import { useTranslation } from "../../_i18n"
+import { useTranslation } from "@/app/_i18n"
 
 const FooterDesktop = () => {
   const { t } = useTranslation()

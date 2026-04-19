@@ -1,16 +1,16 @@
-"use client"
+﻿"use client"
 
 import { useState, useCallback, useEffect, useMemo } from "react"
 import { useInView } from "react-intersection-observer"
 import { useQuery } from "@tanstack/react-query"
 import { Loader2 } from "lucide-react"
-import type { FeedItem, Reel, Post } from "../../_types/content"
+import type { FeedItem, Reel, Post } from "@/app/_types/content"
 import { PostCard } from "./post-card"
 import { ReelSwiper } from "./reel-swiper"
 import { LoungeSwiper } from "./lounge-swiper"
 import { CommentSheet } from "./comment-sheet"
 import { EmptyState } from "./empty-state"
-import clientService from "../../_services/client.service"
+import clientService from "@/app/_services/client.service"
 
 // ── Helpers ───────────────────────────────────────────────────
 /** Deterministic-ish seed from item IDs so swiper positions stay stable across re-renders */

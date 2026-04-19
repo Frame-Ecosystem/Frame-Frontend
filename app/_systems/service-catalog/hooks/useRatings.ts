@@ -1,11 +1,11 @@
-import {
+﻿import {
   useQuery,
   useMutation,
   useQueryClient,
   useInfiniteQuery,
 } from "@tanstack/react-query"
-import { ratingService } from "../../_services/rating.service"
-import type { SubmitRatingInput } from "../../_types"
+import { ratingService } from "@/app/_services/rating.service"
+import type { SubmitRatingInput } from "@/app/_types"
 import { toast } from "sonner"
 
 export const ratingKeys = {

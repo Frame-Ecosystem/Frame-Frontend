@@ -1,10 +1,10 @@
-import { apiClient } from "./api"
+﻿import { apiClient } from "@/app/_core/api/api"
 import type {
   Comment,
   CreateCommentInput,
   PaginatedContentResponse,
   SingleContentResponse,
-} from "../_types"
+} from "@/app/_types"
 
 class CommentServiceClass {
   /** Add a comment (or reply) to a post or reel */

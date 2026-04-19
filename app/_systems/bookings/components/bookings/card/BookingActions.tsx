@@ -1,7 +1,7 @@
-"use client"
+﻿"use client"
 
 import { useState } from "react"
-import { Button } from "../../ui/button"
+import { Button } from "@/app/_components/ui/button"
 import {
   AlertDialog,
   AlertDialogAction,
@@ -12,10 +12,10 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from "../../ui/alert-dialog"
+} from "@/app/_components/ui/alert-dialog"
 import { useTranslation } from "@/app/_i18n"
 import { CancelBookingDialog } from "./CancelBookingDialog"
-import type { BookingStatus } from "../../../_types"
+import type { BookingStatus } from "@/app/_types"
 
 interface BookingActionsProps {
   bookingId: string

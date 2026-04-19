@@ -1,11 +1,11 @@
-import {
+﻿import {
   useQuery,
   useMutation,
   useQueryClient,
   useInfiniteQuery,
 } from "@tanstack/react-query"
 import { useEffect, useRef, useState } from "react"
-import { followService } from "../../_services/follow.service"
+import { followService } from "@/app/_services/follow.service"
 import { toast } from "sonner"
 
 /* ------------------------------------------------------------------ */

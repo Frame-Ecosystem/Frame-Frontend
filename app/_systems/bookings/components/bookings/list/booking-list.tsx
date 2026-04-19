@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import { useEffect, useState, useCallback, useMemo } from "react"
 import { BookingHistory } from "./BookingHistory"
@@ -8,9 +8,9 @@ import { BookingListHeader } from "./BookingListHeader"
 import { toast } from "sonner"
 
 import { useAuth } from "@/app/_auth"
-import type { Booking, BookingStatus } from "../../../_types"
+import type { Booking, BookingStatus } from "@/app/_types"
 import { bookingService } from "@/app/_services"
-import { useSocketRoom } from "../../../_hooks/useSocketRoom"
+import { useSocketRoom } from "@/app/_hooks/useSocketRoom"
 import { useTranslation } from "@/app/_i18n"
 
 interface BookingListProps {

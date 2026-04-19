@@ -1,14 +1,18 @@
-"use client"
+﻿"use client"
 
 import { useState, useRef, useCallback } from "react"
 import Image from "next/image"
 import { ImageIcon, Video, X, Loader2 } from "lucide-react"
-import { Button } from "../ui/button"
-import { Card, CardContent } from "../ui/card"
-import { Textarea } from "../ui/textarea"
-import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar"
+import { Button } from "@/app/_components/ui/button"
+import { Card, CardContent } from "@/app/_components/ui/card"
+import { Textarea } from "@/app/_components/ui/textarea"
+import {
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
+} from "@/app/_components/ui/avatar"
 import { useAuth } from "@/app/_auth"
-import { useCreatePost, useCreateReel } from "../../_hooks/queries/useContent"
+import { useCreatePost, useCreateReel } from "@/app/_hooks/queries/useContent"
 
 const MAX_IMAGES = 10
 const MAX_VIDEO_DURATION = 60 // seconds

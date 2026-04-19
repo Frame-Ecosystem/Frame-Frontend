@@ -1,14 +1,14 @@
-"use client"
+﻿"use client"
 
 import { useState, useRef, useEffect, useCallback } from "react"
-import { Button } from "../ui/button"
-import { Input } from "../ui/input"
-import { Label } from "../ui/label"
+import { Button } from "@/app/_core/ui/button"
+import { Input } from "@/app/_core/ui/input"
+import { Label } from "@/app/_core/ui/label"
 import { MapPinIcon, SearchIcon, ChevronDown } from "lucide-react"
 import { authService } from "@/app/_auth"
-import { isAuthError } from "../../_services/api"
+import { isAuthError } from "@/app/_services/api"
 import { useAuth } from "@/app/_auth"
-import type { LocationData } from "../../_types"
+import type { LocationData } from "@/app/_types"
 import { useTranslation } from "@/app/_i18n"
 
 interface LocationSelectorProps {

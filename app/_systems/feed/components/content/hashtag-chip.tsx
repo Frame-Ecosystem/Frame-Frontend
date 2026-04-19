@@ -1,8 +1,8 @@
-"use client"
+﻿"use client"
 
 import Link from "next/link"
 import { cn } from "@/app/_lib/utils"
-import type { Hashtag } from "../../_types"
+import type { Hashtag } from "@/app/_types"
 
 interface HashtagChipProps {
   tag: string

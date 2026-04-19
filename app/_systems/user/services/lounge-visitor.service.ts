@@ -1,5 +1,5 @@
-import { apiClient } from "./api"
-import type { Lounge } from "../_types"
+﻿import { apiClient } from "@/app/_core/api/api"
+import type { Lounge } from "@/app/_types"
 
 class LoungeVisitorService {
   async getAll(): Promise<Lounge[]> {

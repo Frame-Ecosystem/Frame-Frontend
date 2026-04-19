@@ -1,8 +1,8 @@
-"use client"
+﻿"use client"
 
 import React from "react"
-import { Card, CardContent } from "../ui/card"
-import { Badge } from "../ui/badge"
+import { Card, CardContent } from "@/app/_components/ui/card"
+import { Badge } from "@/app/_components/ui/badge"
 import {
   Users,
   Clock,

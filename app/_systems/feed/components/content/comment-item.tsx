@@ -3,8 +3,12 @@
 import { useState, useCallback } from "react"
 import { Heart, Trash2, EyeOff, Eye, ShieldAlert } from "lucide-react"
 import { formatDistanceToNow } from "date-fns"
-import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar"
-import type { Comment } from "../../_types"
+import {
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
+} from "@/app/_components/ui/avatar"
+import type { Comment } from "@/app/_types"
 import { useAuth } from "@/app/_auth"
 import {
   useToggleCommentLike,
@@ -12,10 +16,10 @@ import {
   useAdminHideComment,
   useAdminUnhideComment,
   useAdminDeleteComment,
-} from "../../_hooks/queries/useContent"
+} from "@/app/_hooks/queries/useContent"
 import { getAuthorName, getAuthorInitials } from "./author-header"
 import { CommentReplies } from "./comment-replies"
-import { resolveProfileImage } from "../../_lib/image-utils"
+import { resolveProfileImage } from "@/app/_lib/image-utils"
 import { cn } from "@/app/_lib/utils"
 import Link from "next/link"
 

@@ -1,9 +1,9 @@
-/**
+﻿/**
  * @file push-notification.service.ts
  * @description API layer for registering / unregistering FCM device tokens.
  */
 
-import { apiClient, isAuthError } from "./api"
+import { apiClient, isAuthError } from "@/app/_core/api/api"
 
 // ── Types ────────────────────────────────────────────────────
 

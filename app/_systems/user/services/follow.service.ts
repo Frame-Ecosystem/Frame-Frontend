@@ -1,4 +1,4 @@
-import { apiClient } from "./api"
+﻿import { apiClient } from "@/app/_core/api/api"
 import type {
   FollowToggleResult,
   FollowCheckResult,
@@ -6,7 +6,7 @@ import type {
   FollowingRecord,
   FollowerRecord,
   PaginatedFollows,
-} from "../_types"
+} from "@/app/_types"
 
 class FollowService {
   /** Follow a user (client or lounge). */

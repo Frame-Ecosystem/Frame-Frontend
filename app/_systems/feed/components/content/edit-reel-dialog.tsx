@@ -1,12 +1,17 @@
-"use client"
+﻿"use client"
 
 import { useState, useCallback } from "react"
 import { Loader2, X, Hash } from "lucide-react"
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../ui/dialog"
-import { Button } from "../ui/button"
-import { Textarea } from "../ui/textarea"
-import type { Reel } from "../../_types"
-import { useUpdateReel } from "../../_hooks/queries/useContent"
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/app/_components/ui/dialog"
+import { Button } from "@/app/_components/ui/button"
+import { Textarea } from "@/app/_components/ui/textarea"
+import type { Reel } from "@/app/_types"
+import { useUpdateReel } from "@/app/_hooks/queries/useContent"
 import { useTranslation } from "@/app/_i18n"
 
 interface EditReelDialogProps {

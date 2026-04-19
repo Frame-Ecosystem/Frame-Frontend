@@ -74,7 +74,11 @@ export default function EditProductPage() {
         stock: String(product.stock ?? 0),
         tags: Array.isArray(product.tags) ? product.tags.join(", ") : "",
       })
-      setExistingImages(product.images ?? [])
+      setExistingImages(
+        product.images?.map((img) =>
+          typeof img === "string" ? img : img.url,
+        ) ?? [],
+      )
     }
   }, [product])
 
@@ -186,7 +190,7 @@ export default function EditProductPage() {
             </label>
             <ImageUploader
               maxImages={10 - existingImages.length}
-              onChange={setNewImageFiles}
+              onFilesChange={setNewImageFiles}
             />
             {existingImages.length > 0 && (
               <div className="mt-3">

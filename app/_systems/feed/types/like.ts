@@ -1,6 +1,6 @@
 // Like-related types
 
-import type { ProfileImage } from "./user"
+import type { ProfileImage } from "@/app/_systems/user/types/user"
 
 /** A populated lounge summary returned inside a LikedLounge. */
 export interface LikedLoungeSummary {

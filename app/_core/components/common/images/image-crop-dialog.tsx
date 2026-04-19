@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import React, { useState, useCallback } from "react"
 import Cropper from "react-easy-crop"
@@ -9,8 +9,8 @@ import {
   DialogHeader,
   DialogTitle,
   DialogFooter,
-} from "../../ui/dialog"
-import { Button } from "../../ui/button"
+} from "@/app/_core/ui/dialog"
+import { Button } from "@/app/_core/ui/button"
 import { ZoomIn, ZoomOut, RotateCw } from "lucide-react"
 import { useTranslation } from "@/app/_i18n"
 

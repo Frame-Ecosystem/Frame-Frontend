@@ -1,13 +1,13 @@
-import {
+﻿import {
   useQuery,
   useMutation,
   useQueryClient,
   useInfiniteQuery,
 } from "@tanstack/react-query"
 import { useEffect, useRef, useState } from "react"
-import { postService } from "../../_services/post.service"
+import { postService } from "@/app/_services/post.service"
 import { toast } from "sonner"
-import type { Post } from "../../_types"
+import type { Post } from "@/app/_types"
 import {
   contentKeys,
   extractPagination,

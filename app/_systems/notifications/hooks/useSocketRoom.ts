@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @file useSocketRoom.ts
  * @description React hook that joins Socket.IO rooms and listens
  *   for events, automatically cleaning up when rooms/events change
@@ -9,7 +9,7 @@
  */
 
 import { useEffect, useRef } from "react"
-import { getSocket } from "../_services/socket"
+import { getSocket } from "@/app/_services/socket"
 
 /**
  * Subscribe to Socket.IO room(s) and listen for events.

@@ -1,12 +1,12 @@
-import {
+﻿import {
   useQuery,
   useMutation,
   useQueryClient,
   useInfiniteQuery,
 } from "@tanstack/react-query"
-import { notificationService } from "../../_services/notification.service"
+import { notificationService } from "@/app/_services/notification.service"
 import { useAuth } from "@/app/_auth"
-import type { UnreadCountData, NotificationCategory } from "../../_types"
+import type { UnreadCountData, NotificationCategory } from "@/app/_types"
 
 // ── Query keys ──────────────────────────────────────────────
 export const notificationKeys = {

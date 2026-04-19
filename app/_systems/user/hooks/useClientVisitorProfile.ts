@@ -1,5 +1,5 @@
-import { useQuery } from "@tanstack/react-query"
-import clientService from "../../_services/client.service"
+﻿import { useQuery } from "@tanstack/react-query"
+import clientService from "@/app/_services/client.service"
 
 export const clientProfileKeys = {
   all: ["clientProfile"] as const,

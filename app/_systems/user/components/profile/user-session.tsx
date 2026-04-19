@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import { useState } from "react"
 import { UserIcon, X } from "lucide-react"
@@ -9,11 +9,19 @@ import {
   getUserDisplayName,
   getUserInitials,
 } from "@/app/_auth"
-import { Button } from "../ui/button"
-import { Popover, PopoverTrigger, PopoverContent } from "../ui/popover"
-import { Dialog, DialogContent } from "../ui/dialog"
+import { Button } from "@/app/_components/ui/button"
+import {
+  Popover,
+  PopoverTrigger,
+  PopoverContent,
+} from "@/app/_components/ui/popover"
+import { Dialog, DialogContent } from "@/app/_components/ui/dialog"
 import UserInfo from "./user-info"
-import { Avatar, AvatarImage, AvatarFallback } from "../ui/avatar"
+import {
+  Avatar,
+  AvatarImage,
+  AvatarFallback,
+} from "@/app/_components/ui/avatar"
 
 /** Prevent Radix events from closing dialogs. */
 const prevent = (e: Event) => e.preventDefault()

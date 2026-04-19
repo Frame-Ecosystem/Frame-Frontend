@@ -1,5 +1,5 @@
-import { apiClient } from "./api"
-import type { Rating, PaginatedRatings, SubmitRatingInput } from "../_types"
+﻿import { apiClient } from "@/app/_core/api/api"
+import type { Rating, PaginatedRatings, SubmitRatingInput } from "@/app/_types"
 
 class RatingService {
   /** Create or update the authenticated client's rating for a lounge. */

@@ -1,15 +1,15 @@
-"use client"
+﻿"use client"
 
 import Image from "next/image"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { PhoneIcon, StarIcon, Heart } from "lucide-react"
 import { useAuth } from "@/app/_auth"
-import { useCheckLiked, useToggleLike } from "../../_hooks/queries"
-import type { Lounge } from "../../_types"
-import { Badge } from "../ui/badge"
-import { Button } from "../ui/button"
-import { Card, CardContent } from "../ui/card"
+import { useCheckLiked, useToggleLike } from "@/app/_hooks/queries"
+import type { Lounge } from "@/app/_types"
+import { Badge } from "@/app/_components/ui/badge"
+import { Button } from "@/app/_components/ui/button"
+import { Card, CardContent } from "@/app/_components/ui/card"
 
 const LoungeItem = ({ lounge }: { lounge: Lounge }) => {
   const { user } = useAuth()

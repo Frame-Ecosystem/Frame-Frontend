@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import { useState } from "react"
 import Image from "next/image"
@@ -12,17 +12,21 @@ import {
   ChevronRight,
 } from "lucide-react"
 import Link from "next/link"
-import { Button } from "../ui/button"
-import { Card, CardContent, CardHeader } from "../ui/card"
-import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar"
+import { Button } from "@/app/_components/ui/button"
+import { Card, CardContent, CardHeader } from "@/app/_components/ui/card"
+import {
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
+} from "@/app/_components/ui/avatar"
 import { CommentSheet } from "../content/comment-sheet"
-import type { Post } from "../../_types/content"
+import type { Post } from "@/app/_types/content"
 import { useAuth } from "@/app/_auth"
 import {
   useTogglePostLike,
   useTogglePostSave,
   useDeletePost,
-} from "../../_hooks/queries/useContent"
+} from "@/app/_hooks/queries/useContent"
 
 interface PostCardProps {
   post: Post

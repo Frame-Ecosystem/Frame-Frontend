@@ -1,4 +1,4 @@
-import type { LoungeAgent, LoungeService } from "../../../../_types"
+﻿import type { LoungeAgent, LoungeService } from "@/app/_types"
 
 /**
  * Check if an agent can perform ALL the given services.

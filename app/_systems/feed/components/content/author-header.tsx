@@ -1,9 +1,13 @@
-"use client"
+﻿"use client"
 
 import { formatDistanceToNow } from "date-fns"
-import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar"
-import type { AuthorSummary } from "../../_types"
-import { resolveProfileImage } from "../../_lib/image-utils"
+import {
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
+} from "@/app/_components/ui/avatar"
+import type { AuthorSummary } from "@/app/_types"
+import { resolveProfileImage } from "@/app/_lib/image-utils"
 import Link from "next/link"
 
 interface AuthorHeaderProps {

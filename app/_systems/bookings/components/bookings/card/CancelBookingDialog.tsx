@@ -1,10 +1,10 @@
-"use client"
+﻿"use client"
 
 import { useTranslation } from "@/app/_i18n"
 import { useState } from "react"
-import { Button } from "../../ui/button"
-import { Textarea } from "../../ui/textarea"
-import { Label } from "../../ui/label"
+import { Button } from "@/app/_components/ui/button"
+import { Textarea } from "@/app/_components/ui/textarea"
+import { Label } from "@/app/_components/ui/label"
 import {
   Dialog,
   DialogContent,
@@ -12,7 +12,7 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "../../ui/dialog"
+} from "@/app/_components/ui/dialog"
 
 const MAX_NOTE_LENGTH = 500
 

@@ -1,13 +1,17 @@
-"use client"
+﻿"use client"
 
 import { useState } from "react"
 import { Plus, FileText, Film } from "lucide-react"
 import { useAuth } from "@/app/_auth"
-import { Button } from "../ui/button"
-import { Popover, PopoverTrigger, PopoverContent } from "../ui/popover"
+import { Button } from "@/app/_components/ui/button"
+import {
+  Popover,
+  PopoverTrigger,
+  PopoverContent,
+} from "@/app/_components/ui/popover"
 import { CreatePostDialog } from "./create-post-dialog"
 import { CreateReelDialog } from "./create-reel-dialog"
-import { useTranslation } from "../../_i18n"
+import { useTranslation } from "@/app/_i18n"
 
 /**
  * Top-bar button for creating posts and reels.

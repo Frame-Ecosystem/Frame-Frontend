@@ -1,9 +1,9 @@
-"use client"
+﻿"use client"
 
 import { User, MapPin } from "lucide-react"
 import Image from "next/image"
 import { useRouter } from "next/navigation"
-import type { User as UserType } from "../../../_types"
+import type { User as UserType } from "@/app/_types"
 
 interface BookingAvatarProps {
   userType: "client" | "lounge" | "admin" | string

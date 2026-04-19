@@ -1,10 +1,10 @@
-import { apiClient } from "./api"
+﻿import { apiClient } from "@/app/_core/api/api"
 import type {
   LikeToggleResult,
   LikedLounge,
   LoungeLiker,
   PaginatedLikes,
-} from "../_types"
+} from "@/app/_types"
 
 class LikeService {
   /** Toggle like/unlike for a lounge. */

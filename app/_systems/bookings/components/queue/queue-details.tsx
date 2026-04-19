@@ -1,9 +1,9 @@
-"use client"
+﻿"use client"
 import { useState } from "react"
-import { Card, CardContent, CardHeader } from "../ui/card"
-import { Button } from "../ui/button"
+import { Card, CardContent, CardHeader } from "@/app/_components/ui/card"
+import { Button } from "@/app/_components/ui/button"
 import { Users, CalendarClock, ChevronDown, Plus, Ban } from "lucide-react"
-import { Switch } from "../ui/switch"
+import { Switch } from "@/app/_components/ui/switch"
 import { useTranslation } from "@/app/_i18n"
 import {
   DndContext,
@@ -26,8 +26,8 @@ import {
   restrictToParentElement,
 } from "@dnd-kit/modifiers"
 import QueueItem from "./queue-item"
-import type { QueuePerson } from "../../_types"
-import { QueuePersonStatus } from "../../_types"
+import type { QueuePerson } from "@/app/_types"
+import { QueuePersonStatus } from "@/app/_types"
 
 interface QueueDetailsProps {
   persons: QueuePerson[]

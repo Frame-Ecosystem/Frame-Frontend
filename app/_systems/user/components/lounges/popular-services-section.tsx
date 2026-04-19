@@ -1,13 +1,13 @@
-"use client"
+﻿"use client"
 
 import { useState, useEffect, useRef } from "react"
-import { Button } from "../ui/button"
-import { serviceService } from "../../_services"
-import { serviceCategoryService } from "../../_services"
-import { isAuthError } from "../../_services/api"
-import { quickSearchOptions } from "../../_constants/search"
-import type { Service, ServiceCategory } from "../../_types"
-import { PopularServicesSkeleton } from "../skeletons/lounges"
+import { Button } from "@/app/_components/ui/button"
+import { serviceService } from "@/app/_services"
+import { serviceCategoryService } from "@/app/_services"
+import { isAuthError } from "@/app/_services/api"
+import { quickSearchOptions } from "@/app/_constants/search"
+import type { Service, ServiceCategory } from "@/app/_types"
+import { PopularServicesSkeleton } from "@/app/_components/skeletons/lounges"
 
 interface PopularServicesSectionProps {
   className?: string

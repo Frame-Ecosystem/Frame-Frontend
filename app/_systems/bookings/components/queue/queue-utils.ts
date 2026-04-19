@@ -1,4 +1,4 @@
-import type { QueuePerson, QueuePersonStatus } from "../../_types"
+﻿import type { QueuePerson, QueuePersonStatus } from "@/app/_types"
 
 export interface QueueStats {
   totalWaiting: number

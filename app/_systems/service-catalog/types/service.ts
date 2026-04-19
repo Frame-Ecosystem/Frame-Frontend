@@ -1,6 +1,6 @@
 // Service / category types
 
-import type { Gender, ProfileImage } from "./user"
+import type { Gender, ProfileImage } from "@/app/_systems/user/types/user"
 
 export interface ServiceCategory {
   id: string
@@ -30,8 +30,10 @@ export interface LoungeServiceAgent {
 
 export interface LoungeServiceItem {
   _id: string
-  loungeId: string
-  serviceId: string | Service
+  id: string
+  name: string
+  loungeId?: string
+  serviceId?: string | Service
   agentIds?: LoungeServiceAgent[] | string[]
   price?: number
   duration?: number
@@ -43,7 +45,13 @@ export interface LoungeServiceItem {
   cancelledBy?: string
   createdAt?: string
   updatedAt?: string
+  // Frontend display fields (populated via transform)
+  imageUrl?: string
+  durationMinutes?: number
 }
+
+/** @deprecated Use LoungeServiceItem */
+export type LoungeService = LoungeServiceItem
 
 export interface CreateLoungeServicePayload {
   loungeId: string

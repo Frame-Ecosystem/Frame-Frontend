@@ -82,7 +82,7 @@ export default function OrderDetailPage() {
 
         {/* Timeline */}
         <OrderTimeline
-          status={order.status}
+          currentStatus={order.status}
           history={order.statusHistory ?? []}
         />
 
@@ -127,10 +127,10 @@ export default function OrderDetailPage() {
                 </div>
                 <div className="flex-shrink-0 text-right">
                   <p className="text-sm font-semibold">
-                    {(item.price * item.quantity).toFixed(2)} DT
+                    {((item.price ?? 0) * item.quantity).toFixed(2)} DT
                   </p>
                   <p className="text-muted-foreground text-xs">
-                    x{item.quantity} · {item.price.toFixed(2)} DT
+                    x{item.quantity} · {(item.price ?? 0).toFixed(2)} DT
                   </p>
                 </div>
               </div>
@@ -178,7 +178,7 @@ export default function OrderDetailPage() {
           <div className="flex items-center justify-between">
             <span className="font-semibold">Total</span>
             <span className="text-primary text-xl font-bold">
-              {order.totalAmount.toFixed(2)} DT
+              {(order.totalAmount ?? order.total ?? 0).toFixed(2)} DT
             </span>
           </div>
         </div>

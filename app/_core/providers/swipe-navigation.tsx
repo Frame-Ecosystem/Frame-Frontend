@@ -1,7 +1,7 @@
-"use client"
+﻿"use client"
 
-import { useSwipeNavigation } from "../_hooks/useSwipeNavigation"
-import { usePullToRefresh } from "../_hooks/usePullToRefresh"
+import { useSwipeNavigation } from "@/app/_hooks/useSwipeNavigation"
+import { usePullToRefresh } from "@/app/_hooks/usePullToRefresh"
 
 export function SwipeNavigationProvider({
   children,

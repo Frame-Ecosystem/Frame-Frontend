@@ -1,11 +1,11 @@
-import {
+﻿import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "../../ui/select"
-import type { BookingStatus } from "../../../_types"
+} from "@/app/_components/ui/select"
+import type { BookingStatus } from "@/app/_types"
 import { useTranslation } from "@/app/_i18n"
 
 interface BookingListHeaderProps {

@@ -1,9 +1,9 @@
-"use client"
+﻿"use client"
 
-import { Label } from "../../ui/label"
-import { Textarea } from "../../ui/textarea"
+import { Label } from "@/app/_components/ui/label"
+import { Textarea } from "@/app/_components/ui/textarea"
 import { format } from "date-fns"
-import type { LoungeService, LoungeAgent } from "../../../_types"
+import type { LoungeService, LoungeAgent } from "@/app/_types"
 import { useTranslation } from "@/app/_i18n"
 
 interface BookingPreviewStepProps {

@@ -1,4 +1,4 @@
-import type { User } from "../_types"
+﻿import type { User } from "@/app/_types"
 
 export const getProfilePath = (user?: User | null) => {
   const role = user?.type?.toLowerCase()

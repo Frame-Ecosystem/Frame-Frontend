@@ -1,10 +1,14 @@
-"use client"
+﻿"use client"
 
 import { useRouter } from "next/navigation"
 import { useRef, useEffect } from "react"
-import { Badge } from "../ui/badge"
-import { Button } from "../ui/button"
-import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar"
+import { Badge } from "@/app/_components/ui/badge"
+import { Button } from "@/app/_components/ui/button"
+import {
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
+} from "@/app/_components/ui/avatar"
 import {
   AlertDialog,
   AlertDialogAction,
@@ -15,7 +19,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from "../ui/alert-dialog"
+} from "@/app/_components/ui/alert-dialog"
 import {
   TrendingUp,
   Clock,
@@ -31,8 +35,8 @@ import {
 import { DotLottieReact } from "@lottiefiles/dotlottie-react"
 import { useSortable } from "@dnd-kit/sortable"
 import { CSS } from "@dnd-kit/utilities"
-import type { QueuePerson } from "../../_types"
-import { QueuePersonStatus } from "../../_types"
+import type { QueuePerson } from "@/app/_types"
+import { QueuePersonStatus } from "@/app/_types"
 import {
   getStatusColor,
   getStatusLabel,

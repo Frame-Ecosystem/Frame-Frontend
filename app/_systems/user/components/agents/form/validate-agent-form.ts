@@ -1,4 +1,4 @@
-import type { CreateAgentDto, UpdateAgentDto, Agent } from "../../../_types"
+﻿import type { CreateAgentDto, UpdateAgentDto, Agent } from "@/app/_types"
 
 export function validateAgentForm(
   formData:

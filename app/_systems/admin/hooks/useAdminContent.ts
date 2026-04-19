@@ -1,9 +1,9 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query"
-import { postService } from "../../_services/post.service"
-import { reelService } from "../../_services/reel.service"
-import { commentService } from "../../_services/comment.service"
+﻿import { useMutation, useQueryClient } from "@tanstack/react-query"
+import { postService } from "@/app/_services/post.service"
+import { reelService } from "@/app/_services/reel.service"
+import { commentService } from "@/app/_services/comment.service"
 import { toast } from "sonner"
-import { contentKeys } from "./content-keys"
+import { contentKeys } from "@/app/_systems/feed/hooks/content-keys"
 
 /* ── Post admin actions ── */
 

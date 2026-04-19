@@ -1,8 +1,8 @@
-"use client"
+﻿"use client"
 
-import { LoungeService } from "../../_types"
+import { LoungeService } from "@/app/_types"
 import Image from "next/image"
-import { Card, CardContent } from "../ui/card"
+import { Card, CardContent } from "@/app/_components/ui/card"
 
 interface ServiceItemProps {
   service: LoungeService

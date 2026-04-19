@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import React, { createContext, useContext, useMemo, useCallback } from "react"
 import { useQueryClient } from "@tanstack/react-query"
@@ -6,15 +6,15 @@ import { toast } from "sonner"
 import { useRouter } from "next/navigation"
 
 import { useAuth } from "@/app/_auth"
-import { useSocketRoom } from "../_hooks/useSocketRoom"
+import { useSocketRoom } from "@/app/_hooks/useSocketRoom"
 import {
   notificationKeys,
   useUnreadNotificationCount,
-} from "../_hooks/queries/useNotifications"
-import { useBadge } from "../_hooks/useBadge"
-import { getNotificationEngine } from "../_lib/notification-engine"
-import type { AppNotification, UnreadCountData } from "../_types"
-import { NotificationType } from "../_types"
+} from "@/app/_hooks/queries/useNotifications"
+import { useBadge } from "@/app/_hooks/useBadge"
+import { getNotificationEngine } from "@/app/_lib/notification-engine"
+import type { AppNotification, UnreadCountData } from "@/app/_types"
+import { NotificationType } from "@/app/_types"
 
 // ── Toast configuration per notification type ────────────────
 const HIGH_PRIORITY_TYPES: ReadonlySet<string> = new Set([

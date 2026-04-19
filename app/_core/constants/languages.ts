@@ -1,4 +1,4 @@
-import type { LanguageConfig } from "../_i18n/types"
+﻿import type { LanguageConfig } from "@/app/_i18n/types"
 
 export const LANGUAGES: LanguageConfig[] = [
   {

@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import React from "react"
 import {
@@ -25,11 +25,11 @@ import {
   EyeOff,
   type LucideIcon,
 } from "lucide-react"
-import { Button } from "../ui/button"
-import { Badge } from "../ui/badge"
+import { Button } from "@/app/_core/ui/button"
+import { Badge } from "@/app/_core/ui/badge"
 import { useAuth } from "@/app/_auth"
-import { useNotificationContext } from "../../_providers/notification"
-import { NotificationType } from "../../_types"
+import { useNotificationContext } from "@/app/_providers/notification"
+import { NotificationType } from "@/app/_types"
 import { useRouter } from "next/navigation"
 
 // ── Icon / colour mapping per notification type ──────────────

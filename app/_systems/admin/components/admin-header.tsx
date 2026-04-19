@@ -1,7 +1,7 @@
-"use client"
+﻿"use client"
 
 import type { LucideIcon } from "lucide-react"
-import { Button } from "../../_components/ui/button"
+import { Button } from "@/app/_components/ui/button"
 import { ArrowLeft } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { useTranslation } from "@/app/_i18n"

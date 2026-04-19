@@ -1,10 +1,10 @@
-"use client"
+﻿"use client"
 
 import Image from "next/image"
 import { useRouter } from "next/navigation"
 import { Play, Film } from "lucide-react"
-import type { Reel } from "../../_types/content"
-import { resolveProfileImage } from "../../_lib/image-utils"
+import type { Reel } from "@/app/_types/content"
+import { resolveProfileImage } from "@/app/_lib/image-utils"
 import { useTranslation } from "@/app/_i18n"
 
 interface ReelSwiperProps {

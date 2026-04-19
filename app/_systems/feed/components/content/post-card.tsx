@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import { useState, useCallback, useRef } from "react"
 import { Heart, EyeOff } from "lucide-react"
@@ -9,7 +9,7 @@ import { HashtagText } from "./hashtag-text"
 import { ContentMenu } from "./content-menu"
 import { ReportModal } from "./report-modal"
 import { EditPostDialog } from "./edit-post-dialog"
-import type { Post } from "../../_types"
+import type { Post } from "@/app/_types"
 import { useAuth } from "@/app/_auth"
 import {
   useTogglePostLike,
@@ -18,7 +18,7 @@ import {
   useAdminHidePost,
   useAdminUnhidePost,
   useAdminDeletePost,
-} from "../../_hooks/queries/useContent"
+} from "@/app/_hooks/queries/useContent"
 
 interface PostCardProps {
   post: Post

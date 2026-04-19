@@ -1,12 +1,21 @@
-"use client"
+﻿"use client"
 
 import Image from "next/image"
-import { Agent } from "../../_types"
-import { Button } from "../ui/button"
-import { Badge } from "../ui/badge"
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../ui/dialog"
-import { Avatar, AvatarImage, AvatarFallback } from "../ui/avatar"
-import { Separator } from "../ui/separator"
+import { Agent } from "@/app/_types"
+import { Button } from "@/app/_components/ui/button"
+import { Badge } from "@/app/_components/ui/badge"
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/app/_components/ui/dialog"
+import {
+  Avatar,
+  AvatarImage,
+  AvatarFallback,
+} from "@/app/_components/ui/avatar"
+import { Separator } from "@/app/_components/ui/separator"
 import { User, Calendar, Shield, ShieldCheck, Building } from "lucide-react"
 import { useTranslation } from "@/app/_i18n"
 

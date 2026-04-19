@@ -1,13 +1,13 @@
-"use client"
+﻿"use client"
 
 import Image from "next/image"
 import { useRouter } from "next/navigation"
 import { Heart } from "lucide-react"
-import { useMyLikes } from "../../_hooks/queries"
+import { useMyLikes } from "@/app/_hooks/queries"
 import { useAuth } from "@/app/_auth"
-import type { LikedLounge } from "../../_types"
-import { cn } from "../../_lib/utils"
-import { FavoriteLoungesSkeleton } from "../skeletons/lounges"
+import type { LikedLounge } from "@/app/_types"
+import { cn } from "@/app/_lib/utils"
+import { FavoriteLoungesSkeleton } from "@/app/_components/skeletons/lounges"
 
 interface FavoriteLoungesSectionProps {
   className?: string

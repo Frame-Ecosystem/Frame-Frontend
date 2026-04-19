@@ -1,6 +1,6 @@
-"use client"
+﻿"use client"
 
-import { Button } from "../../ui/button"
+import { Button } from "@/app/_components/ui/button"
 import { ChevronLeft, ChevronRight, Check } from "lucide-react"
 import { useTranslation } from "@/app/_i18n"
 

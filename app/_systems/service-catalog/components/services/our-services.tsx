@@ -1,10 +1,10 @@
-"use client"
+﻿"use client"
 import { useState } from "react"
-import { Badge } from "../ui/badge"
+import { Badge } from "@/app/_components/ui/badge"
 import { CalendarIcon } from "lucide-react"
 import ServiceItem from "./service-item"
 import { Lounge, LoungeService } from "@/app/_types"
-import BookingCTA from "../bookings/booking-cta"
+import BookingCTA from "@/app/_components/bookings/booking-cta"
 
 interface OurServicesProps {
   services: LoungeService[]

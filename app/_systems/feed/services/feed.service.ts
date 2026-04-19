@@ -1,5 +1,5 @@
-import { apiClient } from "./api"
-import type { FeedItem, Hashtag, PaginatedContentResponse } from "../_types"
+﻿import { apiClient } from "@/app/_core/api/api"
+import type { FeedItem, Hashtag, PaginatedContentResponse } from "@/app/_types"
 
 class FeedServiceClass {
   /** Following-based feed (content from followed users) */

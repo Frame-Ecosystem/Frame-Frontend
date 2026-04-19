@@ -36,7 +36,7 @@ export default function MyStoreProductsPage() {
   const toggleStatus = (id: string, currentStatus: string) => {
     const newStatus = currentStatus === "active" ? "draft" : "active"
     updateProduct.mutate(
-      { id, data: { status: newStatus as "active" | "draft" } },
+      { id, status: newStatus as "active" | "draft" },
       {
         onSuccess: () =>
           toast.success(

@@ -1,12 +1,16 @@
-"use client"
+﻿"use client"
 
 import { useState, useMemo, useRef, useEffect } from "react"
 import { createPortal } from "react-dom"
 import { RefreshCw, FileText, Film, Users, Compass } from "lucide-react"
 import Link from "next/link"
-import { Button } from "../ui/button"
-import { Card, CardContent } from "../ui/card"
-import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar"
+import { Button } from "@/app/_components/ui/button"
+import { Card, CardContent } from "@/app/_components/ui/card"
+import {
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
+} from "@/app/_components/ui/avatar"
 import { CreatePostDialog } from "../content/create-post-dialog"
 import { CreateReelDialog } from "../content/create-reel-dialog"
 import { FeedList } from "../content/feed-list"
@@ -14,10 +18,10 @@ import { useAuth } from "@/app/_auth"
 import {
   useFollowingFeed,
   useExploreFeed,
-} from "../../_hooks/queries/useContent"
-import { PostFeedSkeleton } from "../skeletons/posts"
-import { getProfilePath } from "../../_lib/profile"
-import type { FeedItem } from "../../_types/content"
+} from "@/app/_hooks/queries/useContent"
+import { PostFeedSkeleton } from "@/app/_components/skeletons/posts"
+import { getProfilePath } from "@/app/_lib/profile"
+import type { FeedItem } from "@/app/_types/content"
 import { useTranslation } from "@/app/_i18n"
 
 export function PostFeed() {

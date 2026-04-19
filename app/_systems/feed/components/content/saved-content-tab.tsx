@@ -1,12 +1,12 @@
-"use client"
+﻿"use client"
 
 import { useMemo, useState, useCallback } from "react"
 import { useRouter } from "next/navigation"
-import { useSavedFeed } from "../../_hooks/queries/useContent"
+import { useSavedFeed } from "@/app/_hooks/queries/useContent"
 import { FeedList } from "./feed-list"
 import { ContentGrid } from "./content-grid"
 import { cn } from "@/app/_lib/utils"
-import type { FeedItem, Post, Reel } from "../../_types/content"
+import type { FeedItem, Post, Reel } from "@/app/_types/content"
 import { useTranslation } from "@/app/_i18n"
 
 /**

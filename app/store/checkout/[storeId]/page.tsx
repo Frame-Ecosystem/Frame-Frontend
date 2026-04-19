@@ -43,7 +43,7 @@ export default function CheckoutPage() {
   })
 
   const subtotal = storeItems.reduce(
-    (sum, item) => sum + item.price * item.quantity,
+    (sum, item) => sum + (item.price ?? 0) * item.quantity,
     0,
   )
 
@@ -227,7 +227,7 @@ export default function CheckoutPage() {
                       </p>
                     </div>
                     <p className="flex-shrink-0 text-sm font-semibold">
-                      {(item.price * item.quantity).toFixed(2)} DT
+                      {((item.price ?? 0) * item.quantity).toFixed(2)} DT
                     </p>
                   </div>
                 ))}

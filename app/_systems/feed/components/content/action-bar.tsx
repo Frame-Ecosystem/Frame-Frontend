@@ -1,7 +1,7 @@
-"use client"
+﻿"use client"
 
 import { Heart, MessageCircle, Bookmark, Share2 } from "lucide-react"
-import { Button } from "../ui/button"
+import { Button } from "@/app/_components/ui/button"
 import { cn } from "@/app/_lib/utils"
 
 interface ActionBarProps {

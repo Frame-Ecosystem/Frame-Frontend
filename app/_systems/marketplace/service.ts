@@ -1,4 +1,4 @@
-import { apiClient } from "./api"
+﻿import { apiClient } from "@/app/_core/api/api"
 import type {
   Store,
   Product,
@@ -20,7 +20,7 @@ import type {
   StoreStatus,
   ProductStatus,
   StoreBadge,
-} from "../_types/marketplace"
+} from "@/app/_types/marketplace"
 
 export interface AdminMarketplaceAnalytics {
   overview: {
@@ -91,16 +91,16 @@ class MarketplaceService {
     return res?.data ?? res
   }
 
-  async uploadStoreLogo(file: File): Promise<Store> {
-    const form = new FormData()
-    form.append("logo", file)
+  async uploadStoreLogo(file: File | FormData): Promise<Store> {
+    const form = file instanceof FormData ? file : new FormData()
+    if (!(file instanceof FormData)) form.append("logo", file)
     const res = await apiClient.post<any>(`${BASE}/stores/me/store/logo`, form)
     return res?.data ?? res
   }
 
-  async uploadStoreBanner(file: File): Promise<Store> {
-    const form = new FormData()
-    form.append("banner", file)
+  async uploadStoreBanner(file: File | FormData): Promise<Store> {
+    const form = file instanceof FormData ? file : new FormData()
+    if (!(file instanceof FormData)) form.append("banner", file)
     const res = await apiClient.post<any>(
       `${BASE}/stores/me/store/banner`,
       form,
@@ -209,6 +209,20 @@ class MarketplaceService {
     const res = await apiClient.get<any>(
       `${BASE}/orders/store/${storeId}?page=${page}&limit=${limit}`,
     )
+    return { data: res?.data ?? [], count: res?.count ?? 0 }
+  }
+
+  async getMyStoreOrders(
+    filter?: { status?: OrderStatus },
+    page = 1,
+    limit = 20,
+  ): Promise<MarketplaceListResponse<Order>> {
+    const params = new URLSearchParams({
+      page: String(page),
+      limit: String(limit),
+    })
+    if (filter?.status) params.set("status", filter.status)
+    const res = await apiClient.get<any>(`${BASE}/orders/my-store?${params}`)
     return { data: res?.data ?? [], count: res?.count ?? 0 }
   }
 

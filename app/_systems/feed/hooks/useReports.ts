@@ -1,9 +1,9 @@
-import {
+﻿import {
   useMutation,
   useQueryClient,
   useInfiniteQuery,
 } from "@tanstack/react-query"
-import { reportService } from "../../_services/report.service"
+import { reportService } from "@/app/_services/report.service"
 import { toast } from "sonner"
 import { contentKeys, extractPagination } from "./content-keys"
 

@@ -1,7 +1,7 @@
-"use client"
+﻿"use client"
 
 import { useTranslation } from "@/app/_i18n"
-import { Card, CardContent } from "../../ui/card"
+import { Card, CardContent } from "@/app/_components/ui/card"
 import { BookingAvatar } from "./booking-avatar"
 import { BookingStatusBadge } from "./BookingStatusBadge"
 import { BookingLocationLink } from "./BookingLocationLink"
@@ -10,7 +10,7 @@ import { BookingAgentInfo } from "./BookingAgentInfo"
 import { BookingTotalSummary } from "./BookingTotalSummary"
 import { BookingActions } from "./BookingActions"
 import { BookingQueueBanner } from "./BookingQueueBanner"
-import type { Booking, BookingStatus } from "../../../_types"
+import type { Booking, BookingStatus } from "@/app/_types"
 
 interface BookingCardProps {
   booking: Booking

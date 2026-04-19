@@ -3,7 +3,7 @@
 import { useState } from "react"
 import { Badge } from "@/app/_components/ui/badge"
 import {
-  useStoreOrders,
+  useMyStoreOrders,
   useUpdateOrderStatus,
 } from "@/app/_hooks/queries/useMarketplace"
 import type { OrderStatus } from "@/app/_types/marketplace"
@@ -35,7 +35,7 @@ const STATUS_COLORS: Record<string, string> = {
 
 export default function StoreOrdersPage() {
   const [statusFilter, setStatusFilter] = useState<OrderStatus | "all">("all")
-  const { data, isLoading } = useStoreOrders(
+  const { data, isLoading } = useMyStoreOrders(
     statusFilter !== "all" ? { status: statusFilter } : undefined,
   )
   const updateStatus = useUpdateOrderStatus()
@@ -43,7 +43,7 @@ export default function StoreOrdersPage() {
 
   const handleStatusUpdate = (orderId: string, newStatus: OrderStatus) => {
     updateStatus.mutate(
-      { orderId, status: newStatus },
+      { id: orderId, status: newStatus },
       {
         onSuccess: () => toast.success("Order status updated"),
         onError: () => toast.error("Failed to update order"),
@@ -133,7 +133,10 @@ export default function StoreOrdersPage() {
 
                   <p className="text-muted-foreground mb-3 text-xs">
                     {order.items.length} item(s) ·{" "}
-                    {order.totalAmount.toFixed(2)} DT
+                    {order.totalAmount != null
+                      ? order.totalAmount.toFixed(2)
+                      : (order.total ?? 0).toFixed(2)}{" "}
+                    DT
                   </p>
 
                   {/* Update status */}

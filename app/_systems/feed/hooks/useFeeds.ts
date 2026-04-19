@@ -1,5 +1,5 @@
-import { useInfiniteQuery } from "@tanstack/react-query"
-import { feedService } from "../../_services/feed.service"
+﻿import { useInfiniteQuery } from "@tanstack/react-query"
+import { feedService } from "@/app/_services/feed.service"
 import { contentKeys, extractPagination } from "./content-keys"
 
 /** Following feed (infinite scroll) */

@@ -1,11 +1,11 @@
-"use client"
+﻿"use client"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { useAuth } from "@/app/_auth"
-import { getHomePath } from "../../_lib/profile"
-import { NAV_LINKS } from "../../_constants/navigation"
-import { useScrollDirection } from "../../_hooks/useScrollDirection"
-import { useTranslation } from "../../_i18n"
+import { getHomePath } from "@/app/_lib/profile"
+import { NAV_LINKS } from "@/app/_constants/navigation"
+import { useScrollDirection } from "@/app/_hooks/useScrollDirection"
+import { useTranslation } from "@/app/_i18n"
 
 const MobileNavbar = () => {
   const { user, isLoading } = useAuth()

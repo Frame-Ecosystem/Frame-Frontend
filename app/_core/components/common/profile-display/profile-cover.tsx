@@ -1,20 +1,20 @@
-"use client"
+﻿"use client"
 
 import { useState } from "react"
 import Image from "next/image"
 import { CameraIcon } from "lucide-react"
-import { Button } from "../../ui/button"
-import { Avatar, AvatarImage, AvatarFallback } from "../../ui/avatar"
+import { Button } from "@/app/_core/ui/button"
+import { Avatar, AvatarImage, AvatarFallback } from "@/app/_core/ui/avatar"
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "../../ui/dialog"
+} from "@/app/_core/ui/dialog"
 import { ImageSelector } from "../images/ImageSelector"
 import { ImageLightbox } from "../images/image-lightbox"
-import type { User } from "../../../_types"
+import type { User } from "@/app/_types"
 import { getUserDisplayName, getUserInitials } from "@/app/_auth"
 import { useTranslation } from "@/app/_i18n"
 
