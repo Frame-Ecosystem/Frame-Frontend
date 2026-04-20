@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useCallback, useEffect, useMemo } from "react"
+import { useSearchParams } from "next/navigation"
 import { useInView } from "react-intersection-observer"
 import { useQuery } from "@tanstack/react-query"
 import { Loader2 } from "lucide-react"
@@ -95,13 +96,55 @@ export function FeedList({
     count: number
   } | null>(null)
 
+  // Auto-open CommentSheet when navigated from a notification with ?openComments=postId
+  const searchParams = useSearchParams()
+  const [highlightCommentId, setHighlightCommentId] = useState<string | null>(
+    null,
+  )
+  const [autoOpened, setAutoOpened] = useState(false)
+
   const openComments = useCallback(
     (type: "post" | "reel", id: string, count: number) => {
       setCommentTarget({ type, id, count })
     },
     [],
   )
-  const closeComments = useCallback(() => setCommentTarget(null), [])
+  const closeComments = useCallback(() => {
+    setCommentTarget(null)
+    setHighlightCommentId(null)
+  }, [])
+
+  const openCommentsParam = searchParams.get("openComments")
+  const commentIdParam = searchParams.get("commentId")
+
+  useEffect(() => {
+    if (autoOpened || items.length === 0) return
+    if (!openCommentsParam) return
+
+    const post = items.find(
+      (i) => i.contentType === "post" && i._id === openCommentsParam,
+    )
+    if (!post) return
+
+    // Clean up URL params immediately (before state updates)
+    const url = new URL(window.location.href)
+    url.searchParams.delete("openComments")
+    url.searchParams.delete("commentId")
+    window.history.replaceState({}, "", url.toString())
+
+    // Small delay so the post card has rendered and scrolled into view
+    const timer = setTimeout(() => {
+      setAutoOpened(true)
+      setHighlightCommentId(commentIdParam)
+      setCommentTarget({
+        type: "post",
+        id: openCommentsParam,
+        count: (post as any).commentCount ?? 0,
+      })
+    }, 800)
+
+    return () => clearTimeout(timer)
+  }, [openCommentsParam, commentIdParam, items, autoOpened])
 
   useEffect(() => {
     if (inView && hasNextPage && !isFetchingNextPage) {
@@ -187,6 +230,7 @@ export function FeedList({
           targetType={commentTarget.type}
           targetId={commentTarget.id}
           commentCount={commentTarget.count}
+          highlightCommentId={highlightCommentId}
         />
       )}
     </>

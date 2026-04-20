@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useCallback } from "react"
+import { useState, useEffect, useCallback, useRef } from "react"
 import { X, Loader2 } from "lucide-react"
 import { Button } from "../ui/button"
 import { CommentItem } from "./comment-item"
@@ -17,6 +17,8 @@ interface CommentSheetProps {
   targetType: "post" | "reel"
   targetId: string
   commentCount: number
+  /** When set, auto-scrolls to and highlights this comment after loading. */
+  highlightCommentId?: string | null
 }
 
 /**
@@ -29,6 +31,7 @@ export function CommentSheet({
   targetType,
   targetId,
   commentCount,
+  highlightCommentId,
 }: CommentSheetProps) {
   const { t } = useTranslation()
   const [replyTo, setReplyTo] = useState<{
@@ -50,6 +53,20 @@ export function CommentSheet({
   const handleReply = useCallback((commentId: string, authorName: string) => {
     setReplyTo({ commentId, authorName })
   }, [])
+
+  // Scroll to and highlight a specific comment when navigated from a notification
+  const highlightedRef = useRef(false)
+  useEffect(() => {
+    if (!highlightCommentId || isLoading || highlightedRef.current) return
+    const el = document.getElementById(`comment-${highlightCommentId}`)
+    if (!el) return
+    highlightedRef.current = true
+    requestAnimationFrame(() => {
+      el.scrollIntoView({ behavior: "smooth", block: "center" })
+      el.classList.add("notif-highlight")
+      setTimeout(() => el.classList.remove("notif-highlight"), 3500)
+    })
+  }, [highlightCommentId, isLoading, data])
 
   // Lock body scroll and hide mobile navbar when open
   useEffect(() => {
