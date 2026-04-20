@@ -49,15 +49,7 @@ import type {
   CreateProductCategoryDto,
   UpdateProductCategoryDto,
 } from "@/app/_types/marketplace"
-
-const ERROR_MESSAGES: Record<string, string> = {
-  CATEGORY_ALREADY_EXISTS: "A category with that name or slug already exists.",
-  CATEGORY_IN_USE:
-    "This category is used by products. Deactivate it instead of deleting.",
-  VALIDATION_ERROR: "Please check the fields and try again.",
-  UNAUTHORIZED: "You don't have permission to perform this action.",
-  FORBIDDEN: "You don't have permission to perform this action.",
-}
+import { toastError } from "@/app/_lib/api-errors"
 
 interface EditorState {
   open: boolean
@@ -138,12 +130,7 @@ function CategoryEditor({
       }
       onOpenChange(false)
     } catch (err) {
-      const code = (err as { code?: string })?.code ?? ""
-      toast.error(
-        ERROR_MESSAGES[code] ??
-          (err as Error)?.message ??
-          "Couldn't save the category.",
-      )
+      toastError(err, "Couldn't save the category.")
     }
   }
 
@@ -291,12 +278,7 @@ export default function AdminProductCategoriesPage() {
       })
       toast.success(cat.isActive ? "Category hidden." : "Category shown.")
     } catch (err) {
-      const code = (err as { code?: string })?.code ?? ""
-      toast.error(
-        ERROR_MESSAGES[code] ??
-          (err as Error)?.message ??
-          "Couldn't update visibility.",
-      )
+      toastError(err, "Couldn't update visibility.")
     }
   }
 
@@ -307,12 +289,7 @@ export default function AdminProductCategoriesPage() {
       toast.success("Category deleted.")
       setPendingDelete(null)
     } catch (err) {
-      const code = (err as { code?: string })?.code ?? ""
-      toast.error(
-        ERROR_MESSAGES[code] ??
-          (err as Error)?.message ??
-          "Couldn't delete this category.",
-      )
+      toastError(err, "Couldn't delete this category.")
       setPendingDelete(null)
     }
   }

@@ -13,6 +13,7 @@ import {
   Trash2,
 } from "lucide-react"
 import { toast } from "sonner"
+import { toastError } from "@/app/_lib/api-errors"
 import { Button } from "@/app/_components/ui/button"
 import { Badge } from "@/app/_components/ui/badge"
 import {
@@ -65,9 +66,7 @@ const STATUS_META: Record<
   },
 }
 
-const ERROR_MESSAGES: Record<string, string> = {
-  SUGGESTION_ALREADY_IMPLEMENTED:
-    "This suggestion has already been implemented and can no longer be changed.",
+const ERROR_OVERRIDES: Record<string, string> = {
   FORBIDDEN: "You can only remove your own suggestions.",
 }
 
@@ -177,12 +176,7 @@ export default function MySuggestionsPage() {
       await deleteMutation.mutateAsync(pendingDelete)
       toast.success("Suggestion removed.")
     } catch (err) {
-      const code = (err as { code?: string })?.code ?? ""
-      toast.error(
-        ERROR_MESSAGES[code] ??
-          (err as Error)?.message ??
-          "Couldn't remove the suggestion.",
-      )
+      toastError(err, "Couldn't remove the suggestion.", ERROR_OVERRIDES)
     } finally {
       setPendingDelete(null)
     }
