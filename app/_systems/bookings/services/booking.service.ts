@@ -146,14 +146,9 @@ class BookingService {
   }
 
   // Create a new booking
-  async create(input: CreateBookingInput): Promise<Booking | null> {
-    try {
-      const data = await apiClient.post<Booking>("/v1/bookings", input)
-      return data
-    } catch (error) {
-      console.error("Failed to create booking:", error)
-      return null
-    }
+  async create(input: CreateBookingInput): Promise<Booking> {
+    const data = await apiClient.post<Booking>("/v1/bookings", input)
+    return data
   }
 
   // Get all bookings (role-based access)
@@ -240,23 +235,17 @@ class BookingService {
   }
 
   // Update booking
-  async update(id: string, input: UpdateBookingInput): Promise<Booking | null> {
-    try {
-      const response = await apiClient.put<any>(`/v1/bookings/${id}`, input)
-      const booking = response?.data || (response?._id ? response : null)
+  async update(id: string, input: UpdateBookingInput): Promise<Booking> {
+    const response = await apiClient.put<any>(`/v1/bookings/${id}`, input)
+    const booking = response?.data || (response?._id ? response : null)
+    if (!booking) throw new Error("BOOKING_NOT_FOUND")
 
-      if (!booking) return null
-
-      return {
-        ...booking,
-        _id: booking._id,
-        loungeServiceIds: booking.loungeServiceIds || [],
-        loungeService: booking.loungeService || [],
-      } as Booking
-    } catch (error) {
-      console.error("Failed to update booking:", error)
-      return null
-    }
+    return {
+      ...booking,
+      _id: booking._id,
+      loungeServiceIds: booking.loungeServiceIds || [],
+      loungeService: booking.loungeService || [],
+    } as Booking
   }
 
   // Delete booking (admin only)

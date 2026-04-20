@@ -4,6 +4,8 @@ import { queueService } from "@/app/_services/queue.service"
 import { bookingService } from "@/app/_services/booking.service"
 import { agentService } from "@/app/_services/agent.service"
 import { QueuePersonStatus } from "@/app/_types"
+import { QUEUE_ERROR_MESSAGES } from "@/app/_systems/bookings/types/queue"
+import { BOOKING_ERROR_MESSAGES } from "@/app/_systems/bookings/types/booking"
 import { toast } from "sonner"
 import { isAuthError } from "@/app/_services/api"
 import { useSocketRoom } from "@/app/_hooks/useSocketRoom"
@@ -150,20 +152,13 @@ export function useAddPersonToQueue() {
     },
     onError: (error: any) => {
       if (isAuthError(error)) return
-      const message =
-        error?.message || error?.error || "Failed to add person to queue"
-      // Map backend error codes to user-friendly messages
-      if (message.includes("ALREADY_IN_QUEUE")) {
-        toast.error("This booking is already in the queue")
-      } else if (message.includes("INVALID_BOOKING_STATUS")) {
-        toast.error("This booking cannot be added to the queue")
-      } else if (message.includes("AGENT_NOT_ASSIGNED")) {
-        toast.error("This agent is not assigned to this booking")
-      } else if (message.includes("BOOKING_NOT_FOUND")) {
-        toast.error("Booking not found")
-      } else {
-        toast.error(message)
-      }
+      const code = error?.code ?? ""
+      const msg =
+        QUEUE_ERROR_MESSAGES[code] ??
+        BOOKING_ERROR_MESSAGES[code] ??
+        error?.message ??
+        "Failed to add person to queue"
+      toast.error(msg)
     },
   })
 }
@@ -196,15 +191,14 @@ export function useUpdatePersonStatus() {
     },
     onError: (error: any) => {
       if (isAuthError(error)) return
-      const message =
-        error?.message || error?.error || "Failed to update status"
-      if (message.includes("INVALID_STATUS_TRANSITION")) {
-        toast.error("Invalid status transition")
-      } else if (message.includes("PERSON_NOT_IN_QUEUE")) {
-        toast.error("Person not found in queue")
+      const code = error?.code ?? ""
+      const msg =
+        QUEUE_ERROR_MESSAGES[code] ??
+        error?.message ??
+        "Failed to update status"
+      toast.error(msg)
+      if (code === "PERSON_NOT_IN_QUEUE") {
         queryClient.invalidateQueries({ queryKey: queueKeys.all })
-      } else {
-        toast.error(message)
       }
     },
   })
@@ -338,25 +332,18 @@ export function useLoungeBookFromQueue() {
     },
     onError: (error: any) => {
       if (isAuthError(error)) return
-      const code = (error as any)?.code
-      const message = error?.message || "Failed to add to queue"
-
-      if (code === "CLIENT_NOT_FOUND") {
-        toast.error(
-          "No client found with this phone number. Try a different number or switch to Visitor mode.",
-        )
-      } else if (code === "AMBIGUOUS_CLIENT_VISITOR") {
-        toast.error("Please choose either Visitor or Client mode, not both.")
-      } else if (code === "MISSING_CLIENT_OR_VISITOR") {
-        toast.error("Please provide a visitor name or client phone number.")
-      } else {
-        toast.error(message)
-      }
+      const code = error?.code ?? ""
+      const msg =
+        BOOKING_ERROR_MESSAGES[code] ??
+        QUEUE_ERROR_MESSAGES[code] ??
+        error?.message ??
+        "Failed to add to queue"
+      toast.error(msg)
     },
   })
 }
 
-/** Toggle acceptQueueBooking for an agent (with optimistic UI). */
+/** Toggle acceptQueueBooking for an agent */
 export function useToggleQueueBooking() {
   const queryClient = useQueryClient()
 
@@ -368,44 +355,21 @@ export function useToggleQueueBooking() {
       agentId: string
       acceptQueueBooking: boolean
     }) => agentService.updateQueueBooking(agentId, acceptQueueBooking),
-    // Optimistically flip the agent's flag in every cached `["loungeAgents", *]`
-    // payload so the Switch reflects the new state immediately.
-    onMutate: async (variables) => {
-      await queryClient.cancelQueries({ queryKey: ["loungeAgents"] })
-      const snapshots = queryClient.getQueriesData<{
-        agents?: { _id: string; acceptQueueBooking?: boolean }[]
-      }>({ queryKey: ["loungeAgents"] })
-      snapshots.forEach(([key, value]) => {
-        if (!value?.agents) return
-        queryClient.setQueryData(key, {
-          ...value,
-          agents: value.agents.map((a) =>
-            a._id === variables.agentId
-              ? { ...a, acceptQueueBooking: variables.acceptQueueBooking }
-              : a,
-          ),
-        })
-      })
-      return { snapshots }
-    },
     onSuccess: (_data, variables) => {
       toast.success(
         variables.acceptQueueBooking
-          ? "Queue is now accepting bookings."
-          : "Queue is closed to new bookings.",
+          ? "Queue booking enabled for agent"
+          : "Queue booking disabled for agent",
       )
+      // Invalidate loungeAgents query so the UI picks up the new value
       queryClient.invalidateQueries({ queryKey: ["loungeAgents"] })
     },
-    onError: (error: any, _vars, context) => {
-      // Roll back on failure.
-      context?.snapshots?.forEach(([key, value]) => {
-        queryClient.setQueryData(key, value)
-      })
+    onError: (error: any) => {
       if (isAuthError(error)) return
       const message =
         error?.message ||
         error?.error ||
-        "Couldn't update the queue setting. Please try again."
+        "Failed to update queue booking setting"
       toast.error(message)
     },
   })

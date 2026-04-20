@@ -40,6 +40,10 @@ export interface User {
   averageRating?: number
   ratingCount?: number
   likeCount?: number
+  followersCount?: number
+  followingCount?: number
+  isBlocked?: boolean
+  openingHours?: Record<string, { from: string; to: string }>
 }
 
 export interface AuthResponse {

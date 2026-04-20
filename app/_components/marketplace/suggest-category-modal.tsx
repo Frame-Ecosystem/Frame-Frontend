@@ -16,7 +16,6 @@ import { Input } from "@/app/_components/ui/input"
 import { Label } from "@/app/_components/ui/label"
 import { Textarea } from "@/app/_components/ui/textarea"
 import { useCreateProductCategorySuggestion } from "@/app/_hooks/queries/useMarketplace"
-import { toastError } from "@/app/_lib/api-errors"
 
 interface SuggestCategoryModalProps {
   open: boolean
@@ -26,11 +25,13 @@ interface SuggestCategoryModalProps {
   onSuggested?: (suggestionId: string) => void
 }
 
-const ERROR_OVERRIDES: Record<string, string> = {
+const ERROR_MESSAGES: Record<string, string> = {
   CATEGORY_ALREADY_EXISTS:
     "A category with this name already exists — please pick it from the list instead.",
   SUGGESTION_ALREADY_EXISTS:
     "Someone already suggested this category. We'll review it soon.",
+  VALIDATION_ERROR: "Please double-check the form and try again.",
+  UNAUTHORIZED: "Please sign in to suggest a new category.",
 }
 
 export function SuggestCategoryModal({
@@ -99,10 +100,11 @@ export function SuggestCategoryModal({
       reset()
       onOpenChange(false)
     } catch (err) {
-      toastError(
-        err,
-        "Couldn't send your suggestion. Please try again.",
-        ERROR_OVERRIDES,
+      const code = (err as { code?: string })?.code ?? ""
+      toast.error(
+        ERROR_MESSAGES[code] ??
+          (err as Error)?.message ??
+          "Couldn't send your suggestion. Please try again.",
       )
     }
   }
