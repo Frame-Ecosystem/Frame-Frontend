@@ -105,7 +105,7 @@ function StoreRow({ store }: { store: StoreType }) {
       return
     }
     updateStatus.mutate(
-      { id: store._id, status: StoreStatus.REJECTED, reason },
+      { id: store._id, status: StoreStatus.SUSPENDED, reason },
       {
         onSuccess: () => {
           toast.success(`${store.name} rejected`)
@@ -300,7 +300,7 @@ function ProductRow({ product }: { product: Product }) {
       return
     }
     updateStatus.mutate(
-      { id: product._id, status: ProductStatus.REJECTED, reason },
+      { id: product._id, status: ProductStatus.HIDDEN, reason },
       {
         onSuccess: () => {
           toast.success(`${product.name} rejected`)
@@ -345,14 +345,9 @@ function ProductRow({ product }: { product: Product }) {
             {product.category} • {product.price.toFixed(2)} DT • Stock:{" "}
             {product.stock}
           </p>
-          {product.shortDescription && (
-            <p className="text-muted-foreground mt-1 line-clamp-1 text-xs">
-              {product.shortDescription}
-            </p>
-          )}
         </div>
         <div className="flex shrink-0 flex-wrap gap-1">
-          {product.status === ProductStatus.PENDING_REVIEW && (
+          {product.status === ProductStatus.DRAFT && (
             <>
               <Button
                 size="sm"
@@ -380,7 +375,7 @@ function ProductRow({ product }: { product: Product }) {
               variant="outline"
               onClick={() =>
                 updateStatus.mutate(
-                  { id: product._id, status: ProductStatus.INACTIVE },
+                  { id: product._id, status: ProductStatus.ARCHIVED },
                   {
                     onSuccess: () => toast.success("Product deactivated"),
                     onError: () => toast.error("Failed"),
@@ -394,7 +389,7 @@ function ProductRow({ product }: { product: Product }) {
               Deactivate
             </Button>
           )}
-          {product.status === ProductStatus.INACTIVE && (
+          {product.status === ProductStatus.ARCHIVED && (
             <Button
               size="sm"
               variant="outline"
@@ -562,7 +557,7 @@ export default function AdminMarketplacePage() {
   >(StoreStatus.PENDING)
   const [productStatusFilter, setProductStatusFilter] = useState<
     ProductStatus | undefined
-  >(ProductStatus.PENDING_REVIEW)
+  >(ProductStatus.DRAFT)
 
   const { data: analytics, isLoading: analyticsLoading } =
     useAdminMarketplaceAnalytics()
@@ -611,7 +606,7 @@ export default function AdminMarketplacePage() {
                 )}
               {tab.id === "products" &&
                 productsData?.count != null &&
-                productStatusFilter === ProductStatus.PENDING_REVIEW && (
+                productStatusFilter === ProductStatus.DRAFT && (
                   <span className="rounded-full bg-blue-100 px-1.5 py-0.5 text-xs font-medium text-blue-800 dark:bg-blue-900/30 dark:text-blue-400">
                     {productsData.count}
                   </span>
@@ -869,12 +864,12 @@ export default function AdminMarketplacePage() {
             {(
               [
                 {
-                  label: "Pending Review",
-                  value: ProductStatus.PENDING_REVIEW,
+                  label: "Draft",
+                  value: ProductStatus.DRAFT,
                 },
                 { label: "Active", value: ProductStatus.ACTIVE },
-                { label: "Inactive", value: ProductStatus.INACTIVE },
-                { label: "Rejected", value: ProductStatus.REJECTED },
+                { label: "Archived", value: ProductStatus.ARCHIVED },
+                { label: "Hidden", value: ProductStatus.HIDDEN },
                 { label: "All", value: undefined },
               ] as { label: string; value: ProductStatus | undefined }[]
             ).map((f) => (
