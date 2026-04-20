@@ -20,7 +20,7 @@ function badgeLabel(badge: StoreType["badge"]) {
       icon: "★",
       cls: "bg-yellow-500/10 text-yellow-600",
     }
-  if (badge === "top_seller")
+  if (badge === "topSeller")
     return {
       label: "Top Seller",
       icon: "🏆",

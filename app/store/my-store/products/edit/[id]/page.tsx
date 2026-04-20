@@ -37,12 +37,13 @@ export default function EditProductPage() {
   const [form, setForm] = useState({
     name: "",
     description: "",
-    shortDescription: "",
     categoryId: "",
     price: "",
     compareAtPrice: "",
     stock: "0",
     tags: "",
+    condition: "new" as "new" | "likeNew" | "used",
+    isDigital: false,
   })
   const [newImageFiles, setNewImageFiles] = useState<File[]>([])
   const [existingImages, setExistingImages] = useState<string[]>([])
@@ -57,7 +58,6 @@ export default function EditProductPage() {
       setForm({
         name: product.name,
         description: product.description ?? "",
-        shortDescription: product.shortDescription ?? "",
         categoryId: categoryIdValue,
         price: String(product.price),
         compareAtPrice: product.compareAtPrice
@@ -65,6 +65,8 @@ export default function EditProductPage() {
           : "",
         stock: String(product.stock ?? 0),
         tags: Array.isArray(product.tags) ? product.tags.join(", ") : "",
+        condition: product.condition ?? "new",
+        isDigital: product.isDigital ?? false,
       })
       setExistingImages(
         product.images?.map((img) =>
@@ -109,13 +111,14 @@ export default function EditProductPage() {
       {
         name: form.name,
         description: form.description,
-        shortDescription: form.shortDescription || undefined,
         categoryId: form.categoryId,
         price: parseFloat(form.price),
         compareAtPrice: form.compareAtPrice
           ? parseFloat(form.compareAtPrice)
           : undefined,
         stock: parseInt(form.stock) || 0,
+        condition: form.condition,
+        isDigital: form.isDigital,
         tags: form.tags
           ? form.tags
               .split(",")
@@ -154,7 +157,16 @@ export default function EditProductPage() {
   }
 
   const field = (
-    key: keyof typeof form,
+    key: keyof Pick<
+      typeof form,
+      | "name"
+      | "description"
+      | "categoryId"
+      | "price"
+      | "compareAtPrice"
+      | "stock"
+      | "tags"
+    >,
     label: string,
     props?: React.InputHTMLAttributes<HTMLInputElement>,
   ) => (
@@ -235,9 +247,39 @@ export default function EditProductPage() {
             />
           </div>
 
-          {field("shortDescription", "Short Description", {
-            placeholder: "One-line summary",
-          })}
+          {/* Condition */}
+          <div>
+            <label className="mb-1.5 block text-sm font-medium">
+              Condition
+            </label>
+            <select
+              value={form.condition}
+              onChange={(e) =>
+                setForm((f) => ({
+                  ...f,
+                  condition: e.target.value as "new" | "likeNew" | "used",
+                }))
+              }
+              className="border-border bg-background focus:ring-primary/30 w-full rounded-lg border px-3 py-2 text-sm focus:ring-2 focus:outline-none"
+            >
+              <option value="new">New</option>
+              <option value="likeNew">Like New</option>
+              <option value="used">Used</option>
+            </select>
+          </div>
+
+          {/* Digital product */}
+          <label className="flex items-center gap-2 text-sm">
+            <input
+              type="checkbox"
+              checked={form.isDigital}
+              onChange={(e) =>
+                setForm((f) => ({ ...f, isDigital: e.target.checked }))
+              }
+              className="rounded"
+            />
+            This is a digital product
+          </label>
 
           <div>
             <label className="mb-1.5 block text-sm font-medium">

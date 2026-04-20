@@ -101,7 +101,7 @@ export default function MyStoreDashboard() {
       <div className="mx-auto max-w-4xl space-y-6 px-4 py-6 lg:px-8">
         {/* Store card */}
         <div className="bg-card border-border overflow-hidden rounded-xl border shadow-sm">
-          {store.banner && (
+          {store.banner?.url ? (
             <div className="from-primary/20 to-primary/5 relative h-28 overflow-hidden bg-gradient-to-r">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
@@ -110,11 +110,11 @@ export default function MyStoreDashboard() {
                 className="h-full w-full object-cover"
               />
             </div>
-          )}
+          ) : null}
           <div className="p-4">
             <div className="flex items-start justify-between">
               <div className="flex items-center gap-3">
-                {store.logo ? (
+                {store.logo?.url ? (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img
                     src={store.logo.url}
@@ -156,11 +156,13 @@ export default function MyStoreDashboard() {
                   <Edit size={13} /> Edit Store
                 </Link>
               </Button>
-              <Button variant="outline" size="sm" asChild className="gap-1.5">
-                <Link href={`/store/stores/${store.slug}`}>
-                  <Store size={13} /> View Public Page
-                </Link>
-              </Button>
+              {store.status === "active" && (
+                <Button variant="outline" size="sm" asChild className="gap-1.5">
+                  <Link href={`/store/stores/${store.slug}`}>
+                    <Store size={13} /> View Public Page
+                  </Link>
+                </Button>
+              )}
             </div>
           </div>
         </div>
@@ -170,7 +172,7 @@ export default function MyStoreDashboard() {
           {[
             {
               label: "Total Products",
-              value: analytics?.totalProducts ?? store.totalProducts ?? 0,
+              value: analytics?.totalProducts ?? 0,
               icon: Package,
               href: "/store/my-store/products",
             },

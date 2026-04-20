@@ -17,13 +17,14 @@ export function ImageUploader({
   existingImages = [],
   onRemoveExisting,
 }: ImageUploaderProps) {
+  const validExisting = existingImages.filter((img) => !!img.url)
   const [previews, setPreviews] = useState<Array<{ file: File; url: string }>>(
     [],
   )
 
   const handleFiles = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files ?? [])
-    const remaining = maxImages - existingImages.length - previews.length
+    const remaining = maxImages - validExisting.length - previews.length
     const toAdd = files.slice(0, remaining)
 
     const newPreviews = toAdd.map((file) => ({
@@ -44,15 +45,15 @@ export function ImageUploader({
     onFilesChange(updated.map((p) => p.file))
   }
 
-  const totalImages = existingImages.length + previews.length
+  const totalImages = validExisting.length + previews.length
   const canAddMore = totalImages < maxImages
 
   return (
     <div className="space-y-3">
       {/* Existing images */}
-      {(existingImages.length > 0 || previews.length > 0) && (
+      {(validExisting.length > 0 || previews.length > 0) && (
         <div className="flex flex-wrap gap-2">
-          {existingImages.map((img) => (
+          {validExisting.map((img) => (
             <div
               key={img.publicId}
               className="group relative h-20 w-20 overflow-hidden rounded-lg"

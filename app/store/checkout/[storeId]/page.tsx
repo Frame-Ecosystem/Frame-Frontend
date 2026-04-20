@@ -12,9 +12,9 @@ import Image from "next/image"
 
 const PAYMENT_METHODS: { value: PaymentMethod; label: string; icon: string }[] =
   [
-    { value: "cash_on_delivery", label: "Cash on Delivery", icon: "💵" },
-    { value: "bank_transfer", label: "Bank Transfer", icon: "🏦" },
-    { value: "online_payment", label: "Online Payment", icon: "💳" },
+    { value: "cashOnDelivery", label: "Cash on Delivery", icon: "💵" },
+    { value: "bankTransfer", label: "Bank Transfer", icon: "🏦" },
+    { value: "inStore", label: "In-Store Payment", icon: "💳" },
   ]
 
 export default function CheckoutPage() {
@@ -24,17 +24,18 @@ export default function CheckoutPage() {
   const placeOrder = usePlaceOrder()
 
   const [address, setAddress] = useState({
-    street: "",
+    address: "",
     city: "",
     state: "",
-    country: "Tunisia",
-    postalCode: "",
+    zipCode: "",
+    notes: "",
   })
   const [paymentMethod, setPaymentMethod] =
-    useState<PaymentMethod>("cash_on_delivery")
+    useState<PaymentMethod>("cashOnDelivery")
   const [notes, setNotes] = useState("")
 
   const storeItems = (cart?.items ?? []).filter((item) => {
+    if (!item.product) return false
     const s =
       typeof item.product.storeId === "object"
         ? (item.product.storeId as { _id: string })
@@ -49,7 +50,7 @@ export default function CheckoutPage() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    if (!address.street || !address.city) {
+    if (!address.address || !address.city) {
       toast.error("Please fill in your shipping address")
       return
     }
@@ -60,7 +61,7 @@ export default function CheckoutPage() {
         items: storeItems.map((item) => ({
           productId: item.product._id,
           quantity: item.quantity,
-          variants: item.variants,
+          variantIndex: item.variantIndex,
         })),
         shippingAddress: address,
         paymentMethod,
@@ -109,9 +110,9 @@ export default function CheckoutPage() {
               </h2>
               <Input
                 placeholder="Street address"
-                value={address.street}
+                value={address.address}
                 onChange={(e) =>
-                  setAddress((a) => ({ ...a, street: e.target.value }))
+                  setAddress((a) => ({ ...a, address: e.target.value }))
                 }
                 required
               />
@@ -134,17 +135,17 @@ export default function CheckoutPage() {
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <Input
-                  placeholder="Country"
-                  value={address.country}
+                  placeholder="Zip code"
+                  value={address.zipCode}
                   onChange={(e) =>
-                    setAddress((a) => ({ ...a, country: e.target.value }))
+                    setAddress((a) => ({ ...a, zipCode: e.target.value }))
                   }
                 />
                 <Input
-                  placeholder="Postal code"
-                  value={address.postalCode}
+                  placeholder="Notes (optional)"
+                  value={address.notes}
                   onChange={(e) =>
-                    setAddress((a) => ({ ...a, postalCode: e.target.value }))
+                    setAddress((a) => ({ ...a, notes: e.target.value }))
                   }
                 />
               </div>

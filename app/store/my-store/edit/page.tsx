@@ -15,15 +15,11 @@ import { ImageUploader } from "@/app/_components/marketplace/image-uploader"
 import { toast } from "sonner"
 
 const CATEGORIES: { value: StoreCategory; label: string }[] = [
-  { value: "haircare", label: "Hair Care" },
-  { value: "skincare", label: "Skin Care" },
-  { value: "makeup", label: "Makeup" },
-  { value: "nails", label: "Nails" },
-  { value: "fragrance", label: "Fragrance" },
-  { value: "tools_accessories", label: "Tools & Accessories" },
-  { value: "organic_natural", label: "Organic & Natural" },
-  { value: "mens_grooming", label: "Men's Grooming" },
-  { value: "spa_wellness", label: "Spa & Wellness" },
+  { value: "beauty", label: "Beauty" },
+  { value: "fashion", label: "Fashion" },
+  { value: "wellness", label: "Wellness" },
+  { value: "accessories", label: "Accessories" },
+  { value: "tools", label: "Tools" },
   { value: "other", label: "Other" },
 ]
 
@@ -186,7 +182,7 @@ export default function EditStorePage() {
               maxImages={1}
               onFilesChange={setLogoFiles}
               existingImages={
-                store.logo
+                store.logo?.url
                   ? [{ url: store.logo.url, publicId: store.logo.publicId }]
                   : []
               }
@@ -201,7 +197,7 @@ export default function EditStorePage() {
               maxImages={1}
               onFilesChange={setBannerFiles}
               existingImages={
-                store.banner
+                store.banner?.url
                   ? [{ url: store.banner.url, publicId: store.banner.publicId }]
                   : []
               }

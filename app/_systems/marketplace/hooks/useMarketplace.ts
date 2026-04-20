@@ -24,6 +24,8 @@ import type {
   UpdateProductCategorySuggestionStatusDto,
   AdminApproveProductCategorySuggestionDto,
   ProductCategorySuggestionListParams,
+  WishlistItem,
+  MarketplaceListResponse,
 } from "@/app/_types/marketplace"
 
 /* ═══════════════════════════════════════════════
@@ -318,9 +320,12 @@ export function useStoreOrders(storeId: string, page = 1) {
 }
 
 export function useMyStoreOrders(filter?: { status?: OrderStatus }, page = 1) {
+  const { data: store } = useMyStore()
   return useQuery({
-    queryKey: ["marketplace", "orders", "my-store", filter, page],
-    queryFn: () => marketplaceService.getMyStoreOrders(filter, page),
+    queryKey: ["marketplace", "orders", "my-store", store?._id, filter, page],
+    queryFn: () =>
+      marketplaceService.getMyStoreOrders(store!._id, filter, page),
+    enabled: !!store?._id,
     staleTime: 1 * 60 * 1000,
   })
 }
@@ -500,9 +505,33 @@ export function useToggleWishlist(productId: string, isInWishlist: boolean) {
       }
     },
     onMutate: async () => {
-      // Optimistic update — invalidate will re-fetch
+      await qc.cancelQueries({ queryKey: ["marketplace", "wishlist"] })
+      const previous = qc.getQueriesData<MarketplaceListResponse<WishlistItem>>(
+        {
+          queryKey: ["marketplace", "wishlist"],
+        },
+      )
+      qc.setQueriesData<MarketplaceListResponse<WishlistItem>>(
+        { queryKey: ["marketplace", "wishlist"] },
+        (old) => {
+          if (!old) return old
+          if (isInWishlist) {
+            const filtered = old.data.filter(
+              (w) => w.product?._id !== productId,
+            )
+            return { ...old, data: filtered, count: filtered.length }
+          }
+          return old
+        },
+      )
+      return { previous }
     },
-    onSuccess: () => {
+    onError: (_err, _vars, ctx) => {
+      ctx?.previous?.forEach(([key, data]) => {
+        if (data) qc.setQueryData(key, data)
+      })
+    },
+    onSettled: () => {
       qc.invalidateQueries({ queryKey: ["marketplace", "wishlist"] })
     },
   })
@@ -513,9 +542,11 @@ export function useToggleWishlist(productId: string, isInWishlist: boolean) {
    ═══════════════════════════════════════════════ */
 
 export function useMyStoreAnalytics() {
+  const { data: store } = useMyStore()
   return useQuery({
     queryKey: marketplaceKeys.storeAnalytics(),
     queryFn: () => marketplaceService.getMyStoreAnalytics(),
+    enabled: !!store?._id,
     staleTime: 5 * 60 * 1000,
   })
 }

@@ -9,10 +9,9 @@ import {
   RefreshCw,
   AlertTriangle,
 } from "lucide-react"
-import type { Order, OrderStatusHistory } from "@/app/_types/marketplace"
+import type { Order } from "@/app/_types/marketplace"
 
 interface OrderTimelineProps {
-  history: OrderStatusHistory[]
   currentStatus: Order["status"]
 }
 
@@ -25,7 +24,6 @@ const STATUS_ICONS: Partial<Record<Order["status"], React.ReactNode>> = {
   cancelled: <XCircle size={14} />,
   refunded: <RefreshCw size={14} />,
   disputed: <AlertTriangle size={14} />,
-  returned: <Package size={14} />,
 }
 
 const STATUS_LABELS: Record<Order["status"], string> = {
@@ -37,10 +35,9 @@ const STATUS_LABELS: Record<Order["status"], string> = {
   cancelled: "Cancelled",
   refunded: "Refunded",
   disputed: "Disputed",
-  returned: "Returned",
 }
 
-export function OrderTimeline({ history, currentStatus }: OrderTimelineProps) {
+export function OrderTimeline({ currentStatus }: OrderTimelineProps) {
   const FLOW: Order["status"][] = [
     "pending",
     "confirmed",
@@ -52,9 +49,9 @@ export function OrderTimeline({ history, currentStatus }: OrderTimelineProps) {
     "cancelled",
     "refunded",
     "disputed",
-    "returned",
   ]
   const isTerminal = terminalStates.includes(currentStatus)
+  const currentIdx = FLOW.indexOf(currentStatus)
 
   return (
     <div className="space-y-3">
@@ -62,8 +59,7 @@ export function OrderTimeline({ history, currentStatus }: OrderTimelineProps) {
       {!isTerminal && (
         <div className="flex items-center gap-0">
           {FLOW.map((step, i) => {
-            const historyEntry = history.find((h) => h.status === step)
-            const isCompleted = !!historyEntry
+            const isCompleted = currentIdx >= 0 && i < currentIdx
             const isCurrent = step === currentStatus
             const isLast = i === FLOW.length - 1
 
@@ -74,7 +70,7 @@ export function OrderTimeline({ history, currentStatus }: OrderTimelineProps) {
                   {i > 0 && (
                     <div
                       className={`h-0.5 flex-1 ${
-                        isCompleted ? "bg-primary" : "bg-muted"
+                        isCompleted || isCurrent ? "bg-primary" : "bg-muted"
                       }`}
                     />
                   )}
@@ -94,9 +90,7 @@ export function OrderTimeline({ history, currentStatus }: OrderTimelineProps) {
                   {!isLast && (
                     <div
                       className={`h-0.5 flex-1 ${
-                        FLOW.indexOf(currentStatus) > i
-                          ? "bg-primary"
-                          : "bg-muted"
+                        currentIdx > i ? "bg-primary" : "bg-muted"
                       }`}
                     />
                   )}
@@ -106,47 +100,23 @@ export function OrderTimeline({ history, currentStatus }: OrderTimelineProps) {
                 >
                   {STATUS_LABELS[step]}
                 </p>
-                {historyEntry && (
-                  <p className="text-muted-foreground/50 text-center text-xs">
-                    {new Date(historyEntry.timestamp).toLocaleDateString()}
-                  </p>
-                )}
               </div>
             )
           })}
         </div>
       )}
 
-      {/* Full history log */}
-      <div className="space-y-2 pt-2">
-        {history
-          .slice()
-          .reverse()
-          .map((entry, i) => (
-            <div key={i} className="flex items-start gap-3">
-              <div
-                className={`mt-0.5 flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full ${
-                  i === 0
-                    ? "bg-primary/10 text-primary"
-                    : "bg-muted text-muted-foreground"
-                }`}
-              >
-                {STATUS_ICONS[entry.status] ?? <Package size={12} />}
-              </div>
-              <div className="min-w-0 flex-1">
-                <p className="text-sm font-medium">
-                  {STATUS_LABELS[entry.status]}
-                </p>
-                {entry.note && (
-                  <p className="text-muted-foreground text-xs">{entry.note}</p>
-                )}
-                <p className="text-muted-foreground text-xs">
-                  {new Date(entry.timestamp).toLocaleString()}
-                </p>
-              </div>
-            </div>
-          ))}
-      </div>
+      {/* Terminal status display */}
+      {isTerminal && (
+        <div className="flex items-center gap-3 rounded-lg border border-red-200 bg-red-50 p-3 dark:border-red-900 dark:bg-red-950/30">
+          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-red-100 text-red-600 dark:bg-red-900/50">
+            {STATUS_ICONS[currentStatus] ?? <Package size={14} />}
+          </div>
+          <p className="text-sm font-medium text-red-700 dark:text-red-400">
+            {STATUS_LABELS[currentStatus]}
+          </p>
+        </div>
+      )}
     </div>
   )
 }

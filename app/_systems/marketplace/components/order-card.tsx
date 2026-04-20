@@ -18,7 +18,6 @@ const STATUS_CONFIG: Record<Order["status"], { label: string; cls: string }> = {
   cancelled: { label: "Cancelled", cls: "bg-red-100 text-red-700" },
   refunded: { label: "Refunded", cls: "bg-orange-100 text-orange-700" },
   disputed: { label: "Disputed", cls: "bg-red-100 text-red-800" },
-  returned: { label: "Returned", cls: "bg-gray-100 text-gray-700" },
 }
 
 export function OrderCard({ order }: OrderCardProps) {
@@ -59,7 +58,7 @@ export function OrderCard({ order }: OrderCardProps) {
                 {" · "}
                 {order.items
                   .slice(0, 2)
-                  .map((item) => item.productSnapshot.name)
+                  .map((item) => item.name)
                   .join(", ")}
                 {order.items.length > 2 && ` +${order.items.length - 2} more`}
               </p>

@@ -12,15 +12,11 @@ import type {
 
 const CATEGORIES: { value: StoreCategory | ""; label: string }[] = [
   { value: "", label: "All" },
-  { value: "haircare", label: "Hair Care" },
-  { value: "skincare", label: "Skin Care" },
-  { value: "makeup", label: "Makeup" },
-  { value: "nails", label: "Nails" },
-  { value: "fragrance", label: "Fragrance" },
-  { value: "tools_accessories", label: "Tools" },
-  { value: "organic_natural", label: "Organic" },
-  { value: "mens_grooming", label: "Men's" },
-  { value: "spa_wellness", label: "Spa & Wellness" },
+  { value: "beauty", label: "Beauty" },
+  { value: "fashion", label: "Fashion" },
+  { value: "wellness", label: "Wellness" },
+  { value: "accessories", label: "Accessories" },
+  { value: "tools", label: "Tools" },
   { value: "other", label: "Other" },
 ]
 

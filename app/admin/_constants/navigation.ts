@@ -10,6 +10,8 @@ import {
   Bot,
   ListOrdered,
   ShoppingBag,
+  Tags,
+  MessageSquarePlus,
 } from "lucide-react"
 
 export const ADMIN_NAV = [
@@ -69,9 +71,24 @@ export const ADMIN_NAV = [
     icon: ListOrdered,
   },
   {
-    label: "Marketplace",
-    href: "/admin/marketplace",
-    icon: ShoppingBag,
+    group: "Marketplace",
+    items: [
+      {
+        label: "Overview",
+        href: "/admin/marketplace",
+        icon: ShoppingBag,
+      },
+      {
+        label: "Categories",
+        href: "/admin/marketplace/categories",
+        icon: Tags,
+      },
+      {
+        label: "Suggestions",
+        href: "/admin/marketplace/category-suggestions",
+        icon: MessageSquarePlus,
+      },
+    ],
   },
 ] as const
 

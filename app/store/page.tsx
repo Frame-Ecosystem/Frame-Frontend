@@ -31,15 +31,12 @@ const CATEGORY_CHIPS: {
   emoji: string
 }[] = [
   { value: "", label: "All", emoji: "✨" },
-  { value: "haircare", label: "Hair Care", emoji: "💆" },
-  { value: "skincare", label: "Skin Care", emoji: "🌿" },
-  { value: "makeup", label: "Makeup", emoji: "💄" },
-  { value: "nails", label: "Nails", emoji: "💅" },
-  { value: "fragrance", label: "Fragrance", emoji: "🌸" },
-  { value: "tools_accessories", label: "Tools", emoji: "🪮" },
-  { value: "organic_natural", label: "Organic", emoji: "🍃" },
-  { value: "mens_grooming", label: "Men's", emoji: "🧔" },
-  { value: "spa_wellness", label: "Spa", emoji: "🛁" },
+  { value: "beauty", label: "Beauty", emoji: "💆" },
+  { value: "fashion", label: "Fashion", emoji: "👗" },
+  { value: "wellness", label: "Wellness", emoji: "🌿" },
+  { value: "accessories", label: "Accessories", emoji: "👜" },
+  { value: "tools", label: "Tools", emoji: "🩮" },
+  { value: "other", label: "Other", emoji: "📦" },
 ]
 
 export default function MarketplacePage() {

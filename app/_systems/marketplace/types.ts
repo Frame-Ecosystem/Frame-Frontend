@@ -3,15 +3,11 @@
 // ── Enums ────────────────────────────────────────────────────────────────────
 
 export type StoreCategory =
-  | "haircare"
-  | "skincare"
-  | "makeup"
-  | "nails"
-  | "fragrance"
-  | "tools_accessories"
-  | "organic_natural"
-  | "mens_grooming"
-  | "spa_wellness"
+  | "beauty"
+  | "fashion"
+  | "wellness"
+  | "accessories"
+  | "tools"
   | "other"
 
 export const StoreStatus = {
@@ -19,7 +15,6 @@ export const StoreStatus = {
   ACTIVE: "active",
   SUSPENDED: "suspended",
   CLOSED: "closed",
-  REJECTED: "rejected",
 } as const
 export type StoreStatus = (typeof StoreStatus)[keyof typeof StoreStatus]
 
@@ -27,7 +22,7 @@ export const StoreBadge = {
   NONE: "none",
   VERIFIED: "verified",
   PREMIUM: "premium",
-  TOP_SELLER: "top_seller",
+  TOP_SELLER: "topSeller",
 } as const
 export type StoreBadge = (typeof StoreBadge)[keyof typeof StoreBadge]
 
@@ -138,12 +133,18 @@ export interface ProductCategorySuggestion {
 export const ProductStatus = {
   DRAFT: "draft",
   ACTIVE: "active",
-  INACTIVE: "inactive",
-  OUT_OF_STOCK: "out_of_stock",
-  PENDING_REVIEW: "pending_review",
-  REJECTED: "rejected",
+  ARCHIVED: "archived",
+  HIDDEN: "hidden",
 } as const
 export type ProductStatus = (typeof ProductStatus)[keyof typeof ProductStatus]
+
+export const ProductCondition = {
+  NEW: "new",
+  LIKE_NEW: "likeNew",
+  USED: "used",
+} as const
+export type ProductCondition =
+  (typeof ProductCondition)[keyof typeof ProductCondition]
 
 export const OrderStatus = {
   PENDING: "pending",
@@ -154,23 +155,12 @@ export const OrderStatus = {
   CANCELLED: "cancelled",
   REFUNDED: "refunded",
   DISPUTED: "disputed",
-  RETURNED: "returned",
 } as const
 export type OrderStatus = (typeof OrderStatus)[keyof typeof OrderStatus]
 
-export type PaymentMethod =
-  | "cash_on_delivery"
-  | "bank_transfer"
-  | "card"
-  | "wallet"
-  | "online_payment"
+export type PaymentMethod = "cashOnDelivery" | "bankTransfer" | "inStore"
 
-export type PaymentStatus =
-  | "pending"
-  | "paid"
-  | "failed"
-  | "refunded"
-  | "partially_refunded"
+export type PaymentStatus = "pending" | "paid" | "refunded" | "failed"
 
 export type ReviewStatus = "active" | "hidden" | "flagged"
 
@@ -187,6 +177,19 @@ export interface StoreAddress {
   state?: string
   country?: string
   zipCode?: string
+}
+
+export interface StoreLocation {
+  latitude?: number
+  longitude?: number
+  address?: string
+  city?: string
+  state?: string
+}
+
+export interface StorePolicies {
+  returnPolicy?: string
+  shippingPolicy?: string
 }
 
 export interface StoreSocialLinks {
@@ -211,8 +214,6 @@ export interface StoreStats {
   totalRevenue: number
   averageRating: number
   ratingCount: number
-  viewCount: number
-  followerCount: number
 }
 
 export interface Store {
@@ -226,28 +227,20 @@ export interface Store {
         loungeTitle?: string
         profileImage?: { url: string }
       }
-  ownerType: "client" | "lounge"
   name: string
   slug: string
   description?: string
   category: StoreCategory
-  tags: string[]
   logo?: StoreImage
   banner?: StoreImage
   contactEmail?: string
   contactPhone?: string
-  contactWhatsapp?: string
-  socialLinks?: StoreSocialLinks
-  address?: StoreAddress
-  returnPolicy?: string
-  shippingPolicy?: string
+  location?: StoreLocation
+  policies?: StorePolicies
   status: StoreStatus
   isVerified: boolean
   badge: StoreBadge
   stats: StoreStats
-  settings: StoreSettings
-  /** @alias stats.totalProducts */
-  totalProducts?: number
   createdAt: string
   updatedAt: string
 }
@@ -261,21 +254,13 @@ export interface ProductImage {
   isPrimary?: boolean
 }
 
-export interface ProductVariantOption {
-  label: string
-  value: string
-  priceModifier?: number
-  stock?: number
-}
-
 export interface ProductVariant {
+  sku?: string
   name: string
-  options: ProductVariantOption[]
-}
-
-export interface ProductAttribute {
-  key: string
-  value: string
+  price: number
+  compareAtPrice?: number
+  stock: number
+  attributes?: Record<string, string>
 }
 
 export interface ProductStats {
@@ -293,7 +278,6 @@ export interface Product {
   name: string
   slug: string
   description?: string
-  shortDescription?: string
   /** Reference to an admin-managed `ProductCategory` document. */
   categoryId: ProductCategoryRef
   /**
@@ -305,23 +289,16 @@ export interface Product {
   tags: string[]
   price: number
   compareAtPrice?: number
-  costPrice?: number
   currency: string
   sku?: string
-  barcode?: string
   stock: number
-  lowStockThreshold: number
-  trackInventory: boolean
   weight?: number
   dimensions?: { length?: number; width?: number; height?: number }
   images: ProductImage[]
   variants: ProductVariant[]
-  attributes: ProductAttribute[]
-  seoTitle?: string
-  seoDescription?: string
   status: ProductStatus
+  condition: ProductCondition
   isDigital: boolean
-  isFeatured: boolean
   stats: ProductStats
   /** @alias stats.averageRating */
   averageRating?: number
@@ -333,48 +310,27 @@ export interface Product {
 // ── Order ────────────────────────────────────────────────────────────────────
 
 export interface OrderItem {
-  productId: string | Product
-  /** @alias productId */
-  product?: Product
-  productSnapshot: {
-    name: string
-    price: number
-    image?: string
-  }
+  productId: string
+  variantIndex?: number
+  name: string
+  price: number
   quantity: number
-  unitPrice: number
-  totalPrice: number
-  /** @alias unitPrice */
-  price?: number
-  variantInfo?: string
-  /** @alias variantInfo */
-  variants?: any[]
-}
-
-export interface OrderStatusHistory {
-  status: OrderStatus
-  timestamp: string
-  note?: string
-  changedBy?: string
+  image?: string
 }
 
 export interface ShippingAddress {
   fullName?: string
   phone?: string
-  street: string
+  address: string
   city: string
   state?: string
-  country: string
   zipCode?: string
-  /** @alias zipCode */
-  postalCode?: string
+  notes?: string
 }
 
 export interface Order {
   _id: string
   orderNumber: string
-  /** @alias total */
-  totalAmount?: number
   buyerId:
     | string
     | {
@@ -387,19 +343,16 @@ export interface Order {
   items: OrderItem[]
   subtotal: number
   shippingCost: number
-  taxAmount: number
-  discountAmount: number
   total: number
-  currency: string
   status: OrderStatus
-  statusHistory: OrderStatusHistory[]
   shippingAddress: ShippingAddress
   trackingNumber?: string
   trackingUrl?: string
   paymentMethod: PaymentMethod
   paymentStatus: PaymentStatus
   notes?: string
-  cancellationReason?: string
+  cancelReason?: string
+  refundReason?: string
   refundAmount?: number
   disputeReason?: string
   disputeResolution?: string
@@ -466,8 +419,6 @@ export interface Review {
 export interface WishlistItem {
   _id: string
   userId: string
-  productId: Product
-  /** @alias productId */
   product: Product
   createdAt: string
 }
@@ -515,22 +466,16 @@ export interface CreateStoreDto {
   category: StoreCategory
   contactEmail?: string
   contactPhone?: string
-  socialLinks?: StoreSocialLinks
-  address?: StoreAddress
-  returnPolicy?: string
-  shippingPolicy?: string
+  location?: StoreLocation
+  policies?: StorePolicies
 }
 
-export interface UpdateStoreDto extends Partial<CreateStoreDto> {
-  settings?: Partial<StoreSettings>
-}
+export interface UpdateStoreDto extends Partial<CreateStoreDto> {}
 
 export interface CreateProductDto {
-  /** Optional — server infers from authenticated user's store when omitted. */
-  storeId?: string
+  storeId: string
   name: string
   description?: string
-  shortDescription?: string
   /** ObjectId of an admin-managed `ProductCategory`. */
   categoryId: string
   price: number
@@ -538,14 +483,14 @@ export interface CreateProductDto {
   stock: number
   tags?: string[]
   weight?: number
+  sku?: string
+  condition?: ProductCondition
+  isDigital?: boolean
   variants?: ProductVariant[]
-  attributes?: ProductAttribute[]
-  trackInventory?: boolean
-  lowStockThreshold?: number
 }
 
 export interface UpdateProductDto extends Partial<CreateProductDto> {
-  status?: "active" | "draft" | "archived" | "out_of_stock"
+  status?: "active" | "draft" | "archived"
 }
 
 export interface CreateOrderDto {

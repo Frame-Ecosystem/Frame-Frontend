@@ -81,56 +81,33 @@ export default function OrderDetailPage() {
         </div>
 
         {/* Timeline */}
-        <OrderTimeline
-          currentStatus={order.status}
-          history={order.statusHistory ?? []}
-        />
+        <OrderTimeline currentStatus={order.status} />
 
         {/* Items */}
         <div className="bg-card border-border space-y-3 rounded-xl border p-4">
           <h2 className="font-semibold">Items</h2>
-          {order.items.map((item) => {
-            const product =
-              typeof item.product === "object"
-                ? (item.product as {
-                    _id: string
-                    name: string
-                    images?: Array<{ url: string }>
-                  })
-                : null
+          {order.items.map((item, idx) => {
             return (
-              <div
-                key={String(item.product)}
-                className="flex items-center gap-3"
-              >
-                {product?.images?.[0] && (
+              <div key={idx} className="flex items-center gap-3">
+                {item.image && (
                   <div className="relative h-12 w-12 flex-shrink-0 overflow-hidden rounded-lg">
                     <Image
-                      src={product.images[0].url}
-                      alt={product.name}
+                      src={item.image}
+                      alt={item.name}
                       fill
                       className="object-cover"
                     />
                   </div>
                 )}
                 <div className="min-w-0 flex-1">
-                  <p className="truncate text-sm font-medium">
-                    {product?.name ?? "Product"}
-                  </p>
-                  {item.variants && Object.keys(item.variants).length > 0 && (
-                    <p className="text-muted-foreground text-xs">
-                      {Object.entries(item.variants)
-                        .map(([k, v]) => `${k}: ${v}`)
-                        .join(", ")}
-                    </p>
-                  )}
+                  <p className="truncate text-sm font-medium">{item.name}</p>
                 </div>
                 <div className="flex-shrink-0 text-right">
                   <p className="text-sm font-semibold">
-                    {((item.price ?? 0) * item.quantity).toFixed(2)} DT
+                    {(item.price * item.quantity).toFixed(2)} DT
                   </p>
                   <p className="text-muted-foreground text-xs">
-                    x{item.quantity} · {(item.price ?? 0).toFixed(2)} DT
+                    x{item.quantity} · {item.price.toFixed(2)} DT
                   </p>
                 </div>
               </div>
@@ -143,21 +120,29 @@ export default function OrderDetailPage() {
           <div className="bg-card border-border rounded-xl border p-4">
             <h2 className="mb-2 text-sm font-semibold">Shipping Address</h2>
             <p className="text-muted-foreground text-sm">
-              {order.shippingAddress.street}
+              {order.shippingAddress.address}
             </p>
             <p className="text-muted-foreground text-sm">
-              {order.shippingAddress.city}, {order.shippingAddress.country}
+              {order.shippingAddress.city}
+              {order.shippingAddress.state
+                ? `, ${order.shippingAddress.state}`
+                : ""}
             </p>
-            {order.shippingAddress.postalCode && (
+            {order.shippingAddress.zipCode && (
               <p className="text-muted-foreground text-sm">
-                {order.shippingAddress.postalCode}
+                {order.shippingAddress.zipCode}
+              </p>
+            )}
+            {order.shippingAddress.notes && (
+              <p className="text-muted-foreground mt-1 text-xs italic">
+                {order.shippingAddress.notes}
               </p>
             )}
           </div>
           <div className="bg-card border-border rounded-xl border p-4">
             <h2 className="mb-2 text-sm font-semibold">Payment</h2>
             <p className="text-muted-foreground text-sm capitalize">
-              {order.paymentMethod.replace(/_/g, " ")}
+              {order.paymentMethod.replace(/([A-Z])/g, " $1").trim()}
             </p>
             <p className="text-muted-foreground text-sm capitalize">
               {order.paymentStatus}
@@ -178,7 +163,7 @@ export default function OrderDetailPage() {
           <div className="flex items-center justify-between">
             <span className="font-semibold">Total</span>
             <span className="text-primary text-xl font-bold">
-              {(order.totalAmount ?? order.total ?? 0).toFixed(2)} DT
+              {order.total.toFixed(2)} DT
             </span>
           </div>
         </div>

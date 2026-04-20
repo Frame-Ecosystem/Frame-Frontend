@@ -2,7 +2,7 @@
 
 import Image from "next/image"
 import Link from "next/link"
-import { Store, ArrowLeft, Star, Package, ExternalLink } from "lucide-react"
+import { Store, ArrowLeft, Star, Package } from "lucide-react"
 import { Badge } from "@/app/_components/ui/badge"
 import type { Store as StoreType } from "@/app/_types/marketplace"
 
@@ -26,7 +26,7 @@ const BADGE_CONFIG: Record<
     icon: "★",
     cls: "bg-yellow-500/10 text-yellow-600 border-yellow-200",
   },
-  top_seller: {
+  topSeller: {
     label: "Top Seller",
     icon: "🏆",
     cls: "bg-purple-500/10 text-purple-600 border-purple-200",
@@ -127,21 +127,6 @@ export function StoreHeader({
               </div>
             )}
           </div>
-
-          {/* Contact links */}
-          {store.socialLinks?.website && (
-            <div className="mt-3">
-              <a
-                href={store.socialLinks.website}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-primary inline-flex items-center gap-1 text-sm hover:underline"
-              >
-                <ExternalLink size={13} />
-                {store.socialLinks.website.replace(/^https?:\/\//, "")}
-              </a>
-            </div>
-          )}
         </div>
       </div>
     </div>
