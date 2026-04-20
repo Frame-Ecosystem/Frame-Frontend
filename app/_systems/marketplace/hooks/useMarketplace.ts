@@ -317,10 +317,16 @@ export function useStoreOrders(storeId: string, page = 1) {
   })
 }
 
-export function useMyStoreOrders(filter?: { status?: OrderStatus }, page = 1) {
+export function useMyStoreOrders(
+  storeId?: string,
+  filter?: { status?: OrderStatus },
+  page = 1,
+) {
   return useQuery({
-    queryKey: ["marketplace", "orders", "my-store", filter, page],
-    queryFn: () => marketplaceService.getMyStoreOrders(filter, page),
+    queryKey: ["marketplace", "orders", "my-store", storeId, filter, page],
+    queryFn: () =>
+      marketplaceService.getMyStoreOrders(storeId ?? "", filter, page),
+    enabled: !!storeId,
     staleTime: 1 * 60 * 1000,
   })
 }

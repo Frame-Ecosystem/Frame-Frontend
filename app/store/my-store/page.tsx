@@ -56,7 +56,9 @@ const STATUS_CONFIG = {
 
 export default function MyStoreDashboard() {
   const { data: store, isLoading } = useMyStore()
-  const { data: ordersData } = useMyStoreOrders({ status: "pending" })
+  const { data: ordersData } = useMyStoreOrders(store?._id, {
+    status: "pending",
+  })
   const { data: analytics } = useMyStoreAnalytics()
 
   if (isLoading) {

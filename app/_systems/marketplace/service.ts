@@ -231,6 +231,7 @@ class MarketplaceService {
   }
 
   async getMyStoreOrders(
+    storeId: string,
     filter?: { status?: OrderStatus },
     page = 1,
     limit = 20,
@@ -240,7 +241,9 @@ class MarketplaceService {
       limit: String(limit),
     })
     if (filter?.status) params.set("status", filter.status)
-    const res = await apiClient.get<any>(`${BASE}/orders/my-store?${params}`)
+    const res = await apiClient.get<any>(
+      `${BASE}/orders/my-store/${storeId}?${params}`,
+    )
     return { data: res?.data ?? [], count: res?.count ?? 0 }
   }
 

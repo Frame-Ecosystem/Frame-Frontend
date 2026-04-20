@@ -83,6 +83,19 @@ export default function MarketplacePage() {
   return (
     <div className="from-background via-background to-muted/20 min-h-screen bg-linear-to-br">
       <div className="mx-auto max-w-7xl space-y-10 px-4 py-6 lg:px-8 lg:py-10">
+        {/* Open store CTA */}
+        <section className="from-primary/15 to-primary/5 rounded-2xl bg-linear-to-r p-6 text-center">
+          <Store className="text-primary mx-auto mb-3 h-10 w-10" />
+          <h3 className="mb-2 text-xl font-bold">Start Selling Today</h3>
+          <p className="text-muted-foreground mx-auto mb-4 max-w-md text-sm">
+            Join hundreds of beauty professionals. Open your store and reach
+            thousands of customers.
+          </p>
+          <Button asChild size="lg">
+            <Link href="/store/my-store">Open My Store</Link>
+          </Button>
+        </section>
+
         {/* Hero */}
         <div className="from-primary/20 via-primary/10 to-background relative overflow-hidden rounded-2xl bg-linear-to-br p-6 lg:p-10">
           <div className="relative z-10">
@@ -271,19 +284,6 @@ export default function MarketplacePage() {
               ))}
             </div>
           )}
-        </section>
-
-        {/* Open store CTA */}
-        <section className="from-primary/15 to-primary/5 rounded-2xl bg-linear-to-r p-6 text-center">
-          <Store className="text-primary mx-auto mb-3 h-10 w-10" />
-          <h3 className="mb-2 text-xl font-bold">Start Selling Today</h3>
-          <p className="text-muted-foreground mx-auto mb-4 max-w-md text-sm">
-            Join hundreds of beauty professionals. Open your store and reach
-            thousands of customers.
-          </p>
-          <Button asChild size="lg">
-            <Link href="/store/my-store">Open My Store</Link>
-          </Button>
         </section>
       </div>
     </div>
