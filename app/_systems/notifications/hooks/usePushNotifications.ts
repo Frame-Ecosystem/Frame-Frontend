@@ -24,9 +24,10 @@ import { requestFCMToken, onForegroundMessage } from "@/app/_lib/firebase"
 import { pushNotificationService } from "@/app/_services/push-notification.service"
 import { useAuth } from "@/app/_auth"
 import { getNotificationEngine } from "@/app/_lib/notification-engine"
-import { getRedirectPath } from "@/app/_providers/notification"
+import { resolveRouteFromFCM } from "../lib/notification-routing"
+import { scrollToNotificationTargetFromFCM } from "./useNotificationNavigate"
 import { notificationKeys } from "./useNotifications"
-import type { AppNotification, UnreadCountData } from "@/app/_types"
+import type { UnreadCountData } from "@/app/_types"
 
 // ── Helpers ──────────────────────────────────────────────────
 
@@ -41,41 +42,6 @@ function getDeviceId(): string {
     localStorage.setItem(DEVICE_ID_KEY, id)
   }
   return id
-}
-
-// ── Notification routing ─────────────────────────────────────
-
-/**
- * Build a minimal AppNotification-like object from FCM data payload
- * so we can reuse the shared getRedirectPath() logic.
- */
-function resolveRouteFromFCM(data: Record<string, string>): string {
-  const pseudo: AppNotification = {
-    _id: "",
-    userId: "",
-    title: "",
-    body: "",
-    type: data.type || "",
-    category: data.category || "",
-    isRead: false,
-    createdAt: "",
-    updatedAt: "",
-    actionUrl: data.actionUrl,
-    metadata: {
-      bookingId: data.bookingId,
-      loungeId: data.loungeId,
-      clientId: data.clientId,
-      agentId: data.agentId,
-      postId: data.postId,
-      reelId: data.reelId,
-      commentId: data.commentId,
-      targetType: data.targetType as "post" | "reel" | "comment" | undefined,
-      followerId: data.followerId,
-      suggestionId: data.suggestionId,
-      reason: data.reason,
-    },
-  }
-  return getRedirectPath(pseudo) ?? "/notifications"
 }
 
 // ── Hook ─────────────────────────────────────────────────────
@@ -220,6 +186,7 @@ export function usePushNotifications(): PushNotificationControls {
             onClick: () => {
               toast.dismiss(id)
               router.push(route)
+              scrollToNotificationTargetFromFCM(data)
             },
           },
         })
