@@ -1572,6 +1572,19 @@ const tr: Record<string, string> = {
   // ── Follow Stats Dialog ────────────────────────────────────────────────
   "followStats.dialogFollowers": "Takipçiler",
   "followStats.dialogFollowing": "Takip Edilenler",
+
+  // ── PWA Install ────────────────────────────────────────────────────────
+  "pwa.install.title": "Frame Beauty Uygulamasını Edinin",
+  "pwa.install.description":
+    "Daha hızlı erişim, çevrimdışı destek ve tam ekran deneyim için Frame'i cihazınıza yükleyin.",
+  "pwa.install.iosDescription":
+    "Yerel uygulama deneyimi için Frame'i ana ekranınıza ekleyin.",
+  "pwa.install.iosStep1": "Safari'de Paylaş düğmesine dokunun",
+  "pwa.install.iosStep2": '"Ana Ekrana Ekle"ye dokunun',
+  "pwa.install.installButton": "Uygulamayı Yükle",
+  "pwa.install.installing": "Yükleniyor…",
+  "pwa.install.notNow": "Şimdi değil",
+  "pwa.install.gotIt": "Anladım",
 }
 
 export default tr

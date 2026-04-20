@@ -1601,6 +1601,19 @@ const fr: Record<string, string> = {
   // ── Follow Stats Dialog ────────────────────────────────────────────────
   "followStats.dialogFollowers": "Abonnés",
   "followStats.dialogFollowing": "Abonnements",
+
+  // ── PWA Install ────────────────────────────────────────────────────────
+  "pwa.install.title": "Installer l'app Frame Beauty",
+  "pwa.install.description":
+    "Installez Frame sur votre appareil pour un accès plus rapide, le mode hors ligne et une expérience plein écran.",
+  "pwa.install.iosDescription":
+    "Ajoutez Frame à votre écran d'accueil pour une expérience native.",
+  "pwa.install.iosStep1": "Appuyez sur le bouton Partager dans Safari",
+  "pwa.install.iosStep2": "Appuyez sur \"Sur l'écran d'accueil\"",
+  "pwa.install.installButton": "Installer",
+  "pwa.install.installing": "Installation…",
+  "pwa.install.notNow": "Pas maintenant",
+  "pwa.install.gotIt": "Compris",
 }
 
 export default fr

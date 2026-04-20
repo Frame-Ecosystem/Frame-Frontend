@@ -1542,6 +1542,19 @@ const ar: Record<string, string> = {
   // ── Follow Stats Dialog ────────────────────────────────────────────────
   "followStats.dialogFollowers": "المتابعون",
   "followStats.dialogFollowing": "المتابَعون",
+
+  // ── PWA Install ────────────────────────────────────────────────────────
+  "pwa.install.title": "احصل على تطبيق Frame Beauty",
+  "pwa.install.description":
+    "ثبّت Frame على جهازك للوصول الأسرع والدعم بدون إنترنت وتجربة ملء الشاشة.",
+  "pwa.install.iosDescription":
+    "أضف Frame إلى شاشتك الرئيسية لتجربة تطبيق أصلية.",
+  "pwa.install.iosStep1": "اضغط على زر المشاركة في Safari",
+  "pwa.install.iosStep2": 'اضغط على "إضافة إلى الشاشة الرئيسية"',
+  "pwa.install.installButton": "تثبيت التطبيق",
+  "pwa.install.installing": "جارٍ التثبيت…",
+  "pwa.install.notNow": "ليس الآن",
+  "pwa.install.gotIt": "فهمت",
 }
 
 export default ar

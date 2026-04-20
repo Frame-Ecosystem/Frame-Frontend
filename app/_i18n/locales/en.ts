@@ -1599,6 +1599,19 @@ const en: Record<string, string> = {
   // ── Follow Stats Dialog ────────────────────────────────────────────────
   "followStats.dialogFollowers": "Followers",
   "followStats.dialogFollowing": "Following",
+
+  // ── PWA Install ────────────────────────────────────────────────────────
+  "pwa.install.title": "Get the Frame Beauty App",
+  "pwa.install.description":
+    "Install Frame on your device for faster access, offline support, and a full-screen experience.",
+  "pwa.install.iosDescription":
+    "Add Frame to your home screen for a native app experience.",
+  "pwa.install.iosStep1": "Tap the Share button in Safari",
+  "pwa.install.iosStep2": 'Tap "Add to Home Screen"',
+  "pwa.install.installButton": "Install App",
+  "pwa.install.installing": "Installing…",
+  "pwa.install.notNow": "Not now",
+  "pwa.install.gotIt": "Got it",
 }
 
 export default en
