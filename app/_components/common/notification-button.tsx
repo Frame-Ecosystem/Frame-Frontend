@@ -64,15 +64,7 @@ const NOTIFICATION_META: Record<string, NotificationMeta> = {
     Icon: CheckCircle2,
     color: "text-green-500",
   },
-  [NotificationType.QUEUE_COMPLETED]: {
-    Icon: CheckCircle2,
-    color: "text-green-500",
-  },
   [NotificationType.BOOKING_ABSENT]: {
-    Icon: AlertTriangle,
-    color: "text-yellow-500",
-  },
-  [NotificationType.QUEUE_ABSENT]: {
     Icon: AlertTriangle,
     color: "text-yellow-500",
   },
