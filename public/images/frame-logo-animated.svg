@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="420" height="90" viewBox="0 0 420 90" role="img" aria-label="frame beauty">
+  <title>frame beauty</title>
+  <defs>
+    <style>
+      .frame-text { fill: #171717 }
+      .beauty-text { fill: #a8a8a8 }
+      @media (prefers-color-scheme: dark) {
+        .frame-text { fill: #ededed }
+        .beauty-text { fill: #c0c0c0 }
+        .beauty-underline { stroke: #c0c0c0 }
+      }
+      @keyframes hero-glow {
+        0%         { filter: drop-shadow(0 0 0 transparent) }
+        12.5%      { filter: drop-shadow(0 0 14px rgba(150,150,150,.5)) }
+        25%, 100%  { filter: drop-shadow(0 0 0 transparent) }
+      }
+      .logo-group { animation: hero-glow 8s ease-in-out infinite }
+    </style>
+    <clipPath id="text-clip">
+      <text x="60" y="63" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-weight="900" font-size="68" letter-spacing="-3">frame</text>
+      <text x="270" y="63" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-weight="700" font-size="28">beauty</text>
+    </clipPath>
+    <linearGradient id="shimmer" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#fff" stop-opacity="0"/>
+      <stop offset=".3" stop-color="#fff" stop-opacity="0"/>
+      <stop offset=".5" stop-color="#fff" stop-opacity=".4"/>
+      <stop offset=".7" stop-color="#fff" stop-opacity="0"/>
+      <stop offset="1" stop-color="#fff" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+  <g class="logo-group">
+    <text x="60" y="63" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-weight="900" font-size="68" letter-spacing="-3" class="frame-text">frame</text>
+    <text x="270" y="63" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-weight="700" font-size="28" class="beauty-text" text-decoration="underline">beauty</text>
+    <rect x="-200" y="0" width="200" height="90" fill="url(#shimmer)" clip-path="url(#text-clip)">
+      <animateTransform attributeName="transform" type="translate"
+        values="0 0; 0 0; 700 0; 700 0"
+        keyTimes="0; .375; .625; 1"
+        dur="8s"
+        calcMode="spline"
+        keySplines="0 0 1 1; .42 0 .58 1; 0 0 1 1"
+        repeatCount="indefinite"/>
+    </rect>
+  </g>
+</svg>
