@@ -15,6 +15,11 @@ import { useBadge } from "@/app/_hooks/useBadge"
 import { getNotificationEngine } from "@/app/_lib/notification-engine"
 import type { AppNotification, UnreadCountData } from "@/app/_types"
 import { NotificationType } from "@/app/_types"
+import { getRedirectPath } from "../lib/notification-routing"
+import { scrollToNotificationTarget } from "../hooks/useNotificationNavigate"
+
+// Re-export for backward compatibility (consumers import from _providers/notification)
+export { getRedirectPath } from "../lib/notification-routing"
 
 // ── Toast configuration per notification type ────────────────
 const HIGH_PRIORITY_TYPES: ReadonlySet<string> = new Set([
@@ -55,125 +60,6 @@ const TOAST_TYPES: ReadonlySet<string> = new Set([
   NotificationType.PRODUCT_CATEGORY_SUGGESTION_APPROVED,
   NotificationType.PRODUCT_CATEGORY_SUGGESTION_REJECTED,
 ])
-
-// Booking types that belong to the "history" tab
-const HISTORY_BOOKING_TYPES: ReadonlySet<string> = new Set([
-  NotificationType.BOOKING_CANCELLED,
-  NotificationType.BOOKING_COMPLETED,
-  NotificationType.BOOKING_ABSENT,
-])
-
-// Booking types that belong to the "upcoming" tab
-const UPCOMING_BOOKING_TYPES: ReadonlySet<string> = new Set([
-  NotificationType.BOOKING_CREATED,
-  NotificationType.BOOKING_CONFIRMED,
-])
-
-/**
- * Returns the redirect path for a notification.
- * Prefers actionUrl from backend, falls back to type-based routing.
- * Appends scroll-to-target hash when a specific entity ID is available.
- */
-export function getRedirectPath(notification: AppNotification): string | null {
-  const { type, metadata, actionUrl } = notification
-
-  // ── Booking → bookings page with highlight for scroll-to-target ──
-  if (HISTORY_BOOKING_TYPES.has(type)) {
-    const params = new URLSearchParams({ view: "history" })
-    if (metadata?.bookingId) params.set("highlight", metadata.bookingId)
-    return `/bookings?${params}`
-  }
-  if (UPCOMING_BOOKING_TYPES.has(type)) {
-    const params = new URLSearchParams()
-    if (metadata?.bookingId) params.set("highlight", metadata.bookingId)
-    return `/bookings?${params}`
-  }
-
-  // ── Queue → lounge queue tab ──
-  if (type === NotificationType.BOOKING_IN_QUEUE || type.startsWith("queue:")) {
-    if (metadata?.loungeId) {
-      const params = new URLSearchParams({ tab: "queue" })
-      if (metadata.agentId) params.set("agentId", metadata.agentId)
-      return `/lounges/${metadata.loungeId}?${params}`
-    }
-    return "/queue"
-  }
-
-  // ── Content → post or reel with scroll-to-target ──
-  if (
-    type === NotificationType.POST_LIKED ||
-    type === NotificationType.POST_COMMENTED
-  ) {
-    if (metadata?.postId) return `/home#post-${metadata.postId}`
-    return actionUrl ?? "/home"
-  }
-  if (
-    type === NotificationType.REEL_LIKED ||
-    type === NotificationType.REEL_COMMENTED
-  ) {
-    if (metadata?.reelId) return `/reels#reel-${metadata.reelId}`
-    return actionUrl ?? "/reels"
-  }
-  if (
-    type === NotificationType.COMMENT_REPLIED ||
-    type === NotificationType.COMMENT_LIKED
-  ) {
-    // Navigate to the parent post/reel, then scroll to the comment
-    const targetId = metadata?.postId || metadata?.reelId
-    const fallbackPage = metadata?.postId ? "/home" : "/reels"
-    if (targetId && metadata?.commentId) {
-      return `${fallbackPage}#comment-${metadata.commentId}`
-    }
-    if (targetId) return fallbackPage
-    return actionUrl ?? "/home"
-  }
-
-  // ── Social → profile ──
-  if (type === NotificationType.NEW_FOLLOWER) {
-    if (metadata?.followerId) return `/profile/${metadata.followerId}`
-    return actionUrl ?? "/notifications"
-  }
-  if (
-    type === NotificationType.LOUNGE_LIKED ||
-    type === NotificationType.LOUNGE_RATED
-  ) {
-    if (metadata?.loungeId) return `/lounges/${metadata.loungeId}`
-    return actionUrl ?? "/notifications"
-  }
-
-  // ── Admin ──
-  if (type === NotificationType.SUGGESTION_CREATED) {
-    if (metadata?.suggestionId)
-      return `/admin/suggestions/${metadata.suggestionId}`
-    return actionUrl ?? "/admin/suggestions"
-  }
-  if (
-    type === NotificationType.SUGGESTION_APPROVED ||
-    type === NotificationType.SUGGESTION_REJECTED
-  ) {
-    return actionUrl ?? "/lounge/suggestions"
-  }
-  if (type === NotificationType.CONTENT_HIDDEN) {
-    // Navigate to the hidden content's parent
-    if (metadata?.postId) return `/posts/${metadata.postId}`
-    if (metadata?.reelId) return `/reels/${metadata.reelId}`
-    return actionUrl ?? "/notifications"
-  }
-
-  // ── Product category suggestions ──
-  if (type === NotificationType.PRODUCT_CATEGORY_SUGGESTION_CREATED) {
-    return actionUrl ?? "/admin/marketplace/category-suggestions"
-  }
-  if (
-    type === NotificationType.PRODUCT_CATEGORY_SUGGESTION_APPROVED ||
-    type === NotificationType.PRODUCT_CATEGORY_SUGGESTION_REJECTED
-  ) {
-    return actionUrl ?? "/store/my-store/suggestions"
-  }
-
-  // ── Fallback to actionUrl from backend ──
-  return actionUrl ?? null
-}
 
 // ── Context ──────────────────────────────────────────────────
 interface NotificationContextValue {
@@ -279,6 +165,7 @@ function AuthenticatedNotifications({
               onClick: () => {
                 toast.dismiss(id)
                 router.push(redirectPath)
+                scrollToNotificationTarget(payload.data)
               },
             },
           }),

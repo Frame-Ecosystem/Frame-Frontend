@@ -1,137 +1,31 @@
 "use client"
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
-import { Bell, Trash2, CheckCheck, ArrowLeft } from "lucide-react"
+import { ArrowLeft } from "lucide-react"
 import { Button } from "../_components/ui/button"
 import { Badge } from "../_components/ui/badge"
-import { Card, CardContent } from "../_components/ui/card"
-import Link from "next/link"
-import Image from "next/image"
 import { ErrorBoundary } from "../_components/common/errorBoundary"
 import { useAuth } from "@/app/_auth"
 import { useNotificationContext } from "../_providers/notification"
-import { getRedirectPath } from "../_providers/notification"
+import { useNotificationNavigate } from "@/app/_systems/notifications/hooks/useNotificationNavigate"
 import {
   useNotifications,
   useMarkNotificationsRead,
   useDeleteNotification,
   useDeleteAllNotifications,
 } from "../_hooks/queries/useNotifications"
-import {
-  getNotificationMeta,
-  timeAgo,
-} from "../_components/common/notification-button"
-import { NotificationCategory } from "../_types"
-import type { AppNotification } from "../_types"
+import type { NotificationCategory, AppNotification } from "../_types"
 import { useRouter } from "next/navigation"
 import {
   NotificationsPageSkeleton,
   NotificationRowSkeleton,
 } from "../_components/skeletons/notifications"
 import { useTranslation } from "../_i18n"
-
-// ── Category tab config ──────────────────────────────────────
-const CATEGORY_TAB_VALUES: (NotificationCategory | undefined)[] = [
-  undefined,
-  NotificationCategory.BOOKING,
-  NotificationCategory.QUEUE,
-  NotificationCategory.CONTENT,
-  NotificationCategory.SOCIAL,
-  NotificationCategory.ADMIN,
-]
-
-const CATEGORY_TAB_KEYS = [
-  "notifications.catAll",
-  "notifications.catBookings",
-  "notifications.catQueue",
-  "notifications.catContent",
-  "notifications.catSocial",
-  "notifications.catAdmin",
-]
-
-// ── Full notification row (with delete + actor avatar) ───────
-function NotificationRow({
-  notification,
-  onDelete,
-  onClick,
-  t,
-}: {
-  notification: AppNotification
-  onDelete: () => void
-  onClick: () => void
-  t: (key: string, params?: Record<string, string | number>) => string
-}) {
-  const { Icon, color } = getNotificationMeta(notification)
-
-  return (
-    <div
-      role="button"
-      tabIndex={0}
-      onClick={onClick}
-      onKeyDown={(e) => e.key === "Enter" && onClick()}
-      className={`group hover:bg-muted/60 flex cursor-pointer items-start gap-3 rounded-xl border p-4 transition-all ${
-        !notification.isRead
-          ? "bg-primary/5 border-primary/20 shadow-sm"
-          : "bg-background border-border hover:shadow-sm"
-      }`}
-    >
-      {/* Actor avatar or type icon */}
-      {notification.imageUrl ? (
-        <Image
-          src={notification.imageUrl}
-          alt=""
-          width={40}
-          height={40}
-          className="mt-0.5 h-10 w-10 shrink-0 rounded-full object-cover"
-        />
-      ) : (
-        <div className={`mt-0.5 shrink-0 ${color}`}>
-          <Icon className="h-5 w-5" />
-        </div>
-      )}
-
-      {/* Content */}
-      <div className="min-w-0 flex-1">
-        <div className="flex items-center gap-2">
-          <p
-            className={`text-sm ${!notification.isRead ? "font-semibold" : "font-medium"}`}
-          >
-            {notification.title}
-          </p>
-          {!notification.isRead && (
-            <span className="bg-primary h-2 w-2 shrink-0 rounded-full" />
-          )}
-        </div>
-        <p className="text-muted-foreground mt-1 line-clamp-2 text-sm">
-          {notification.body}
-        </p>
-        <div className="mt-1.5 flex items-center gap-2">
-          <p className="text-muted-foreground/70 text-xs">
-            {timeAgo(notification.createdAt, t)}
-          </p>
-          {notification.category && (
-            <span className="bg-muted text-muted-foreground rounded-full px-2 py-0.5 text-[10px] capitalize">
-              {notification.category}
-            </span>
-          )}
-        </div>
-      </div>
-
-      {/* Delete button (visible on hover) */}
-      <Button
-        variant="ghost"
-        size="icon"
-        className="h-8 w-8 shrink-0 opacity-0 transition-opacity group-hover:opacity-100"
-        onClick={(e) => {
-          e.stopPropagation()
-          onDelete()
-        }}
-      >
-        <Trash2 className="text-muted-foreground h-4 w-4" />
-      </Button>
-    </div>
-  )
-}
+import { NotificationRow } from "@/app/_systems/notifications/components/notification-row"
+import { NotificationCategoryTabs } from "@/app/_systems/notifications/components/notification-category-tabs"
+import { NotificationActionBar } from "@/app/_systems/notifications/components/notification-action-bar"
+import { NotificationEmptyState } from "@/app/_systems/notifications/components/notification-empty-state"
+import { NotificationUnauthState } from "@/app/_systems/notifications/components/notification-unauth-state"
 
 // ── Page ─────────────────────────────────────────────────────
 export default function NotificationsPage() {
@@ -155,6 +49,8 @@ export default function NotificationsPage() {
   const markRead = useMarkNotificationsRead()
   const deleteOne = useDeleteNotification()
   const deleteAll = useDeleteAllNotifications()
+
+  const { navigateTo } = useNotificationNavigate()
 
   const notifications = useMemo(
     () => data?.pages.flatMap((p) => p.data) ?? [],
@@ -183,10 +79,9 @@ export default function NotificationsPage() {
 
   const handleNotificationClick = useCallback(
     (n: AppNotification) => {
-      const path = getRedirectPath(n)
-      if (path) router.push(path)
+      navigateTo(n)
     },
-    [router],
+    [navigateTo],
   )
 
   // ── Loading state ──
@@ -202,34 +97,7 @@ export default function NotificationsPage() {
   if (!user) {
     return (
       <ErrorBoundary>
-        <div className="from-background via-background to-muted/20 min-h-screen bg-linear-to-br">
-          <div className="mx-auto max-w-7xl p-5 lg:px-8 lg:py-12">
-            <Card className="from-card/50 to-card/30 overflow-hidden border-0 bg-linear-to-br backdrop-blur-sm">
-              <CardContent className="relative p-8 text-center lg:p-16">
-                <div className="from-primary/5 absolute inset-0 bg-linear-to-br to-transparent" />
-                <div className="relative z-10">
-                  <div className="from-primary/20 to-primary/10 mx-auto mb-8 flex h-32 w-32 items-center justify-center rounded-full bg-linear-to-br shadow-lg">
-                    <Bell className="text-primary h-16 w-16" />
-                  </div>
-                  <h3 className="mb-4 text-2xl font-bold lg:text-3xl">
-                    {t("notifications.signInTitle")}
-                  </h3>
-                  <p className="text-muted-foreground mx-auto mb-8 max-w-md lg:text-lg">
-                    {t("notifications.signInDesc")}
-                  </p>
-                  <Button
-                    size="lg"
-                    variant="default"
-                    className="shadow-lg"
-                    asChild
-                  >
-                    <Link href="/">{t("notifications.signIn")}</Link>
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        </div>
+        <NotificationUnauthState t={t} />
       </ErrorBoundary>
     )
   }
@@ -237,7 +105,7 @@ export default function NotificationsPage() {
   // ── Authenticated state ──
   return (
     <ErrorBoundary>
-      <div className="from-background via-background to-muted/20 mb-24 min-h-screen bg-linear-to-br lg:mb-0">
+      <div className="from-background via-background to-muted/20 min-h-screen bg-linear-to-br">
         <div className="mx-auto max-w-2xl px-4 pt-6 pb-8 lg:px-8 lg:pt-10 lg:pb-12">
           {/* Page Header */}
           <div className="mb-6 lg:mb-8">
@@ -272,62 +140,23 @@ export default function NotificationsPage() {
           </div>
 
           {/* Category Tabs */}
-          <div className="mb-4 flex gap-2 overflow-x-auto pb-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-            {CATEGORY_TAB_VALUES.map((value, i) => {
-              const isActive = activeCategory === value
-              const label = t(CATEGORY_TAB_KEYS[i])
-              const count = value ? (unreadByCategory[value] ?? 0) : unreadCount
-              return (
-                <button
-                  key={i}
-                  onClick={() => setActiveCategory(value)}
-                  className={`relative shrink-0 rounded-full px-4 py-1.5 text-sm font-medium transition-all ${
-                    isActive
-                      ? "bg-primary text-primary-foreground shadow-sm"
-                      : "bg-muted/60 text-muted-foreground hover:bg-muted"
-                  }`}
-                >
-                  {label}
-                  {count > 0 && (
-                    <span
-                      className={`ml-1.5 inline-flex h-5 min-w-5 items-center justify-center rounded-full px-1 text-[10px] font-bold ${
-                        isActive
-                          ? "bg-primary-foreground/20 text-primary-foreground"
-                          : "bg-primary/10 text-primary"
-                      }`}
-                    >
-                      {count > 99 ? "99+" : count}
-                    </span>
-                  )}
-                </button>
-              )
-            })}
-          </div>
+          <NotificationCategoryTabs
+            activeCategory={activeCategory}
+            onCategoryChange={setActiveCategory}
+            unreadCount={unreadCount}
+            unreadByCategory={unreadByCategory}
+            t={t}
+          />
 
           {/* Action bar */}
           {notifications.length > 0 && (
-            <div className="border-border mb-4 flex items-center gap-2 border-b pb-4">
-              <Button
-                variant="outline"
-                size="sm"
-                className="hover:bg-primary/10 gap-2 text-xs"
-                onClick={() => markRead.mutate(undefined)}
-                disabled={markRead.isPending}
-              >
-                <CheckCheck className="h-3.5 w-3.5" />
-                {t("notifications.markAllReadBtn")}
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                className="text-destructive hover:text-destructive hover:bg-destructive/10 gap-2 text-xs"
-                onClick={() => deleteAll.mutate()}
-                disabled={deleteAll.isPending}
-              >
-                <Trash2 className="h-3.5 w-3.5" />
-                {t("notifications.clearAll")}
-              </Button>
-            </div>
+            <NotificationActionBar
+              onMarkAllRead={() => markRead.mutate(undefined)}
+              onClearAll={() => deleteAll.mutate()}
+              isMarkingRead={markRead.isPending}
+              isClearing={deleteAll.isPending}
+              t={t}
+            />
           )}
 
           {/* Notification list */}
@@ -343,23 +172,7 @@ export default function NotificationsPage() {
                 ))}
               </div>
             ) : notifications.length === 0 ? (
-              <div className="py-24 text-center">
-                <div className="bg-muted/30 mx-auto mb-5 flex h-20 w-20 items-center justify-center rounded-full">
-                  <Bell className="text-muted-foreground h-10 w-10 opacity-40" />
-                </div>
-                <p className="text-foreground text-base font-medium">
-                  {activeCategory
-                    ? t("notifications.noCategory", {
-                        category: activeCategory,
-                      })
-                    : t("notifications.empty")}
-                </p>
-                <p className="text-muted-foreground mt-1 text-sm">
-                  {activeCategory
-                    ? t("notifications.trySwitching")
-                    : t("notifications.emptyHint")}
-                </p>
-              </div>
+              <NotificationEmptyState activeCategory={activeCategory} t={t} />
             ) : (
               <>
                 {notifications.map((n) => (

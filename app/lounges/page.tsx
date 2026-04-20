@@ -249,7 +249,7 @@ export default function LoungesPage() {
 
   return (
     <ErrorBoundary>
-      <div className="from-background via-background to-muted/20 min-h-screen bg-linear-to-br pb-24 lg:pb-0">
+      <div className="from-background via-background to-muted/20 min-h-screen bg-linear-to-br">
         <div className="mx-auto max-w-7xl lg:pt-0">
           <div className="p-5 lg:px-8 lg:py-12">
             {/* HERO SECTION */}

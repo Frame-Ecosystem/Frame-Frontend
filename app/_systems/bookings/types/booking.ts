@@ -10,8 +10,30 @@ export type BookingStatus =
   | "pending"
   | "confirmed"
   | "inQueue"
+  | "completed"
   | "cancelled"
-  | string
+  | "absent"
+
+// ── Booking Error Codes (synced with backend BookingSystem) ──
+export const BOOKING_ERROR_MESSAGES: Record<string, string> = {
+  INVALID_CLIENT: "Client not found or invalid",
+  INVALID_LOUNGE: "Lounge not found or invalid",
+  INVALID_AGENTS: "One or more agents not found",
+  AGENT_LOUNGE_MISMATCH: "All agents must belong to the specified lounge",
+  INVALID_SERVICES: "One or more services not found",
+  SERVICE_LOUNGE_MISMATCH: "All services must belong to the specified lounge",
+  QUEUE_BOOKING_DISABLED: "This agent does not accept queue bookings",
+  INVALID_BOOKING_ID: "Invalid booking ID",
+  BOOKING_NOT_FOUND: "Booking not found",
+  MISSING_CANCELLED_BY: "Cancellation reason is required",
+  EMPTY_UPDATE: "No changes provided",
+  QUEUE_ADD_FAILED: "Failed to add to queue",
+  MISSING_CLIENT_OR_VISITOR:
+    "Please provide a visitor name or client phone/email",
+  AMBIGUOUS_CLIENT_VISITOR:
+    "Provide either visitor name or client phone/email, not both",
+  CLIENT_NOT_FOUND: "No client found with the provided phone or email",
+}
 
 export interface BookingService {
   loungeServiceId: string

@@ -9,7 +9,7 @@ export default function SavedPage() {
   const { t, dir } = useTranslation()
   return (
     <ErrorBoundary>
-      <div className="from-background via-background to-muted/20 min-h-screen bg-linear-to-br pb-24 lg:pb-0">
+      <div className="from-background via-background to-muted/20 min-h-screen bg-linear-to-br">
         <div className="mx-auto max-w-[630px]">
           {/* Header */}
           <div className="bg-background/80 sticky top-0 z-30 border-b backdrop-blur-lg">

@@ -1,4 +1,5 @@
-﻿export * from "./services/index"
+﻿export * from "./components/index"
+export * from "./services/index"
 export * from "./types/index"
 export * from "./hooks/index"
 export * from "./lib/index"

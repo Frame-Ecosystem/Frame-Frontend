@@ -264,6 +264,11 @@ class LoungeService {
         `/v1/lounge-services/lounge/${loungeId}/agents`,
       )
 
+      console.log(
+        "[getAgentsByLoungeId] raw response:",
+        JSON.stringify(response, null, 2),
+      )
+
       // Handle different response structures
       let agentsData: LoungeAgentsResponse | null = null
       if (response && typeof response === "object") {

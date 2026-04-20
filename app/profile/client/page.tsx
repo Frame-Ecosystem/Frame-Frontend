@@ -194,7 +194,7 @@ export default function ClientProfilePage() {
 
   return (
     <ErrorBoundary>
-      <div className="from-background via-background to-muted/20 min-h-screen bg-linear-to-br pb-24 lg:pb-0">
+      <div className="from-background via-background to-muted/20 min-h-screen bg-linear-to-br">
         {/* ── Hero: Cover + Avatar ────────────────────────── */}
         <ProfileCover
           user={user}

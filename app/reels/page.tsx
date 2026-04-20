@@ -28,6 +28,9 @@ export default function ReelsPage() {
   // (tap/scroll/key) auto-unmutes; the choice is remembered for future reels.
   const [globalMuted, setGlobalMuted] = useReelMutePreference()
   const [commentsOpen, setCommentsOpen] = useState(false)
+  const [highlightCommentId, setHighlightCommentId] = useState<string | null>(
+    null,
+  )
 
   // Wrap setActiveIndex to also close comments on reel change
   const setActiveIndex = useCallback(
@@ -74,6 +77,27 @@ export default function ReelsPage() {
       hasJumped.current = true
     }
   }, [targetReelId, reels])
+
+  // Auto-open CommentSheet when navigated from a notification with ?openComments=true
+  const openCommentsParam = searchParams.get("openComments")
+  const commentIdParam = searchParams.get("commentId")
+  useEffect(() => {
+    if (!openCommentsParam || reels.length === 0) return
+    if (!hasJumped.current && targetReelId) return // wait for reel jump first
+
+    const timer = setTimeout(() => {
+      setHighlightCommentId(commentIdParam)
+      setCommentsOpen(true)
+    }, 600)
+
+    // Clean up URL params
+    const url = new URL(window.location.href)
+    url.searchParams.delete("openComments")
+    url.searchParams.delete("commentId")
+    window.history.replaceState({}, "", url.toString())
+
+    return () => clearTimeout(timer)
+  }, [openCommentsParam, commentIdParam, reels, targetReelId])
 
   // Load more when approaching the end
   const { hasNextPage, isFetchingNextPage, fetchNextPage } = exploreQuery
@@ -225,10 +249,14 @@ export default function ReelsPage() {
       {reels[activeIndex] && (
         <CommentSheet
           open={commentsOpen}
-          onClose={() => setCommentsOpen(false)}
+          onClose={() => {
+            setCommentsOpen(false)
+            setHighlightCommentId(null)
+          }}
           targetType="reel"
           targetId={reels[activeIndex]._id}
           commentCount={reels[activeIndex].commentCount}
+          highlightCommentId={highlightCommentId}
         />
       )}
     </ErrorBoundary>

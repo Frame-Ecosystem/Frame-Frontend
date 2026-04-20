@@ -1,8 +1,9 @@
 "use client"
 
-import { useState, useEffect, useCallback } from "react"
+import { useState, useEffect } from "react"
 import { CalendarIcon, History } from "lucide-react"
 import { useTranslation } from "@/app/_i18n"
+import { useScrollToTarget } from "@/app/_hooks/useScrollToTarget"
 import { Button } from "../_components/ui/button"
 import Link from "next/link"
 import { useSearchParams, useRouter } from "next/navigation"
@@ -27,33 +28,7 @@ export default function BookingsPage() {
   }, [searchParams])
 
   // Scroll to and highlight a specific booking card when ?highlight=bookingId is present
-  const scrollToHighlighted = useCallback(() => {
-    const highlightId = searchParams.get("highlight")
-    if (!highlightId) return
-
-    // Small delay to let the list render
-    const timer = setTimeout(() => {
-      const el = document.getElementById(`booking-${highlightId}`)
-      if (el) {
-        el.scrollIntoView({ behavior: "smooth", block: "center" })
-        el.classList.add("booking-highlight")
-        // Clean up class and URL param after animation
-        const cleanup = setTimeout(() => {
-          el.classList.remove("booking-highlight")
-          // Remove highlight param from URL without re-render
-          const url = new URL(window.location.href)
-          url.searchParams.delete("highlight")
-          window.history.replaceState({}, "", url.toString())
-        }, 4000)
-        return () => clearTimeout(cleanup)
-      }
-    }, 600)
-    return () => clearTimeout(timer)
-  }, [searchParams])
-
-  useEffect(() => {
-    scrollToHighlighted()
-  }, [scrollToHighlighted])
+  useScrollToTarget({ prefix: "booking", paramKey: "highlight" })
 
   const toggleHistory = () => {
     const next = !showHistory
@@ -127,7 +102,7 @@ export default function BookingsPage() {
 
   return (
     <ErrorBoundary>
-      <div className="from-background via-background to-muted/20 mb-24 min-h-screen bg-linear-to-br lg:mb-0">
+      <div className="from-background via-background to-muted/20 min-h-screen bg-linear-to-br">
         <div className="mx-auto max-w-7xl p-5 lg:px-8 lg:py-12">
           {/* Page Header */}
           <div className="mb-8 lg:mb-12">

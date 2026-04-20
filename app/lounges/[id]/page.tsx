@@ -328,7 +328,7 @@ export default function LoungePage() {
         onClose={() => setLightboxSrc(null)}
       />
 
-      <div className="from-background via-background to-muted/20 min-h-screen bg-linear-to-br pb-24 lg:pb-0">
+      <div className="from-background via-background to-muted/20 min-h-screen bg-linear-to-br">
         {/* ── Hero: Cover + Avatar ────────────────────────── */}
         <div className="relative w-full">
           <div className="relative h-[200px] w-full overflow-hidden bg-gradient-to-r from-blue-600/20 via-purple-600/20 to-pink-600/20 md:h-[280px] lg:h-[320px]">

@@ -146,14 +146,9 @@ class BookingService {
   }
 
   // Create a new booking
-  async create(input: CreateBookingInput): Promise<Booking | null> {
-    try {
-      const data = await apiClient.post<Booking>("/v1/bookings", input)
-      return data
-    } catch (error) {
-      console.error("Failed to create booking:", error)
-      return null
-    }
+  async create(input: CreateBookingInput): Promise<Booking> {
+    const data = await apiClient.post<Booking>("/v1/bookings", input)
+    return data
   }
 
   // Get all bookings (role-based access)
@@ -218,105 +213,73 @@ class BookingService {
 
   // Get booking by ID
   async getById(id: string): Promise<Booking | null> {
-    try {
-      const response = await apiClient.get<any>(`/v1/bookings/${id}`)
-      const booking = response?.data || (response?._id ? response : null)
+    const response = await apiClient.get<any>(`/v1/bookings/${id}`)
+    const booking = response?.data || (response?._id ? response : null)
 
-      if (!booking) return null
+    if (!booking) return null
 
-      return {
-        ...booking,
-        _id: booking._id,
-        loungeServiceIds: booking.loungeServiceIds || [],
-        loungeService: booking.loungeService || [],
-        agents: await this.processBookingAgents(booking),
-        client: this.processBookingClient(booking),
-        lounge: this.processBookingLounge(booking),
-      } as Booking
-    } catch (error) {
-      console.error("Failed to fetch booking:", error)
-      return null
-    }
+    return {
+      ...booking,
+      _id: booking._id,
+      loungeServiceIds: booking.loungeServiceIds || [],
+      loungeService: booking.loungeService || [],
+      agents: await this.processBookingAgents(booking),
+      client: this.processBookingClient(booking),
+      lounge: this.processBookingLounge(booking),
+    } as Booking
   }
 
   // Update booking
-  async update(id: string, input: UpdateBookingInput): Promise<Booking | null> {
-    try {
-      const response = await apiClient.put<any>(`/v1/bookings/${id}`, input)
-      const booking = response?.data || (response?._id ? response : null)
+  async update(id: string, input: UpdateBookingInput): Promise<Booking> {
+    const response = await apiClient.put<any>(`/v1/bookings/${id}`, input)
+    const booking = response?.data || (response?._id ? response : null)
+    if (!booking) throw new Error("BOOKING_NOT_FOUND")
 
-      if (!booking) return null
-
-      return {
-        ...booking,
-        _id: booking._id,
-        loungeServiceIds: booking.loungeServiceIds || [],
-        loungeService: booking.loungeService || [],
-      } as Booking
-    } catch (error) {
-      console.error("Failed to update booking:", error)
-      return null
-    }
+    return {
+      ...booking,
+      _id: booking._id,
+      loungeServiceIds: booking.loungeServiceIds || [],
+      loungeService: booking.loungeService || [],
+    } as Booking
   }
 
   // Delete booking (admin only)
-  async delete(id: string): Promise<boolean> {
-    try {
-      await apiClient.delete(`/v1/bookings/${id}`)
-      return true
-    } catch (error) {
-      console.error("Failed to delete booking:", error)
-      return false
-    }
+  async delete(id: string): Promise<void> {
+    await apiClient.delete(`/v1/bookings/${id}`)
   }
 
   // Get booking services
   async getBookingServices(id: string): Promise<BookingServiceType[]> {
-    try {
-      const response = await apiClient.get<any>(`/v1/bookings/${id}/services`)
-      return this.extractArray(response, [
-        "data",
-        "services",
-        "items",
-      ]) as BookingServiceType[]
-    } catch (error) {
-      console.error("Failed to fetch booking services:", error)
-      return []
-    }
+    const response = await apiClient.get<any>(`/v1/bookings/${id}/services`)
+    return this.extractArray(response, [
+      "data",
+      "services",
+      "items",
+    ]) as BookingServiceType[]
   }
 
   // Get client booking stats
   async getClientStats(clientId: string): Promise<BookingStats[]> {
-    try {
-      const response = await apiClient.get<any>(
-        `/v1/bookings/stats/client/${clientId}`,
-      )
-      return this.extractArray(response, [
-        "data",
-        "stats",
-        "items",
-      ]) as BookingStats[]
-    } catch (error) {
-      console.error("Failed to fetch client stats:", error)
-      return []
-    }
+    const response = await apiClient.get<any>(
+      `/v1/bookings/stats/client/${clientId}`,
+    )
+    return this.extractArray(response, [
+      "data",
+      "stats",
+      "items",
+    ]) as BookingStats[]
   }
 
   // Get lounge booking stats
   async getLoungeStats(loungeId: string): Promise<BookingStats[]> {
-    try {
-      const response = await apiClient.get<any>(
-        `/v1/bookings/stats/lounge/${loungeId}`,
-      )
-      return this.extractArray(response, [
-        "data",
-        "stats",
-        "items",
-      ]) as BookingStats[]
-    } catch (error) {
-      console.error("Failed to fetch lounge stats:", error)
-      return []
-    }
+    const response = await apiClient.get<any>(
+      `/v1/bookings/stats/lounge/${loungeId}`,
+    )
+    return this.extractArray(response, [
+      "data",
+      "stats",
+      "items",
+    ]) as BookingStats[]
   }
 
   // Book from queue — creates a booking with status "inQueue" and adds to agent's queue in one step
@@ -326,14 +289,9 @@ class BookingService {
     agentId: string
     loungeServiceIds: string[]
     notes?: string
-  }): Promise<Booking | null> {
-    try {
-      const data = await apiClient.post<Booking>("/v1/bookings/queue", input)
-      return data
-    } catch (error) {
-      console.error("Failed to book from queue:", error)
-      throw error
-    }
+  }): Promise<Booking> {
+    const data = await apiClient.post<Booking>("/v1/bookings/queue", input)
+    return data
   }
 
   // Lounge queue booking — visitor or client mode (uses dedicated lounge endpoint)
@@ -345,32 +303,21 @@ class BookingService {
     clientEmail?: string
     loungeServiceIds?: string[]
     notes?: string
-  }): Promise<Booking | null> {
-    try {
-      const data = await apiClient.post<Booking>(
-        "/v1/bookings/queue/lounge",
-        input,
-      )
-      return data
-    } catch (error) {
-      console.error("Failed to create lounge queue booking:", error)
-      throw error
-    }
+  }): Promise<Booking> {
+    const data = await apiClient.post<Booking>(
+      "/v1/bookings/queue/lounge",
+      input,
+    )
+    return data
   }
 
   // Cancel booking — backend auto-populates cancelledBy from session
-  async cancel(id: string, cancellationNote?: string): Promise<boolean> {
-    try {
-      const body: UpdateBookingInput = { status: "cancelled" }
-      if (cancellationNote?.trim()) {
-        body.cancellationNote = cancellationNote.trim()
-      }
-      await this.update(id, body)
-      return true
-    } catch (error) {
-      console.error("Failed to cancel booking:", error)
-      return false
+  async cancel(id: string, cancellationNote?: string): Promise<void> {
+    const body: UpdateBookingInput = { status: "cancelled" }
+    if (cancellationNote?.trim()) {
+      body.cancellationNote = cancellationNote.trim()
     }
+    await this.update(id, body)
   }
 
   // Get availability for agents

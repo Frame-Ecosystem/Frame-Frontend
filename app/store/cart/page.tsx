@@ -38,7 +38,7 @@ export default function CartPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen pb-24 lg:pb-0">
+      <div className="min-h-screen">
         <div className="mx-auto max-w-3xl space-y-4 px-4 py-6 lg:px-8">
           <div className="bg-muted h-8 w-48 animate-pulse rounded" />
           {Array.from({ length: 2 }).map((_, i) => (
@@ -51,7 +51,7 @@ export default function CartPage() {
 
   if (!cart || cart.items.length === 0) {
     return (
-      <div className="flex min-h-screen flex-col items-center justify-center gap-4 pb-24 lg:pb-0">
+      <div className="flex min-h-screen flex-col items-center justify-center gap-4">
         <ShoppingCart className="text-muted-foreground/30 h-20 w-20" />
         <h2 className="text-xl font-bold">Your cart is empty</h2>
         <p className="text-muted-foreground text-sm">
@@ -65,7 +65,7 @@ export default function CartPage() {
   }
 
   return (
-    <div className="from-background to-muted/10 min-h-screen bg-linear-to-br pb-24 lg:pb-0">
+    <div className="from-background to-muted/10 min-h-screen bg-linear-to-br">
       <div className="mx-auto max-w-3xl px-4 py-6 lg:px-8">
         {/* Header */}
         <div className="mb-6 flex items-center gap-3">

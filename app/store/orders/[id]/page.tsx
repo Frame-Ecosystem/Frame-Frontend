@@ -31,7 +31,7 @@ export default function OrderDetailPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen pb-24 lg:pb-0">
+      <div className="min-h-screen">
         <div className="mx-auto max-w-3xl space-y-4 px-4 py-6 lg:px-8">
           <div className="bg-muted h-8 w-48 animate-pulse rounded" />
           <div className="bg-muted h-32 animate-pulse rounded-xl" />
@@ -55,7 +55,7 @@ export default function OrderDetailPage() {
       : null
 
   return (
-    <div className="from-background to-muted/10 min-h-screen bg-linear-to-br pb-24 lg:pb-0">
+    <div className="from-background to-muted/10 min-h-screen bg-linear-to-br">
       <div className="mx-auto max-w-3xl space-y-5 px-4 py-6 lg:px-8">
         {/* Back */}
         <button

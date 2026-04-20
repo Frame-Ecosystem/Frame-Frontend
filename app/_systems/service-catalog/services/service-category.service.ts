@@ -148,6 +148,18 @@ class ServiceCategoryService {
   async delete(id: string): Promise<void> {
     await apiClient.delete(`/v1/admin/service-categories/${id}`)
   }
+
+  async search(query: string): Promise<ServiceCategory[]> {
+    const response = await apiClient.get<any>(
+      `/v1/admin/service-categories/search?q=${encodeURIComponent(query)}`,
+    )
+    const categories = response?.data ?? response ?? []
+    if (!Array.isArray(categories)) return []
+    return categories.map((c: any) => ({
+      ...c,
+      id: c._id || c.id,
+    })) as ServiceCategory[]
+  }
 }
 
 export const serviceCategoryService = new ServiceCategoryService()

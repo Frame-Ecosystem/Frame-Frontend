@@ -104,9 +104,11 @@ export default function QueueDisplay({
     queryKey: ["loungeAgents", effectiveLoungeId],
     queryFn: () => {
       if (!effectiveLoungeId)
-        return Promise.resolve(
-          {} as Awaited<ReturnType<typeof loungeService.getAgentsByLoungeId>>,
-        )
+        return Promise.resolve({
+          lounge: { _id: "", loungeTitle: "", email: "" },
+          agents: [],
+          totalAgents: 0,
+        } as Awaited<ReturnType<typeof loungeService.getAgentsByLoungeId>>)
       return loungeService.getAgentsByLoungeId(effectiveLoungeId)
     },
     enabled: !!effectiveLoungeId,
@@ -348,7 +350,7 @@ export default function QueueDisplay({
               onAddPerson={() => setShowAddDialog(true)}
               isUpdating={isMutating}
               highlightBookingId={highlightBookingId}
-              acceptQueueBooking={activeAgent?.acceptQueueBooking ?? true}
+              acceptQueueBooking={activeAgent?.acceptQueueBooking ?? false}
               onToggleAcceptBooking={
                 mode === "staff" && agentId
                   ? (enabled: boolean) =>

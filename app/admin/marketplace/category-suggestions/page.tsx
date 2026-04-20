@@ -36,7 +36,16 @@ import type {
   ProductCategorySuggestion,
   ProductCategorySuggestionStatus,
 } from "@/app/_types/marketplace"
-import { toastError } from "@/app/_lib/api-errors"
+
+const ERROR_MESSAGES: Record<string, string> = {
+  SUGGESTION_ALREADY_IMPLEMENTED:
+    "This suggestion has already been implemented.",
+  CATEGORY_ALREADY_EXISTS:
+    "A category with that name already exists — edit the override name.",
+  VALIDATION_ERROR: "Please check the fields and try again.",
+  FORBIDDEN: "You don't have permission to perform this action.",
+  UNAUTHORIZED: "You don't have permission to perform this action.",
+}
 
 const TAB_OPTIONS: {
   value: ProductCategorySuggestionStatus | "all"
@@ -98,7 +107,12 @@ function RejectDialog({
       setNote("")
       onOpenChange(false)
     } catch (err) {
-      toastError(err, "Couldn't reject the suggestion.")
+      const code = (err as { code?: string })?.code ?? ""
+      toast.error(
+        ERROR_MESSAGES[code] ??
+          (err as Error)?.message ??
+          "Couldn't reject the suggestion.",
+      )
     }
   }
 
@@ -190,7 +204,12 @@ function ApproveDialog({
       toast.success(`"${trimmed}" is now a live category.`)
       onOpenChange(false)
     } catch (err) {
-      toastError(err, "Couldn't approve the suggestion.")
+      const code = (err as { code?: string })?.code ?? ""
+      toast.error(
+        ERROR_MESSAGES[code] ??
+          (err as Error)?.message ??
+          "Couldn't approve the suggestion.",
+      )
     }
   }
 

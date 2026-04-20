@@ -354,6 +354,24 @@ class AuthService {
       throw err instanceof Error ? err : new Error("Failed to change password")
     }
   }
+
+  /** POST /v1/me/send-verification-code — sends email verification code */
+  async sendVerificationCode(): Promise<{ message: string }> {
+    return apiClient.post<{ message: string }>(
+      "/v1/me/send-verification-code",
+      {},
+    )
+  }
+
+  /** POST /v1/me/verify-email — verifies the email with the code */
+  async verifyEmail(code: string): Promise<{ message: string }> {
+    return apiClient.post<{ message: string }>("/v1/me/verify-email", { code })
+  }
+
+  /** DELETE /v1/me/reels/:reelId — delete own reel */
+  async deleteReel(reelId: string): Promise<void> {
+    await apiClient.delete(`/v1/me/reels/${reelId}`)
+  }
 }
 
 export const authService = new AuthService()

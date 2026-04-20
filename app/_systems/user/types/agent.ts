@@ -28,6 +28,7 @@ export interface CreateAgentDto {
   loungeId?: string
   idLoungeService?: string[]
   isBlocked?: boolean
+  acceptQueueBooking?: boolean
   profileImage?: string
 }
 

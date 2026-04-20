@@ -161,6 +161,54 @@ class ServiceService {
   async delete(id: string): Promise<void> {
     await apiClient.delete(`/v1/admin/services/${id}`)
   }
+
+  async search(query: string): Promise<Service[]> {
+    const response = await apiClient.get<any>(
+      `/v1/admin/services/search?q=${encodeURIComponent(query)}`,
+    )
+    const services = response?.data ?? response ?? []
+    if (!Array.isArray(services)) return []
+    return services.map((s: any) => ({
+      ...s,
+      id: s._id || s.id,
+      categoryId:
+        typeof s.categoryId === "object"
+          ? s.categoryId._id || s.categoryId.id
+          : s.categoryId,
+    })) as Service[]
+  }
+
+  async getByCategory(categoryId: string): Promise<Service[]> {
+    const response = await apiClient.get<any>(
+      `/v1/admin/services/category/${categoryId}`,
+    )
+    const services = response?.data ?? response ?? []
+    if (!Array.isArray(services)) return []
+    return services.map((s: any) => ({
+      ...s,
+      id: s._id || s.id,
+      categoryId:
+        typeof s.categoryId === "object"
+          ? s.categoryId._id || s.categoryId.id
+          : s.categoryId,
+    })) as Service[]
+  }
+
+  async bulkCreate(
+    items: Omit<Service, "id" | "createdAt" | "updatedAt">[],
+  ): Promise<Service[]> {
+    const response = await apiClient.post<any>("/v1/admin/services/bulk", items)
+    const services = response?.data ?? response ?? []
+    if (!Array.isArray(services)) return []
+    return services.map((s: any) => ({
+      ...s,
+      id: s._id || s.id,
+      categoryId:
+        typeof s.categoryId === "object"
+          ? s.categoryId._id || s.categoryId.id
+          : s.categoryId,
+    })) as Service[]
+  }
 }
 
 export const serviceService = new ServiceService()
