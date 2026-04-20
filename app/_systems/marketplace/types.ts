@@ -31,7 +31,7 @@ export const StoreBadge = {
 } as const
 export type StoreBadge = (typeof StoreBadge)[keyof typeof StoreBadge]
 
-export type ProductCategory =
+export type LegacyProductCategoryTag =
   | "shampoo"
   | "conditioner"
   | "hair_oil"
@@ -73,6 +73,67 @@ export type ProductCategory =
   | "mirror"
   | "organizer"
   | "other"
+
+/**
+ * Admin-managed marketplace product category (v2).
+ * Replaces the legacy enum. Backed by `/v1/marketplace/product-categories`.
+ */
+export interface ProductCategory {
+  _id: string
+  name: string
+  slug: string
+  description?: string
+  icon?: string
+  image?: { url?: string; publicId?: string }
+  isActive: boolean
+  displayOrder: number
+  productCount: number
+  createdAt: string
+  updatedAt: string
+}
+
+/**
+ * A category reference as returned by Product responses — either the bare
+ * ObjectId string or the populated subset `{ _id, name, slug, icon }`.
+ */
+export type ProductCategoryRef =
+  | string
+  | Pick<ProductCategory, "_id" | "name" | "slug" | "icon">
+
+/* ── Product category suggestion (v2) ─────────────────────────── */
+
+export const ProductCategorySuggestionStatus = {
+  PENDING: "pending",
+  APPROVED: "approved",
+  REJECTED: "rejected",
+  IMPLEMENTED: "implemented",
+} as const
+export type ProductCategorySuggestionStatus =
+  (typeof ProductCategorySuggestionStatus)[keyof typeof ProductCategorySuggestionStatus]
+
+export interface ProductCategorySuggestion {
+  _id: string
+  name: string
+  description: string
+  exampleProducts: string[]
+  iconHint?: string
+  status: ProductCategorySuggestionStatus
+  suggestedBy:
+    | string
+    | {
+        _id: string
+        firstName?: string
+        lastName?: string
+        loungeTitle?: string
+        profileImage?: { url: string }
+      }
+  implementedCategoryId?:
+    | string
+    | Pick<ProductCategory, "_id" | "name" | "slug" | "icon">
+  adminNote?: string
+  createdAt: string
+  updatedAt: string
+}
 
 export const ProductStatus = {
   DRAFT: "draft",
@@ -233,7 +294,13 @@ export interface Product {
   slug: string
   description?: string
   shortDescription?: string
-  category: ProductCategory
+  /** Reference to an admin-managed `ProductCategory` document. */
+  categoryId: ProductCategoryRef
+  /**
+   * @deprecated Replaced by `categoryId` in v2.
+   * Some legacy responses may still surface this field; prefer `categoryId`.
+   */
+  category?: LegacyProductCategoryTag
   subcategory?: string
   tags: string[]
   price: number
@@ -459,10 +526,13 @@ export interface UpdateStoreDto extends Partial<CreateStoreDto> {
 }
 
 export interface CreateProductDto {
+  /** Optional — server infers from authenticated user's store when omitted. */
+  storeId?: string
   name: string
   description?: string
   shortDescription?: string
-  category: ProductCategory
+  /** ObjectId of an admin-managed `ProductCategory`. */
+  categoryId: string
   price: number
   compareAtPrice?: number
   stock: number
@@ -510,7 +580,8 @@ export interface StoreDiscoverParams {
 
 export interface ProductDiscoverParams {
   search?: string
-  category?: ProductCategory
+  /** ObjectId of a `ProductCategory` (replaces legacy enum-string `category`). */
+  categoryId?: string
   storeId?: string
   minPrice?: number
   maxPrice?: number
@@ -532,4 +603,75 @@ export interface MarketplaceListResponse<T> {
   data: T[]
   count: number
   message?: string
+}
+
+// ── Product Category DTOs ────────────────────────────────────────────────────
+
+export interface CreateProductCategoryDto {
+  name: string
+  description?: string
+  icon?: string
+  image?: { url?: string; publicId?: string }
+  isActive?: boolean
+  displayOrder?: number
+}
+
+export type UpdateProductCategoryDto = Partial<CreateProductCategoryDto>
+
+export interface ProductCategoryListParams {
+  activeOnly?: boolean
+}
+
+// ── Product Category Suggestion DTOs ─────────────────────────────────────────
+
+export interface CreateProductCategorySuggestionDto {
+  name: string
+  description: string
+  exampleProducts?: string[]
+  iconHint?: string
+}
+
+export interface UpdateProductCategorySuggestionDto {
+  name?: string
+  description?: string
+  exampleProducts?: string[]
+  iconHint?: string
+}
+
+export interface UpdateProductCategorySuggestionStatusDto {
+  status: ProductCategorySuggestionStatus
+  adminNote?: string
+  /* Used only when status === "implemented" — admin overrides */
+  name?: string
+  description?: string
+  icon?: string
+  displayOrder?: number
+}
+
+export interface AdminApproveProductCategorySuggestionDto {
+  status?: ProductCategorySuggestionStatus
+  name?: string
+  description?: string
+  icon?: string
+  displayOrder?: number
+  adminNote?: string
+}
+
+export interface ProductCategorySuggestionListParams {
+  page?: number
+  limit?: number
+  status?: ProductCategorySuggestionStatus
+}
+
+export interface ProductCategorySuggestionStats {
+  total: number
+  pending: number
+  approved: number
+  rejected: number
+  implemented: number
+}
+
+export interface ProductCategorySuggestionMutationResponse {
+  suggestion: ProductCategorySuggestion
+  category: ProductCategory | null
 }

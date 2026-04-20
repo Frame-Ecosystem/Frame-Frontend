@@ -20,6 +20,18 @@ import type {
   StoreStatus,
   ProductStatus,
   StoreBadge,
+  ProductCategory,
+  ProductCategorySuggestion,
+  CreateProductCategoryDto,
+  UpdateProductCategoryDto,
+  ProductCategoryListParams,
+  CreateProductCategorySuggestionDto,
+  UpdateProductCategorySuggestionDto,
+  UpdateProductCategorySuggestionStatusDto,
+  AdminApproveProductCategorySuggestionDto,
+  ProductCategorySuggestionListParams,
+  ProductCategorySuggestionStats,
+  ProductCategorySuggestionMutationResponse,
 } from "@/app/_types/marketplace"
 
 export interface AdminMarketplaceAnalytics {
@@ -119,7 +131,7 @@ class MarketplaceService {
   ): Promise<MarketplaceListResponse<Product>> {
     const q = new URLSearchParams()
     if (params.search) q.set("search", params.search)
-    if (params.category) q.set("category", params.category)
+    if (params.categoryId) q.set("categoryId", params.categoryId)
     if (params.storeId) q.set("storeId", params.storeId)
     if (params.minPrice !== undefined)
       q.set("minPrice", String(params.minPrice))
@@ -140,9 +152,15 @@ class MarketplaceService {
     storeId: string,
     page = 1,
     limit = 20,
+    categoryId?: string,
   ): Promise<MarketplaceListResponse<Product>> {
+    const params = new URLSearchParams({
+      page: String(page),
+      limit: String(limit),
+    })
+    if (categoryId) params.set("categoryId", categoryId)
     const res = await apiClient.get<any>(
-      `${BASE}/products/store/${storeId}?page=${page}&limit=${limit}`,
+      `${BASE}/products/store/${storeId}?${params.toString()}`,
     )
     return { data: res?.data ?? [], count: res?.count ?? 0 }
   }
@@ -436,6 +454,134 @@ class MarketplaceService {
 
   async adminGetAnalytics(): Promise<AdminMarketplaceAnalytics> {
     const res = await apiClient.get<any>(`${BASE}/analytics/admin`)
+    return res?.data ?? res
+  }
+
+  // ── Product Categories (admin-managed) ───────────────────────────────────
+
+  async listProductCategories(
+    params: ProductCategoryListParams = {},
+  ): Promise<MarketplaceListResponse<ProductCategory>> {
+    const q = new URLSearchParams()
+    if (params.activeOnly !== undefined)
+      q.set("activeOnly", String(params.activeOnly))
+    const qs = q.toString()
+    const res = await apiClient.get<any>(
+      `${BASE}/product-categories${qs ? `?${qs}` : ""}`,
+    )
+    return { data: res?.data ?? [], count: res?.count ?? 0 }
+  }
+
+  async searchProductCategories(query: string): Promise<ProductCategory[]> {
+    const res = await apiClient.get<any>(
+      `${BASE}/product-categories/search?q=${encodeURIComponent(query)}`,
+    )
+    return res?.data ?? []
+  }
+
+  async getProductCategoryById(id: string): Promise<ProductCategory> {
+    const res = await apiClient.get<any>(`${BASE}/product-categories/${id}`)
+    return res?.data ?? res
+  }
+
+  async adminCreateProductCategory(
+    dto: CreateProductCategoryDto,
+  ): Promise<ProductCategory> {
+    const res = await apiClient.post<any>(`${BASE}/product-categories`, dto)
+    return res?.data ?? res
+  }
+
+  async adminUpdateProductCategory(
+    id: string,
+    dto: UpdateProductCategoryDto,
+  ): Promise<ProductCategory> {
+    const res = await apiClient.put<any>(
+      `${BASE}/product-categories/${id}`,
+      dto,
+    )
+    return res?.data ?? res
+  }
+
+  async adminDeleteProductCategory(id: string): Promise<void> {
+    await apiClient.delete<any>(`${BASE}/product-categories/${id}`)
+  }
+
+  // ── Product Category Suggestions (user-driven + admin moderation) ────────
+
+  async listProductCategorySuggestions(
+    params: ProductCategorySuggestionListParams = {},
+  ): Promise<MarketplaceListResponse<ProductCategorySuggestion>> {
+    const q = new URLSearchParams()
+    if (params.page) q.set("page", String(params.page))
+    if (params.limit) q.set("limit", String(params.limit))
+    if (params.status) q.set("status", params.status)
+    const qs = q.toString()
+    const res = await apiClient.get<any>(
+      `${BASE}/product-category-suggestions${qs ? `?${qs}` : ""}`,
+    )
+    return { data: res?.data ?? [], count: res?.count ?? 0 }
+  }
+
+  async getProductCategorySuggestionStats(): Promise<ProductCategorySuggestionStats> {
+    const res = await apiClient.get<any>(
+      `${BASE}/product-category-suggestions/stats`,
+    )
+    return res?.data ?? res
+  }
+
+  async getProductCategorySuggestionById(
+    id: string,
+  ): Promise<ProductCategorySuggestion> {
+    const res = await apiClient.get<any>(
+      `${BASE}/product-category-suggestions/${id}`,
+    )
+    return res?.data ?? res
+  }
+
+  async createProductCategorySuggestion(
+    dto: CreateProductCategorySuggestionDto,
+  ): Promise<ProductCategorySuggestion> {
+    const res = await apiClient.post<any>(
+      `${BASE}/product-category-suggestions`,
+      dto,
+    )
+    return res?.data ?? res
+  }
+
+  async updateProductCategorySuggestion(
+    id: string,
+    dto: UpdateProductCategorySuggestionDto,
+  ): Promise<ProductCategorySuggestion> {
+    const res = await apiClient.put<any>(
+      `${BASE}/product-category-suggestions/${id}`,
+      dto,
+    )
+    return res?.data ?? res
+  }
+
+  async deleteProductCategorySuggestion(id: string): Promise<void> {
+    await apiClient.delete<any>(`${BASE}/product-category-suggestions/${id}`)
+  }
+
+  async adminUpdateProductCategorySuggestionStatus(
+    id: string,
+    dto: UpdateProductCategorySuggestionStatusDto,
+  ): Promise<ProductCategorySuggestionMutationResponse> {
+    const res = await apiClient.patch<any>(
+      `${BASE}/product-category-suggestions/${id}/status`,
+      dto,
+    )
+    return res?.data ?? res
+  }
+
+  async adminApproveProductCategorySuggestion(
+    id: string,
+    dto: AdminApproveProductCategorySuggestionDto = {},
+  ): Promise<ProductCategorySuggestionMutationResponse> {
+    const res = await apiClient.patch<any>(
+      `${BASE}/product-category-suggestions/${id}/admin-approve`,
+      dto,
+    )
     return res?.data ?? res
   }
 }

@@ -51,6 +51,9 @@ const TOAST_TYPES: ReadonlySet<string> = new Set([
   NotificationType.SUGGESTION_APPROVED,
   NotificationType.SUGGESTION_REJECTED,
   NotificationType.CONTENT_HIDDEN,
+  NotificationType.PRODUCT_CATEGORY_SUGGESTION_CREATED,
+  NotificationType.PRODUCT_CATEGORY_SUGGESTION_APPROVED,
+  NotificationType.PRODUCT_CATEGORY_SUGGESTION_REJECTED,
 ])
 
 // Booking types that belong to the "history" tab
@@ -155,6 +158,17 @@ export function getRedirectPath(notification: AppNotification): string | null {
     if (metadata?.postId) return `/posts/${metadata.postId}`
     if (metadata?.reelId) return `/reels/${metadata.reelId}`
     return actionUrl ?? "/notifications"
+  }
+
+  // ── Product category suggestions ──
+  if (type === NotificationType.PRODUCT_CATEGORY_SUGGESTION_CREATED) {
+    return actionUrl ?? "/admin/marketplace/category-suggestions"
+  }
+  if (
+    type === NotificationType.PRODUCT_CATEGORY_SUGGESTION_APPROVED ||
+    type === NotificationType.PRODUCT_CATEGORY_SUGGESTION_REJECTED
+  ) {
+    return actionUrl ?? "/store/my-store/suggestions"
   }
 
   // ── Fallback to actionUrl from backend ──

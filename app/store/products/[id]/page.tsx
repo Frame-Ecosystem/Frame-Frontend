@@ -119,9 +119,20 @@ export default function ProductDetailPage() {
           <div className="space-y-4">
             {/* Category + wishlist */}
             <div className="flex items-center justify-between">
-              <Badge variant="outline" className="text-xs capitalize">
-                {product.category.replace(/_/g, " ")}
-              </Badge>
+              {(() => {
+                const label =
+                  typeof product.categoryId === "object" &&
+                  product.categoryId !== null
+                    ? product.categoryId.name
+                    : (product.category ?? "").replace(/_/g, " ")
+                return label ? (
+                  <Badge variant="outline" className="text-xs capitalize">
+                    {label}
+                  </Badge>
+                ) : (
+                  <span />
+                )
+              })()}
               <WishlistButton productId={id} isInWishlist={isInWishlist} />
             </div>
 

@@ -5,38 +5,26 @@ import { useRouter, useParams } from "next/navigation"
 import { Button } from "@/app/_components/ui/button"
 import { Input } from "@/app/_components/ui/input"
 import { ImageUploader } from "@/app/_components/marketplace/image-uploader"
+import { CategoryPicker } from "@/app/_components/marketplace/category-picker"
 import {
   useProductById,
   useUpdateProduct,
   useUploadProductImages,
   useDeleteProductImage,
 } from "@/app/_hooks/queries/useMarketplace"
-import type { ProductCategory } from "@/app/_types/marketplace"
 import { ArrowLeft, Loader2 } from "lucide-react"
 import Link from "next/link"
 import { toast } from "sonner"
 
-const CATEGORIES: { value: ProductCategory; label: string }[] = [
-  { value: "shampoo", label: "Shampoo" },
-  { value: "conditioner", label: "Conditioner" },
-  { value: "hair_oil", label: "Hair Oil" },
-  { value: "hair_mask", label: "Hair Mask" },
-  { value: "hair_color", label: "Hair Color" },
-  { value: "face_cream", label: "Face Cream" },
-  { value: "face_serum", label: "Face Serum" },
-  { value: "cleanser", label: "Cleanser" },
-  { value: "moisturizer", label: "Moisturizer" },
-  { value: "sunscreen", label: "Sunscreen" },
-  { value: "foundation", label: "Foundation" },
-  { value: "mascara", label: "Mascara" },
-  { value: "lipstick", label: "Lipstick" },
-  { value: "eyeshadow", label: "Eyeshadow" },
-  { value: "nail_polish", label: "Nail Polish" },
-  { value: "perfume", label: "Perfume" },
-  { value: "body_lotion", label: "Body Lotion" },
-  { value: "brush_set", label: "Brush Set" },
-  { value: "other", label: "Other" },
-]
+const ERROR_MESSAGES: Record<string, string> = {
+  INVALID_CATEGORY_ID: "Please pick a valid category.",
+  CATEGORY_INACTIVE:
+    "That category is currently inactive — please choose another.",
+  VALIDATION_ERROR: "Please double-check the form and try again.",
+  PRODUCT_NOT_FOUND: "This product no longer exists.",
+  FORBIDDEN: "You can only edit products in your own store.",
+  UNAUTHORIZED: "Please sign in again.",
+}
 
 export default function EditProductPage() {
   const router = useRouter()
@@ -50,7 +38,7 @@ export default function EditProductPage() {
     name: "",
     description: "",
     shortDescription: "",
-    category: "" as ProductCategory | "",
+    categoryId: "",
     price: "",
     compareAtPrice: "",
     stock: "0",
@@ -61,12 +49,16 @@ export default function EditProductPage() {
 
   useEffect(() => {
     if (product) {
+      const categoryIdValue =
+        typeof product.categoryId === "string"
+          ? product.categoryId
+          : (product.categoryId?._id ?? "")
       // eslint-disable-next-line react-hooks/set-state-in-effect
       setForm({
         name: product.name,
         description: product.description ?? "",
         shortDescription: product.shortDescription ?? "",
-        category: product.category,
+        categoryId: categoryIdValue,
         price: String(product.price),
         compareAtPrice: product.compareAtPrice
           ? String(product.compareAtPrice)
@@ -108,7 +100,7 @@ export default function EditProductPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!form.name || !form.category || !form.price) {
+    if (!form.name || !form.categoryId || !form.price) {
       toast.error("Name, category, and price are required")
       return
     }
@@ -118,7 +110,7 @@ export default function EditProductPage() {
         name: form.name,
         description: form.description,
         shortDescription: form.shortDescription || undefined,
-        category: form.category as ProductCategory,
+        categoryId: form.categoryId,
         price: parseFloat(form.price),
         compareAtPrice: form.compareAtPrice
           ? parseFloat(form.compareAtPrice)
@@ -149,7 +141,14 @@ export default function EditProductPage() {
             router.push("/store/my-store/products")
           }
         },
-        onError: () => toast.error("Failed to update product"),
+        onError: (err) => {
+          const code = (err as { code?: string })?.code ?? ""
+          toast.error(
+            ERROR_MESSAGES[code] ??
+              (err as Error)?.message ??
+              "Failed to update product",
+          )
+        },
       },
     )
   }
@@ -230,24 +229,10 @@ export default function EditProductPage() {
             <label className="mb-1.5 block text-sm font-medium">
               Category *
             </label>
-            <select
-              value={form.category}
-              onChange={(e) =>
-                setForm((f) => ({
-                  ...f,
-                  category: e.target.value as ProductCategory,
-                }))
-              }
-              className="border-border bg-background w-full rounded-lg border px-3 py-2 text-sm"
-              required
-            >
-              <option value="">Select category</option>
-              {CATEGORIES.map((c) => (
-                <option key={c.value} value={c.value}>
-                  {c.label}
-                </option>
-              ))}
-            </select>
+            <CategoryPicker
+              value={form.categoryId}
+              onChange={(categoryId) => setForm((f) => ({ ...f, categoryId }))}
+            />
           </div>
 
           {field("shortDescription", "Short Description", {
