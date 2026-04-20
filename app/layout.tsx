@@ -115,32 +115,9 @@ export const metadata: Metadata = {
 
   // Favicon configuration
   icons: {
-    icon: [
-      // Primary: scalable SVG (modern browsers)
-      { url: "/icon.svg", type: "image/svg+xml" },
-      // Fallback: PNG raster for legacy browsers
-      {
-        url: "/images/favicon.png",
-        sizes: "192x192",
-        type: "image/png",
-      },
-    ],
-    shortcut: [
-      { url: "/icon.svg", type: "image/svg+xml" },
-      {
-        url: "/images/favicon.png",
-        type: "image/png",
-      },
-    ],
-    apple: [
-      // iOS home screen icon (Safari renders SVG correctly on iOS 16+)
-      { url: "/icon.svg", type: "image/svg+xml" },
-      {
-        url: "/images/favicon.png",
-        sizes: "180x180",
-        type: "image/png",
-      },
-    ],
+    icon: [{ url: "/icon.svg", type: "image/svg+xml" }],
+    shortcut: [{ url: "/icon.svg", type: "image/svg+xml" }],
+    apple: [{ url: "/icon.svg", type: "image/svg+xml" }],
   },
 
   // PWA manifest
@@ -203,12 +180,8 @@ export default function RootLayout({
         {/* Brand SVG icon (theme-independent, infinitely scalable) */}
         <link rel="icon" type="image/svg+xml" href="/icon.svg" />
 
-        {/* PNG fallback for browsers that don't support SVG favicons */}
-        <link rel="icon" type="image/png" href="/images/favicon.png" />
-
         {/* Apple touch icon (home screen on iOS) */}
         <link rel="apple-touch-icon" href="/icon.svg" />
-        <link rel="apple-touch-icon" href="/images/favicon.png" />
       </head>
       <body className={`${inter.className} ${nunito.variable}`}>
         {/* PROVIDER HIERARCHY */}
