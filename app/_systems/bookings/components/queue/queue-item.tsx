@@ -48,6 +48,7 @@ import {
 } from "./queue-utils"
 import { format } from "date-fns"
 import { useTranslation } from "@/app/_i18n"
+import { useFrameScroll } from "@/app/_hooks/useFrameScroll"
 
 // ── Constants ────────────────────────────────────────────────
 
@@ -121,6 +122,7 @@ export default function QueueItem({
 }: QueueItemProps) {
   const router = useRouter()
   const { t } = useTranslation()
+  const { scrollToElement } = useFrameScroll()
   const highlightRef = useRef<HTMLDivElement>(null)
   const isHighlighted =
     !!highlightBookingId && person.bookingId?._id === highlightBookingId
@@ -130,10 +132,7 @@ export default function QueueItem({
     if (isHighlighted && highlightRef.current) {
       // Small delay to let the queue render fully
       const timer = setTimeout(() => {
-        highlightRef.current?.scrollIntoView({
-          behavior: "smooth",
-          block: "center",
-        })
+        scrollToElement(highlightRef.current)
       }, 400)
       return () => clearTimeout(timer)
     }

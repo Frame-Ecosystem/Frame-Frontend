@@ -7,6 +7,7 @@ import { useAuth } from "@/app/_auth"
 import { loungeService } from "../../../_services/lounge.service"
 import { bookingService } from "../../../_services/booking.service"
 import { isAuthError } from "../../../_services/api"
+import { BOOKING_ERROR_MESSAGES } from "@/app/_systems/bookings/types/booking"
 import type {
   CreateBookingInput,
   LoungeService,
@@ -267,10 +268,15 @@ export function BookingWizard({
       await bookingService.create(bookingData)
       toast.success("Booking created successfully!")
       onSuccess?.()
-    } catch (error) {
+    } catch (error: any) {
       if (isAuthError(error)) return
       console.error("Failed to create booking:", error)
-      toast.error("Failed to create booking. Please try again.")
+      const code = error?.code ?? ""
+      const msg =
+        BOOKING_ERROR_MESSAGES[code] ??
+        error?.message ??
+        "Failed to create booking. Please try again."
+      toast.error(msg)
     } finally {
       setIsLoading(false)
     }

@@ -231,9 +231,13 @@ export function useRemovePersonFromQueue() {
     },
     onError: (error: any) => {
       if (isAuthError(error)) return
-      const message =
-        error?.message || error?.error || "Failed to remove person"
-      toast.error(message)
+      const code = error?.code ?? ""
+      const msg =
+        QUEUE_ERROR_MESSAGES[code] ??
+        BOOKING_ERROR_MESSAGES[code] ??
+        error?.message ??
+        "Failed to remove person"
+      toast.error(msg)
     },
   })
 }
@@ -304,9 +308,13 @@ export function useBookFromQueue() {
     },
     onError: (error: any) => {
       if (isAuthError(error)) return
-      const message =
-        error?.message || error?.error || "Failed to book from queue"
-      toast.error(message)
+      const code = error?.code ?? ""
+      const msg =
+        BOOKING_ERROR_MESSAGES[code] ??
+        QUEUE_ERROR_MESSAGES[code] ??
+        error?.message ??
+        "Failed to book from queue"
+      toast.error(msg)
     },
   })
 }
@@ -343,7 +351,7 @@ export function useLoungeBookFromQueue() {
   })
 }
 
-/** Toggle acceptQueueBooking for an agent */
+/** Toggle acceptQueueBooking for an agent (optimistic) */
 export function useToggleQueueBooking() {
   const queryClient = useQueryClient()
 
@@ -355,21 +363,51 @@ export function useToggleQueueBooking() {
       agentId: string
       acceptQueueBooking: boolean
     }) => agentService.updateQueueBooking(agentId, acceptQueueBooking),
+    onMutate: async ({ agentId, acceptQueueBooking }) => {
+      // Cancel in-flight fetches so they don't overwrite our optimistic value
+      await queryClient.cancelQueries({ queryKey: ["loungeAgents"] })
+
+      // Snapshot every cached loungeAgents entry for rollback
+      const previousEntries = queryClient.getQueriesData<{ agents?: any[] }>({
+        queryKey: ["loungeAgents"],
+      })
+
+      // Patch the agent inside every cached entry
+      queryClient.setQueriesData<any>(
+        { queryKey: ["loungeAgents"] },
+        (old: any) => {
+          if (!old?.agents) return old
+          return {
+            ...old,
+            agents: old.agents.map((a: any) =>
+              a._id === agentId ? { ...a, acceptQueueBooking } : a,
+            ),
+          }
+        },
+      )
+
+      return { previousEntries }
+    },
     onSuccess: (_data, variables) => {
       toast.success(
         variables.acceptQueueBooking
           ? "Queue booking enabled for agent"
           : "Queue booking disabled for agent",
       )
-      // Invalidate loungeAgents query so the UI picks up the new value
-      queryClient.invalidateQueries({ queryKey: ["loungeAgents"] })
+      // Do NOT invalidate ["loungeAgents"] here. The agents list endpoint may
+      // not include acceptQueueBooking, which would overwrite our optimistic
+      // value and snap the Switch back to "closed". The PATCH already persisted
+      // the change on the backend; the optimistic cache is the source of truth.
     },
-    onError: (error: any) => {
+    onError: (error: any, _variables, context) => {
+      // Roll back to the snapshot on failure
+      if (context?.previousEntries) {
+        for (const [key, data] of context.previousEntries) {
+          queryClient.setQueryData(key, data)
+        }
+      }
       if (isAuthError(error)) return
-      const message =
-        error?.message ||
-        error?.error ||
-        "Failed to update queue booking setting"
+      const message = error?.message ?? "Failed to update queue booking setting"
       toast.error(message)
     },
   })
