@@ -1,6 +1,10 @@
-# Frame Beauty
+<p align="center">
+  <img src="public/images/frame-logo-animated.svg" alt="Frame Beauty" width="420" />
+</p>
 
-**Frame** is a Tunisian startup building the all-in-one beauty platform — connecting clients with beauty lounges, agents, and a marketplace, all from a single mobile-first web app.
+<p align="center">
+  <strong>Frame</strong> is a Tunisian startup building the all-in-one beauty platform — connecting clients with beauty lounges, agents, and a marketplace, all from a single mobile-first web app.
+</p>
 
 ---
 
@@ -65,34 +69,34 @@ graph TB
 
 ## Systems
 
-| System | Directory | README | Description |
-|--------|-----------|--------|-------------|
-| **Auth** | `app/_systems/auth/` | [README](app/_systems/auth/README.md) | JWT authentication, Google OAuth, signup, password reset, phone handling, route guards |
-| **User** | `app/_systems/user/` | [README](app/_systems/user/README.md) | User types (client/lounge/agent), profiles, follow system, lounge management, settings |
-| **Feed** | `app/_systems/feed/` | [README](app/_systems/feed/README.md) | Posts, reels, comments, likes, saves, hashtags, content moderation |
-| **Bookings** | `app/_systems/bookings/` | [README](app/_systems/bookings/README.md) | Appointment booking, real-time queues, drag-and-drop reordering, walk-in support |
-| **Service Catalog** | `app/_systems/service-catalog/` | [README](app/_systems/service-catalog/README.md) | Global service hierarchy, lounge-specific offerings, ratings, service suggestions |
-| **Marketplace** | `app/_systems/marketplace/` | [README](app/_systems/marketplace/README.md) | Stores, products, orders, cart, checkout, reviews, wishlists, product categories |
-| **Notifications** | `app/_systems/notifications/` | [README](app/_systems/notifications/README.md) | Real-time socket notifications, FCM push, sounds, deep-link navigation, 27 notification types |
-| **Admin** | `app/_systems/admin/` | [README](app/_systems/admin/README.md) | User moderation, content control, reports, system health, activity logs |
+| System              | Directory                       | README                                           | Description                                                                                   |
+| ------------------- | ------------------------------- | ------------------------------------------------ | --------------------------------------------------------------------------------------------- |
+| **Auth**            | `app/_systems/auth/`            | [README](app/_systems/auth/README.md)            | JWT authentication, Google OAuth, signup, password reset, phone handling, route guards        |
+| **User**            | `app/_systems/user/`            | [README](app/_systems/user/README.md)            | User types (client/lounge/agent), profiles, follow system, lounge management, settings        |
+| **Feed**            | `app/_systems/feed/`            | [README](app/_systems/feed/README.md)            | Posts, reels, comments, likes, saves, hashtags, content moderation                            |
+| **Bookings**        | `app/_systems/bookings/`        | [README](app/_systems/bookings/README.md)        | Appointment booking, real-time queues, drag-and-drop reordering, walk-in support              |
+| **Service Catalog** | `app/_systems/service-catalog/` | [README](app/_systems/service-catalog/README.md) | Global service hierarchy, lounge-specific offerings, ratings, service suggestions             |
+| **Marketplace**     | `app/_systems/marketplace/`     | [README](app/_systems/marketplace/README.md)     | Stores, products, orders, cart, checkout, reviews, wishlists, product categories              |
+| **Notifications**   | `app/_systems/notifications/`   | [README](app/_systems/notifications/README.md)   | Real-time socket notifications, FCM push, sounds, deep-link navigation, 27 notification types |
+| **Admin**           | `app/_systems/admin/`           | [README](app/_systems/admin/README.md)           | User moderation, content control, reports, system health, activity logs                       |
 
 ---
 
 ## Tech Stack
 
-| Layer | Technology |
-|-------|------------|
-| Framework | **Next.js 16** (App Router, Turbopack) |
-| Language | **TypeScript** (strict mode) |
-| UI | **React 19**, **Tailwind CSS v4** |
-| State & Data | **TanStack React Query v5** |
-| Real-time | **Socket.IO** client |
-| Push | **Firebase Cloud Messaging** (FCM) |
-| Auth | JWT access/refresh tokens, Google OAuth |
-| i18n | Custom engine — 4 locales (en, ar, fr, tr), RTL support |
-| Icons | **Lucide React** |
-| DnD | **@dnd-kit/sortable** (queue reordering) |
-| Forms | **React Hook Form** + **Zod** |
+| Layer        | Technology                                              |
+| ------------ | ------------------------------------------------------- |
+| Framework    | **Next.js 16** (App Router, Turbopack)                  |
+| Language     | **TypeScript** (strict mode)                            |
+| UI           | **React 19**, **Tailwind CSS v4**                       |
+| State & Data | **TanStack React Query v5**                             |
+| Real-time    | **Socket.IO** client                                    |
+| Push         | **Firebase Cloud Messaging** (FCM)                      |
+| Auth         | JWT access/refresh tokens, Google OAuth                 |
+| i18n         | Custom engine — 4 locales (en, ar, fr, tr), RTL support |
+| Icons        | **Lucide React**                                        |
+| DnD          | **@dnd-kit/sortable** (queue reordering)                |
+| Forms        | **React Hook Form** + **Zod**                           |
 
 ---
 
@@ -124,6 +128,7 @@ app/
 ### Dual-Tree Convention
 
 Each domain has code in two places:
+
 - `app/_systems/<domain>/` — **canonical**: types, services, hooks, business logic
 - `app/_components/<domain>/` — **mirror**: UI components consuming the system hooks
 
@@ -174,11 +179,11 @@ NEXT_PUBLIC_GOOGLE_CLIENT_ID=<Google OAuth client ID>
 4 supported locales with full RTL support:
 
 | Code | Language | Direction |
-|------|----------|-----------|
-| `en` | English | LTR |
-| `fr` | French | LTR |
-| `ar` | Arabic | RTL |
-| `tr` | Turkish | LTR |
+| ---- | -------- | --------- |
+| `en` | English  | LTR       |
+| `fr` | French   | LTR       |
+| `ar` | Arabic   | RTL       |
+| `tr` | Turkish  | LTR       |
 
 Locale files: `app/_i18n/locales/{en,fr,ar,tr}.ts`
 
