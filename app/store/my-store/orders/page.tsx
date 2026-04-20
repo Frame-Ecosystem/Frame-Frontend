@@ -133,10 +133,7 @@ export default function StoreOrdersPage() {
 
                   <p className="text-muted-foreground mb-3 text-xs">
                     {order.items.length} item(s) ·{" "}
-                    {order.totalAmount != null
-                      ? order.totalAmount.toFixed(2)
-                      : (order.total ?? 0).toFixed(2)}{" "}
-                    DT
+                    {(order.total ?? 0).toFixed(2)} DT
                   </p>
 
                   {/* Update status */}

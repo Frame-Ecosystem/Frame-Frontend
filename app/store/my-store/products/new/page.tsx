@@ -31,12 +31,13 @@ export default function NewProductPage() {
   const [form, setForm] = useState({
     name: "",
     description: "",
-    shortDescription: "",
     categoryId: "",
     price: "",
     compareAtPrice: "",
     stock: "0",
     tags: "",
+    condition: "new" as "new" | "likeNew" | "used",
+    isDigital: false,
   })
   const [imageFiles, setImageFiles] = useState<File[]>([])
 
@@ -54,15 +55,17 @@ export default function NewProductPage() {
 
     createProduct.mutate(
       {
+        storeId: store._id,
         name: form.name,
         description: form.description,
-        shortDescription: form.shortDescription || undefined,
         categoryId: form.categoryId,
         price: parseFloat(form.price),
         compareAtPrice: form.compareAtPrice
           ? parseFloat(form.compareAtPrice)
           : undefined,
         stock: parseInt(form.stock) || 0,
+        condition: form.condition,
+        isDigital: form.isDigital,
         tags: form.tags
           ? form.tags
               .split(",")
@@ -146,19 +149,39 @@ export default function NewProductPage() {
             />
           </div>
 
-          {/* Short description */}
+          {/* Condition */}
           <div>
             <label className="mb-1.5 block text-sm font-medium">
-              Short Description
+              Condition
             </label>
-            <Input
-              value={form.shortDescription}
+            <select
+              value={form.condition}
               onChange={(e) =>
-                setForm((f) => ({ ...f, shortDescription: e.target.value }))
+                setForm((f) => ({
+                  ...f,
+                  condition: e.target.value as "new" | "likeNew" | "used",
+                }))
               }
-              placeholder="One-line product summary"
-            />
+              className="border-border bg-background focus:ring-primary/30 w-full rounded-lg border px-3 py-2 text-sm focus:ring-2 focus:outline-none"
+            >
+              <option value="new">New</option>
+              <option value="likeNew">Like New</option>
+              <option value="used">Used</option>
+            </select>
           </div>
+
+          {/* Digital product */}
+          <label className="flex items-center gap-2 text-sm">
+            <input
+              type="checkbox"
+              checked={form.isDigital}
+              onChange={(e) =>
+                setForm((f) => ({ ...f, isDigital: e.target.checked }))
+              }
+              className="rounded"
+            />
+            This is a digital product
+          </label>
 
           {/* Pricing */}
           <div className="grid gap-3 sm:grid-cols-2">
