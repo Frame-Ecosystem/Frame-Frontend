@@ -106,17 +106,14 @@ class MarketplaceService {
   async uploadStoreLogo(file: File | FormData): Promise<Store> {
     const form = file instanceof FormData ? file : new FormData()
     if (!(file instanceof FormData)) form.append("logo", file)
-    const res = await apiClient.post<any>(`${BASE}/stores/me/store/logo`, form)
+    const res = await apiClient.put<any>(`${BASE}/stores/me/store/logo`, form)
     return res?.data ?? res
   }
 
   async uploadStoreBanner(file: File | FormData): Promise<Store> {
     const form = file instanceof FormData ? file : new FormData()
     if (!(file instanceof FormData)) form.append("banner", file)
-    const res = await apiClient.post<any>(
-      `${BASE}/stores/me/store/banner`,
-      form,
-    )
+    const res = await apiClient.put<any>(`${BASE}/stores/me/store/banner`, form)
     return res?.data ?? res
   }
 
@@ -231,6 +228,7 @@ class MarketplaceService {
   }
 
   async getMyStoreOrders(
+    storeId: string,
     filter?: { status?: OrderStatus },
     page = 1,
     limit = 20,
@@ -240,7 +238,9 @@ class MarketplaceService {
       limit: String(limit),
     })
     if (filter?.status) params.set("status", filter.status)
-    const res = await apiClient.get<any>(`${BASE}/orders/my-store?${params}`)
+    const res = await apiClient.get<any>(
+      `${BASE}/orders/store/${storeId}?${params}`,
+    )
     return { data: res?.data ?? [], count: res?.count ?? 0 }
   }
 
@@ -351,7 +351,13 @@ class MarketplaceService {
     const res = await apiClient.get<any>(
       `${BASE}/wishlist?page=${page}&limit=${limit}`,
     )
-    return { data: res?.data ?? [], count: res?.count ?? 0 }
+    const items = (res?.data ?? []).map((item: any) => ({
+      _id: item._id,
+      userId: item.userId,
+      product: item.productId ?? item.product,
+      createdAt: item.createdAt,
+    }))
+    return { data: items, count: res?.count ?? 0 }
   }
 
   async addToWishlist(productId: string): Promise<WishlistItem> {
