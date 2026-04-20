@@ -237,7 +237,7 @@ export default function NotificationsPage() {
   // ── Authenticated state ──
   return (
     <ErrorBoundary>
-      <div className="from-background via-background to-muted/20 mb-24 min-h-screen bg-linear-to-br lg:mb-0">
+      <div className="from-background via-background to-muted/20 min-h-screen bg-linear-to-br pb-24 lg:pb-0">
         <div className="mx-auto max-w-2xl px-4 pt-6 pb-8 lg:px-8 lg:pt-10 lg:pb-12">
           {/* Page Header */}
           <div className="mb-6 lg:mb-8">

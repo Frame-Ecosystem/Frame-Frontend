@@ -18,7 +18,7 @@ export default function QueuePage() {
 
   // Lounge accounts always see their agent queues regardless of opening hours
   return (
-    <div className="mx-auto max-w-5xl px-3 py-4 lg:px-8 lg:py-8">
+    <div className="mx-auto max-w-5xl px-3 py-4 pb-24 lg:px-8 lg:py-8 lg:pb-0">
       <QueueDisplay
         centerName={
           isLounge
