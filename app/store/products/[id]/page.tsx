@@ -38,7 +38,7 @@ export default function ProductDetailPage() {
   const addToCart = useAddToCart()
 
   const isInWishlist = (wishlistData?.data ?? []).some(
-    (w) => w.product._id === id,
+    (w) => w.product?._id === id,
   )
   const ownProduct =
     product?.storeId && typeof product.storeId === "object"
@@ -170,17 +170,7 @@ export default function ProductDetailPage() {
             />
 
             {/* Stock */}
-            <StockIndicator
-              stock={product.stock}
-              threshold={product.lowStockThreshold}
-            />
-
-            {/* Short description */}
-            {product.shortDescription && (
-              <p className="text-muted-foreground text-sm">
-                {product.shortDescription}
-              </p>
-            )}
+            <StockIndicator stock={product.stock} />
 
             {/* Variants */}
             {product.variants && product.variants.length > 0 && (
