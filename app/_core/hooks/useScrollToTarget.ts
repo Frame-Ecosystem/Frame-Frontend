@@ -2,9 +2,21 @@
 
 import { useEffect } from "react"
 
+/** Read the current fixed-header offset from CSS custom properties. */
+function getHeaderOffset(): number {
+  if (typeof window === "undefined") return 0
+  const isDesktop = window.matchMedia("(min-width: 1024px)").matches
+  const prop = isDesktop ? "--header-offset-lg" : "--header-offset"
+  const raw = getComputedStyle(document.documentElement).getPropertyValue(prop)
+  return parseInt(raw, 10) || 0
+}
+
 /**
  * Scroll to a DOM element identified by the URL hash fragment.
  * Works with both hash-based (`#post-123`) and query-param-based (`?highlight=123`) targets.
+ *
+ * Automatically accounts for fixed header offset using CSS custom properties
+ * --header-offset (mobile) and --header-offset-lg (desktop).
  *
  * Usage:
  *   useScrollToTarget()  — scrolls to `#<hash>` on mount
@@ -43,6 +55,15 @@ export function useScrollToTarget(opts?: {
       if (!el) return
 
       el.scrollIntoView({ behavior: "smooth", block: "center" })
+      // Fallback: adjust for fixed header if block:"center" still leaves it obscured
+      requestAnimationFrame(() => {
+        const rect = el.getBoundingClientRect()
+        const headerPx = getHeaderOffset()
+        if (rect.top < headerPx + 16) {
+          const top = rect.top + window.scrollY - headerPx - 16
+          window.scrollTo({ top: Math.max(0, top), behavior: "smooth" })
+        }
+      })
       el.classList.add("notif-highlight")
 
       const cleanup = setTimeout(() => {
