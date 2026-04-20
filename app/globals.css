@@ -58,6 +58,8 @@
   /* Header offsets used by sticky tab navs */
   --header-offset: 73px; /* mobile / small screens - increased to sit below top bars */
   --header-offset-lg: 96px; /* desktop / large screens - increased to sit below desktop nav */
+  /* Mobile bottom nav height (including safe-area padding) */
+  --mobile-nav-height: 100px;
 }
 
 /* Hide scrollbar but keep scrolling */
@@ -499,6 +501,14 @@
 
   html {
     @apply h-full; /* Full height for proper layout */
+    /* Anchor-scroll offset so #hash targets clear the fixed header */
+    scroll-padding-top: calc(var(--header-offset) + 16px);
+    @media (min-width: 1024px) {
+      scroll-padding-top: calc(var(--header-offset-lg) + 16px);
+    }
+    /* Safe area for iPhone notch / home indicator */
+    padding: env(safe-area-inset-top) env(safe-area-inset-right)
+      env(safe-area-inset-bottom) env(safe-area-inset-left);
   }
 
   body {
@@ -577,28 +587,6 @@ body.queue-fullscreen [data-profile-edit] {
   input[type="datetime-local"] {
     font-size: 16px !important;
   }
-}
-
-/* =============================================================================
-   BOOKING CARD HIGHLIGHT
-   Pulse animation when redirected from a notification to a specific card.
-   ============================================================================= */
-@keyframes booking-highlight {
-  0%,
-  100% {
-    box-shadow: 0 0 0 0 hsl(var(--primary) / 0);
-  }
-  25%,
-  75% {
-    box-shadow: 0 0 0 4px hsl(var(--primary) / 0.35);
-  }
-  50% {
-    box-shadow: 0 0 0 6px hsl(var(--primary) / 0.5);
-  }
-}
-
-.booking-highlight {
-  animation: booking-highlight 1.5s ease-in-out 2;
 }
 
 /* =============================================================================
