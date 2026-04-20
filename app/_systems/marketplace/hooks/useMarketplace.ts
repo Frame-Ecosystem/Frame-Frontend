@@ -16,6 +16,14 @@ import type {
   StoreStatus,
   ProductStatus,
   StoreBadge,
+  CreateProductCategoryDto,
+  UpdateProductCategoryDto,
+  ProductCategoryListParams,
+  CreateProductCategorySuggestionDto,
+  UpdateProductCategorySuggestionDto,
+  UpdateProductCategorySuggestionStatusDto,
+  AdminApproveProductCategorySuggestionDto,
+  ProductCategorySuggestionListParams,
 } from "@/app/_types/marketplace"
 
 /* ═══════════════════════════════════════════════
@@ -64,6 +72,25 @@ export const marketplaceKeys = {
 
   // Analytics
   storeAnalytics: () => ["marketplace", "analytics", "store"] as const,
+
+  // Product Categories
+  productCategories: () => ["marketplace", "product-categories"] as const,
+  productCategoriesList: (p: ProductCategoryListParams) =>
+    [...marketplaceKeys.productCategories(), "list", p] as const,
+  productCategoriesSearch: (q: string) =>
+    [...marketplaceKeys.productCategories(), "search", q] as const,
+  productCategoryById: (id: string) =>
+    [...marketplaceKeys.productCategories(), "id", id] as const,
+
+  // Product Category Suggestions
+  productCategorySuggestions: () =>
+    ["marketplace", "product-category-suggestions"] as const,
+  productCategorySuggestionsList: (p: ProductCategorySuggestionListParams) =>
+    [...marketplaceKeys.productCategorySuggestions(), "list", p] as const,
+  productCategorySuggestionStats: () =>
+    [...marketplaceKeys.productCategorySuggestions(), "stats"] as const,
+  productCategorySuggestionById: (id: string) =>
+    [...marketplaceKeys.productCategorySuggestions(), "id", id] as const,
 }
 
 /* ═══════════════════════════════════════════════
@@ -600,5 +627,182 @@ export function useAdminMarketplaceAnalytics() {
     queryKey: ["marketplace", "admin", "analytics"],
     queryFn: () => marketplaceService.adminGetAnalytics(),
     staleTime: 2 * 60 * 1000,
+  })
+}
+
+/* ═══════════════════════════════════════════════
+   Product Categories (admin-managed)
+   ═══════════════════════════════════════════════ */
+
+export function useProductCategories(params: ProductCategoryListParams = {}) {
+  return useQuery({
+    queryKey: marketplaceKeys.productCategoriesList(params),
+    queryFn: () => marketplaceService.listProductCategories(params),
+    staleTime: 5 * 60 * 1000,
+  })
+}
+
+export function useProductCategorySearch(q: string, enabled = true) {
+  return useQuery({
+    queryKey: marketplaceKeys.productCategoriesSearch(q),
+    queryFn: () => marketplaceService.searchProductCategories(q),
+    enabled: enabled && q.trim().length > 0,
+    staleTime: 60 * 1000,
+  })
+}
+
+export function useProductCategory(id: string) {
+  return useQuery({
+    queryKey: marketplaceKeys.productCategoryById(id),
+    queryFn: () => marketplaceService.getProductCategoryById(id),
+    enabled: !!id,
+    staleTime: 5 * 60 * 1000,
+  })
+}
+
+export function useAdminCreateProductCategory() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (dto: CreateProductCategoryDto) =>
+      marketplaceService.adminCreateProductCategory(dto),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: marketplaceKeys.productCategories() })
+    },
+  })
+}
+
+export function useAdminUpdateProductCategory() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: ({ id, dto }: { id: string; dto: UpdateProductCategoryDto }) =>
+      marketplaceService.adminUpdateProductCategory(id, dto),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: marketplaceKeys.productCategories() })
+    },
+  })
+}
+
+export function useAdminDeleteProductCategory() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (id: string) =>
+      marketplaceService.adminDeleteProductCategory(id),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: marketplaceKeys.productCategories() })
+    },
+  })
+}
+
+/* ═══════════════════════════════════════════════
+   Product Category Suggestions
+   ═══════════════════════════════════════════════ */
+
+export function useProductCategorySuggestions(
+  params: ProductCategorySuggestionListParams = {},
+) {
+  return useQuery({
+    queryKey: marketplaceKeys.productCategorySuggestionsList(params),
+    queryFn: () => marketplaceService.listProductCategorySuggestions(params),
+    staleTime: 60 * 1000,
+  })
+}
+
+export function useProductCategorySuggestionStats() {
+  return useQuery({
+    queryKey: marketplaceKeys.productCategorySuggestionStats(),
+    queryFn: () => marketplaceService.getProductCategorySuggestionStats(),
+    staleTime: 60 * 1000,
+  })
+}
+
+export function useProductCategorySuggestion(id: string) {
+  return useQuery({
+    queryKey: marketplaceKeys.productCategorySuggestionById(id),
+    queryFn: () => marketplaceService.getProductCategorySuggestionById(id),
+    enabled: !!id,
+    staleTime: 60 * 1000,
+  })
+}
+
+export function useCreateProductCategorySuggestion() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (dto: CreateProductCategorySuggestionDto) =>
+      marketplaceService.createProductCategorySuggestion(dto),
+    onSuccess: () => {
+      qc.invalidateQueries({
+        queryKey: marketplaceKeys.productCategorySuggestions(),
+      })
+    },
+  })
+}
+
+export function useUpdateProductCategorySuggestion() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: ({
+      id,
+      dto,
+    }: {
+      id: string
+      dto: UpdateProductCategorySuggestionDto
+    }) => marketplaceService.updateProductCategorySuggestion(id, dto),
+    onSuccess: () => {
+      qc.invalidateQueries({
+        queryKey: marketplaceKeys.productCategorySuggestions(),
+      })
+    },
+  })
+}
+
+export function useDeleteProductCategorySuggestion() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (id: string) =>
+      marketplaceService.deleteProductCategorySuggestion(id),
+    onSuccess: () => {
+      qc.invalidateQueries({
+        queryKey: marketplaceKeys.productCategorySuggestions(),
+      })
+    },
+  })
+}
+
+export function useAdminUpdateProductCategorySuggestionStatus() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: ({
+      id,
+      dto,
+    }: {
+      id: string
+      dto: UpdateProductCategorySuggestionStatusDto
+    }) =>
+      marketplaceService.adminUpdateProductCategorySuggestionStatus(id, dto),
+    onSuccess: () => {
+      qc.invalidateQueries({
+        queryKey: marketplaceKeys.productCategorySuggestions(),
+      })
+      qc.invalidateQueries({ queryKey: marketplaceKeys.productCategories() })
+    },
+  })
+}
+
+export function useAdminApproveProductCategorySuggestion() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: ({
+      id,
+      dto,
+    }: {
+      id: string
+      dto?: AdminApproveProductCategorySuggestionDto
+    }) => marketplaceService.adminApproveProductCategorySuggestion(id, dto),
+    onSuccess: () => {
+      qc.invalidateQueries({
+        queryKey: marketplaceKeys.productCategorySuggestions(),
+      })
+      qc.invalidateQueries({ queryKey: marketplaceKeys.productCategories() })
+    },
   })
 }

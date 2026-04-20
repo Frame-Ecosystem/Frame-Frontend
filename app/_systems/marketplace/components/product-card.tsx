@@ -106,9 +106,18 @@ export function ProductCard({
           </h3>
 
           {/* Category */}
-          <Badge variant="outline" className="mb-2 text-xs capitalize">
-            {product.category.replace(/_/g, " ")}
-          </Badge>
+          {(() => {
+            const label =
+              typeof product.categoryId === "object" &&
+              product.categoryId !== null
+                ? product.categoryId.name
+                : (product.category ?? "").replace(/_/g, " ")
+            return label ? (
+              <Badge variant="outline" className="mb-2 text-xs capitalize">
+                {label}
+              </Badge>
+            ) : null
+          })()}
 
           {/* Rating */}
           {product.stats.averageRating > 0 && (

@@ -49,7 +49,7 @@ export function NavBrandLogo({
       >
         frame
       </span>
-      <span className="hero-logo-text text-primary decoration-primary/50 ml-0.5 self-end text-[8px] font-semibold underline">
+      <span className="hero-logo-text text-primary decoration-primary/50 ml-0.5 self-end text-[11px] font-semibold tracking-tighter underline">
         beauty
       </span>
     </span>
@@ -90,7 +90,7 @@ export function FooterBrandLogo() {
       >
         frame
       </span>
-      <span className="hero-logo-text text-primary decoration-primary/50 ml-0.5 self-end text-[8px] font-semibold underline">
+      <span className="hero-logo-text text-primary decoration-primary/50 ml-0.5 self-end text-[11px] font-semibold tracking-tighter underline">
         beauty
       </span>
     </span>

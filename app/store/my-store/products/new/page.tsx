@@ -5,35 +5,22 @@ import { useRouter } from "next/navigation"
 import { Button } from "@/app/_components/ui/button"
 import { Input } from "@/app/_components/ui/input"
 import { ImageUploader } from "@/app/_components/marketplace/image-uploader"
+import { CategoryPicker } from "@/app/_components/marketplace/category-picker"
 import {
   useCreateProduct,
   useUploadProductImages,
   useMyStore,
 } from "@/app/_hooks/queries/useMarketplace"
-import type { ProductCategory } from "@/app/_types/marketplace"
 import { toast } from "sonner"
 
-const CATEGORIES: { value: ProductCategory; label: string }[] = [
-  { value: "shampoo", label: "Shampoo" },
-  { value: "conditioner", label: "Conditioner" },
-  { value: "hair_oil", label: "Hair Oil" },
-  { value: "hair_mask", label: "Hair Mask" },
-  { value: "hair_color", label: "Hair Color" },
-  { value: "face_cream", label: "Face Cream" },
-  { value: "face_serum", label: "Face Serum" },
-  { value: "cleanser", label: "Cleanser" },
-  { value: "moisturizer", label: "Moisturizer" },
-  { value: "sunscreen", label: "Sunscreen" },
-  { value: "foundation", label: "Foundation" },
-  { value: "mascara", label: "Mascara" },
-  { value: "lipstick", label: "Lipstick" },
-  { value: "eyeshadow", label: "Eyeshadow" },
-  { value: "nail_polish", label: "Nail Polish" },
-  { value: "perfume", label: "Perfume" },
-  { value: "body_lotion", label: "Body Lotion" },
-  { value: "brush_set", label: "Brush Set" },
-  { value: "other", label: "Other" },
-]
+const ERROR_MESSAGES: Record<string, string> = {
+  INVALID_CATEGORY_ID: "Please pick a valid category.",
+  CATEGORY_INACTIVE:
+    "That category is currently inactive — please choose another.",
+  VALIDATION_ERROR: "Please double-check the form and try again.",
+  STORE_NOT_FOUND: "You need to create your store before adding products.",
+  UNAUTHORIZED: "Please sign in again.",
+}
 
 export default function NewProductPage() {
   const router = useRouter()
@@ -45,7 +32,7 @@ export default function NewProductPage() {
     name: "",
     description: "",
     shortDescription: "",
-    category: "" as ProductCategory | "",
+    categoryId: "",
     price: "",
     compareAtPrice: "",
     stock: "0",
@@ -60,7 +47,7 @@ export default function NewProductPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!form.name || !form.category || !form.price) {
+    if (!form.name || !form.categoryId || !form.price) {
       toast.error("Name, category, and price are required")
       return
     }
@@ -70,7 +57,7 @@ export default function NewProductPage() {
         name: form.name,
         description: form.description,
         shortDescription: form.shortDescription || undefined,
-        category: form.category as ProductCategory,
+        categoryId: form.categoryId,
         price: parseFloat(form.price),
         compareAtPrice: form.compareAtPrice
           ? parseFloat(form.compareAtPrice)
@@ -93,7 +80,14 @@ export default function NewProductPage() {
           toast.success("Product created!")
           router.push("/store/my-store/products")
         },
-        onError: () => toast.error("Failed to create product"),
+        onError: (err) => {
+          const code = (err as { code?: string })?.code ?? ""
+          toast.error(
+            ERROR_MESSAGES[code] ??
+              (err as Error)?.message ??
+              "Failed to create product",
+          )
+        },
       },
     )
   }
@@ -130,24 +124,10 @@ export default function NewProductPage() {
             <label className="mb-1.5 block text-sm font-medium">
               Category *
             </label>
-            <select
-              value={form.category}
-              onChange={(e) =>
-                setForm((f) => ({
-                  ...f,
-                  category: e.target.value as ProductCategory,
-                }))
-              }
-              className="border-border bg-background focus:ring-primary/30 w-full rounded-lg border px-3 py-2 text-sm focus:ring-2 focus:outline-none"
-              required
-            >
-              <option value="">Select category</option>
-              {CATEGORIES.map((cat) => (
-                <option key={cat.value} value={cat.value}>
-                  {cat.label}
-                </option>
-              ))}
-            </select>
+            <CategoryPicker
+              value={form.categoryId}
+              onChange={(categoryId) => setForm((f) => ({ ...f, categoryId }))}
+            />
           </div>
 
           {/* Description */}

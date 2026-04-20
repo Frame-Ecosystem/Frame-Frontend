@@ -43,6 +43,10 @@ export enum NotificationType {
   SUGGESTION_APPROVED = "admin:suggestionApproved",
   SUGGESTION_REJECTED = "admin:suggestionRejected",
   CONTENT_HIDDEN = "admin:contentHidden",
+  // Product category suggestions (3)
+  PRODUCT_CATEGORY_SUGGESTION_CREATED = "admin:productCategorySuggestionCreated",
+  PRODUCT_CATEGORY_SUGGESTION_APPROVED = "admin:productCategorySuggestionApproved",
+  PRODUCT_CATEGORY_SUGGESTION_REJECTED = "admin:productCategorySuggestionRejected",
 }
 
 // ── Category Map (mirrors backend NOTIFICATION_CATEGORY_MAP) ─
@@ -73,6 +77,12 @@ export const NOTIFICATION_CATEGORY_MAP: Record<string, NotificationCategory> = {
   [NotificationType.SUGGESTION_APPROVED]: NotificationCategory.ADMIN,
   [NotificationType.SUGGESTION_REJECTED]: NotificationCategory.ADMIN,
   [NotificationType.CONTENT_HIDDEN]: NotificationCategory.ADMIN,
+  [NotificationType.PRODUCT_CATEGORY_SUGGESTION_CREATED]:
+    NotificationCategory.ADMIN,
+  [NotificationType.PRODUCT_CATEGORY_SUGGESTION_APPROVED]:
+    NotificationCategory.ADMIN,
+  [NotificationType.PRODUCT_CATEGORY_SUGGESTION_REJECTED]:
+    NotificationCategory.ADMIN,
 }
 
 // ── Metadata ─────────────────────────────────────────────────

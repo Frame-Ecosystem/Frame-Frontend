@@ -39,6 +39,9 @@ const SOUND_MAP: Record<string, SoundId> = {
   [NotificationType.SUGGESTION_APPROVED]: SoundId.DEFAULT,
   [NotificationType.SUGGESTION_REJECTED]: SoundId.DEFAULT,
   [NotificationType.CONTENT_HIDDEN]: SoundId.DEFAULT,
+  [NotificationType.PRODUCT_CATEGORY_SUGGESTION_CREATED]: SoundId.DEFAULT,
+  [NotificationType.PRODUCT_CATEGORY_SUGGESTION_APPROVED]: SoundId.DEFAULT,
+  [NotificationType.PRODUCT_CATEGORY_SUGGESTION_REJECTED]: SoundId.DEFAULT,
 }
 
 /** Routes where matching notification-type prefixes are suppressed. */

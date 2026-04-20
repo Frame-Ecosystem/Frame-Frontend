@@ -1,36 +1,11 @@
-"use client"
+﻿"use client"
 
 import { useState } from "react"
-import { SlidersHorizontal, X, ChevronDown } from "lucide-react"
+import { SlidersHorizontal, X, ChevronDown, Loader2 } from "lucide-react"
 import { Button } from "@/app/_components/ui/button"
 import { Input } from "@/app/_components/ui/input"
-import type {
-  ProductCategory,
-  ProductDiscoverParams,
-} from "@/app/_types/marketplace"
-
-const CATEGORIES: { value: ProductCategory | ""; label: string }[] = [
-  { value: "", label: "All Categories" },
-  { value: "shampoo", label: "Shampoo" },
-  { value: "conditioner", label: "Conditioner" },
-  { value: "hair_oil", label: "Hair Oil" },
-  { value: "hair_mask", label: "Hair Mask" },
-  { value: "hair_color", label: "Hair Color" },
-  { value: "face_cream", label: "Face Cream" },
-  { value: "face_serum", label: "Face Serum" },
-  { value: "cleanser", label: "Cleanser" },
-  { value: "moisturizer", label: "Moisturizer" },
-  { value: "sunscreen", label: "Sunscreen" },
-  { value: "foundation", label: "Foundation" },
-  { value: "mascara", label: "Mascara" },
-  { value: "lipstick", label: "Lipstick" },
-  { value: "eyeshadow", label: "Eyeshadow" },
-  { value: "nail_polish", label: "Nail Polish" },
-  { value: "perfume", label: "Perfume" },
-  { value: "body_lotion", label: "Body Lotion" },
-  { value: "brush_set", label: "Brush Set" },
-  { value: "other", label: "Other" },
-]
+import { useProductCategories } from "@/app/_hooks/queries/useMarketplace"
+import type { ProductDiscoverParams } from "@/app/_types/marketplace"
 
 const SORT_OPTIONS: {
   value: NonNullable<ProductDiscoverParams["sort"]>
@@ -59,8 +34,15 @@ export function DiscoverFilters({
   const [maxPrice, setMaxPrice] = useState(params.maxPrice?.toString() ?? "")
   const [open, setOpen] = useState(false)
 
+  const {
+    data: categoriesResponse,
+    isLoading: categoriesLoading,
+    isError: categoriesError,
+  } = useProductCategories({ activeOnly: true })
+  const categories = categoriesResponse?.data ?? []
+
   const hasFilters =
-    !!params.category ||
+    !!params.categoryId ||
     params.minPrice !== undefined ||
     params.maxPrice !== undefined ||
     params.inStock !== undefined ||
@@ -82,7 +64,6 @@ export function DiscoverFilters({
 
   return (
     <div className={className}>
-      {/* Mobile toggle */}
       <div className="flex items-center gap-2 lg:hidden">
         <button
           onClick={() => setOpen((o) => !o)}
@@ -92,7 +73,7 @@ export function DiscoverFilters({
           Filters
           {hasFilters && (
             <span className="bg-primary text-primary-foreground ml-1 flex h-4 w-4 items-center justify-center rounded-full text-xs">
-              •
+              &bull;
             </span>
           )}
           <ChevronDown
@@ -110,9 +91,7 @@ export function DiscoverFilters({
         )}
       </div>
 
-      {/* Filter panel */}
       <div className={`space-y-5 ${open ? "block" : "hidden lg:block"}`}>
-        {/* Clear all (desktop) */}
         {hasFilters && (
           <button
             onClick={clearAll}
@@ -122,7 +101,6 @@ export function DiscoverFilters({
           </button>
         )}
 
-        {/* Sort */}
         <div>
           <p className="mb-2 text-sm font-semibold">Sort by</p>
           <div className="space-y-1">
@@ -142,29 +120,53 @@ export function DiscoverFilters({
           </div>
         </div>
 
-        {/* Category */}
         <div>
           <p className="mb-2 text-sm font-semibold">Category</p>
           <div className="max-h-64 space-y-1 overflow-y-auto">
-            {CATEGORIES.map((cat) => (
+            <button
+              onClick={() => onChange({ ...params, categoryId: undefined })}
+              className={`block w-full rounded-lg px-3 py-1.5 text-left text-sm transition-colors ${
+                !params.categoryId
+                  ? "bg-primary/10 text-primary font-medium"
+                  : "hover:bg-muted"
+              }`}
+            >
+              All Categories
+            </button>
+            {categoriesLoading ? (
+              <div className="text-muted-foreground flex items-center gap-2 px-3 py-1.5 text-xs">
+                <Loader2 size={12} className="animate-spin" />
+                Loading...
+              </div>
+            ) : null}
+            {categoriesError ? (
+              <p className="text-muted-foreground px-3 py-1.5 text-xs">
+                Couldn&apos;t load categories.
+              </p>
+            ) : null}
+            {categories.map((cat) => (
               <button
-                key={cat.value}
-                onClick={() =>
-                  onChange({ ...params, category: cat.value || undefined })
-                }
-                className={`block w-full rounded-lg px-3 py-1.5 text-left text-sm transition-colors ${
-                  (params.category ?? "") === cat.value
+                key={cat._id}
+                onClick={() => onChange({ ...params, categoryId: cat._id })}
+                className={`flex w-full items-center gap-2 rounded-lg px-3 py-1.5 text-left text-sm transition-colors ${
+                  params.categoryId === cat._id
                     ? "bg-primary/10 text-primary font-medium"
                     : "hover:bg-muted"
                 }`}
               >
-                {cat.label}
+                {cat.icon ? <span aria-hidden>{cat.icon}</span> : null}
+                <span className="truncate">{cat.name}</span>
+                {typeof cat.productCount === "number" &&
+                cat.productCount > 0 ? (
+                  <span className="text-muted-foreground ml-auto text-xs">
+                    {cat.productCount}
+                  </span>
+                ) : null}
               </button>
             ))}
           </div>
         </div>
 
-        {/* Price range */}
         <div>
           <p className="mb-2 text-sm font-semibold">Price (DT)</p>
           <div className="flex items-center gap-2">
@@ -176,7 +178,7 @@ export function DiscoverFilters({
               className="h-8 text-sm"
               min={0}
             />
-            <span className="text-muted-foreground">–</span>
+            <span className="text-muted-foreground">-</span>
             <Input
               type="number"
               placeholder="Max"
@@ -196,7 +198,6 @@ export function DiscoverFilters({
           </Button>
         </div>
 
-        {/* In stock only */}
         <div>
           <label className="flex cursor-pointer items-center gap-2">
             <input

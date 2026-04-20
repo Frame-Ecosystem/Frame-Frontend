@@ -16,6 +16,8 @@ export interface Agent {
   isBlocked: boolean
   profileImage?: string | { url: string; publicId: string }
   idLoungeService?: string[]
+  /** Per-agent queue switch — when false, the agent's queue is closed to new walk-ins. */
+  acceptQueueBooking?: boolean
   createdAt: string
   updatedAt: string
 }
