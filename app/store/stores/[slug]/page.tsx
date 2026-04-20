@@ -49,7 +49,7 @@ export default function StoreProfilePage() {
 
   if (storeLoading) {
     return (
-      <div className="min-h-screen pb-24 lg:pb-0">
+      <div className="min-h-screen">
         <div className="mx-auto max-w-5xl space-y-4 px-4 py-6 lg:px-8">
           <div className="bg-muted h-48 animate-pulse rounded-xl" />
           <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
@@ -73,7 +73,7 @@ export default function StoreProfilePage() {
   }
 
   return (
-    <div className="from-background to-muted/10 min-h-screen bg-linear-to-br pb-24 lg:pb-0">
+    <div className="from-background to-muted/10 min-h-screen bg-linear-to-br">
       <div className="mx-auto max-w-5xl space-y-5 px-4 py-4 lg:px-8 lg:py-8">
         {/* Store header */}
         <StoreHeader store={store} />

@@ -74,7 +74,7 @@ export default function MyStoreDashboard() {
 
   if (!store) {
     return (
-      <div className="flex min-h-screen flex-col items-center justify-center gap-4 px-4 pb-24 lg:pb-0">
+      <div className="flex min-h-screen flex-col items-center justify-center gap-4 px-4">
         <Store className="text-muted-foreground/30 h-20 w-20" />
         <h2 className="text-xl font-bold">You don&apos;t have a store yet</h2>
         <p className="text-muted-foreground max-w-sm text-center text-sm">
@@ -97,7 +97,7 @@ export default function MyStoreDashboard() {
   const pendingOrders = ordersData?.count ?? 0
 
   return (
-    <div className="from-background to-muted/10 min-h-screen bg-linear-to-br pb-24 lg:pb-0">
+    <div className="from-background to-muted/10 min-h-screen bg-linear-to-br">
       <div className="mx-auto max-w-4xl space-y-6 px-4 py-6 lg:px-8">
         {/* Store card */}
         <div className="bg-card border-border overflow-hidden rounded-xl border shadow-sm">

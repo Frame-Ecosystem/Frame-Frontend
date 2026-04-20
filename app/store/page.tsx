@@ -81,7 +81,7 @@ export default function MarketplacePage() {
   }
 
   return (
-    <div className="from-background via-background to-muted/20 min-h-screen bg-linear-to-br pb-24 lg:pb-0">
+    <div className="from-background via-background to-muted/20 min-h-screen bg-linear-to-br">
       <div className="mx-auto max-w-7xl space-y-10 px-4 py-6 lg:px-8 lg:py-10">
         {/* Hero */}
         <div className="from-primary/20 via-primary/10 to-background relative overflow-hidden rounded-2xl bg-linear-to-br p-6 lg:p-10">

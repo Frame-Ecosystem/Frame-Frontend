@@ -78,7 +78,7 @@ export default function CreateStorePage() {
   }
 
   return (
-    <div className="from-background to-muted/10 min-h-screen bg-linear-to-br pb-24 lg:pb-0">
+    <div className="from-background to-muted/10 min-h-screen bg-linear-to-br">
       <div className="mx-auto max-w-2xl px-4 py-6 lg:px-8">
         <div className="mb-6">
           <h1 className="text-2xl font-bold">Open Your Store</h1>

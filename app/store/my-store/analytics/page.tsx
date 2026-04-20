@@ -87,7 +87,7 @@ export default function StoreAnalyticsPage() {
   const maxRevenue = Math.max(...revenue30.map((d) => d.revenue), 1)
 
   return (
-    <div className="from-background to-muted/10 min-h-screen bg-linear-to-br pb-24 lg:pb-0">
+    <div className="from-background to-muted/10 min-h-screen bg-linear-to-br">
       <div className="mx-auto max-w-4xl space-y-6 px-4 py-6 lg:px-8">
         <div className="mb-2 flex items-center gap-3">
           <BarChart2 className="text-primary h-6 w-6" />

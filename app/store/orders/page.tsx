@@ -11,7 +11,7 @@ export default function OrdersPage() {
   const orders = data?.data ?? []
 
   return (
-    <div className="from-background to-muted/10 min-h-screen bg-linear-to-br pb-24 lg:pb-0">
+    <div className="from-background to-muted/10 min-h-screen bg-linear-to-br">
       <div className="mx-auto max-w-3xl px-4 py-6 lg:px-8">
         <div className="mb-6 flex items-center gap-3">
           <Package className="text-primary h-6 w-6" />

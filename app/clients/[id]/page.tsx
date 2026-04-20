@@ -142,7 +142,7 @@ export default function ClientVisitorProfilePage() {
         onClose={() => setLightboxSrc(null)}
       />
 
-      <div className="from-background via-background to-muted/20 min-h-screen bg-linear-to-br pb-24 lg:pb-0">
+      <div className="from-background via-background to-muted/20 min-h-screen bg-linear-to-br">
         {/* Header: Cover + Avatar + Name + Bio + FollowStats + Follow */}
         <VisitorProfileHeader
           profile={profile}

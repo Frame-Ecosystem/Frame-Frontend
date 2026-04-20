@@ -61,7 +61,7 @@ function AgentManagementContent() {
   if (!user || user.type !== "lounge") return null
 
   return (
-    <div className="from-background via-background to-muted/20 min-h-screen bg-gradient-to-br pb-24 lg:pb-0">
+    <div className="from-background via-background to-muted/20 min-h-screen bg-gradient-to-br">
       <div className="mx-auto max-w-7xl p-5 lg:px-8 lg:py-12">
         <div className="mb-8">
           <button

@@ -103,7 +103,7 @@ export default function LoungePage() {
 
   return (
     <ErrorBoundary>
-      <div className="from-background via-background to-muted/20 min-h-screen bg-linear-to-br pb-24 lg:pb-0">
+      <div className="from-background via-background to-muted/20 min-h-screen bg-linear-to-br">
         <div className="mx-auto max-w-7xl lg:pt-0">
           <LoungeHero lounge={lounge} />
 
