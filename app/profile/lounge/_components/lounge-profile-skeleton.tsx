@@ -5,7 +5,7 @@ import { ErrorBoundary } from "../../../_components/common/errorBoundary"
 export function LoungeProfileSkeleton() {
   return (
     <ErrorBoundary>
-      <div className="from-background via-background to-muted/20 min-h-screen bg-linear-to-br pb-24 lg:pb-0">
+      <div className="from-background via-background to-muted/20 min-h-screen bg-linear-to-br">
         {/* Cover */}
         <div className="relative w-full">
           <div className="bg-muted/40 h-[200px] w-full animate-pulse md:h-[280px] lg:h-[320px]" />

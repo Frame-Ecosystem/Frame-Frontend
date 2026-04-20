@@ -19,6 +19,7 @@ import { BioSection } from "./settings/bio-section"
 import { PasswordSection } from "./settings/password-section"
 import { LogoutSection } from "./settings/logout-section"
 import { useTranslation } from "@/app/_i18n"
+import { useFrameScroll } from "@/app/_hooks/useFrameScroll"
 
 export function AccountSettings({
   openNameSection = false,
@@ -53,6 +54,7 @@ export function AccountSettings({
   const { user, clearAuth } = useAuth()
   const router = useRouter()
   const { t } = useTranslation()
+  const { scrollToElement } = useFrameScroll()
 
   const firstNameRef = useRef<HTMLInputElement>(null)
   const lastNameRef = useRef<HTMLInputElement>(null)
@@ -92,19 +94,16 @@ export function AccountSettings({
     const timer = setTimeout(() => {
       if (isNameSectionOpen) {
         const ref = user?.type === "lounge" ? loungeTitleRef : firstNameRef
-        ref.current?.scrollIntoView({ behavior: "smooth", block: "center" })
+        scrollToElement(ref.current)
         ref.current?.focus()
       } else if (isPhoneSectionOpen && phoneRef.current) {
-        phoneRef.current.scrollIntoView({ behavior: "smooth", block: "center" })
+        scrollToElement(phoneRef.current)
         phoneRef.current.focus()
       } else if (isBioSectionOpen && bioRef.current) {
-        bioRef.current.scrollIntoView({ behavior: "smooth", block: "center" })
+        scrollToElement(bioRef.current)
         bioRef.current.focus()
       } else if (isPasswordSectionOpen && currentPasswordRef.current) {
-        currentPasswordRef.current.scrollIntoView({
-          behavior: "smooth",
-          block: "center",
-        })
+        scrollToElement(currentPasswordRef.current)
         currentPasswordRef.current.focus()
       }
     }, 300)
