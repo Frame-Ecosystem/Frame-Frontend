@@ -3,7 +3,7 @@ const urlsToCache = [
   "/",
   "/images/frameIconDark.png",
   "/images/frameIconLight.png",
-  "/images/favicon.png",
+  "/icon.svg",
   // Add other critical resources
 ]
 

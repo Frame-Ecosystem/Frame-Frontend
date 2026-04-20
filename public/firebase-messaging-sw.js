@@ -55,7 +55,7 @@ const ROUTE_MAP = {
 
 const NOTIFICATION_DEFAULTS = {
   icon: "/images/frameIconLight.png",
-  badge: "/images/favicon.png",
+  badge: "/icon.svg",
   renotify: true,
   requireInteraction: true,
   vibrate: [200, 100, 200],
