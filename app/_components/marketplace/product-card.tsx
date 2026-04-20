@@ -26,7 +26,7 @@ export function ProductCard({
   const primaryImage =
     product.images.find((img) => img.isPrimary) ?? product.images[0]
   const store = typeof product.storeId === "object" ? product.storeId : null
-  const isOutOfStock = product.status === "out_of_stock" || product.stock === 0
+  const isOutOfStock = product.stock === 0
   const hasDiscount =
     !!product.compareAtPrice && product.compareAtPrice > product.price
   const discountPct = hasDiscount
@@ -136,11 +136,7 @@ export function ProductCard({
           />
 
           {/* Stock */}
-          <StockIndicator
-            stock={product.stock}
-            threshold={product.lowStockThreshold}
-            status={product.status}
-          />
+          <StockIndicator stock={product.stock} />
         </CardContent>
       </Link>
 
