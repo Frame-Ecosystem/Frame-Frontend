@@ -28,6 +28,16 @@ export async function GET(
             : agent.loungeId._id,
         profileImage: agent.profileImage || "/images/placeholder.svg",
         isBlocked: agent.isBlocked,
+        // Preserve flags needed by the queue UI (toggle + booking dialog).
+        // Stripping these previously made the per-agent "Accept bookings"
+        // switch always read `true` after a refresh.
+        idLoungeService: Array.isArray(agent.idLoungeService)
+          ? (agent.idLoungeService as string[])
+          : undefined,
+        acceptQueueBooking:
+          typeof agent.acceptQueueBooking === "boolean"
+            ? agent.acceptQueueBooking
+            : true,
         createdAt: agent.createdAt,
         updatedAt: agent.updatedAt,
       }))

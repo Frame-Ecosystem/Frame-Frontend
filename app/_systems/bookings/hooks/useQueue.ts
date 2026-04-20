@@ -356,7 +356,7 @@ export function useLoungeBookFromQueue() {
   })
 }
 
-/** Toggle acceptQueueBooking for an agent */
+/** Toggle acceptQueueBooking for an agent (with optimistic UI). */
 export function useToggleQueueBooking() {
   const queryClient = useQueryClient()
 
@@ -368,21 +368,44 @@ export function useToggleQueueBooking() {
       agentId: string
       acceptQueueBooking: boolean
     }) => agentService.updateQueueBooking(agentId, acceptQueueBooking),
+    // Optimistically flip the agent's flag in every cached `["loungeAgents", *]`
+    // payload so the Switch reflects the new state immediately.
+    onMutate: async (variables) => {
+      await queryClient.cancelQueries({ queryKey: ["loungeAgents"] })
+      const snapshots = queryClient.getQueriesData<{
+        agents?: { _id: string; acceptQueueBooking?: boolean }[]
+      }>({ queryKey: ["loungeAgents"] })
+      snapshots.forEach(([key, value]) => {
+        if (!value?.agents) return
+        queryClient.setQueryData(key, {
+          ...value,
+          agents: value.agents.map((a) =>
+            a._id === variables.agentId
+              ? { ...a, acceptQueueBooking: variables.acceptQueueBooking }
+              : a,
+          ),
+        })
+      })
+      return { snapshots }
+    },
     onSuccess: (_data, variables) => {
       toast.success(
         variables.acceptQueueBooking
-          ? "Queue booking enabled for agent"
-          : "Queue booking disabled for agent",
+          ? "Queue is now accepting bookings."
+          : "Queue is closed to new bookings.",
       )
-      // Invalidate loungeAgents query so the UI picks up the new value
       queryClient.invalidateQueries({ queryKey: ["loungeAgents"] })
     },
-    onError: (error: any) => {
+    onError: (error: any, _vars, context) => {
+      // Roll back on failure.
+      context?.snapshots?.forEach(([key, value]) => {
+        queryClient.setQueryData(key, value)
+      })
       if (isAuthError(error)) return
       const message =
         error?.message ||
         error?.error ||
-        "Failed to update queue booking setting"
+        "Couldn't update the queue setting. Please try again."
       toast.error(message)
     },
   })
