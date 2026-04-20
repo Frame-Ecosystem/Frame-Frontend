@@ -31,7 +31,6 @@
   <g class="logo-group">
     <text x="60" y="63" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-weight="900" font-size="68" letter-spacing="-3" class="frame-text">frame</text>
     <text x="270" y="63" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-weight="700" font-size="28" class="beauty-text" text-decoration="underline">beauty</text>
-    <line x1="270" y1="68" x2="370" y2="68" stroke="#a8a8a8" stroke-width="1.5" class="beauty-underline"/>
     <rect x="-200" y="0" width="200" height="90" fill="url(#shimmer)" clip-path="url(#text-clip)">
       <animateTransform attributeName="transform" type="translate"
         values="0 0; 0 0; 700 0; 700 0"
