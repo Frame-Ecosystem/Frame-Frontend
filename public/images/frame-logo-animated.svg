@@ -1,5 +1,5 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="420" height="90" viewBox="0 0 420 90" role="img" aria-label="frame beauty">
-  <title>frame beauty</title>
+<svg xmlns="http://www.w3.org/2000/svg" width="420" height="90" viewBox="0 0 420 90" role="img" aria-label="frame Beauty">
+  <title>frame Beauty</title>
   <defs>
     <style>
       .frame-text { fill: #171717 }
@@ -18,7 +18,7 @@
     </style>
     <clipPath id="text-clip">
       <text x="60" y="63" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-weight="900" font-size="68" letter-spacing="-3">frame</text>
-      <text x="270" y="63" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-weight="700" font-size="28">beauty</text>
+      <text x="270" y="63" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-weight="700" font-size="28">Beauty</text>
     </clipPath>
     <linearGradient id="shimmer" x1="0" y1="0" x2="1" y2="0">
       <stop offset="0" stop-color="#fff" stop-opacity="0"/>
@@ -30,7 +30,7 @@
   </defs>
   <g class="logo-group">
     <text x="60" y="63" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-weight="900" font-size="68" letter-spacing="-3" class="frame-text">frame</text>
-    <text x="270" y="63" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-weight="700" font-size="28" class="beauty-text" text-decoration="underline">beauty</text>
+    <text x="270" y="63" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-weight="700" font-size="28" class="beauty-text" text-decoration="underline">Beauty</text>
     <rect x="-200" y="0" width="200" height="90" fill="url(#shimmer)" clip-path="url(#text-clip)">
       <animateTransform attributeName="transform" type="translate"
         values="0 0; 0 0; 700 0; 700 0"
