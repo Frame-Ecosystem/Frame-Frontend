@@ -26,6 +26,12 @@ const MobileNavbar = () => {
     if (link.loungeOnly && user.type !== "lounge") {
       return false
     }
+    if (link.agentOnly && user.type !== "agent") {
+      return false
+    }
+    if (link.hideForAgent && user.type === "agent") {
+      return false
+    }
     return true
   })
 

@@ -50,6 +50,14 @@ const DesktopNavbar = () => {
               if (link.loungeOnly && user.type !== "lounge") {
                 return false
               }
+              // Show agentOnly items only for agent users
+              if (link.agentOnly && user.type !== "agent") {
+                return false
+              }
+              // Hide non-agent surfaces for agent users
+              if (link.hideForAgent && user.type === "agent") {
+                return false
+              }
               return true
             }).map((link) => {
               const isProfileLink = link.href === "/profile"
