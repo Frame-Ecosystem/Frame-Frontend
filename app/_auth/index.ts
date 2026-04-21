@@ -16,6 +16,7 @@ export {
 // Guards
 export { default as AuthGuard } from "./guards/auth-guard"
 export { AdminGuard } from "./guards/admin-guard"
+export { AgentGuard } from "./guards/agent-guard"
 
 // Hooks
 export { useRequireAuth } from "./hooks/use-require-auth"

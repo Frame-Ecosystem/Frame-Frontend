@@ -46,6 +46,16 @@ export function getUserDisplayName(user: User | null | undefined): string {
     return user.email || "User"
   }
 
+  // For agents, prefer agentName, then full name, then email
+  if (role === "agent") {
+    const agentUser = user as User & { agentName?: string }
+    if (agentUser.agentName) return agentUser.agentName
+    if (user.firstName && user.lastName)
+      return `${user.firstName} ${user.lastName}`
+    if (user.firstName) return user.firstName
+    return user.email || "Agent"
+  }
+
   // For client users, prefer full name then parts
   if (role === "client") {
     if (user.firstName && user.lastName)

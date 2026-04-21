@@ -22,7 +22,7 @@ interface ResultHandlers {
   onClose?: () => void
 
   redirect: (path: string) => void
-  getRedirectPath: () => string
+  getRedirectPath: (user?: any) => string
 }
 
 // ── Helpers ──────────────────────────────────────────────────
@@ -198,7 +198,7 @@ export async function handleGoogleAuthResult(
   setAuth(user, token, result.expiresIn)
   onSuccess?.()
   onClose?.()
-  redirect(getRedirectPath())
+  redirect(getRedirectPath(user))
 }
 
 export default openGoogleOAuthPopup
