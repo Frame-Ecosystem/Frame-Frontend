@@ -105,6 +105,13 @@ export function ProductCard({
             {product.name}
           </h3>
 
+          {/* Short description */}
+          {product.shortDescription && (
+            <p className="text-muted-foreground mb-1 line-clamp-2 text-xs">
+              {product.shortDescription}
+            </p>
+          )}
+
           {/* Category */}
           {(() => {
             const label =

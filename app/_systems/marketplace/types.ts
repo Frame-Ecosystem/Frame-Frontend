@@ -3,15 +3,11 @@
 // ── Enums ────────────────────────────────────────────────────────────────────
 
 export type StoreCategory =
-  | "haircare"
-  | "skincare"
-  | "makeup"
-  | "nails"
-  | "fragrance"
-  | "tools_accessories"
-  | "organic_natural"
-  | "mens_grooming"
-  | "spa_wellness"
+  | "beauty"
+  | "fashion"
+  | "wellness"
+  | "accessories"
+  | "tools"
   | "other"
 
 export const StoreStatus = {
@@ -158,12 +154,7 @@ export const OrderStatus = {
 } as const
 export type OrderStatus = (typeof OrderStatus)[keyof typeof OrderStatus]
 
-export type PaymentMethod =
-  | "cash_on_delivery"
-  | "bank_transfer"
-  | "card"
-  | "wallet"
-  | "online_payment"
+export type PaymentMethod = "cashOnDelivery" | "bankTransfer" | "inStore"
 
 export type PaymentStatus =
   | "pending"
@@ -526,11 +517,9 @@ export interface UpdateStoreDto extends Partial<CreateStoreDto> {
 }
 
 export interface CreateProductDto {
-  /** Optional — server infers from authenticated user's store when omitted. */
-  storeId?: string
+  storeId: string
   name: string
   description?: string
-  shortDescription?: string
   /** ObjectId of an admin-managed `ProductCategory`. */
   categoryId: string
   price: number

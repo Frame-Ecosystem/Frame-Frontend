@@ -128,6 +128,7 @@ export function useMyStore() {
     queryKey: marketplaceKeys.myStore(),
     queryFn: () => marketplaceService.getMyStore(),
     staleTime: 5 * 60 * 1000,
+    retry: false,
   })
 }
 
@@ -518,11 +519,13 @@ export function useToggleWishlist(productId: string, isInWishlist: boolean) {
    Analytics
    ═══════════════════════════════════════════════ */
 
-export function useMyStoreAnalytics() {
+export function useMyStoreAnalytics(enabled = true) {
   return useQuery({
     queryKey: marketplaceKeys.storeAnalytics(),
     queryFn: () => marketplaceService.getMyStoreAnalytics(),
     staleTime: 5 * 60 * 1000,
+    enabled,
+    retry: false,
   })
 }
 

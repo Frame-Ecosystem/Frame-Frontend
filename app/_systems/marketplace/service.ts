@@ -106,17 +106,14 @@ class MarketplaceService {
   async uploadStoreLogo(file: File | FormData): Promise<Store> {
     const form = file instanceof FormData ? file : new FormData()
     if (!(file instanceof FormData)) form.append("logo", file)
-    const res = await apiClient.post<any>(`${BASE}/stores/me/store/logo`, form)
+    const res = await apiClient.put<any>(`${BASE}/stores/me/store/logo`, form)
     return res?.data ?? res
   }
 
   async uploadStoreBanner(file: File | FormData): Promise<Store> {
     const form = file instanceof FormData ? file : new FormData()
     if (!(file instanceof FormData)) form.append("banner", file)
-    const res = await apiClient.post<any>(
-      `${BASE}/stores/me/store/banner`,
-      form,
-    )
+    const res = await apiClient.put<any>(`${BASE}/stores/me/store/banner`, form)
     return res?.data ?? res
   }
 
@@ -242,7 +239,7 @@ class MarketplaceService {
     })
     if (filter?.status) params.set("status", filter.status)
     const res = await apiClient.get<any>(
-      `${BASE}/orders/my-store/${storeId}?${params}`,
+      `${BASE}/orders/store/${storeId}?${params}`,
     )
     return { data: res?.data ?? [], count: res?.count ?? 0 }
   }
@@ -354,7 +351,11 @@ class MarketplaceService {
     const res = await apiClient.get<any>(
       `${BASE}/wishlist?page=${page}&limit=${limit}`,
     )
-    return { data: res?.data ?? [], count: res?.count ?? 0 }
+    const items = (res?.data ?? []).map((item: any) => ({
+      ...item,
+      product: item.productId,
+    }))
+    return { data: items, count: res?.count ?? 0 }
   }
 
   async addToWishlist(productId: string): Promise<WishlistItem> {
@@ -368,9 +369,13 @@ class MarketplaceService {
 
   // ── Analytics ─────────────────────────────────────────────────────────────
 
-  async getMyStoreAnalytics(): Promise<StoreAnalytics> {
-    const res = await apiClient.get<any>(`${BASE}/analytics/my-store`)
-    return res?.data ?? res
+  async getMyStoreAnalytics(): Promise<StoreAnalytics | null> {
+    try {
+      const res = await apiClient.get<any>(`${BASE}/analytics/my-store`)
+      return res?.data ?? res
+    } catch {
+      return null
+    }
   }
 
   // ── Admin ────────────────────────────────────────────────────────────────
