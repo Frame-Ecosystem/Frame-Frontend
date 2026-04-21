@@ -20,6 +20,7 @@ import { AuthProvider, AuthGuard } from "./_auth"
 import { QueryProvider } from "./_providers/query"
 import { NotificationProvider } from "./_providers/notification"
 import { PushNotificationProvider } from "./_providers/push-notification"
+import { PwaInstallProvider } from "./_providers/pwa-install"
 import ServiceWorkerRegister from "./_components/common/serviceWorkerRegister"
 
 // Client component to handle pathname-based conditional rendering
@@ -198,25 +199,28 @@ export default function RootLayout({
                 <NotificationProvider>
                   {/* Push notification provider for FCM registration & prompts */}
                   <PushNotificationProvider>
-                    {/* Swipe navigation for mobile back/forward gestures */}
-                    <SwipeNavigationProvider>
-                      {/* Progress bar for page transition feedback */}
-                      <ProgressProvider>
-                        <ServiceWorkerRegister />
-                        {/* MAIN LAYOUT STRUCTURE */}
-                        {/* Uses flexbox to keep footer at bottom of viewport */}
-                        <div className="flex min-h-screen flex-col">
-                          {/* Header handles top bars and navigation visibility */}
-                          <ConditionalHeader />
-                          {/* Main content area - flex-1 always reserves space */}
-                          <MainContentWrapper>
-                            <AuthGuard>{children}</AuthGuard>
-                          </MainContentWrapper>
-                          {/* Footer - always at the bottom for desktop */}
-                          <ConditionalFooter />
-                        </div>
-                      </ProgressProvider>
-                    </SwipeNavigationProvider>
+                    {/* PWA install prompt for authenticated browser users */}
+                    <PwaInstallProvider>
+                      {/* Swipe navigation for mobile back/forward gestures */}
+                      <SwipeNavigationProvider>
+                        {/* Progress bar for page transition feedback */}
+                        <ProgressProvider>
+                          <ServiceWorkerRegister />
+                          {/* MAIN LAYOUT STRUCTURE */}
+                          {/* Uses flexbox to keep footer at bottom of viewport */}
+                          <div className="flex min-h-screen flex-col">
+                            {/* Header handles top bars and navigation visibility */}
+                            <ConditionalHeader />
+                            {/* Main content area - flex-1 always reserves space */}
+                            <MainContentWrapper>
+                              <AuthGuard>{children}</AuthGuard>
+                            </MainContentWrapper>
+                            {/* Footer - always at the bottom for desktop */}
+                            <ConditionalFooter />
+                          </div>
+                        </ProgressProvider>
+                      </SwipeNavigationProvider>
+                    </PwaInstallProvider>
                   </PushNotificationProvider>
                 </NotificationProvider>
               </AuthProvider>

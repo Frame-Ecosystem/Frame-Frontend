@@ -3,6 +3,7 @@
 import { useState } from "react"
 import { Badge } from "@/app/_components/ui/badge"
 import {
+  useMyStore,
   useMyStoreOrders,
   useUpdateOrderStatus,
 } from "@/app/_hooks/queries/useMarketplace"
@@ -35,7 +36,9 @@ const STATUS_COLORS: Record<string, string> = {
 
 export default function StoreOrdersPage() {
   const [statusFilter, setStatusFilter] = useState<OrderStatus | "all">("all")
+  const { data: store, isLoading: isStoreLoading } = useMyStore()
   const { data, isLoading } = useMyStoreOrders(
+    store?._id,
     statusFilter !== "all" ? { status: statusFilter } : undefined,
   )
   const updateStatus = useUpdateOrderStatus()
@@ -78,7 +81,7 @@ export default function StoreOrdersPage() {
           ))}
         </div>
 
-        {isLoading ? (
+        {isStoreLoading || isLoading ? (
           <div className="space-y-3">
             {Array.from({ length: 4 }).map((_, i) => (
               <div key={i} className="bg-muted h-28 animate-pulse rounded-xl" />
