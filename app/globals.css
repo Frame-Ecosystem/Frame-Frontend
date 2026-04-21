@@ -500,7 +500,7 @@
   }
 
   html {
-    @apply h-full; /* Full height for proper layout */
+    @apply h-full overflow-x-hidden; /* Full height for proper layout; no horizontal scroll on mobile */
     /* Anchor-scroll offset so #hash targets clear the fixed header */
     scroll-padding-top: calc(var(--header-offset) + 16px);
     @media (min-width: 1024px) {
@@ -512,7 +512,7 @@
   }
 
   body {
-    @apply bg-background text-foreground h-full; /* Theme-aware background and text colors */
+    @apply bg-background text-foreground h-full overflow-x-hidden; /* Theme-aware background and text colors */
   }
 }
 
