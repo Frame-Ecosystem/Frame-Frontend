@@ -68,6 +68,8 @@ export function AgentForm({
   >(() =>
     agent
       ? {
+          email: agent.email ?? "",
+          phoneNumber: agent.phoneNumber ?? "",
           agentName: agent.agentName,
           password: "",
           isBlocked: agent.isBlocked,
@@ -75,6 +77,8 @@ export function AgentForm({
           idLoungeService: agent.idLoungeService ?? [],
         }
       : {
+          email: "",
+          phoneNumber: "",
           agentName: "",
           password: "",
           isBlocked: false,
@@ -96,6 +100,8 @@ export function AgentForm({
     setImageSelected(false)
     if (agent) {
       setFormData({
+        email: agent.email ?? "",
+        phoneNumber: agent.phoneNumber ?? "",
         agentName: agent.agentName,
         password: "",
         isBlocked: agent.isBlocked,
@@ -104,6 +110,8 @@ export function AgentForm({
       })
     } else {
       setFormData({
+        email: "",
+        phoneNumber: "",
         agentName: "",
         password: "",
         isBlocked: false,
@@ -174,6 +182,7 @@ export function AgentForm({
       if (agent) {
         const updateData: UpdateAgentDto = {
           agentName: formData.agentName,
+          ...(formData.phoneNumber && { phoneNumber: formData.phoneNumber }),
           ...(formData.password && { password: formData.password }),
           isBlocked: formData.isBlocked,
           ...(imageSelected &&
@@ -187,9 +196,14 @@ export function AgentForm({
         })
       } else {
         const createData: CreateAgentDto = {
+          email: formData.email!,
+          ...(formData.phoneNumber && { phoneNumber: formData.phoneNumber }),
           agentName: formData.agentName!,
           password: formData.password!,
-          loungeId: isAdmin ? formData.loungeId : user?._id,
+          // Lounge users omit `loungeId` — backend auto-injects from JWT.
+          ...(isAdmin && formData.loungeId
+            ? { loungeId: formData.loungeId }
+            : {}),
           ...(formData.idLoungeService && {
             idLoungeService: formData.idLoungeService,
           }),
@@ -249,6 +263,46 @@ export function AgentForm({
             </p>
             {errors.profileImage && (
               <p className="text-destructive text-sm">{errors.profileImage}</p>
+            )}
+          </div>
+
+          {/* Email (required for create) */}
+          <div className="space-y-2">
+            <Label htmlFor="email">
+              {t("agents.form.email") || "Email"}
+              {!agent && " *"}
+            </Label>
+            <Input
+              id="email"
+              type="email"
+              autoComplete="off"
+              value={formData.email || ""}
+              onChange={(e) => handleInputChange("email", e.target.value)}
+              placeholder="agent@example.com"
+              disabled={!!agent}
+              className={errors.email ? "border-destructive" : ""}
+            />
+            {errors.email && (
+              <p className="text-destructive text-sm">{errors.email}</p>
+            )}
+          </div>
+
+          {/* Phone number (optional) */}
+          <div className="space-y-2">
+            <Label htmlFor="phoneNumber">
+              {t("agents.form.phoneNumber") || "Phone number"}
+            </Label>
+            <Input
+              id="phoneNumber"
+              type="tel"
+              inputMode="tel"
+              value={formData.phoneNumber || ""}
+              onChange={(e) => handleInputChange("phoneNumber", e.target.value)}
+              placeholder="+1 555 000 0000"
+              className={errors.phoneNumber ? "border-destructive" : ""}
+            />
+            {errors.phoneNumber && (
+              <p className="text-destructive text-sm">{errors.phoneNumber}</p>
             )}
           </div>
 

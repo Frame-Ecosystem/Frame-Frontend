@@ -7,7 +7,7 @@ import { CameraIcon, X } from "lucide-react"
 
 interface ImageSelectorProps {
   onImageSelect: (imageData: string) => void
-  currentImage?: string | { url: string; publicId: string }
+  currentImage?: string | { url: string; publicId?: string }
   placeholder?: string
 }
 
@@ -21,7 +21,7 @@ export function ImageSelector({
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   const getImageSrc = (
-    image: string | { url: string; publicId: string } | undefined,
+    image: string | { url: string; publicId?: string } | undefined,
   ): string => {
     if (!image) return ""
     if (typeof image === "string") return image

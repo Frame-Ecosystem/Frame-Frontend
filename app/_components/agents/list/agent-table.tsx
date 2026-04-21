@@ -20,6 +20,7 @@ import {
 import { MoreHorizontal, Edit, Trash2, Eye, UserX } from "lucide-react"
 import { Avatar, AvatarImage, AvatarFallback } from "../../ui/avatar"
 import { Checkbox } from "../../ui/checkbox"
+import { Switch } from "@/app/_components/ui/switch"
 import { AgentTableRowsSkeleton } from "../../skeletons/agents"
 import { useTranslation } from "@/app/_i18n"
 
@@ -34,6 +35,13 @@ interface AgentTableProps {
   onView: (agent: Agent) => void
   onEdit: (agent: Agent) => void
   onDelete: (agent: Agent) => void
+  /**
+   * Optional. When provided, an "Accept bookings" switch column is shown
+   * and toggling it calls this handler. Pending agent IDs disable their row
+   * switch.
+   */
+  onToggleAcceptQueueBooking?: (agent: Agent, value: boolean) => void
+  togglingAgentIds?: string[]
 }
 
 function getInitials(name: string) {
@@ -60,8 +68,13 @@ export function AgentTable({
   onView,
   onEdit,
   onDelete,
+  onToggleAcceptQueueBooking,
+  togglingAgentIds = [],
 }: AgentTableProps) {
   const { t } = useTranslation()
+  const showQueueColumn = !!onToggleAcceptQueueBooking
+  const colSpan =
+    3 + (isAdmin ? 1 : 0) + (showQueueColumn ? 1 : 0) + (isAdmin ? 1 : 0)
   return (
     <Table>
       <TableHeader>
@@ -78,6 +91,11 @@ export function AgentTable({
           )}
           <TableHead>{t("agents.headerAgent")}</TableHead>
           <TableHead>{t("agents.headerStatus")}</TableHead>
+          {showQueueColumn && (
+            <TableHead className="whitespace-nowrap">
+              {t("agents.headerAcceptBookings") || "Accept bookings"}
+            </TableHead>
+          )}
           <TableHead>{t("agents.headerCreated")}</TableHead>
           {isAdmin && <TableHead>{t("agents.headerLounge")}</TableHead>}
           <TableHead className="w-12"></TableHead>
@@ -88,7 +106,7 @@ export function AgentTable({
           <AgentTableRowsSkeleton count={5} isAdmin={isAdmin} />
         ) : agents.length === 0 ? (
           <TableRow key="empty">
-            <TableCell colSpan={isAdmin ? 6 : 5} className="py-8 text-center">
+            <TableCell colSpan={colSpan} className="py-8 text-center">
               <div className="text-muted-foreground">
                 <UserX className="mx-auto mb-4 h-12 w-12" />
                 <p>{t("agents.noAgents")}</p>
@@ -145,6 +163,29 @@ export function AgentTable({
                   {agent.isBlocked ? t("agents.blocked") : t("agents.active")}
                 </Badge>
               </TableCell>
+              {showQueueColumn && (
+                <TableCell>
+                  <div className="flex items-center gap-2">
+                    <Switch
+                      checked={!!agent.acceptQueueBooking}
+                      disabled={
+                        agent.isBlocked || togglingAgentIds.includes(agent._id!)
+                      }
+                      onCheckedChange={(checked) =>
+                        onToggleAcceptQueueBooking?.(agent, checked)
+                      }
+                      aria-label={
+                        t("agents.headerAcceptBookings") || "Accept bookings"
+                      }
+                    />
+                    <span className="text-muted-foreground text-xs">
+                      {agent.acceptQueueBooking
+                        ? t("agents.acceptingBookings") || "On"
+                        : t("agents.notAcceptingBookings") || "Off"}
+                    </span>
+                  </div>
+                </TableCell>
+              )}
               <TableCell className="text-muted-foreground">
                 {formatDate(agent.createdAt)}
               </TableCell>

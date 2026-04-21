@@ -1,6 +1,6 @@
 // User-related types
 
-export type UserType = "client" | "lounge" | "admin"
+export type UserType = "client" | "lounge" | "admin" | "agent"
 
 export type Gender = "male" | "female" | "unisex" | "kids"
 
@@ -44,6 +44,10 @@ export interface User {
   followingCount?: number
   isBlocked?: boolean
   openingHours?: Record<string, { from: string; to: string }>
+  /** Agent-only (User with type === "agent"): display name shown in queue UI. */
+  agentName?: string
+  /** Agent-only: availability toggle driving the queue. */
+  acceptQueueBooking?: boolean
 }
 
 export interface AuthResponse {
