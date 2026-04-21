@@ -130,6 +130,7 @@ export function useMyStore() {
     queryKey: marketplaceKeys.myStore(),
     queryFn: () => marketplaceService.getMyStore(),
     staleTime: 5 * 60 * 1000,
+    retry: false,
   })
 }
 
@@ -548,6 +549,7 @@ export function useMyStoreAnalytics() {
     queryFn: () => marketplaceService.getMyStoreAnalytics(),
     enabled: !!store?._id,
     staleTime: 5 * 60 * 1000,
+    retry: false,
   })
 }
 

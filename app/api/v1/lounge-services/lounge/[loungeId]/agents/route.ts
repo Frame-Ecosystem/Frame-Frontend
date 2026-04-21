@@ -13,19 +13,24 @@ export async function GET(
     // Fetch real agents for this lounge
     let loungeAgents: LoungeAgent[] = []
     try {
-      const agentsResponse = await agentService.getAgentsByLounge(
-        loungeId,
-        {},
-        1,
-        100,
-      ) // Get up to 100 agents
-      loungeAgents = agentsResponse.data.map((agent) => ({
+      // The new agents API auto-scopes the result to the authenticated user;
+      // for a public lounge view we filter the global list client-side.
+      const allAgents = await agentService.getAllAgents()
+      const filtered = allAgents.filter((a) => {
+        const lid =
+          typeof a.parentLounge === "string"
+            ? a.parentLounge
+            : (a.parentLounge?._id ??
+              (typeof a.loungeId === "string" ? a.loungeId : a.loungeId?._id))
+        return lid === loungeId
+      })
+      loungeAgents = filtered.map((agent) => ({
         _id: agent._id || "",
         agentName: agent.agentName,
         loungeId:
           typeof agent.loungeId === "string"
             ? agent.loungeId
-            : agent.loungeId._id,
+            : (agent.loungeId?._id ?? loungeId),
         profileImage: agent.profileImage || "/images/placeholder.svg",
         isBlocked: agent.isBlocked,
         // Preserve flags needed by the queue UI (toggle + booking dialog).

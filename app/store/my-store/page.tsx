@@ -59,7 +59,7 @@ export default function MyStoreDashboard() {
   const { data: ordersData } = useMyStoreOrders(store?._id, {
     status: "pending",
   })
-  const { data: analytics } = useMyStoreAnalytics()
+  const { data: analytics } = useMyStoreAnalytics(!!store?._id)
 
   if (isLoading) {
     return (

@@ -14,7 +14,7 @@ const PAYMENT_METHODS: { value: PaymentMethod; label: string; icon: string }[] =
   [
     { value: "cashOnDelivery", label: "Cash on Delivery", icon: "💵" },
     { value: "bankTransfer", label: "Bank Transfer", icon: "🏦" },
-    { value: "inStore", label: "In-Store Payment", icon: "💳" },
+    { value: "inStore", label: "In Store", icon: "🏦" },
   ]
 
 export default function CheckoutPage() {
@@ -24,23 +24,23 @@ export default function CheckoutPage() {
   const placeOrder = usePlaceOrder()
 
   const [address, setAddress] = useState({
+    fullName: "",
+    phone: "",
     address: "",
     city: "",
     state: "",
     zipCode: "",
-    notes: "",
   })
   const [paymentMethod, setPaymentMethod] =
     useState<PaymentMethod>("cashOnDelivery")
   const [notes, setNotes] = useState("")
 
   const storeItems = (cart?.items ?? []).filter((item) => {
-    if (!item.product) return false
-    const s =
-      typeof item.product.storeId === "object"
-        ? (item.product.storeId as { _id: string })
-        : null
-    return s?._id === storeId
+    if (!item.productId) return false
+    const sid = item.productId.storeId
+    if (!sid) return false
+    if (typeof sid === "object") return (sid as { _id: string })._id === storeId
+    return sid === storeId
   })
 
   const subtotal = storeItems.reduce(
@@ -50,8 +50,13 @@ export default function CheckoutPage() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    if (!address.address || !address.city) {
-      toast.error("Please fill in your shipping address")
+    if (
+      !address.fullName ||
+      !address.phone ||
+      !address.address ||
+      !address.city
+    ) {
+      toast.error("Please fill in all required shipping fields")
       return
     }
 
@@ -59,9 +64,11 @@ export default function CheckoutPage() {
       {
         storeId,
         items: storeItems.map((item) => ({
-          productId: item.product._id,
+          productId: item.productId._id,
           quantity: item.quantity,
-          variantIndex: item.variantIndex,
+          ...(item.variantIndex !== undefined && {
+            variantIndex: item.variantIndex,
+          }),
         })),
         shippingAddress: address,
         paymentMethod,
@@ -86,30 +93,103 @@ export default function CheckoutPage() {
   }
 
   return (
-    <div className="from-background to-muted/10 min-h-screen bg-linear-to-br">
-      <div className="mx-auto max-w-3xl px-4 py-6 lg:px-8">
-        {/* Back */}
+    <div className="from-background to-muted/10 min-h-screen w-full overflow-x-hidden bg-linear-to-br">
+      <div className="mx-auto w-full max-w-3xl px-4 py-6 pb-28 lg:px-8 lg:pb-10">
+        {/* Back — desktop only */}
         <button
           onClick={() => router.back()}
-          className="text-muted-foreground hover:text-foreground mb-4 flex items-center gap-1 text-sm"
+          className="bg-background border-border/60 hover:bg-muted mb-5 hidden h-10 items-center gap-1.5 rounded-full border px-4 text-sm font-medium shadow-sm transition-colors lg:inline-flex"
         >
-          <ChevronLeft size={16} /> Back to cart
+          <ChevronLeft size={18} /> Back to cart
         </button>
 
-        <h1 className="mb-6 text-2xl font-bold">Checkout</h1>
+        <h1 className="mb-5 text-xl font-bold lg:text-2xl">Checkout</h1>
 
         <form
+          id="checkout-form"
           onSubmit={handleSubmit}
-          className="grid gap-6 lg:grid-cols-[1fr_auto]"
+          className="grid grid-cols-1 gap-5 lg:grid-cols-[1fr_340px]"
         >
-          <div className="space-y-5">
+          {/* Order summary — shows first on mobile, sidebar on desktop */}
+          <div className="order-1 min-w-0 lg:order-2">
+            <div className="bg-card border-border space-y-3 rounded-xl border p-4 lg:sticky lg:top-24">
+              <h2 className="font-semibold">Order Summary</h2>
+              <div className="max-h-48 space-y-3 overflow-y-auto lg:max-h-64">
+                {storeItems.map((item) => (
+                  <div
+                    key={item.productId._id}
+                    className="flex items-center gap-2"
+                  >
+                    {item.productId.images?.[0] && (
+                      <div className="relative h-10 w-10 flex-shrink-0 overflow-hidden rounded-lg">
+                        <Image
+                          src={item.productId.images[0].url}
+                          alt={item.productId.name}
+                          fill
+                          className="object-cover"
+                        />
+                      </div>
+                    )}
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-xs font-medium">
+                        {item.productId.name}
+                      </p>
+                      <p className="text-muted-foreground text-xs">
+                        x{item.quantity}
+                      </p>
+                    </div>
+                    <p className="flex-shrink-0 text-sm font-semibold">
+                      {((item.price ?? 0) * item.quantity).toFixed(2)} DT
+                    </p>
+                  </div>
+                ))}
+              </div>
+              <div className="border-border border-t pt-3">
+                <div className="flex items-center justify-between">
+                  <span className="text-muted-foreground text-sm">
+                    Subtotal
+                  </span>
+                  <span className="font-bold">{subtotal.toFixed(2)} DT</span>
+                </div>
+              </div>
+              {/* Place Order button — desktop only */}
+              <Button
+                type="submit"
+                className="hidden w-full lg:flex"
+                disabled={placeOrder.isPending}
+              >
+                {placeOrder.isPending ? "Placing Order..." : "Place Order"}
+              </Button>
+            </div>
+          </div>
+
+          {/* Form fields */}
+          <div className="order-2 min-w-0 space-y-4 lg:order-1">
             {/* Shipping address */}
             <div className="bg-card border-border space-y-3 rounded-xl border p-4">
               <h2 className="flex items-center gap-2 font-semibold">
                 <MapPin size={16} className="text-primary" /> Shipping Address
               </h2>
+              <div className="grid grid-cols-2 gap-3">
+                <Input
+                  placeholder="Full name *"
+                  value={address.fullName}
+                  onChange={(e) =>
+                    setAddress((a) => ({ ...a, fullName: e.target.value }))
+                  }
+                  required
+                />
+                <Input
+                  placeholder="Phone *"
+                  value={address.phone}
+                  onChange={(e) =>
+                    setAddress((a) => ({ ...a, phone: e.target.value }))
+                  }
+                  required
+                />
+              </div>
               <Input
-                placeholder="Street address"
+                placeholder="Street address *"
                 value={address.address}
                 onChange={(e) =>
                   setAddress((a) => ({ ...a, address: e.target.value }))
@@ -118,7 +198,7 @@ export default function CheckoutPage() {
               />
               <div className="grid grid-cols-2 gap-3">
                 <Input
-                  placeholder="City"
+                  placeholder="City *"
                   value={address.city}
                   onChange={(e) =>
                     setAddress((a) => ({ ...a, city: e.target.value }))
@@ -133,22 +213,13 @@ export default function CheckoutPage() {
                   }
                 />
               </div>
-              <div className="grid grid-cols-2 gap-3">
-                <Input
-                  placeholder="Zip code"
-                  value={address.zipCode}
-                  onChange={(e) =>
-                    setAddress((a) => ({ ...a, zipCode: e.target.value }))
-                  }
-                />
-                <Input
-                  placeholder="Notes (optional)"
-                  value={address.notes}
-                  onChange={(e) =>
-                    setAddress((a) => ({ ...a, notes: e.target.value }))
-                  }
-                />
-              </div>
+              <Input
+                placeholder="Zip code"
+                value={address.zipCode}
+                onChange={(e) =>
+                  setAddress((a) => ({ ...a, zipCode: e.target.value }))
+                }
+              />
             </div>
 
             {/* Payment method */}
@@ -198,59 +269,25 @@ export default function CheckoutPage() {
               />
             </div>
           </div>
-
-          {/* Order summary */}
-          <div className="w-full lg:w-80">
-            <div className="bg-card border-border sticky top-6 space-y-3 rounded-xl border p-4">
-              <h2 className="font-semibold">Order Summary</h2>
-              <div className="max-h-64 space-y-3 overflow-y-auto">
-                {storeItems.map((item) => (
-                  <div
-                    key={item.product._id}
-                    className="flex items-center gap-2"
-                  >
-                    {item.product.images?.[0] && (
-                      <div className="relative h-10 w-10 flex-shrink-0 overflow-hidden rounded-lg">
-                        <Image
-                          src={item.product.images[0].url}
-                          alt={item.product.name}
-                          fill
-                          className="object-cover"
-                        />
-                      </div>
-                    )}
-                    <div className="min-w-0 flex-1">
-                      <p className="truncate text-xs font-medium">
-                        {item.product.name}
-                      </p>
-                      <p className="text-muted-foreground text-xs">
-                        x{item.quantity}
-                      </p>
-                    </div>
-                    <p className="flex-shrink-0 text-sm font-semibold">
-                      {((item.price ?? 0) * item.quantity).toFixed(2)} DT
-                    </p>
-                  </div>
-                ))}
-              </div>
-              <div className="border-border border-t pt-3">
-                <div className="flex items-center justify-between">
-                  <span className="text-muted-foreground text-sm">
-                    Subtotal
-                  </span>
-                  <span className="font-bold">{subtotal.toFixed(2)} DT</span>
-                </div>
-              </div>
-              <Button
-                type="submit"
-                className="w-full"
-                disabled={placeOrder.isPending}
-              >
-                {placeOrder.isPending ? "Placing Order..." : "Place Order"}
-              </Button>
-            </div>
-          </div>
         </form>
+      </div>
+
+      {/* Mobile sticky bottom bar */}
+      <div className="border-border bg-background/95 fixed right-0 bottom-0 left-0 z-50 border-t px-4 py-3 backdrop-blur-sm lg:hidden">
+        <div className="mx-auto flex max-w-3xl items-center gap-4">
+          <div className="flex-1">
+            <p className="text-muted-foreground text-xs">Total</p>
+            <p className="text-lg font-bold">{subtotal.toFixed(2)} DT</p>
+          </div>
+          <Button
+            type="submit"
+            form="checkout-form"
+            className="flex-1"
+            disabled={placeOrder.isPending}
+          >
+            {placeOrder.isPending ? "Placing..." : "Place Order"}
+          </Button>
+        </div>
       </div>
     </div>
   )

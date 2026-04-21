@@ -2,3 +2,4 @@
 export * from "./useClientVisitorProfile"
 export * from "./useLoungeProfile"
 export * from "./useFollows"
+export * from "./useAgents"

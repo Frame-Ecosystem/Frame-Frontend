@@ -1,5 +1,8 @@
 ﻿import type { CreateAgentDto, UpdateAgentDto, Agent } from "@/app/_types"
 
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+const PHONE_RE = /^\+?[0-9\s().-]{7,20}$/
+
 export function validateAgentForm(
   formData:
     | CreateAgentDto
@@ -8,6 +11,22 @@ export function validateAgentForm(
   isAdmin: boolean,
 ): Record<string, string> {
   const errors: Record<string, string> = {}
+
+  // Email validation (required on create, immutable on edit)
+  if (!agent) {
+    const email = (formData.email ?? "").trim()
+    if (!email) {
+      errors.email = "Email is required"
+    } else if (!EMAIL_RE.test(email)) {
+      errors.email = "Please enter a valid email address"
+    }
+  }
+
+  // Phone number — optional but validated when supplied
+  const phone = (formData.phoneNumber ?? "").trim()
+  if (phone && !PHONE_RE.test(phone)) {
+    errors.phoneNumber = "Please enter a valid phone number"
+  }
 
   // Agent Name validation
   if (!formData.agentName?.trim()) {

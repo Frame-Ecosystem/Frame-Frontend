@@ -215,26 +215,16 @@ export default function QueueDisplay({
     [agentId, selectedDate, removePerson],
   )
 
-  const handleDragEnd = useCallback(
-    (event: import("@dnd-kit/core").DragEndEvent) => {
-      const { active, over } = event
-      if (!over || active.id === over.id || !agentId) return
-
-      // Optimistic reorder: find indices, compute new position
-      const activeIndex = persons.findIndex(
-        (p) => p.bookingId?._id === active.id,
-      )
-      const overIndex = persons.findIndex((p) => p.bookingId?._id === over.id)
-      if (activeIndex === -1 || overIndex === -1) return
-
-      const newPosition = overIndex + 1
+  const handleReorder = useCallback(
+    (bookingId: string, newPosition: number) => {
+      if (!agentId) return
       reorderPerson.mutate({
         agentId,
-        bookingId: active.id as string,
+        bookingId,
         newPosition,
       })
     },
-    [agentId, persons, reorderPerson],
+    [agentId, reorderPerson],
   )
 
   const stats = calculateQueueStats(persons)
@@ -344,7 +334,7 @@ export default function QueueDisplay({
               isExpanded={isExpanded}
               setIsExpanded={setIsExpanded}
               isFullScreen={isFullScreen}
-              onDragEnd={handleDragEnd}
+              onReorder={handleReorder}
               onStatusChange={handleStatusChange}
               onRemove={handleRemove}
               onAddPerson={() => setShowAddDialog(true)}

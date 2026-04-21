@@ -32,7 +32,7 @@ export default function OrderDetailPage() {
   if (isLoading) {
     return (
       <div className="min-h-screen">
-        <div className="mx-auto max-w-3xl space-y-4 px-4 py-6 lg:px-8">
+        <div className="mx-auto max-w-3xl space-y-4 px-4 py-10 lg:px-8 lg:py-14">
           <div className="bg-muted h-8 w-48 animate-pulse rounded" />
           <div className="bg-muted h-32 animate-pulse rounded-xl" />
           <div className="bg-muted h-48 animate-pulse rounded-xl" />
@@ -56,13 +56,13 @@ export default function OrderDetailPage() {
 
   return (
     <div className="from-background to-muted/10 min-h-screen bg-linear-to-br">
-      <div className="mx-auto max-w-3xl space-y-5 px-4 py-6 lg:px-8">
+      <div className="mx-auto max-w-3xl space-y-5 px-4 py-10 lg:px-8 lg:py-14">
         {/* Back */}
         <button
           onClick={() => router.back()}
-          className="text-muted-foreground hover:text-foreground flex items-center gap-1 text-sm"
+          className="bg-background border-border/60 hover:bg-muted mb-2 hidden h-10 items-center gap-1.5 rounded-full border px-4 text-sm font-medium shadow-sm transition-colors lg:inline-flex"
         >
-          <ChevronLeft size={16} /> Back to orders
+          <ChevronLeft size={18} /> Back to orders
         </button>
 
         {/* Header */}

@@ -1,31 +1,10 @@
 "use client"
-import { useState } from "react"
 import { Card, CardContent, CardHeader } from "../ui/card"
 import { Button } from "../ui/button"
 import { Users, CalendarClock, ChevronDown, Plus, Ban } from "lucide-react"
 import { Switch } from "../ui/switch"
 import { useTranslation } from "@/app/_i18n"
-import {
-  DndContext,
-  closestCenter,
-  KeyboardSensor,
-  PointerSensor,
-  useSensor,
-  useSensors,
-  DragEndEvent,
-  DragStartEvent,
-  DragOverlay,
-} from "@dnd-kit/core"
-import {
-  SortableContext,
-  sortableKeyboardCoordinates,
-  verticalListSortingStrategy,
-} from "@dnd-kit/sortable"
-import {
-  restrictToVerticalAxis,
-  restrictToParentElement,
-} from "@dnd-kit/modifiers"
-import QueueItem from "./queue-item"
+import QueueList from "./queue-list"
 import type { QueuePerson } from "../../_types"
 import { QueuePersonStatus } from "../../_types"
 
@@ -37,11 +16,15 @@ interface QueueDetailsProps {
   setIsExpanded: (expanded: boolean) => void
   isFullScreen: boolean
 
-  onDragEnd: (event: DragEndEvent) => void
+  /**
+   * Fired when a staff user finishes a drag-reorder.
+   * Receives the moved booking's id and its new 1-based queue position.
+   */
+  onReorder?: (bookingId: string, newPosition: number) => void
 
   onStatusChange?: (bookingId: string, status: QueuePersonStatus) => void
 
-  onRemove?: (bookingId: string) => void
+  onRemove?: (bookingId: string, markAbsent?: boolean) => void
   onAddPerson?: () => void
   isUpdating?: boolean
   /** Whether this agent's queue currently accepts bookings */
@@ -61,7 +44,7 @@ export default function QueueDetails({
   isExpanded,
   setIsExpanded,
   isFullScreen,
-  onDragEnd,
+  onReorder,
   onStatusChange,
   onRemove,
   onAddPerson,
@@ -76,37 +59,6 @@ export default function QueueDetails({
   const persons = rawPersons.filter(
     (p) => p.status !== QueuePersonStatus.COMPLETED && p.position >= 1,
   )
-
-  const [activeId, setActiveId] = useState<string | null>(null)
-
-  const sensors = useSensors(
-    useSensor(PointerSensor, {
-      activationConstraint: {
-        distance: 8,
-      },
-    }),
-    useSensor(KeyboardSensor, {
-      coordinateGetter: sortableKeyboardCoordinates,
-    }),
-  )
-
-  const sortableIds = persons.map((p) => p.bookingId?._id)
-  const activePerson = activeId
-    ? persons.find((p) => p.bookingId?._id === activeId)
-    : null
-
-  const handleDragStart = (event: DragStartEvent) => {
-    setActiveId(event.active.id as string)
-  }
-
-  const handleDragEndInternal = (event: DragEndEvent) => {
-    setActiveId(null)
-    onDragEnd(event)
-  }
-
-  const handleDragCancel = () => {
-    setActiveId(null)
-  }
 
   return (
     <Card className={isFullScreen ? "shadow-2xl" : ""}>
@@ -221,59 +173,16 @@ export default function QueueDetails({
                   : t("queue.emptyClientHint")}
               </p>
             </div>
-          ) : mode === "staff" ? (
-            <DndContext
-              sensors={sensors}
-              collisionDetection={closestCenter}
-              onDragStart={handleDragStart}
-              onDragEnd={handleDragEndInternal}
-              onDragCancel={handleDragCancel}
-              modifiers={[restrictToVerticalAxis, restrictToParentElement]}
-            >
-              <SortableContext
-                items={sortableIds}
-                strategy={verticalListSortingStrategy}
-              >
-                {persons.map((person, index) => (
-                  <QueueItem
-                    key={person.bookingId?._id ?? `queue-item-${index}`}
-                    person={person}
-                    allPersons={persons}
-                    mode={mode}
-                    onStatusChange={onStatusChange}
-                    onRemove={onRemove}
-                    isUpdating={isUpdating}
-                    highlightBookingId={highlightBookingId}
-                  />
-                ))}
-              </SortableContext>
-              <DragOverlay
-                dropAnimation={{
-                  duration: 200,
-                  easing: "cubic-bezier(0.18, 0.67, 0.6, 1.22)",
-                }}
-              >
-                {activePerson ? (
-                  <div className="bg-card ring-primary/30 scale-[1.02] rounded-xl border opacity-95 shadow-2xl ring-2">
-                    <QueueItem
-                      person={activePerson}
-                      allPersons={persons}
-                      mode={mode}
-                    />
-                  </div>
-                ) : null}
-              </DragOverlay>
-            </DndContext>
           ) : (
-            persons.map((person, index) => (
-              <QueueItem
-                key={person.bookingId?._id ?? `queue-item-${index}`}
-                person={person}
-                allPersons={persons}
-                mode={mode}
-                highlightBookingId={highlightBookingId}
-              />
-            ))
+            <QueueList
+              persons={persons}
+              mode={mode}
+              onStatusChange={onStatusChange}
+              onRemove={onRemove}
+              onReorder={onReorder}
+              isUpdating={isUpdating}
+              highlightBookingId={highlightBookingId}
+            />
           )}
         </CardContent>
       )}

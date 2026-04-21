@@ -28,6 +28,7 @@ import {
 } from "lucide-react"
 import { AgentTable } from "./agent-table"
 import { useTranslation } from "@/app/_i18n"
+import { useToggleAgentQueueBooking } from "@/app/_systems/user/hooks/useAgents"
 
 interface AgentListProps {
   onCreateClick: () => void
@@ -60,6 +61,9 @@ export function AgentList({
     bulkDelete,
   } = useAgent()
   const { t } = useTranslation()
+
+  const toggleQueueBooking = useToggleAgentQueueBooking()
+  const [pendingToggleIds, setPendingToggleIds] = useState<string[]>([])
 
   useEffect(() => {
     fetchAgents(1, pagination.limit)
@@ -237,6 +241,20 @@ export function AgentList({
               setAgentToDelete(agent)
               setDeleteDialogOpen(true)
             }}
+            onToggleAcceptQueueBooking={(agent, value) => {
+              if (!agent._id) return
+              const id = agent._id
+              setPendingToggleIds((prev) => [...prev, id])
+              toggleQueueBooking.mutate(
+                { agentId: id, acceptQueueBooking: value },
+                {
+                  onSettled: () => {
+                    setPendingToggleIds((prev) => prev.filter((p) => p !== id))
+                  },
+                },
+              )
+            }}
+            togglingAgentIds={pendingToggleIds}
           />
         </CardContent>
       </Card>

@@ -165,11 +165,18 @@ export function AgentProvider({ children }: { children: ReactNode }) {
 
         let result: Paginated<Agent>
         if (state.isAdmin) {
-          result = await agentService.getAllAgents(state.filters, page, limit)
+          result = await agentService.getAllAgentsPaginated(
+            state.filters,
+            page,
+            limit,
+          )
         } else {
-          // For lounge users, use the same getAllAgents endpoint
-          // The backend will filter results based on authenticated user
-          result = await agentService.getAllAgents(state.filters, page, limit)
+          // For lounge users, use the same endpoint — backend auto-scopes.
+          result = await agentService.getAllAgentsPaginated(
+            state.filters,
+            page,
+            limit,
+          )
         }
 
         dispatch({ type: "SET_AGENTS", payload: result })

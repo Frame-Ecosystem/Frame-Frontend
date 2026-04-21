@@ -371,9 +371,13 @@ class MarketplaceService {
 
   // ── Analytics ─────────────────────────────────────────────────────────────
 
-  async getMyStoreAnalytics(): Promise<StoreAnalytics> {
-    const res = await apiClient.get<any>(`${BASE}/analytics/my-store`)
-    return res?.data ?? res
+  async getMyStoreAnalytics(): Promise<StoreAnalytics | null> {
+    try {
+      const res = await apiClient.get<any>(`${BASE}/analytics/my-store`)
+      return res?.data ?? res
+    } catch {
+      return null
+    }
   }
 
   // ── Admin ────────────────────────────────────────────────────────────────

@@ -1,6 +1,10 @@
 "use client"
 
-import { useMyStoreAnalytics } from "@/app/_hooks/queries/useMarketplace"
+import Link from "next/link"
+import {
+  useMyStore,
+  useMyStoreAnalytics,
+} from "@/app/_hooks/queries/useMarketplace"
 import {
   BarChart2,
   TrendingUp,
@@ -8,10 +12,17 @@ import {
   Star,
   Eye,
   Package,
+  Store,
+  Plus,
 } from "lucide-react"
+import { Button } from "@/app/_components/ui/button"
 
 export default function StoreAnalyticsPage() {
-  const { data: analytics, isLoading } = useMyStoreAnalytics()
+  const { data: store, isLoading: storeLoading } = useMyStore()
+  const { data: analytics, isLoading: analyticsLoading } = useMyStoreAnalytics(
+    !!store?._id,
+  )
+  const isLoading = storeLoading || analyticsLoading
 
   if (isLoading) {
     return (
@@ -23,6 +34,23 @@ export default function StoreAnalyticsPage() {
           ))}
         </div>
         <div className="bg-muted h-48 animate-pulse rounded-xl" />
+      </div>
+    )
+  }
+
+  if (!store) {
+    return (
+      <div className="flex min-h-screen flex-col items-center justify-center gap-4 px-4">
+        <Store className="text-muted-foreground/30 h-20 w-20" />
+        <h2 className="text-xl font-bold">You don&apos;t have a store yet</h2>
+        <p className="text-muted-foreground max-w-sm text-center text-sm">
+          Create your store first to start tracking analytics and revenue.
+        </p>
+        <Button asChild size="lg" className="gap-2">
+          <Link href="/store/my-store/create">
+            <Plus size={16} /> Open My Store
+          </Link>
+        </Button>
       </div>
     )
   }

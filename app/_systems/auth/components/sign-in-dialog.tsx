@@ -145,7 +145,7 @@ const SignInDialog = ({
       })
       if (response) {
         recordSuccess()
-        router.push(getLoginRedirectPath())
+        router.push(getLoginRedirectPath(response.data))
         onSuccess?.()
       }
     } catch (err) {
