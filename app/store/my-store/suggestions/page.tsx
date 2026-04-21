@@ -194,9 +194,9 @@ export default function MySuggestionsPage() {
         <div className="mb-6 flex items-center gap-3">
           <Link
             href="/store/my-store"
-            className="hover:text-foreground text-muted-foreground"
+            className="bg-background border-border/60 hover:bg-muted hidden h-10 w-10 flex-shrink-0 items-center justify-center rounded-full border shadow-sm transition-colors lg:flex"
           >
-            <ArrowLeft size={20} />
+            <ArrowLeft size={18} />
           </Link>
           <div className="flex-1">
             <h1 className="flex items-center gap-2 text-2xl font-bold">

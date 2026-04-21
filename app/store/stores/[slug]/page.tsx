@@ -74,7 +74,7 @@ export default function StoreProfilePage() {
 
   return (
     <div className="from-background to-muted/10 min-h-screen bg-linear-to-br">
-      <div className="mx-auto max-w-5xl space-y-5 px-4 py-4 lg:px-8 lg:py-8">
+      <div className="mx-auto max-w-5xl space-y-5 px-4 py-10 lg:px-8 lg:py-14">
         {/* Store header */}
         <StoreHeader store={store} />
 

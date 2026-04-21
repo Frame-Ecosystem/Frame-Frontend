@@ -12,15 +12,11 @@ import type {
 
 const CATEGORIES: { value: StoreCategory | ""; label: string }[] = [
   { value: "", label: "All" },
-  { value: "haircare", label: "Hair Care" },
-  { value: "skincare", label: "Skin Care" },
-  { value: "makeup", label: "Makeup" },
-  { value: "nails", label: "Nails" },
-  { value: "fragrance", label: "Fragrance" },
-  { value: "tools_accessories", label: "Tools" },
-  { value: "organic_natural", label: "Organic" },
-  { value: "mens_grooming", label: "Men's" },
-  { value: "spa_wellness", label: "Spa & Wellness" },
+  { value: "beauty", label: "Beauty" },
+  { value: "fashion", label: "Fashion" },
+  { value: "wellness", label: "Wellness" },
+  { value: "accessories", label: "Accessories" },
+  { value: "tools", label: "Tools" },
   { value: "other", label: "Other" },
 ]
 
@@ -50,7 +46,7 @@ export default function StoresPage() {
 
   return (
     <div className="from-background to-muted/10 min-h-screen bg-linear-to-br">
-      <div className="mx-auto max-w-7xl px-4 py-6 lg:px-8 lg:py-10">
+      <div className="mx-auto max-w-7xl px-4 py-10 lg:px-8 lg:py-14">
         {/* Header */}
         <div className="mb-6">
           <div className="mb-2 flex items-center gap-3">

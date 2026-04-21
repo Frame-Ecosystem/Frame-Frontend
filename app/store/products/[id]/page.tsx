@@ -38,7 +38,7 @@ export default function ProductDetailPage() {
   const addToCart = useAddToCart()
 
   const isInWishlist = (wishlistData?.data ?? []).some(
-    (w) => w.product._id === id,
+    (w) => w.product?._id === id,
   )
   const ownProduct =
     product?.storeId && typeof product.storeId === "object"
@@ -62,13 +62,13 @@ export default function ProductDetailPage() {
   if (isLoading) {
     return (
       <div className="min-h-screen">
-        <div className="mx-auto max-w-5xl px-4 py-6 lg:px-8">
-          <div className="grid gap-8 lg:grid-cols-2">
-            <div className="bg-muted aspect-square animate-pulse rounded-xl" />
-            <div className="space-y-4">
-              <div className="bg-muted h-8 w-3/4 animate-pulse rounded" />
+        <div className="mx-auto max-w-5xl px-4 py-10 lg:px-8 lg:py-14">
+          <div className="grid gap-4 lg:grid-cols-2 lg:gap-8">
+            <div className="bg-muted h-64 animate-pulse rounded-xl lg:h-80" />
+            <div className="space-y-3">
+              <div className="bg-muted h-6 w-3/4 animate-pulse rounded" />
               <div className="bg-muted h-4 w-full animate-pulse rounded" />
-              <div className="bg-muted h-12 w-1/3 animate-pulse rounded" />
+              <div className="bg-muted h-10 w-1/3 animate-pulse rounded" />
             </div>
           </div>
         </div>
@@ -96,17 +96,17 @@ export default function ProductDetailPage() {
 
   return (
     <div className="from-background to-muted/10 min-h-screen bg-linear-to-br">
-      <div className="mx-auto max-w-5xl px-4 py-4 lg:px-8 lg:py-8">
+      <div className="mx-auto max-w-5xl px-4 py-6 lg:px-8 lg:py-10">
         {/* Back */}
         <button
           onClick={() => router.back()}
-          className="text-muted-foreground hover:text-foreground mb-4 flex items-center gap-1 text-sm"
+          className="bg-background border-border/60 hover:bg-muted mb-5 hidden h-10 items-center gap-1.5 rounded-full border px-4 text-sm font-medium shadow-sm transition-colors lg:inline-flex"
         >
-          <ChevronLeft size={16} /> Back
+          <ChevronLeft size={18} /> Back
         </button>
 
         {/* Main layout */}
-        <div className="grid gap-8 lg:grid-cols-2">
+        <div className="grid gap-4 lg:grid-cols-2 lg:gap-8">
           {/* Gallery */}
           <div>
             <ProductGallery
@@ -116,7 +116,7 @@ export default function ProductDetailPage() {
           </div>
 
           {/* Details */}
-          <div className="space-y-4">
+          <div className="space-y-3 lg:space-y-4">
             {/* Category + wishlist */}
             <div className="flex items-center justify-between">
               {(() => {
@@ -137,7 +137,9 @@ export default function ProductDetailPage() {
             </div>
 
             {/* Name */}
-            <h1 className="text-2xl leading-snug font-bold">{product.name}</h1>
+            <h1 className="line-clamp-1 text-xl leading-snug font-bold lg:text-2xl">
+              {product.name}
+            </h1>
 
             {/* Rating */}
             {(product.averageRating ?? 0) > 0 && (
@@ -177,7 +179,7 @@ export default function ProductDetailPage() {
 
             {/* Short description */}
             {product.shortDescription && (
-              <p className="text-muted-foreground text-sm">
+              <p className="text-muted-foreground line-clamp-3 text-sm">
                 {product.shortDescription}
               </p>
             )}
@@ -198,7 +200,7 @@ export default function ProductDetailPage() {
                 <div className="border-border flex items-center rounded-lg border">
                   <button
                     onClick={() => setQuantity((q) => Math.max(1, q - 1))}
-                    className="px-3 py-1.5 text-lg disabled:opacity-40"
+                    className="px-4 py-2 text-lg disabled:opacity-40"
                     disabled={quantity <= 1}
                   >
                     −
@@ -210,7 +212,7 @@ export default function ProductDetailPage() {
                     onClick={() =>
                       setQuantity((q) => Math.min(product.stock, q + 1))
                     }
-                    className="px-3 py-1.5 text-lg disabled:opacity-40"
+                    className="px-4 py-2 text-lg disabled:opacity-40"
                     disabled={quantity >= product.stock}
                   >
                     +
@@ -241,9 +243,9 @@ export default function ProductDetailPage() {
                 <div className="bg-background flex h-10 w-10 items-center justify-center rounded-full shadow">
                   <Store size={16} className="text-muted-foreground" />
                 </div>
-                <div>
+                <div className="min-w-0">
                   <p className="text-muted-foreground text-xs">Sold by</p>
-                  <p className="text-sm font-semibold">{store.name}</p>
+                  <p className="truncate text-sm font-semibold">{store.name}</p>
                 </div>
               </Link>
             )}
@@ -251,7 +253,7 @@ export default function ProductDetailPage() {
         </div>
 
         {/* Tabs: description / reviews */}
-        <div className="mt-10">
+        <div className="mt-6 lg:mt-10">
           <div className="border-border flex gap-1 border-b">
             {(["description", "reviews"] as const).map((t) => (
               <button

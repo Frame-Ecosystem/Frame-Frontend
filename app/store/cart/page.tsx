@@ -39,7 +39,7 @@ export default function CartPage() {
   if (isLoading) {
     return (
       <div className="min-h-screen">
-        <div className="mx-auto max-w-3xl space-y-4 px-4 py-6 lg:px-8">
+        <div className="mx-auto max-w-3xl space-y-4 px-4 py-10 lg:px-8 lg:py-14">
           <div className="bg-muted h-8 w-48 animate-pulse rounded" />
           {Array.from({ length: 2 }).map((_, i) => (
             <div key={i} className="bg-muted h-40 animate-pulse rounded-xl" />
@@ -66,7 +66,7 @@ export default function CartPage() {
 
   return (
     <div className="from-background to-muted/10 min-h-screen bg-linear-to-br">
-      <div className="mx-auto max-w-3xl px-4 py-6 lg:px-8">
+      <div className="mx-auto max-w-3xl px-4 py-10 lg:px-8 lg:py-14">
         {/* Header */}
         <div className="mb-6 flex items-center gap-3">
           <ShoppingCart className="text-primary h-6 w-6" />

@@ -54,9 +54,9 @@ export default function NewProductPage() {
 
     createProduct.mutate(
       {
+        storeId: store._id,
         name: form.name,
         description: form.description,
-        shortDescription: form.shortDescription || undefined,
         categoryId: form.categoryId,
         price: parseFloat(form.price),
         compareAtPrice: form.compareAtPrice

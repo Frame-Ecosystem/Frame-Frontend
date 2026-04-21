@@ -59,7 +59,7 @@ export default function MyStoreDashboard() {
   const { data: ordersData } = useMyStoreOrders(store?._id, {
     status: "pending",
   })
-  const { data: analytics } = useMyStoreAnalytics()
+  const { data: analytics } = useMyStoreAnalytics(!!store?._id)
 
   if (isLoading) {
     return (
@@ -103,7 +103,7 @@ export default function MyStoreDashboard() {
       <div className="mx-auto max-w-4xl space-y-6 px-4 py-6 lg:px-8">
         {/* Store card */}
         <div className="bg-card border-border overflow-hidden rounded-xl border shadow-sm">
-          {store.banner && (
+          {store.banner?.url && (
             <div className="from-primary/20 to-primary/5 relative h-28 overflow-hidden bg-gradient-to-r">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
@@ -116,7 +116,7 @@ export default function MyStoreDashboard() {
           <div className="p-4">
             <div className="flex items-start justify-between">
               <div className="flex items-center gap-3">
-                {store.logo ? (
+                {store.logo?.url ? (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img
                     src={store.logo.url}

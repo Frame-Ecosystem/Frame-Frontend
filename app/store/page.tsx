@@ -21,6 +21,7 @@ import {
   useDiscoverProducts,
   useAddToCart,
   useMyCart,
+  useWishlist,
 } from "@/app/_hooks/queries/useMarketplace"
 import { toast } from "sonner"
 import type { StoreCategory } from "@/app/_types/marketplace"
@@ -31,15 +32,12 @@ const CATEGORY_CHIPS: {
   emoji: string
 }[] = [
   { value: "", label: "All", emoji: "✨" },
-  { value: "haircare", label: "Hair Care", emoji: "💆" },
-  { value: "skincare", label: "Skin Care", emoji: "🌿" },
-  { value: "makeup", label: "Makeup", emoji: "💄" },
-  { value: "nails", label: "Nails", emoji: "💅" },
-  { value: "fragrance", label: "Fragrance", emoji: "🌸" },
-  { value: "tools_accessories", label: "Tools", emoji: "🪮" },
-  { value: "organic_natural", label: "Organic", emoji: "🍃" },
-  { value: "mens_grooming", label: "Men's", emoji: "🧔" },
-  { value: "spa_wellness", label: "Spa", emoji: "🛁" },
+  { value: "beauty", label: "Beauty", emoji: "💄" },
+  { value: "fashion", label: "Fashion", emoji: "👗" },
+  { value: "wellness", label: "Wellness", emoji: "🌿" },
+  { value: "accessories", label: "Accessories", emoji: "💍" },
+  { value: "tools", label: "Tools", emoji: "🪮" },
+  { value: "other", label: "Other", emoji: "✦" },
 ]
 
 export default function MarketplacePage() {
@@ -59,9 +57,11 @@ export default function MarketplacePage() {
     limit: 4,
   })
   const { data: cart } = useMyCart()
+  const { data: wishlistData } = useWishlist()
   const addToCart = useAddToCart()
 
   const cartCount = cart?.items.reduce((sum, i) => sum + i.quantity, 0) ?? 0
+  const wishlistCount = wishlistData?.count ?? 0
 
   const handleAddToCart = (productId: string) => {
     addToCart.mutate(
@@ -84,33 +84,39 @@ export default function MarketplacePage() {
     <div className="from-background via-background to-muted/20 min-h-screen bg-linear-to-br">
       <div className="mx-auto max-w-7xl space-y-10 px-4 py-6 lg:px-8 lg:py-10">
         {/* Open store CTA */}
-        <section className="from-primary/15 to-primary/5 rounded-2xl bg-linear-to-r p-6 text-center">
-          <Store className="text-primary mx-auto mb-3 h-10 w-10" />
-          <h3 className="mb-2 text-xl font-bold">Start Selling Today</h3>
-          <p className="text-muted-foreground mx-auto mb-4 max-w-md text-sm">
-            Join hundreds of beauty professionals. Open your store and reach
-            thousands of customers.
-          </p>
-          <Button asChild size="lg">
+        <section className="from-primary/10 via-primary/5 to-primary/10 border-primary/15 flex items-center justify-between gap-4 rounded-2xl border bg-linear-to-r p-4 sm:p-5">
+          <div className="flex min-w-0 items-center gap-3">
+            <div className="bg-primary/15 flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl">
+              <Store className="text-primary h-5 w-5" />
+            </div>
+            <div className="min-w-0">
+              <p className="text-sm font-bold sm:text-base">
+                Start Selling Today
+              </p>
+              <p className="text-muted-foreground truncate text-xs">
+                Join beauty professionals &amp; reach thousands of customers
+              </p>
+            </div>
+          </div>
+          <Button asChild size="sm" className="flex-shrink-0">
             <Link href="/store/my-store">Open My Store</Link>
           </Button>
         </section>
 
         {/* Hero */}
-        <div className="from-primary/20 via-primary/10 to-background relative overflow-hidden rounded-2xl bg-linear-to-br p-6 lg:p-10">
+        <div className="from-primary/20 via-primary/8 to-background relative overflow-hidden rounded-2xl bg-linear-to-br p-4 sm:p-6 lg:p-7">
           <div className="relative z-10">
-            <div className="mb-2 flex items-center gap-2">
-              <Sparkles className="text-primary h-5 w-5" />
-              <span className="text-primary text-sm font-semibold tracking-wide uppercase">
+            <div className="mb-1.5 flex items-center gap-1.5">
+              <Sparkles className="text-primary h-4 w-4" />
+              <span className="text-primary text-xs font-semibold tracking-wider uppercase">
                 Beauty Marketplace
               </span>
             </div>
-            <h1 className="mb-2 text-3xl leading-tight font-bold lg:text-4xl">
-              Discover Beauty
-              <br />
-              <span className="text-primary">Products & Stores</span>
+            <h1 className="mb-1 text-2xl leading-tight font-bold lg:text-3xl">
+              Discover{" "}
+              <span className="text-primary">Beauty Products &amp; Stores</span>
             </h1>
-            <p className="text-muted-foreground mb-6 max-w-md text-sm">
+            <p className="text-muted-foreground mb-4 max-w-md text-xs sm:text-sm">
               Shop from the best beauty professionals and salons.
             </p>
             <form onSubmit={handleSearch} className="flex max-w-lg gap-2">
@@ -126,7 +132,8 @@ export default function MarketplacePage() {
               <Button type="submit">Search</Button>
             </form>
           </div>
-          <div className="bg-primary/10 absolute -top-12 -right-12 h-64 w-64 rounded-full blur-3xl" />
+          <div className="bg-primary/10 absolute -top-10 -right-10 h-48 w-48 rounded-full blur-3xl" />
+          <div className="bg-primary/5 absolute -bottom-8 -left-8 h-32 w-32 rounded-full blur-2xl" />
         </div>
 
         {/* Quick actions */}
@@ -156,7 +163,8 @@ export default function MarketplacePage() {
                   : "bg-muted text-muted-foreground",
             },
             {
-              label: "Wishlist",
+              label:
+                wishlistCount > 0 ? `Wishlist (${wishlistCount})` : "Wishlist",
               href: "/store/wishlist",
               icon: Heart,
               color:
