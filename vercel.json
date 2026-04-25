@@ -3,7 +3,7 @@
   "builds": [{ "src": "next.config.mjs", "use": "@vercel/next" }],
   "routes": [{ "src": "/(.*)", "dest": "/$1" }],
   "env": {
-    "NEXT_PUBLIC_API_URL": "",
+    "NEXT_PUBLIC_API_URL": "https://backend-server-dob4.onrender.com",
     "NEXT_PUBLIC_FRONTEND_URL": ""
   }
 }

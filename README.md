@@ -162,7 +162,7 @@ npm start
 Create a `.env.local` with:
 
 ```env
-NEXT_PUBLIC_API_URL=<backend API base URL>
+NEXT_PUBLIC_API_URL=https://backend-server-dob4.onrender.com
 NEXT_PUBLIC_FIREBASE_API_KEY=<Firebase API key>
 NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=<Firebase auth domain>
 NEXT_PUBLIC_FIREBASE_PROJECT_ID=<Firebase project ID>
