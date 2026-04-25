@@ -6,6 +6,7 @@
     "dev": "next dev -p 2111 -H 0.0.0.0 --turbopack",
     "build": "next build",
     "start": "next start -p 2111 -H 0.0.0.0",
+    "vercel-build": "next build",
     "lint": "eslint . --ext .ts,.tsx,.js,.jsx",
     "lint:fix": "eslint . --ext .ts,.tsx,.js,.jsx --fix",
     "typecheck": "tsc -p tsconfig.json --noEmit",

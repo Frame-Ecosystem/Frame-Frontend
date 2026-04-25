@@ -23,10 +23,10 @@ interface TopBarProps {
 }
 
 const ICON_OUTER =
-  "flex h-8 w-8 items-center justify-center rounded-full border border-primary/30"
-const ICON_INNER = "h-4 w-4"
+  "flex h-10 w-10 items-center justify-center rounded-full border border-primary/30"
+const ICON_INNER = "h-5 w-5"
 const ICON_BTN =
-  "hover:bg-primary/10 relative flex h-8 w-8 items-center justify-center rounded-full"
+  "hover:bg-primary/10 relative flex h-10 w-10 items-center justify-center rounded-full"
 
 const TopBar: React.FC<TopBarProps> = ({
   onGetStarted,
@@ -61,7 +61,7 @@ const TopBar: React.FC<TopBarProps> = ({
       <div className="flex flex-shrink-0 items-center gap-1">
         <Link
           href="/"
-          className="flex items-baseline transition-opacity duration-200 hover:opacity-75 lg:ml-20"
+          className="ml-2 flex items-baseline transition-opacity duration-200 hover:opacity-75 md:ml-3 lg:ml-20"
         >
           <NavBrandLogo frameClassName="text-2xl font-extrabold md:text-3xl" />
         </Link>
@@ -96,14 +96,14 @@ const TopBar: React.FC<TopBarProps> = ({
               onClick={() => setTrayOpen((v) => !v)}
             >
               <div
-                className={`relative flex h-8 w-8 items-center justify-center rounded-full border transition-colors duration-300 ${
+                className={`relative flex h-10 w-10 items-center justify-center rounded-full border transition-colors duration-300 ${
                   trayOpen
                     ? "bg-primary/10 border-primary/30"
                     : "border-border bg-transparent"
                 }`}
               >
                 <ChevronLeft
-                  className={`text-primary h-4 w-4 transition-transform duration-400 ease-[cubic-bezier(0.34,1.56,0.64,1)] ${
+                  className={`text-primary h-5 w-5 transition-transform duration-400 ease-[cubic-bezier(0.34,1.56,0.64,1)] ${
                     trayOpen ? "rotate-180" : "rotate-0"
                   }`}
                 />
@@ -119,10 +119,11 @@ const TopBar: React.FC<TopBarProps> = ({
             </Button>
 
             {/* Animated expanding tray — action icons with stagger */}
+            {/* py-2 + pr-2 give the message badge room to render without being clipped by overflow-hidden */}
             <div
-              className="flex items-center overflow-hidden py-2 transition-all duration-1200 ease-[cubic-bezier(0.34,1.56,0.64,1)]"
+              className="flex items-center overflow-hidden py-2 pr-2 transition-all duration-1200 ease-[cubic-bezier(0.34,1.56,0.64,1)]"
               style={{
-                maxWidth: trayOpen ? "280px" : "0px",
+                maxWidth: trayOpen ? "300px" : "0px",
                 opacity: trayOpen ? 1 : 0,
               }}
             >
@@ -190,8 +191,8 @@ const TopBar: React.FC<TopBarProps> = ({
               className="hover:bg-primary/10 relative flex items-center justify-center rounded-full"
               onClick={() => router.push("/lounges")}
             >
-              <div className="flex h-9 w-9 items-center justify-center rounded-full border">
-                <Search className="h-4 w-4" />
+              <div className="flex h-10 w-10 items-center justify-center rounded-full border">
+                <Search className="h-5 w-5" />
               </div>
             </Button>
             <NotificationButton compact />
@@ -200,8 +201,8 @@ const TopBar: React.FC<TopBarProps> = ({
               size="icon"
               className="hover:bg-primary/10 relative flex items-center justify-center rounded-full"
             >
-              <div className="flex h-9 w-9 items-center justify-center rounded-full border">
-                <MessageCircle className="h-4 w-4" />
+              <div className="flex h-10 w-10 items-center justify-center rounded-full border">
+                <MessageCircle className="h-5 w-5" />
               </div>
             </Button>
             <UserSession compact />

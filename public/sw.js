@@ -1,9 +1,8 @@
-const CACHE_NAME = "frame-v4"
+const CACHE_NAME = "frame-v7"
 const urlsToCache = [
   "/",
-  "/images/frameIconDark.png",
-  "/images/frameIconLight.png",
-  "/icon.svg",
+  "/images/logos/fb-logo.png",
+  "/manifest.json",
   // Add other critical resources
 ]
 

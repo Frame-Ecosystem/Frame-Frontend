@@ -10,6 +10,7 @@ import {
 } from "@/app/_components/ui/avatar"
 import { ExpandableBioVisitor } from "@/app/_components/common/profile-display/expandable-bio-visitor"
 import { FollowButton } from "@/app/_components/common/follow-button"
+import { MessageButton } from "@/app/_components/common/message-button"
 import { FollowStats } from "@/app/_components/common/follow-stats"
 import type { ClientProfile } from "@/app/_types"
 import { getDisplayName, getInitials, toImageUrl } from "./utils"
@@ -115,6 +116,7 @@ export function VisitorProfileHeader({
 
         <div className="mt-3 flex items-center gap-3">
           <FollowButton targetId={profile._id} />
+          <MessageButton recipientId={profile._id} />
         </div>
       </div>
     </div>

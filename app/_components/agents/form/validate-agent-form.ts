@@ -14,7 +14,7 @@ export function validateAgentForm(
 
   // Email validation (required on create, immutable on edit)
   if (!agent) {
-    const email = (formData.email ?? "").trim()
+    const email = ((formData as CreateAgentDto).email ?? "").trim()
     if (!email) {
       errors.email = "Email is required"
     } else if (!EMAIL_RE.test(email)) {

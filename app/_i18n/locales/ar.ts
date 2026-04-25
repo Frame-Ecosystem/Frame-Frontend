@@ -411,6 +411,70 @@ const ar: Record<string, string> = {
   "landing.bookingsToday": "12 حجز اليوم",
   "landing.inQueue": "3 بالانتظار",
 
+  // Mobile (web now / iOS & Android coming soon)
+  "landing.mobileEyebrow": "في أي مكان. على أي جهاز.",
+  "landing.mobileTitle": "متاح على الويب الآن — وفي جيبك قريبًا.",
+  "landing.mobileSubtitle":
+    "Frame Beauty تطبيق ويب تقدّمي متكامل يمكنك استخدامه الآن — دون تثبيت أو انتظار. تطبيقات iOS وAndroid في الطريق لتجربة أكثر سلاسة وأينما كنت.",
+  "landing.mobileBenefit1": "استخدمه فورًا من أي متصفح — بدون تنزيل أو تعقيد.",
+  "landing.mobileBenefit2":
+    "أضفه إلى شاشتك الرئيسية للحصول على تجربة شبيهة بالتطبيق.",
+  "landing.mobileBenefit3": "احصل على إشعار فور إطلاق تطبيقات iOS وAndroid.",
+  "landing.mobileLiveNow": "متاح الآن",
+  "landing.mobileWeb": "تطبيق ويب",
+  "landing.mobileAvailable": "متاح",
+  "landing.mobileSoon": "قريبًا",
+  "landing.mobileNotifyLabel": "كن أول من يعرف عند إطلاق التطبيق",
+  "landing.mobileNotifyPlaceholder": "بريدك@مثال.com",
+  "landing.mobileNotifyButton": "أخبرني",
+  "landing.mobileNotifyDisclaimer":
+    "لن نراسلك إلا عند الإطلاق. لا بريد مزعج أبدًا.",
+  "landing.mobileNotifyThanks": "أنت في القائمة — سنخبرك فور الإطلاق.",
+
+  // Testimonials
+  "landing.testimonials": "ما يقوله الناس",
+  "landing.testimonialsTitle": "قصص حقيقية من أشخاص حقيقيين",
+  "landing.testimonialsSubtitle":
+    "عملاء ومراكز تجميل من تونس يشاركون تجربتهم مع Frame Beauty.",
+  "landing.t1Name": "فاطمة ب.",
+  "landing.t1Role": "عميلة من تونس",
+  "landing.t1Text":
+    "كنت أتصل بثلاثة صالونات قبل أجد وقتًا فارغًا. الآن أفتح Frame وأختار وقتي وأحضر. بسيط جدًا.",
+  "landing.t2Name": "رامي ك.",
+  "landing.t2Role": "صاحب صالون، سوسة",
+  "landing.t2Text":
+    "ضاعفنا الحجوزات في الشهر الأول. نظام الطابور وحده وفّر علينا ساعات من المكالمات يوميًا.",
+  "landing.t3Name": "ياسمين ح.",
+  "landing.t3Role": "عميلة من صفاقس",
+  "landing.t3Text":
+    "وجدت مصففتي الجديدة عبر ريلس نشرته. Frame هو Instagram وتطبيق حجز في واحد.",
+  "landing.t4Name": "هناء م.",
+  "landing.t4Role": "مركز تجميل، أريانة",
+  "landing.t4Text":
+    "نحصل على عملاء جدد كل أسبوع من السوق. إدراج خدماتنا استغرق 10 دقائق والتحليلات تساعدنا على التحسين.",
+
+  // FAQ
+  "landing.faqEyebrow": "لديك أسئلة؟",
+  "landing.faqTitle": "كل ما تحتاج معرفته",
+  "landing.faqSubtitle": "لم تجد ما تبحث عنه؟ تواصل مع فريقنا.",
+  "landing.faq1Q": "هل Frame Beauty مجانية؟",
+  "landing.faq1A":
+    "نعم — Frame Beauty مجانية تمامًا للعملاء. تصفح وتسوّق واحجز بدون أي تكلفة. لمراكز التجميل، نقدم إدراجًا مجانيًا للبدء.",
+  "landing.faq2Q": "كيف يعمل نظام الحجز؟",
+  "landing.faq2A":
+    "ابحث عن صالون، اختر خدمتك ووقتك، وأكّد — تم في ثوان. ستصلك تأكيدٌ ويمكنك تتبع حالة طابورك مباشرة.",
+  "landing.faq3Q": "هل يمكنني إدارة صالوني عبر Frame؟",
+  "landing.faq3A":
+    "بالتأكيد. سجّل صالونك، انشر خدماتك، أدّر الحجوزات، بع المنتجات، وانشر في التغذية — كلها من لوحة تحكّم واحدة.",
+  "landing.faq4Q": "هل يوجد تطبيق جوال؟",
+  "landing.faq4A":
+    "Frame Beauty تطبيق ويب متكامل — أضفه لشاشتك الرئيسية الآن. تطبيقات iOS وAndroid قادمة قريبًا.",
+  "landing.faq5Q": "هل بياناتي آمنة؟",
+  "landing.faq5A": "نعم. نستخدم تشفيرًا قياسيًا ولا نبيع بياناتك لأي طرف ثالث.",
+
+  "landing.trustedInTunisia": "موثوق به في تونس",
+  "landing.fiveStarReviews": "تقييمات 5 نجوم",
+
   "landing.ctaTitle": "مستعد لتجربة",
   "landing.ctaSubtitle":
     "انضم لآلاف العملاء والصالونات الذين يثقون بـ Frame Beauty. تجربتك القادمة على بُعد نقرة.",

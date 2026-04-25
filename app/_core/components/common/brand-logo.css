@@ -55,3 +55,21 @@
   -webkit-text-fill-color: transparent;
   animation: hero-shimmer-seq 8s ease-in-out infinite;
 }
+
+/*
+  Brand icon theme swap
+  Default (no theme class yet, e.g. SSR or silver-light) → dark icon visible
+  silver-dark → light icon visible
+*/
+.fb-brand-icon-light {
+  display: none;
+}
+.fb-brand-icon-dark {
+  display: inline-block;
+}
+.silver-dark .fb-brand-icon-dark {
+  display: none;
+}
+.silver-dark .fb-brand-icon-light {
+  display: inline-block;
+}

@@ -11,7 +11,7 @@ const FooterDesktop = () => {
     <footer className="border-border/50 border-t px-4 pt-16 pb-8 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-6xl">
         {/* Top row — brand + links */}
-        <div className="grid grid-cols-2 gap-x-6 gap-y-10 sm:grid-cols-3 lg:grid-cols-5">
+        <div className="grid grid-cols-2 gap-x-6 gap-y-10 sm:grid-cols-4 lg:grid-cols-6">
           {/* Brand column */}
           <div className="col-span-2 sm:col-span-3 lg:col-span-1">
             <div className="mb-3 flex items-baseline">
@@ -84,7 +84,7 @@ const FooterDesktop = () => {
           {/* For Clients column */}
           <div>
             <h4 className="text-foreground mb-3 text-sm font-semibold">
-              {t("footer.forClients")}
+              {t("landing.forClients")}
             </h4>
             <ul className="text-muted-foreground space-y-2.5 text-sm">
               <li>
@@ -92,7 +92,15 @@ const FooterDesktop = () => {
                   href="/home"
                   className="hover:text-foreground transition-colors"
                 >
-                  {t("footer.discoverStyles")}
+                  {t("landing.clientsFeat1")}
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/store"
+                  className="hover:text-foreground transition-colors"
+                >
+                  {t("landing.clientsFeat2")}
                 </Link>
               </li>
               <li>
@@ -100,7 +108,7 @@ const FooterDesktop = () => {
                   href="/bookings"
                   className="hover:text-foreground transition-colors"
                 >
-                  {t("footer.bookAppointments")}
+                  {t("landing.clientsFeat3")}
                 </Link>
               </li>
               <li>
@@ -108,40 +116,73 @@ const FooterDesktop = () => {
                   href="/saved"
                   className="hover:text-foreground transition-colors"
                 >
-                  {t("footer.savedFavorites")}
+                  {t("landing.clientsFeat4")}
                 </Link>
               </li>
             </ul>
           </div>
 
-          {/* For Centers column */}
+          {/* Common features (shared by Clients & Lounges) */}
           <div>
             <h4 className="text-foreground mb-3 text-sm font-semibold">
-              {t("footer.forCenters")}
+              {t("footer.common")}
             </h4>
             <ul className="text-muted-foreground space-y-2.5 text-sm">
               <li>
                 <Link
+                  href="/home"
+                  className="hover:text-foreground transition-colors"
+                >
+                  {t("footer.feed")}
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/store"
+                  className="hover:text-foreground transition-colors"
+                >
+                  {t("footer.shop")}
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/store/my-store"
+                  className="hover:text-foreground transition-colors"
+                >
+                  {t("marketplace.startSelling")}
+                </Link>
+              </li>
+            </ul>
+          </div>
+
+          {/* For Lounges column */}
+          <div>
+            <h4 className="text-foreground mb-3 text-sm font-semibold">
+              {t("landing.forLounges")}
+            </h4>
+            <ul className="text-muted-foreground space-y-2.5 text-sm">
+              <li>
+                <Link
+                  href="/lounges"
+                  className="hover:text-foreground transition-colors"
+                >
+                  {t("landing.loungesFeat1")}
+                </Link>
+              </li>
+              <li>
+                <Link
                   href="/settings"
-                  className="hover:text-foreground transition-colors"
+                  className="hover:text-foreground text-left transition-colors"
                 >
-                  {t("footer.dashboard")}
+                  {t("landing.loungesFeat3")}
                 </Link>
               </li>
               <li>
                 <Link
-                  href="/clients"
+                  href="/analytics"
                   className="hover:text-foreground transition-colors"
                 >
-                  {t("footer.clients")}
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/queue"
-                  className="hover:text-foreground transition-colors"
-                >
-                  {t("footer.queue")}
+                  {t("landing.loungesFeat5")}
                 </Link>
               </li>
             </ul>

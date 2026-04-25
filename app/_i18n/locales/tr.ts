@@ -411,6 +411,74 @@ const tr: Record<string, string> = {
   "landing.bookingsToday": "Bugün 12 randevu",
   "landing.inQueue": "Sırada 3 kişi",
 
+  // Mobil (web şimdi / iOS & Android yakında)
+  "landing.mobileEyebrow": "Her yerde. Her cihazda.",
+  "landing.mobileTitle": "Bugün web'de canlı — yarın cebinizde.",
+  "landing.mobileSubtitle":
+    "Frame Beauty, kurulum gerektirmeyen tam özellikli bir Progressive Web App'tir — hemen kullanabilirsiniz. Daha da akıcı bir deneyim için iOS ve Android uygulamaları geliyor.",
+  "landing.mobileBenefit1":
+    "Herhangi bir tarayıcıdan anında erişin — indirme yok, bekleme yok.",
+  "landing.mobileBenefit2":
+    "Ana ekrana ekleyerek uygulama benzeri bir deneyim yaşayın.",
+  "landing.mobileBenefit3":
+    "iOS ve Android uygulamaları yayına girince ilk siz haberdar olun.",
+  "landing.mobileLiveNow": "Canlı",
+  "landing.mobileWeb": "Web app",
+  "landing.mobileAvailable": "Mevcut",
+  "landing.mobileSoon": "Yakında",
+  "landing.mobileNotifyLabel": "Mobil lansmandan ilk haberdar olan siz olun",
+  "landing.mobileNotifyPlaceholder": "siz@email.com",
+  "landing.mobileNotifyButton": "Haber ver",
+  "landing.mobileNotifyDisclaimer":
+    "Sadece lansman için e-posta göndereceğiz. Asla spam yok.",
+  "landing.mobileNotifyThanks":
+    "Listedesiniz — yayına girdiğimiz an haberdar edeceğiz.",
+
+  // Testimonials
+  "landing.testimonials": "İnsanlar ne diyor",
+  "landing.testimonialsTitle": "Gerçek insanlardan gerçek hikayeler",
+  "landing.testimonialsSubtitle":
+    "Tunus genelinde müşteriler ve salonlar Frame Beauty deneyimlerini paylaşıyor.",
+  "landing.t1Name": "Fatma B.",
+  "landing.t1Role": "Tunus'tan müşteri",
+  "landing.t1Text":
+    "Boş slot bulmak için üç salonu arardım. Şimdi Frame'i açıyorum, zaman seçiyorum ve gidiyorum. Gerçekten çığır dışı.",
+  "landing.t2Name": "Rami K.",
+  "landing.t2Role": "Salon sahibi, Sousse",
+  "landing.t2Text":
+    "İlk ayda rezervasyonlarımızı ikiye katlandırdık. Kuyruk sistemi tek başına saatlerce telefon görüşmesinden kurtardı.",
+  "landing.t3Name": "Yasmine H.",
+  "landing.t3Role": "Sfax'tan müşteri",
+  "landing.t3Text":
+    "Feed çok ilham verici — yeni kuaförümü bir reel ile buldum. Frame Instagram + rezervasyon uygulaması gibi.",
+  "landing.t4Name": "Hana M.",
+  "landing.t4Role": "Güzellik merkezi, Ariana",
+  "landing.t4Text":
+    "Her hafta pazaryeri sayesinde yeni müşteri kazanıyoruz. Hizmetleri eklemek 10 dakika sürdü ve analitikler yardımcı oluyor.",
+
+  // FAQ
+  "landing.faqEyebrow": "Sorularınız mı var?",
+  "landing.faqTitle": "Bilmeniz gereken her şey",
+  "landing.faqSubtitle": "Aradığınızı bulamazsanız ekibimizle iletişime geçin.",
+  "landing.faq1Q": "Frame Beauty ücretsiz mi?",
+  "landing.faq1A":
+    "Evet — müşteriler için tamamen ücretsiz. Salonlar için başlamak için ücretsiz listeleme sunuyoruz.",
+  "landing.faq2Q": "Rezervasyon sistemi nasıl çalışıyor?",
+  "landing.faq2A":
+    "Bir salon bulun, hizmet ve saat seçin, onaylayın — saniyelerde tamamlanır. Kuyruğunuzu canlı takip edebilirsiniz.",
+  "landing.faq3Q": "Salonum Frame Beauty'de yönetebilir miyim?",
+  "landing.faq3A":
+    "Kesinlikle. Kayıt edin, hizmetleri yayınlayın, rezervasyonları yönetin, ürün satın ve feed'e paylaşın — tek panelden.",
+  "landing.faq4Q": "Mobil uygulama var mı?",
+  "landing.faq4A":
+    "Frame Beauty tam özellikli bir Progressive Web App'tir. iOS ve Android uygulamaları yakında geliyor.",
+  "landing.faq5Q": "Verilerim güvende mi?",
+  "landing.faq5A":
+    "Evet. Sektör standardı şifreleme kullanıyoruz ve verilerinizi asla üçüncü taraflarla paylaflmıyoruz.",
+
+  "landing.trustedInTunisia": "Tunus'ta Güvenilir",
+  "landing.fiveStarReviews": "5 Yıldızlı Yorum",
+
   "landing.ctaTitle": "Deneyimlemeye hazır mısın",
   "landing.ctaSubtitle":
     "Frame Beauty'ye güvenen binlerce müşteri ve salona katıl. Bir sonraki harika deneyimin bir dokunuş uzakta.",

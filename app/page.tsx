@@ -4,6 +4,7 @@
 import { useAuth } from "./_auth"
 import { useEffect, useRef, useState, useCallback, useMemo } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
+import Image from "next/image"
 import { Button } from "./_components/ui/button"
 import { ErrorBoundary } from "./_components/common/errorBoundary"
 import { getHomePath } from "./_lib/profile"
@@ -24,6 +25,11 @@ import {
   Facebook,
   Youtube,
   Linkedin,
+  Apple,
+  Smartphone,
+  Bell,
+  Globe,
+  ChevronDown,
 } from "lucide-react"
 import { SignupFlow, SignInDialog } from "./_auth"
 import { Dialog, DialogContent } from "./_components/ui/dialog"
@@ -171,6 +177,47 @@ const STEP_META = [
    COMPONENT
    ═══════════════════════════════════════════════════════════════════════════ */
 
+// FAQ accordion item — defined outside LandingPage to keep render stable
+function FaqItem({
+  question,
+  answer,
+  delay,
+  inView,
+}: {
+  question: string
+  answer: string
+  delay: number
+  inView: boolean
+}) {
+  const [open, setOpen] = useState(false)
+  return (
+    <div
+      className={`bg-card border-border/50 overflow-hidden rounded-xl border transition-all duration-700 ease-out ${inView ? "translate-y-0 opacity-100" : "translate-y-6 opacity-0"}`}
+      style={{ transitionDelay: `${delay}ms` }}
+    >
+      <button
+        className="flex w-full items-center justify-between px-5 py-4 text-left"
+        onClick={() => setOpen((v) => !v)}
+        aria-expanded={open}
+      >
+        <span className="text-foreground text-sm font-semibold">
+          {question}
+        </span>
+        <ChevronDown
+          className={`text-muted-foreground ml-3 h-4 w-4 flex-shrink-0 transition-transform duration-300 ${open ? "rotate-180" : ""}`}
+        />
+      </button>
+      {open && (
+        <div className="border-border/40 border-t px-5 pt-3 pb-4">
+          <p className="text-muted-foreground text-sm leading-relaxed">
+            {answer}
+          </p>
+        </div>
+      )}
+    </div>
+  )
+}
+
 const LandingPage = () => {
   const { user, isLoading } = useAuth()
   const router = useRouter()
@@ -178,6 +225,8 @@ const LandingPage = () => {
   const { t } = useTranslation()
   const [signupOpen, setSignupOpen] = useState(false)
   const [signinOpen, setSigninOpen] = useState(false)
+  const [notifyEmail, setNotifyEmail] = useState("")
+  const [notifySubmitted, setNotifySubmitted] = useState(false)
   const hasProcessedSigninRef = useRef(false)
 
   const PILLARS = useMemo(
@@ -218,6 +267,9 @@ const LandingPage = () => {
   const statsInView = useInView(0.15)
   const clientsInView = useInView(0.1)
   const b2bInView = useInView(0.1)
+  const testimonialsInView = useInView(0.1)
+  const faqInView = useInView(0.1)
+  const mobileInView = useInView(0.12)
   const ctaInView = useInView(0.15)
 
   const heroParallax = useParallax(0.15)
@@ -415,12 +467,29 @@ const LandingPage = () => {
               style={{ transitionDelay: heroInView.inView ? "650ms" : "0ms" }}
             >
               {[
-                t("landing.freeToUse"),
-                t("landing.noCreditCard"),
-                t("landing.instantBooking"),
-              ].map((text) => (
+                {
+                  text: t("landing.freeToUse"),
+                  icon: CheckCircle2,
+                  color: "text-green-500",
+                },
+                {
+                  text: t("landing.noCreditCard"),
+                  icon: CheckCircle2,
+                  color: "text-green-500",
+                },
+                {
+                  text: t("landing.instantBooking"),
+                  icon: CheckCircle2,
+                  color: "text-green-500",
+                },
+                {
+                  text: t("landing.trustedInTunisia"),
+                  icon: Star,
+                  color: "text-primary",
+                },
+              ].map(({ text, icon: Icon, color }) => (
                 <span key={text} className="inline-flex items-center gap-1.5">
-                  <CheckCircle2 className="h-4 w-4 text-green-500" />
+                  <Icon className={`h-4 w-4 ${color}`} />
                   {text}
                 </span>
               ))}
@@ -628,6 +697,11 @@ const LandingPage = () => {
                   label: t("landing.averageRating"),
                   icon: Star,
                 },
+                {
+                  value: "1k+",
+                  label: t("landing.fiveStarReviews"),
+                  icon: CheckCircle2,
+                },
               ].map((stat, i) => {
                 const Icon = stat.icon
                 return (
@@ -657,6 +731,94 @@ const LandingPage = () => {
         </section>
 
         {/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+            TESTIMONIALS — staggered fade-in cards
+        ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
+        <section
+          ref={testimonialsInView.setRef}
+          className="border-border/50 border-t px-4 py-14 sm:px-6 lg:px-8 lg:py-20"
+        >
+          <div className="mx-auto max-w-5xl">
+            {/* Header */}
+            <div
+              className={`mb-12 text-center transition-all duration-700 ease-out ${testimonialsInView.inView ? "translate-y-0 opacity-100" : "translate-y-8 opacity-0"}`}
+            >
+              <span className="text-primary mb-3 block text-xs font-semibold tracking-widest uppercase">
+                {t("landing.testimonials")}
+              </span>
+              <h2 className="text-foreground text-2xl font-extrabold tracking-tight sm:text-3xl lg:text-4xl">
+                {t("landing.testimonialsTitle")}
+              </h2>
+              <p className="text-muted-foreground mx-auto mt-4 max-w-xl text-sm leading-relaxed sm:text-base">
+                {t("landing.testimonialsSubtitle")}
+              </p>
+            </div>
+            {/* Cards */}
+            <div className="grid gap-5 sm:grid-cols-2">
+              {(
+                [
+                  {
+                    name: t("landing.t1Name"),
+                    role: t("landing.t1Role"),
+                    text: t("landing.t1Text"),
+                  },
+                  {
+                    name: t("landing.t2Name"),
+                    role: t("landing.t2Role"),
+                    text: t("landing.t2Text"),
+                  },
+                  {
+                    name: t("landing.t3Name"),
+                    role: t("landing.t3Role"),
+                    text: t("landing.t3Text"),
+                  },
+                  {
+                    name: t("landing.t4Name"),
+                    role: t("landing.t4Role"),
+                    text: t("landing.t4Text"),
+                  },
+                ] as { name: string; role: string; text: string }[]
+              ).map((item, i) => (
+                <div
+                  key={item.name}
+                  className={`bg-card border-border/50 rounded-2xl border p-6 transition-all duration-700 ease-out ${testimonialsInView.inView ? "translate-y-0 opacity-100" : "translate-y-8 opacity-0"}`}
+                  style={{
+                    transitionDelay: testimonialsInView.inView
+                      ? `${i * 120}ms`
+                      : "0ms",
+                  }}
+                >
+                  {/* Stars */}
+                  <div className="mb-4 flex gap-0.5">
+                    {[...Array(5)].map((_, s) => (
+                      <Star
+                        key={s}
+                        className="text-primary h-4 w-4 fill-current"
+                      />
+                    ))}
+                  </div>
+                  <p className="text-foreground mb-5 text-sm leading-relaxed">
+                    &ldquo;{item.text}&rdquo;
+                  </p>
+                  <div className="flex items-center gap-3">
+                    <div className="bg-primary/15 text-primary flex h-9 w-9 items-center justify-center rounded-full text-sm font-bold">
+                      {item.name.charAt(0)}
+                    </div>
+                    <div>
+                      <div className="text-foreground text-sm font-semibold">
+                        {item.name}
+                      </div>
+                      <div className="text-muted-foreground text-xs">
+                        {item.role}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
             FOR CLIENTS — slide-in right/left
         ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
         <section
@@ -679,29 +841,53 @@ const LandingPage = () => {
                     </div>
                     <div>
                       <div className="text-foreground text-lg font-bold">
-                        {t("landing.clientsCardTitle")}
+                        {t("landing.clientsTitle")
+                          .split("\n")
+                          .map((line, i) => (
+                            <span key={i}>
+                              {i === 0 ? (
+                                line
+                              ) : (
+                                <>
+                                  {line.replace("way", "")} <InlineBrandLogo />
+                                </>
+                              )}
+                              {i === 0 && <br />}
+                            </span>
+                          ))}
                       </div>
-                      <div className="text-muted-foreground text-sm">
-                        {t("landing.clientsCardSubtitle")}
+
+                      <div className="mt-4 grid grid-cols-2 gap-3">
+                        {[
+                          {
+                            icon: <Scissors className="h-4 w-4" />,
+                            label: t("landing.clientsFeat1"),
+                          },
+                          {
+                            icon: <ShoppingBag className="h-4 w-4" />,
+                            label: t("landing.clientsFeat2"),
+                          },
+                          {
+                            icon: <Calendar className="h-4 w-4" />,
+                            label: t("landing.clientsFeat3"),
+                          },
+                          {
+                            icon: <Users className="h-4 w-4" />,
+                            label: t("landing.clientsFeat4"),
+                          },
+                        ].map((item) => (
+                          <div
+                            key={item.label}
+                            className="bg-muted/50 flex items-center gap-3 rounded-lg px-4 py-3"
+                          >
+                            <span className="text-base">{item.icon}</span>
+                            <span className="text-foreground text-sm font-medium">
+                              {item.label}
+                            </span>
+                          </div>
+                        ))}
                       </div>
                     </div>
-                  </div>
-                  <div className="space-y-3">
-                    {[
-                      { label: t("landing.trendingStyles"), icon: "🔥" },
-                      { label: t("landing.savedLounges"), icon: "💜" },
-                      { label: t("landing.upcomingBooking"), icon: "📅" },
-                    ].map((item) => (
-                      <div
-                        key={item.label}
-                        className="bg-muted/50 flex items-center gap-3 rounded-lg px-4 py-3"
-                      >
-                        <span className="text-base">{item.icon}</span>
-                        <span className="text-foreground text-sm font-medium">
-                          {item.label}
-                        </span>
-                      </div>
-                    ))}
                   </div>
                   <div className="mt-6 flex gap-3">
                     <div className="bg-primary/10 text-primary flex-1 rounded-lg py-2.5 text-center text-sm font-semibold">
@@ -733,8 +919,7 @@ const LandingPage = () => {
                           line
                         ) : (
                           <>
-                            {line.replace("way", "")}{" "}
-                            <span className="text-primary">{"way"}</span>
+                            {line.replace("way", "")} <InlineBrandLogo />
                           </>
                         )}
                         {i === 0 && <br />}
@@ -912,6 +1097,218 @@ const LandingPage = () => {
         </section>
 
         {/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+            FAQ
+        ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
+        <section
+          ref={faqInView.setRef}
+          className="border-border/50 border-t px-4 py-14 sm:px-6 lg:px-8 lg:py-20"
+        >
+          <div className="mx-auto max-w-3xl">
+            <div
+              className={`mb-10 text-center transition-all duration-700 ease-out ${faqInView.inView ? "translate-y-0 opacity-100" : "translate-y-8 opacity-0"}`}
+            >
+              <span className="text-primary mb-3 block text-xs font-semibold tracking-widest uppercase">
+                {t("landing.faqEyebrow")}
+              </span>
+              <h2 className="text-foreground text-2xl font-extrabold tracking-tight sm:text-3xl">
+                {t("landing.faqTitle")}
+              </h2>
+              <p className="text-muted-foreground mt-3 text-sm sm:text-base">
+                {t("landing.faqSubtitle")}
+              </p>
+            </div>
+            <div className="space-y-3">
+              {(
+                [
+                  { q: t("landing.faq1Q"), a: t("landing.faq1A") },
+                  { q: t("landing.faq2Q"), a: t("landing.faq2A") },
+                  { q: t("landing.faq3Q"), a: t("landing.faq3A") },
+                  { q: t("landing.faq4Q"), a: t("landing.faq4A") },
+                  { q: t("landing.faq5Q"), a: t("landing.faq5A") },
+                ] as { q: string; a: string }[]
+              ).map((item, i) => (
+                <FaqItem
+                  key={item.q}
+                  question={item.q}
+                  answer={item.a}
+                  delay={faqInView.inView ? i * 80 : 0}
+                  inView={faqInView.inView}
+                />
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+            MOBILE — web available now, native iOS / Android coming soon
+        ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
+        <section
+          ref={mobileInView.setRef}
+          className="border-border/50 from-primary/5 relative overflow-hidden border-t bg-gradient-to-b to-transparent px-4 py-16 sm:px-6 lg:px-8 lg:py-24"
+        >
+          {/* Decorative orbs */}
+          <div
+            aria-hidden
+            className="bg-primary/10 pointer-events-none absolute -top-24 -left-24 h-72 w-72 rounded-full blur-3xl"
+          />
+          <div
+            aria-hidden
+            className="bg-primary/10 pointer-events-none absolute -right-24 -bottom-24 h-72 w-72 rounded-full blur-3xl"
+          />
+
+          <div className="relative mx-auto grid max-w-6xl items-center gap-12 lg:grid-cols-2 lg:gap-16">
+            {/* ── Left: floating logo + status pills ── */}
+            <div
+              className={`relative flex flex-col items-center justify-center transition-all duration-1000 ease-out lg:items-start ${mobileInView.inView ? "translate-y-0 opacity-100" : "translate-y-8 opacity-0"}`}
+            >
+              {/* Glow ring behind logo */}
+              <div className="relative">
+                <div
+                  aria-hidden
+                  className="from-primary/30 absolute inset-0 -z-10 animate-pulse rounded-full bg-gradient-to-tr to-transparent blur-2xl"
+                />
+                <div className="bg-card border-border/50 relative flex h-56 w-56 items-center justify-center rounded-[2.5rem] border shadow-2xl sm:h-64 sm:w-64 lg:h-72 lg:w-72">
+                  <Image
+                    src="/images/logos/fb-logo.png"
+                    alt="Frame Beauty app icon"
+                    width={240}
+                    height={240}
+                    priority
+                    className="h-40 w-40 drop-shadow-xl select-none sm:h-48 sm:w-48 lg:h-56 lg:w-56"
+                    draggable={false}
+                  />
+                  {/* Floating status badge */}
+                  <span className="absolute -top-3 -right-3 inline-flex items-center gap-1.5 rounded-full bg-green-500 px-3 py-1.5 text-xs font-bold text-white shadow-lg">
+                    <span className="relative flex h-2 w-2">
+                      <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-white opacity-75" />
+                      <span className="relative inline-flex h-2 w-2 rounded-full bg-white" />
+                    </span>
+                    {t("landing.mobileLiveNow")}
+                  </span>
+                </div>
+              </div>
+
+              {/* Platform pills */}
+              <div className="mt-8 grid w-full max-w-sm grid-cols-1 gap-3 sm:grid-cols-3">
+                <div className="bg-card border-border/60 flex flex-col items-center gap-1 rounded-xl border p-3 shadow-sm">
+                  <Globe className="text-primary h-5 w-5" />
+                  <span className="text-foreground text-xs font-bold">
+                    {t("landing.mobileWeb")}
+                  </span>
+                  <span className="text-[10px] font-semibold tracking-wide text-green-500 uppercase">
+                    {t("landing.mobileAvailable")}
+                  </span>
+                </div>
+                <div className="bg-card/60 border-border/40 flex flex-col items-center gap-1 rounded-xl border border-dashed p-3">
+                  <Apple className="text-muted-foreground h-5 w-5" />
+                  <span className="text-foreground text-xs font-bold">iOS</span>
+                  <span className="text-muted-foreground text-[10px] font-semibold tracking-wide uppercase">
+                    {t("landing.mobileSoon")}
+                  </span>
+                </div>
+                <div className="bg-card/60 border-border/40 flex flex-col items-center gap-1 rounded-xl border border-dashed p-3">
+                  <Smartphone className="text-muted-foreground h-5 w-5" />
+                  <span className="text-foreground text-xs font-bold">
+                    Android
+                  </span>
+                  <span className="text-muted-foreground text-[10px] font-semibold tracking-wide uppercase">
+                    {t("landing.mobileSoon")}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* ── Right: copy + email capture ── */}
+            <div
+              className={`text-center transition-all duration-1000 ease-out lg:text-start ${mobileInView.inView ? "translate-y-0 opacity-100" : "translate-y-8 opacity-0"}`}
+              style={{ transitionDelay: mobileInView.inView ? "200ms" : "0ms" }}
+            >
+              <span className="text-primary mb-3 inline-block text-sm font-semibold tracking-wider uppercase">
+                {t("landing.mobileEyebrow")}
+              </span>
+              <h2
+                className="text-foreground mb-5 text-3xl font-bold tracking-tight sm:text-4xl lg:text-5xl"
+                style={{ fontFamily: "var(--font-nunito), sans-serif" }}
+              >
+                {t("landing.mobileTitle")}
+              </h2>
+              <p className="text-muted-foreground mb-8 text-lg leading-relaxed">
+                {t("landing.mobileSubtitle")}
+              </p>
+
+              {/* Bullet benefits */}
+              <ul className="mb-8 space-y-3">
+                {[
+                  t("landing.mobileBenefit1"),
+                  t("landing.mobileBenefit2"),
+                  t("landing.mobileBenefit3"),
+                ].map((b, i) => (
+                  <li
+                    key={b}
+                    className={`text-foreground flex items-start gap-3 text-sm transition-all duration-500 ease-out sm:text-base ${mobileInView.inView ? "translate-x-0 opacity-100" : "translate-x-4 opacity-0"}`}
+                    style={{
+                      transitionDelay: mobileInView.inView
+                        ? `${400 + i * 120}ms`
+                        : "0ms",
+                    }}
+                  >
+                    <CheckCircle2 className="text-primary mt-0.5 h-5 w-5 flex-shrink-0" />
+                    <span>{b}</span>
+                  </li>
+                ))}
+              </ul>
+
+              {/* Email capture for mobile launch notification */}
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault()
+                  if (notifyEmail.trim()) setNotifySubmitted(true)
+                }}
+                className="bg-card border-border/60 mx-auto w-full max-w-md rounded-2xl border p-4 shadow-sm lg:mx-0"
+              >
+                {notifySubmitted ? (
+                  <div className="flex items-center justify-center gap-2 py-2 text-sm font-semibold text-green-500">
+                    <CheckCircle2 className="h-5 w-5" />
+                    {t("landing.mobileNotifyThanks")}
+                  </div>
+                ) : (
+                  <>
+                    <label
+                      htmlFor="mobile-notify-email"
+                      className="text-foreground mb-2 flex items-center gap-2 text-sm font-semibold"
+                    >
+                      <Bell className="text-primary h-4 w-4" />
+                      {t("landing.mobileNotifyLabel")}
+                    </label>
+                    <div className="flex flex-col gap-2 sm:flex-row">
+                      <input
+                        id="mobile-notify-email"
+                        type="email"
+                        required
+                        value={notifyEmail}
+                        onChange={(e) => setNotifyEmail(e.target.value)}
+                        placeholder={t("landing.mobileNotifyPlaceholder")}
+                        className="bg-background text-foreground placeholder:text-muted-foreground border-border focus:ring-primary/40 focus:border-primary h-11 flex-1 rounded-lg border px-4 text-sm transition-shadow outline-none focus:ring-2"
+                      />
+                      <Button
+                        type="submit"
+                        className="h-11 px-5 text-sm font-semibold"
+                      >
+                        {t("landing.mobileNotifyButton")}
+                        <ArrowRight className="ml-1.5 h-4 w-4" />
+                      </Button>
+                    </div>
+                    <p className="text-muted-foreground mt-2 text-[11px]">
+                      {t("landing.mobileNotifyDisclaimer")}
+                    </p>
+                  </>
+                )}
+              </form>
+            </div>
+          </div>
+        </section>
+
+        {/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
             FINAL CTA — scale-in
         ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
         <section
@@ -955,7 +1352,7 @@ const LandingPage = () => {
         <footer className="border-border/50 border-t px-4 pt-16 pb-8 sm:px-6 lg:px-8">
           <div className="mx-auto max-w-6xl">
             {/* Top row — brand + links */}
-            <div className="grid grid-cols-2 gap-x-6 gap-y-10 sm:grid-cols-3 lg:grid-cols-5">
+            <div className="grid grid-cols-2 gap-x-6 gap-y-10 sm:grid-cols-4 lg:grid-cols-6">
               {/* Brand column */}
               <div className="col-span-2 sm:col-span-3 lg:col-span-1">
                 <div className="mb-3 flex items-baseline">
@@ -1110,6 +1507,39 @@ const LandingPage = () => {
                 </ul>
               </div>
 
+              {/* Common features (shared by Clients & Lounges) */}
+              <div>
+                <h4 className="text-foreground mb-3 text-sm font-semibold">
+                  {t("footer.common")}
+                </h4>
+                <ul className="text-muted-foreground space-y-2.5 text-sm">
+                  <li>
+                    <button
+                      onClick={openSignUp}
+                      className="hover:text-foreground transition-colors"
+                    >
+                      {t("footer.feed")}
+                    </button>
+                  </li>
+                  <li>
+                    <button
+                      onClick={openSignUp}
+                      className="hover:text-foreground transition-colors"
+                    >
+                      {t("footer.shop")}
+                    </button>
+                  </li>
+                  <li>
+                    <button
+                      onClick={openSignUp}
+                      className="hover:text-foreground transition-colors"
+                    >
+                      {t("marketplace.startSelling")}
+                    </button>
+                  </li>
+                </ul>
+              </div>
+
               {/* For Lounges column */}
               <div>
                 <h4 className="text-foreground mb-3 text-sm font-semibold">
@@ -1121,7 +1551,15 @@ const LandingPage = () => {
                       onClick={openSignUp}
                       className="hover:text-foreground transition-colors"
                     >
-                      {t("footer.registerLounge")}
+                      {t("landing.loungesFeat1")}
+                    </button>
+                  </li>
+                  <li>
+                    <button
+                      onClick={openSignUp}
+                      className="hover:text-foreground text-left transition-colors"
+                    >
+                      {t("landing.loungesFeat3")}
                     </button>
                   </li>
                   <li>
@@ -1129,15 +1567,7 @@ const LandingPage = () => {
                       onClick={openSignUp}
                       className="hover:text-foreground transition-colors"
                     >
-                      {t("footer.dashboard")}
-                    </button>
-                  </li>
-                  <li>
-                    <button
-                      onClick={openSignUp}
-                      className="hover:text-foreground transition-colors"
-                    >
-                      {t("footer.analytics")}
+                      {t("landing.loungesFeat5")}
                     </button>
                   </li>
                 </ul>

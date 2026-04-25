@@ -106,9 +106,9 @@ export function ProductCard({
           </h3>
 
           {/* Short description */}
-          {product.shortDescription && (
+          {product.description && (
             <p className="text-muted-foreground mb-1 line-clamp-2 text-xs">
-              {product.shortDescription}
+              {product.description}
             </p>
           )}
 

@@ -8,7 +8,7 @@ export function ThemeProviderComponent({ children }: { children: ReactNode }) {
   return (
     <ThemeProvider
       attribute="class"
-      defaultTheme="silver-dark"
+      defaultTheme="silver-light"
       enableSystem={false}
       themes={themes.map((t) => t.name)}
       disableTransitionOnChange

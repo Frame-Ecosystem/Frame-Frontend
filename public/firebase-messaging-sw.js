@@ -54,8 +54,8 @@ const ROUTE_MAP = {
 }
 
 const NOTIFICATION_DEFAULTS = {
-  icon: "/images/frameIconLight.png",
-  badge: "/icon.svg",
+  icon: "/images/logos/fb-logo.png",
+  badge: "/images/logos/fb-logo.png",
   renotify: true,
   requireInteraction: true,
   vibrate: [200, 100, 200],

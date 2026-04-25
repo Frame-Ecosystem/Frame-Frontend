@@ -19,7 +19,7 @@ import { useEffect, useRef } from "react"
 const FAVICON_SIZE = 64
 const DOT_RADIUS = 8
 const DOT_COLOR = "#ef4444" // red-500
-const FAVICON_HREF = "/icon.svg"
+const FAVICON_HREF = "/images/logos/fb-logo.png"
 
 // ── Helpers ──────────────────────────────────────────────────
 

@@ -19,9 +19,7 @@ import { Button } from "@/app/_components/ui/button"
 
 export default function StoreAnalyticsPage() {
   const { data: store, isLoading: storeLoading } = useMyStore()
-  const { data: analytics, isLoading: analyticsLoading } = useMyStoreAnalytics(
-    !!store?._id,
-  )
+  const { data: analytics, isLoading: analyticsLoading } = useMyStoreAnalytics()
   const isLoading = storeLoading || analyticsLoading
 
   if (isLoading) {

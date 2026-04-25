@@ -22,6 +22,8 @@ import { NotificationProvider } from "./_providers/notification"
 import { PushNotificationProvider } from "./_providers/push-notification"
 import { PwaInstallProvider } from "./_providers/pwa-install"
 import ServiceWorkerRegister from "./_components/common/serviceWorkerRegister"
+import { ChatPanelProvider } from "./_providers/chat-panel"
+import { ChatDrawer } from "./_systems/chat/components/chat-drawer"
 
 // Client component to handle pathname-based conditional rendering
 import ConditionalHeader from "./_components/layout/conditional-header"
@@ -116,9 +118,15 @@ export const metadata: Metadata = {
 
   // Favicon configuration
   icons: {
-    icon: [{ url: "/icon.svg", type: "image/svg+xml" }],
-    shortcut: [{ url: "/icon.svg", type: "image/svg+xml" }],
-    apple: [{ url: "/icon.svg", type: "image/svg+xml" }],
+    icon: [
+      {
+        url: "/images/logos/fb-logo.png",
+        type: "image/png",
+        sizes: "512x512",
+      },
+    ],
+    shortcut: [{ url: "/images/logos/fb-logo.png", type: "image/png" }],
+    apple: [{ url: "/images/logos/fb-logo.png", type: "image/png" }],
   },
 
   // PWA manifest
@@ -178,11 +186,11 @@ export default function RootLayout({
     // suppressHydrationWarning prevents hydration mismatch warnings from theme changes
     <html lang="fr" suppressHydrationWarning>
       <head>
-        {/* Brand SVG icon (theme-independent, infinitely scalable) */}
-        <link rel="icon" type="image/svg+xml" href="/icon.svg" />
+        {/* Single brand logo used as favicon across all color schemes */}
+        <link rel="icon" type="image/png" href="/images/logos/fb-logo.png" />
 
         {/* Apple touch icon (home screen on iOS) */}
-        <link rel="apple-touch-icon" href="/icon.svg" />
+        <link rel="apple-touch-icon" href="/images/logos/fb-logo.png" />
       </head>
       <body className={`${inter.className} ${nunito.variable}`}>
         {/* PROVIDER HIERARCHY */}
@@ -195,34 +203,41 @@ export default function RootLayout({
             <QueryProvider>
               {/* Auth provider for user authentication state */}
               <AuthProvider>
-                {/* Notification provider for real-time in-app notifications */}
-                <NotificationProvider>
-                  {/* Push notification provider for FCM registration & prompts */}
-                  <PushNotificationProvider>
-                    {/* PWA install prompt for authenticated browser users */}
-                    <PwaInstallProvider>
-                      {/* Swipe navigation for mobile back/forward gestures */}
-                      <SwipeNavigationProvider>
-                        {/* Progress bar for page transition feedback */}
-                        <ProgressProvider>
-                          <ServiceWorkerRegister />
-                          {/* MAIN LAYOUT STRUCTURE */}
-                          {/* Uses flexbox to keep footer at bottom of viewport */}
-                          <div className="flex min-h-screen flex-col">
-                            {/* Header handles top bars and navigation visibility */}
-                            <ConditionalHeader />
-                            {/* Main content area - flex-1 always reserves space */}
-                            <MainContentWrapper>
-                              <AuthGuard>{children}</AuthGuard>
-                            </MainContentWrapper>
-                            {/* Footer - always at the bottom for desktop */}
-                            <ConditionalFooter />
-                          </div>
-                        </ProgressProvider>
-                      </SwipeNavigationProvider>
-                    </PwaInstallProvider>
-                  </PushNotificationProvider>
-                </NotificationProvider>
+                {" "}
+                {/* Chat panel provider — wraps inside Auth so ChatDrawer can use useAuth */}
+                <ChatPanelProvider>
+                  {" "}
+                  {/* Notification provider for real-time in-app notifications */}
+                  <NotificationProvider>
+                    {/* Push notification provider for FCM registration & prompts */}
+                    <PushNotificationProvider>
+                      {/* PWA install prompt for authenticated browser users */}
+                      <PwaInstallProvider>
+                        {/* Swipe navigation for mobile back/forward gestures */}
+                        <SwipeNavigationProvider>
+                          {/* Progress bar for page transition feedback */}
+                          <ProgressProvider>
+                            <ServiceWorkerRegister />
+                            {/* MAIN LAYOUT STRUCTURE */}
+                            {/* Uses flexbox to keep footer at bottom of viewport */}
+                            <div className="flex min-h-screen flex-col">
+                              {/* Global chat drawer — renders Sheet portal for chat panel */}
+                              <ChatDrawer />
+                              {/* Header handles top bars and navigation visibility */}
+                              <ConditionalHeader />
+                              {/* Main content area - flex-1 always reserves space */}
+                              <MainContentWrapper>
+                                <AuthGuard>{children}</AuthGuard>
+                              </MainContentWrapper>
+                              {/* Footer - always at the bottom for desktop */}
+                              <ConditionalFooter />
+                            </div>
+                          </ProgressProvider>
+                        </SwipeNavigationProvider>
+                      </PwaInstallProvider>
+                    </PushNotificationProvider>
+                  </NotificationProvider>{" "}
+                </ChatPanelProvider>{" "}
               </AuthProvider>
             </QueryProvider>
           </ThemeProviderComponent>

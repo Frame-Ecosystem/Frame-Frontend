@@ -17,7 +17,7 @@ import { dictionaries, fallbackDictionary } from "@/app/_i18n/locales"
 
 const RTL_LOCALES = new Set<Locale>(["ar"])
 const STORAGE_KEY = "frame-locale"
-const DEFAULT_LOCALE: Locale = "en"
+const DEFAULT_LOCALE: Locale = "ar"
 const SUPPORTED_LOCALES: Locale[] = ["en", "fr", "ar", "tr"]
 
 // ── Helpers ──────────────────────────────────────────────────────────────

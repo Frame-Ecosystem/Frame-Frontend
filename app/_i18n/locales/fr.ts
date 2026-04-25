@@ -420,6 +420,77 @@ const fr: Record<string, string> = {
   "landing.bookingsToday": "12 réservations aujourd'hui",
   "landing.inQueue": "3 en attente",
 
+  // Mobile (web maintenant / iOS & Android bientôt)
+  "landing.mobileEyebrow": "Partout. Sur tous les appareils.",
+  "landing.mobileTitle":
+    "Disponible sur le web dès maintenant — dans votre poche demain.",
+  "landing.mobileSubtitle":
+    "Frame Beauty est une Progressive Web App complète que vous pouvez utiliser dès maintenant — sans installation ni attente. Les applications iOS et Android sont en cours de développement pour une expérience encore plus fluide.",
+  "landing.mobileBenefit1":
+    "Accédez depuis n'importe quel navigateur — aucun téléchargement requis.",
+  "landing.mobileBenefit2":
+    "Ajoutez à l'écran d'accueil pour une expérience app-like dès aujourd'hui.",
+  "landing.mobileBenefit3":
+    "Recevez une notification dès que nos apps iOS & Android sont disponibles.",
+  "landing.mobileLiveNow": "Disponible",
+  "landing.mobileWeb": "Web app",
+  "landing.mobileAvailable": "Disponible",
+  "landing.mobileSoon": "Bientôt",
+  "landing.mobileNotifyLabel":
+    "Soyez parmi les premiers informés du lancement mobile",
+  "landing.mobileNotifyPlaceholder": "votre@email.com",
+  "landing.mobileNotifyButton": "Me notifier",
+  "landing.mobileNotifyDisclaimer":
+    "Un seul e-mail au lancement. Jamais de spam.",
+  "landing.mobileNotifyThanks":
+    "Vous êtes sur la liste — nous vous contacterons dès le lancement.",
+
+  // Testimonials
+  "landing.testimonials": "Ce que les gens disent",
+  "landing.testimonialsTitle": "De vraies histoires de vraies personnes",
+  "landing.testimonialsSubtitle":
+    "Clients et salons à travers la Tunisie partagent leur expérience avec Frame Beauty.",
+  "landing.t1Name": "Fatma B.",
+  "landing.t1Role": "Cliente de Tunis",
+  "landing.t1Text":
+    "J'appelais trois salons avant de trouver un créneau libre. Maintenant j'ouvre Frame, je choisis et je me présente. C'est tout. Vraiment révolutionnaire.",
+  "landing.t2Name": "Rami K.",
+  "landing.t2Role": "Propriétaire de salon, Sousse",
+  "landing.t2Text":
+    "Nous avons doublé nos réservations en un mois. Le système de file d'attente nous a fait gagner des heures d'appels téléphoniques chaque jour.",
+  "landing.t3Name": "Yasmine H.",
+  "landing.t3Role": "Cliente de Sfax",
+  "landing.t3Text":
+    "Le feed est tellement inspirant — j'ai trouvé ma nouvelle coiffeuse grâce à un reel qu'elle a posté. Frame c'est Instagram + une appli de réservation.",
+  "landing.t4Name": "Hana M.",
+  "landing.t4Role": "Centre de beauté, Ariana",
+  "landing.t4Text":
+    "On gagne de nouveaux clients chaque semaine grâce au marketplace. Lister nos services a pris 10 minutes et les analytics nous aident.",
+
+  // FAQ
+  "landing.faqEyebrow": "Des questions ?",
+  "landing.faqTitle": "Tout ce que vous devez savoir",
+  "landing.faqSubtitle":
+    "Vous ne trouvez pas la réponse ? Contactez notre équipe.",
+  "landing.faq1Q": "Frame Beauty est-il gratuit ?",
+  "landing.faq1A":
+    "Oui — Frame Beauty est entièrement gratuit pour les clients. Pour les salons, nous proposons une inscription gratuite pour commencer.",
+  "landing.faq2Q": "Comment fonctionne le système de réservation ?",
+  "landing.faq2A":
+    "Trouvez un salon, choisissez votre service et créneau, confirmez — fait en quelques secondes. Vous pouvez suivre votre file d'attente en direct.",
+  "landing.faq3Q": "Puis-je gérer mon salon sur Frame Beauty ?",
+  "landing.faq3A":
+    "Absolument. Inscrivez votre salon, publiez vos services, gérez les réservations, vendez des produits et postez dans le feed — tout depuis un tableau de bord.",
+  "landing.faq4Q": "Y a-t-il une application mobile ?",
+  "landing.faq4A":
+    "Frame Beauty est une Progressive Web App complète — ajoutez-la à votre écran d'accueil dès maintenant. Les apps iOS et Android arrivent bientôt.",
+  "landing.faq5Q": "Mes données sont-elles sécurisées ?",
+  "landing.faq5A":
+    "Oui. Nous utilisons le chiffrement standard du secteur et ne vendons jamais vos données à des tiers.",
+
+  "landing.trustedInTunisia": "Fait confiance en Tunisie",
+  "landing.fiveStarReviews": "Avis 5 étoiles",
+
   "landing.ctaTitle": "Prêt à découvrir",
   "landing.ctaSubtitle":
     "Rejoignez des milliers de clients et salons qui font déjà confiance à Frame Beauty. Votre prochaine expérience est à un clic.",

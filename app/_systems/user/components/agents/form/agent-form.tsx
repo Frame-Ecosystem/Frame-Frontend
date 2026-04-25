@@ -196,7 +196,7 @@ export function AgentForm({
         })
       } else {
         const createData: CreateAgentDto = {
-          email: formData.email!,
+          email: (formData as CreateAgentDto).email!,
           ...(formData.phoneNumber && { phoneNumber: formData.phoneNumber }),
           agentName: formData.agentName!,
           password: formData.password!,
@@ -276,7 +276,7 @@ export function AgentForm({
               id="email"
               type="email"
               autoComplete="off"
-              value={formData.email || ""}
+              value={(formData as CreateAgentDto).email || ""}
               onChange={(e) => handleInputChange("email", e.target.value)}
               placeholder="agent@example.com"
               disabled={!!agent}

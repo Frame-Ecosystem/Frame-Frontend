@@ -170,6 +170,15 @@ NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=<FCM sender ID>
 NEXT_PUBLIC_FIREBASE_APP_ID=<Firebase app ID>
 NEXT_PUBLIC_FIREBASE_VAPID_KEY=<FCM VAPID key>
 NEXT_PUBLIC_GOOGLE_CLIENT_ID=<Google OAuth client ID>
+
+### Deploying to Vercel
+
+1. Create a new project on Vercel and connect your Git repository.
+2. Add environment variables from `.env.example` to the Vercel project settings (Production & Preview).
+3. Set the build command to `npm run vercel-build` and the output directory to `.next` (Vercel autoconfigures for Next.js usually).
+4. Push to your main branch — Vercel will build and deploy automatically.
+
+If you need to serve on a custom port locally for testing, `npm run dev` uses port `2111` by default.
 ```
 
 ---

@@ -247,6 +247,7 @@ const en: Record<string, string> = {
   "footer.platform": "Platform",
   "footer.feed": "Feed",
   "footer.shop": "Shop",
+  "footer.common": "Common",
   "footer.book": "Book",
   "footer.forClients": "For Clients",
   "footer.discoverStyles": "Discover Styles",
@@ -308,7 +309,7 @@ const en: Record<string, string> = {
   "footer.description":
     "The all-in-one platform to discover trends, shop beauty products, and book appointments at top-rated centers near you.",
   "footer.copyright": "Frame Beauty. All rights reserved.",
-  "footer.madeIn": "Crafted with care in Tunisia",
+  "footer.madeIn": "Crafted with care in Tunisia Ksar Gafsa 2111",
   "footer.forLounges": "For Lounges",
   "footer.registerLounge": "Register Your Lounge",
   "footer.analytics": "Analytics",
@@ -397,11 +398,11 @@ const en: Record<string, string> = {
   "landing.loungesTitle": "Grow your business\nwith",
   "landing.loungesSubtitle":
     "Publish to the feed, list your products in the marketplace, and manage your bookings — all from one powerful dashboard.",
-  "landing.loungesFeat1": "Publish posts & reels to the feed",
+  "landing.loungesFeat1": "Showcase your work",
   "landing.loungesFeat2": "List & sell products in the shop",
-  "landing.loungesFeat3": "Online booking & live queue management",
+  "landing.loungesFeat3": "Live booking & queue management",
   "landing.loungesFeat4": "Ratings & reviews to build trust",
-  "landing.loungesFeat5": "Analytics & client insights dashboard",
+  "landing.loungesFeat5": "Dashboard & Analytics",
   "landing.registerLounge": "Register Your Lounge",
   "landing.studioElite": "Studio Elite",
   "landing.premiumSalon": "Premium Salon — 4.9 ★",
@@ -413,6 +414,78 @@ const en: Record<string, string> = {
   "landing.fullPackagePrice": "45 TND",
   "landing.bookingsToday": "12 bookings today",
   "landing.inQueue": "3 in queue",
+
+  // Mobile (web now / iOS & Android coming soon)
+  "landing.mobileEyebrow": "Anywhere. Any device.",
+  "landing.mobileTitle": "Live on the web today — in your pocket tomorrow.",
+  "landing.mobileSubtitle":
+    "Frame Beauty is a fully featured Progressive Web App you can use right now — no install, no waiting. Native iOS and Android apps are on the way for an even smoother on-the-go experience.",
+  "landing.mobileBenefit1":
+    "Use it instantly in any browser — zero downloads, zero friction.",
+  "landing.mobileBenefit2":
+    "Add to your home screen for an app-like experience today.",
+  "landing.mobileBenefit3":
+    "Get notified the day our iOS & Android apps go live on the stores.",
+  "landing.mobileLiveNow": "Live now",
+  "landing.mobileWeb": "Web app",
+  "landing.mobileAvailable": "Available",
+  "landing.mobileSoon": "Coming soon",
+  "landing.mobileNotifyLabel": "Be first to know when we launch on mobile",
+  "landing.mobileNotifyPlaceholder": "your@email.com",
+  "landing.mobileNotifyButton": "Notify me",
+  "landing.mobileNotifyDisclaimer":
+    "We’ll only email you about the mobile launch. No spam, ever.",
+  "landing.mobileNotifyThanks":
+    "You’re on the list — we’ll be in touch the moment we launch.",
+
+  // Testimonials
+  "landing.testimonials": "What people say",
+  "landing.testimonialsTitle": "Real stories from real people",
+  "landing.testimonialsSubtitle":
+    "Clients and lounges across Tunisia share their experience with Frame Beauty.",
+  "landing.t1Name": "Fatma B.",
+  "landing.t1Role": "Client from Tunis",
+  "landing.t1Text":
+    "I used to call three salons before finding a free slot. Now I open Frame, pick a time, and show up. That's it. Total game changer.",
+  "landing.t2Name": "Rami K.",
+  "landing.t2Role": "Lounge owner, Sousse",
+  "landing.t2Text":
+    "We doubled our bookings in the first month. The queue system alone saved us hours of phone calls every day. Best business decision we made.",
+  "landing.t3Name": "Yasmine H.",
+  "landing.t3Role": "Client from Sfax",
+  "landing.t3Text":
+    "The feed is so inspiring — I found my new go-to hairdresser through a reel she posted. Frame is basically Instagram + a booking app combined.",
+  "landing.t4Name": "Hana M.",
+  "landing.t4Role": "Beauty center, Ariana",
+  "landing.t4Text":
+    "We get new clients every week just from the marketplace. Listing our services took 10 minutes and the analytics help us understand what's working.",
+
+  // FAQ
+  "landing.faqEyebrow": "Got questions?",
+  "landing.faqTitle": "Everything you need to know",
+  "landing.faqSubtitle":
+    "Can't find the answer you're looking for? Reach out to our team.",
+  "landing.faq1Q": "Is Frame Beauty free to use?",
+  "landing.faq1A":
+    "Yes — Frame Beauty is completely free for clients. Browse the feed, shop, and book appointments at no cost. For beauty centers, we offer a free listing to get started.",
+  "landing.faq2Q": "How does the booking system work?",
+  "landing.faq2A":
+    "Find a lounge, pick your service and time slot, and confirm — it's done in seconds. You'll get a confirmation and can track your queue status live from the app.",
+  "landing.faq3Q": "Can I run my salon on Frame Beauty?",
+  "landing.faq3A":
+    "Absolutely. Register your lounge, publish your services, manage bookings, sell products, and post to the feed — all from one dashboard built for beauty professionals.",
+  "landing.faq4Q": "Is there a mobile app?",
+  "landing.faq4A":
+    "Frame Beauty is a full Progressive Web App — add it to your home screen for an app-like experience on any device right now. Native iOS and Android apps are coming soon.",
+  "landing.faq5Q": "Is my data safe?",
+  "landing.faq5A":
+    "Yes. We use industry-standard security, encrypted connections, and never sell your data to third parties. Your privacy is our baseline, not an afterthought.",
+
+  // Enhanced hero trust bar
+  "landing.trustedInTunisia": "Trusted in Tunisia",
+
+  // Enhanced stats
+  "landing.fiveStarReviews": "5-Star Reviews",
 
   // CTA
   "landing.ctaTitle": "Ready to experience",

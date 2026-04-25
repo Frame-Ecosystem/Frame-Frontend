@@ -1,0 +1,10 @@
+node_modules
+.next
+/.turbo
+.env
+.env.*
+.vercel
+/.git
+dist
+.DS_Store
+public/images/**/fb*

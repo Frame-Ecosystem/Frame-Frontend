@@ -29,13 +29,13 @@ const NotificationButton = ({ compact }: NotificationButtonProps) => {
     <Button
       variant="ghost"
       size="icon"
-      className={`hover:bg-primary/10 relative flex items-center gap-2 rounded-full ${compact ? "h-8 w-8" : ""}`}
+      className={`hover:bg-primary/10 relative flex items-center gap-2 rounded-full ${compact ? "h-10 w-10" : ""}`}
       onClick={() => router.push("/notifications")}
     >
       <div
-        className={`border-primary/30 relative flex items-center justify-center rounded-full border ${compact ? "h-8 w-8" : "h-9 w-9"}`}
+        className={`border-primary/30 relative flex items-center justify-center rounded-full border ${compact ? "h-10 w-10" : "h-10 w-10"}`}
       >
-        <Bell className={compact ? "h-4 w-4" : "h-5 w-5"} />
+        <Bell className={compact ? "h-5 w-5" : "h-5 w-5"} />
         {unreadCount > 0 && (
           <Badge
             variant="destructive"

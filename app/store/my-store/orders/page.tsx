@@ -36,9 +36,8 @@ const STATUS_COLORS: Record<string, string> = {
 
 export default function StoreOrdersPage() {
   const [statusFilter, setStatusFilter] = useState<OrderStatus | "all">("all")
-  const { data: store, isLoading: isStoreLoading } = useMyStore()
+  const { isLoading: isStoreLoading } = useMyStore()
   const { data, isLoading } = useMyStoreOrders(
-    store?._id,
     statusFilter !== "all" ? { status: statusFilter } : undefined,
   )
   const updateStatus = useUpdateOrderStatus()

@@ -24,6 +24,7 @@ import { RatingSummaryBadge } from "@/app/_components/common/star-rating"
 import ReviewsList from "@/app/_components/common/reviews-list"
 import { useMyRating, useCheckLiked, useToggleLike } from "@/app/_hooks/queries"
 import { FollowButton } from "@/app/_components/common/follow-button"
+import { MessageButton } from "@/app/_components/common/message-button"
 import { FollowStats } from "@/app/_components/common/follow-stats"
 import InfoDisplay from "@/app/_components/lounges/info-display"
 import OurServices from "@/app/_components/services/our-services"
@@ -521,10 +522,11 @@ export default function LoungePage() {
             <FollowStats userId={id} />
           </div>
 
-          {/* Follow button */}
+          {/* Follow + Message buttons */}
           {user?.type === "client" && (
-            <div className="mt-3">
+            <div className="mt-3 flex items-center gap-3">
               <FollowButton targetId={id} />
+              <MessageButton recipientId={id} />
             </div>
           )}
         </div>

@@ -172,15 +172,12 @@ export default function ProductDetailPage() {
             />
 
             {/* Stock */}
-            <StockIndicator
-              stock={product.stock}
-              threshold={product.lowStockThreshold}
-            />
+            <StockIndicator stock={product.stock} />
 
             {/* Short description */}
-            {product.shortDescription && (
+            {product.description && (
               <p className="text-muted-foreground line-clamp-3 text-sm">
-                {product.shortDescription}
+                {product.description}
               </p>
             )}
 

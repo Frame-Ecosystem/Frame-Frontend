@@ -2,7 +2,14 @@
 
 import { useState, useMemo, useRef, useEffect } from "react"
 import { createPortal } from "react-dom"
-import { RefreshCw, FileText, Film, Users, Compass } from "lucide-react"
+import {
+  RefreshCw,
+  FileText,
+  Film,
+  Users,
+  Compass,
+  type LucideIcon,
+} from "lucide-react"
 import Link from "next/link"
 import { Button } from "@/app/_components/ui/button"
 import { Card, CardContent } from "@/app/_components/ui/card"
@@ -24,14 +31,18 @@ import { getProfilePath } from "@/app/_lib/profile"
 import type { FeedItem } from "@/app/_types/content"
 import { useTranslation } from "@/app/_i18n"
 
+// ── Types & Constants ──────────────────────────────────────────
+
+type FeedTab = "explore" | "following"
+
+const DEFAULT_TAB: FeedTab = "explore"
+
 export function PostFeed() {
   const { t } = useTranslation()
   const { user } = useAuth()
   const [showPostDialog, setShowPostDialog] = useState(false)
   const [showReelDialog, setShowReelDialog] = useState(false)
-  const [activeTab, setActiveTab] = useState<"following" | "explore">(
-    "following",
-  )
+  const [activeTab, setActiveTab] = useState<FeedTab>(DEFAULT_TAB)
 
   const profileImage =
     typeof user?.profileImage === "string"
@@ -45,23 +56,26 @@ export function PostFeed() {
 
   const feed = activeTab === "following" ? following : explore
 
-  // Track when inline tabs scroll out of their natural position → show floating side nav
-  // We use a scroll listener checking the sentinel's position (more reliable than IO for h-0 elements)
-  const sentinelRef = useRef<HTMLDivElement>(null)
+  // ── Floating nav visibility ─────────────────────────────────
+  // Show the floating icon nav when the inline tab bar scrolls out of view.
+  // Uses IntersectionObserver for performant, reliable detection.
+  const tabsRef = useRef<HTMLDivElement>(null)
   const [tabsHidden, setTabsHidden] = useState(false)
   const [mounted, setMounted] = useState(false)
 
-  useEffect(() => setMounted(true), []) // eslint-disable-line react-hooks/set-state-in-effect -- mount flag
+  useEffect(() => setMounted(true), []) // eslint-disable-line react-hooks/set-state-in-effect -- one-time mount flag
 
   useEffect(() => {
-    const onScroll = () => {
-      const el = sentinelRef.current
-      if (!el) return
-      // When the sentinel scrolls above the viewport, the sticky tabs are "stuck"
-      setTabsHidden(el.getBoundingClientRect().bottom < 0)
-    }
-    window.addEventListener("scroll", onScroll, { passive: true })
-    return () => window.removeEventListener("scroll", onScroll)
+    const el = tabsRef.current
+    if (!el) return
+
+    const observer = new IntersectionObserver(
+      ([entry]) => setTabsHidden(!entry.isIntersecting),
+      { threshold: 0 },
+    )
+
+    observer.observe(el)
+    return () => observer.disconnect()
   }, [])
 
   // Mixed feed: posts + reels together as the backend intended
@@ -158,33 +172,23 @@ export function PostFeed() {
         </>
       )}
 
-      {/* Sentinel — scrolls away normally; scroll listener checks when it leaves viewport */}
-      <div ref={sentinelRef} className="h-px" aria-hidden />
-
-      {/* Feed tab toggle — sticky under top bar (mobile) / desktop nav */}
-      <div className="bg-background/95 border-border sticky top-0 z-[9998] -mx-5 flex border-b backdrop-blur-sm lg:-mx-8">
-        <button
-          onClick={() => setActiveTab("following")}
-          className={`flex flex-1 items-center justify-center gap-2 py-3 text-sm font-medium transition ${
-            activeTab === "following"
-              ? "border-primary text-foreground border-b-2"
-              : "text-muted-foreground hover:text-foreground"
-          }`}
-        >
-          <Users className="h-4 w-4" />
-          {t("postFeed.following")}
-        </button>
-        <button
+      {/* Inline tab bar — scrolls naturally with the page (never fixed) */}
+      <div
+        ref={tabsRef}
+        className="bg-background/95 border-border -mx-5 flex border-b backdrop-blur-sm lg:-mx-8"
+      >
+        <InlineTabButton
+          active={activeTab === "explore"}
           onClick={() => setActiveTab("explore")}
-          className={`flex flex-1 items-center justify-center gap-2 py-3 text-sm font-medium transition ${
-            activeTab === "explore"
-              ? "border-primary text-foreground border-b-2"
-              : "text-muted-foreground hover:text-foreground"
-          }`}
-        >
-          <Compass className="h-4 w-4" />
-          {t("postFeed.explore")}
-        </button>
+          icon={Compass}
+          label={t("postFeed.explore")}
+        />
+        <InlineTabButton
+          active={activeTab === "following"}
+          onClick={() => setActiveTab("following")}
+          icon={Users}
+          label={t("postFeed.following")}
+        />
       </div>
 
       {/* Mixed feed: posts + reels */}
@@ -197,41 +201,122 @@ export function PostFeed() {
         emptyType="feed"
       />
 
-      {/* Floating icon buttons — portaled to body to escape ancestor transforms */}
+      {/* Floating tab nav — only visible when inline tabs scroll out of view */}
       {mounted &&
         createPortal(
-          <div
-            className={`fixed top-1/2 right-3 z-[99999] flex -translate-y-1/2 flex-col gap-2 transition-all duration-300 lg:right-6 ${
-              tabsHidden
-                ? "pointer-events-auto translate-x-0 opacity-100"
-                : "pointer-events-none translate-x-12 opacity-0"
-            }`}
-          >
-            <button
-              aria-label="Following"
-              onClick={() => setActiveTab("following")}
-              className={`flex h-10 w-10 items-center justify-center rounded-full shadow-lg transition-all ${
-                activeTab === "following"
-                  ? "bg-primary text-primary-foreground shadow-primary/25"
-                  : "bg-background/90 text-muted-foreground border-border hover:bg-muted border"
-              }`}
-            >
-              <Users className="h-5 w-5" />
-            </button>
-            <button
-              aria-label="Explore"
-              onClick={() => setActiveTab("explore")}
-              className={`flex h-10 w-10 items-center justify-center rounded-full shadow-lg transition-all ${
-                activeTab === "explore"
-                  ? "bg-primary text-primary-foreground shadow-primary/25"
-                  : "bg-background/90 text-muted-foreground border-border hover:bg-muted border"
-              }`}
-            >
-              <Compass className="h-5 w-5" />
-            </button>
-          </div>,
+          <FloatingTabNav
+            visible={tabsHidden}
+            activeTab={activeTab}
+            onTabChange={setActiveTab}
+            exploreLabel={t("postFeed.explore")}
+            followingLabel={t("postFeed.following")}
+          />,
           document.body,
         )}
     </div>
+  )
+}
+
+// ── Sub-components ─────────────────────────────────────────────
+
+interface InlineTabButtonProps {
+  active: boolean
+  onClick: () => void
+  icon: LucideIcon
+  label: string
+}
+
+function InlineTabButton({
+  active,
+  onClick,
+  icon: Icon,
+  label,
+}: InlineTabButtonProps) {
+  return (
+    <button
+      onClick={onClick}
+      aria-pressed={active}
+      className={`flex flex-1 items-center justify-center gap-2 py-3 text-sm font-medium transition-colors ${
+        active
+          ? "border-primary text-foreground border-b-2"
+          : "text-muted-foreground hover:text-foreground"
+      }`}
+    >
+      <Icon className="h-4 w-4" />
+      {label}
+    </button>
+  )
+}
+
+interface FloatingTabNavProps {
+  visible: boolean
+  activeTab: FeedTab
+  onTabChange: (tab: FeedTab) => void
+  exploreLabel: string
+  followingLabel: string
+}
+
+function FloatingTabNav({
+  visible,
+  activeTab,
+  onTabChange,
+  exploreLabel,
+  followingLabel,
+}: FloatingTabNavProps) {
+  return (
+    <div
+      aria-hidden={!visible}
+      className={`fixed top-1/2 right-3 z-50 flex -translate-y-1/2 flex-col gap-3 transition-all duration-300 ease-out lg:right-6 ${
+        visible
+          ? "pointer-events-auto translate-x-0 opacity-100"
+          : "pointer-events-none translate-x-16 opacity-0"
+      }`}
+    >
+      <FloatingTabButton
+        active={activeTab === "explore"}
+        onClick={() => onTabChange("explore")}
+        icon={Compass}
+        label={exploreLabel}
+      />
+      <FloatingTabButton
+        active={activeTab === "following"}
+        onClick={() => onTabChange("following")}
+        icon={Users}
+        label={followingLabel}
+      />
+    </div>
+  )
+}
+
+interface FloatingTabButtonProps {
+  active: boolean
+  onClick: () => void
+  icon: LucideIcon
+  label: string
+}
+
+function FloatingTabButton({
+  active,
+  onClick,
+  icon: Icon,
+  label,
+}: FloatingTabButtonProps) {
+  return (
+    <button
+      onClick={onClick}
+      aria-label={label}
+      aria-pressed={active}
+      title={label}
+      className={`group relative flex h-12 w-12 items-center justify-center rounded-full border shadow-lg transition-all duration-200 ${
+        active
+          ? "bg-primary text-primary-foreground border-primary shadow-primary/40"
+          : "bg-background border-border text-muted-foreground hover:text-foreground hover:bg-muted"
+      }`}
+    >
+      <Icon className="h-5 w-5" />
+      <span className="bg-foreground text-background pointer-events-none absolute right-full mr-3 hidden rounded-lg px-2.5 py-1.5 text-xs font-medium whitespace-nowrap shadow-md group-hover:block">
+        {label}
+      </span>
+    </button>
   )
 }

@@ -4,7 +4,8 @@ import { useEffect, useRef, useCallback, useState } from "react"
 import { usePathname } from "next/navigation"
 
 // ── Constants ────────────────────────────────────────────────
-const PULL_THRESHOLD = 80 // px needed to trigger refresh
+const TOUCH_START_TOP_ZONE = 96 // touch must begin near the top edge
+const PULL_THRESHOLD = 120 // stronger pull required to trigger refresh
 const MAX_PULL_DISTANCE = 140 // clamped max pull
 const RELOAD_DELAY_MS = 600
 const INDICATOR_ID = "pull-refresh-indicator"
@@ -172,8 +173,12 @@ export function usePullToRefresh() {
       if (disabledRoute || !enabled) return
       // Only start if already at the top of the page
       if (window.scrollY > 0 || refreshing.current) return
-      startY.current = e.touches[0].clientY
-      startX.current = e.touches[0].clientX
+
+      const touch = e.touches[0]
+      if (touch.clientY > TOUCH_START_TOP_ZONE) return
+
+      startY.current = touch.clientY
+      startX.current = touch.clientX
       pulling.current = true
       isVerticalGesture.current = null
       distance.current = 0
