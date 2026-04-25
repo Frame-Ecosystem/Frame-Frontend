@@ -1,14 +1,45 @@
 // API Base Configuration
 import { withCsrfHeader, isStateChanging } from "@/app/_auth"
-export const API_BASE_URL =
-  typeof window !== "undefined"
-    ? `${window.location.protocol}//${window.location.hostname}:3000`
-    : "http://localhost:3000"
 
-// Google Auth: force localhost for OAuth redirects to avoid using LAN IP
-// Use GOOGLE_AUTH_LOCAL_API_URL if explicitly provided, otherwise default to localhost.
+const LOCAL_API_FALLBACK = "http://localhost:3000"
+
+function normalizeBaseUrl(value?: string | null): string | null {
+  if (!value) return null
+  const trimmed = value.trim()
+  if (!trimmed) return null
+  return trimmed.replace(/\/+$/, "")
+}
+
+function getBrowserLocalApiUrl(): string {
+  if (typeof window === "undefined") return LOCAL_API_FALLBACK
+  return `${window.location.protocol}//${window.location.hostname}:3000`
+}
+
+/**
+ * Primary API base URL used by all REST and socket clients.
+ * Resolution order:
+ * 1) NEXT_PUBLIC_API_URL
+ * 2) Browser host + :3000 (dev fallback)
+ * 3) localhost fallback (SSR/build-time fallback)
+ */
+export const API_BASE_URL =
+  normalizeBaseUrl(process.env.NEXT_PUBLIC_API_URL) ??
+  normalizeBaseUrl(getBrowserLocalApiUrl()) ??
+  LOCAL_API_FALLBACK
+
+/**
+ * OAuth base URL can be overridden independently when needed.
+ * Resolution order:
+ * 1) NEXT_PUBLIC_GOOGLE_AUTH_BASE_URL
+ * 2) GOOGLE_AUTH_LOCAL_API_URL (backward compatibility)
+ * 3) NEXT_PUBLIC_API_URL
+ * 4) localhost fallback
+ */
 export const GOOGLE_AUTH_BASE_URL =
-  process.env.GOOGLE_AUTH_LOCAL_API_URL || "http://localhost:3000"
+  normalizeBaseUrl(process.env.NEXT_PUBLIC_GOOGLE_AUTH_BASE_URL) ??
+  normalizeBaseUrl(process.env.GOOGLE_AUTH_LOCAL_API_URL) ??
+  normalizeBaseUrl(process.env.NEXT_PUBLIC_API_URL) ??
+  LOCAL_API_FALLBACK
 
 class ApiClient {
   private baseUrl: string

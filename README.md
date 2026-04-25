@@ -79,6 +79,7 @@ graph TB
 | **Marketplace**     | `app/_systems/marketplace/`     | [README](app/_systems/marketplace/README.md)     | Stores, products, orders, cart, checkout, reviews, wishlists, product categories              |
 | **Notifications**   | `app/_systems/notifications/`   | [README](app/_systems/notifications/README.md)   | Real-time socket notifications, FCM push, sounds, deep-link navigation, 27 notification types |
 | **Admin**           | `app/_systems/admin/`           | [README](app/_systems/admin/README.md)           | User moderation, content control, reports, system health, activity logs                       |
+| **Chat**            | `app/_systems/chat/`            | _TBD_                                            | Real-time conversations, reactions, typing indicators, attachments                             |
 
 ---
 
@@ -112,7 +113,8 @@ app/
 │   ├── service-catalog/        Service hierarchy & ratings
 │   ├── marketplace/            E-commerce (stores, products, orders)
 │   ├── notifications/          Notifications & push
-│   └── admin/                  Platform administration
+│   ├── admin/                  Platform administration
+│   └── chat/                   Real-time messaging
 ├── _components/                UI components (mirrors _systems domains)
 ├── _hooks/                     Shared hooks
 ├── _lib/                       Utility functions
@@ -163,6 +165,7 @@ Create a `.env.local` with:
 
 ```env
 NEXT_PUBLIC_API_URL=https://backend-server-dob4.onrender.com
+NEXT_PUBLIC_GOOGLE_AUTH_BASE_URL=<optional OAuth API base URL override>
 NEXT_PUBLIC_FIREBASE_API_KEY=<Firebase API key>
 NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=<Firebase auth domain>
 NEXT_PUBLIC_FIREBASE_PROJECT_ID=<Firebase project ID>
@@ -170,6 +173,7 @@ NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=<FCM sender ID>
 NEXT_PUBLIC_FIREBASE_APP_ID=<Firebase app ID>
 NEXT_PUBLIC_FIREBASE_VAPID_KEY=<FCM VAPID key>
 NEXT_PUBLIC_GOOGLE_CLIENT_ID=<Google OAuth client ID>
+```
 
 ### Deploying to Vercel
 
@@ -179,7 +183,6 @@ NEXT_PUBLIC_GOOGLE_CLIENT_ID=<Google OAuth client ID>
 4. Push to your main branch — Vercel will build and deploy automatically.
 
 If you need to serve on a custom port locally for testing, `npm run dev` uses port `2111` by default.
-```
 
 ---
 
