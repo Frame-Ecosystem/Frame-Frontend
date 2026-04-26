@@ -120,6 +120,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       if (token) {
         tokenManager.set(token, expiresIn || DEFAULT_EXPIRES_IN)
+        // Ensure ApiClient uses the token immediately to avoid races
+        apiClient.setAccessTokenGetter(() => token)
         setAccessToken(token)
         // Establish Socket.IO connection now that we have a token
         getSocket()
