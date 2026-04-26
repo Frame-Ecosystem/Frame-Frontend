@@ -45,7 +45,7 @@ class ApiClient {
   private baseUrl: string
   private _getAccessToken: (() => string | null) | null = null
   private refreshTokenCallback: (() => Promise<string | null>) | null = null
-  private authFailureCallback: (() => void) | null = null
+  private authFailureCallback: ((info?: any) => void) | null = null
   private defaultTimeout = 30_000 // 30 seconds
 
   constructor(baseUrl: string = API_BASE_URL) {
@@ -68,7 +68,8 @@ class ApiClient {
   }
 
   // Set callback for authentication failure (redirect to root)
-  setAuthFailureCallback(callback: () => void) {
+  // The callback may receive an optional diagnostic object when debug enabled.
+  setAuthFailureCallback(callback: (info?: any) => void) {
     this.authFailureCallback = callback
   }
 
@@ -119,6 +120,11 @@ class ApiClient {
         this.defaultTimeout,
       )
 
+      // compute debug flag at runtime to avoid SSR errors
+      const isDebug =
+        typeof window !== "undefined" &&
+        localStorage.getItem("frame:debugAuth") === "true"
+
       let response: Response
       try {
         response = await fetch(url, {
@@ -131,6 +137,18 @@ class ApiClient {
         clearTimeout(timeoutId)
       }
 
+      // Small request-level debug trace (enable by setting
+      // `localStorage.setItem('frame:debugAuth','true')` in the browser)
+      try {
+        if (isDebug && typeof window !== "undefined") {
+          try {
+            // Mask token for safety
+            const masked = token ? `${String(token).slice(0, 8)}...` : null
+            console.debug("[apiClient] FETCH", { url, method, masked })
+          } catch {}
+        }
+      } catch {}
+
       // For authenticated endpoints, try token refresh on 401
       if (
         response.status === 401 &&
@@ -141,7 +159,18 @@ class ApiClient {
           typeof window !== "undefined" &&
           localStorage.getItem("hasRefreshToken") === "true"
         if (!hasSessionFlag && !token) {
-          if (!apiOptions?.suppressAuthFailure) this.authFailureCallback?.()
+          // Record debug info before triggering global auth-failure
+          if (isDebug && typeof window !== "undefined") {
+            try {
+              ;(window as any).__lastApiError = {
+                url,
+                status: response.status,
+                reason: "noSessionFlag_and_no_token",
+              }
+            } catch {}
+          }
+          if (!apiOptions?.suppressAuthFailure)
+            this.authFailureCallback?.({ url, status: response.status })
           throw new Error("AUTH_FAILURE")
         } else {
           const newToken = await this.refreshTokenCallback()
@@ -159,7 +188,17 @@ class ApiClient {
               signal: AbortSignal.timeout(this.defaultTimeout),
             })
           } else {
-            if (!apiOptions?.suppressAuthFailure) this.authFailureCallback?.()
+            if (isDebug && typeof window !== "undefined") {
+              try {
+                ;(window as any).__lastApiError = {
+                  url,
+                  status: response.status,
+                  reason: "refresh_failed",
+                }
+              } catch {}
+            }
+            if (!apiOptions?.suppressAuthFailure)
+              this.authFailureCallback?.({ url, status: response.status })
             throw new Error("AUTH_FAILURE")
           }
         }
@@ -167,7 +206,13 @@ class ApiClient {
 
       // Still 401 after refresh — auth failure (skip for public auth endpoints)
       if (response.status === 401 && !isPublicAuth) {
-        if (!apiOptions?.suppressAuthFailure) this.authFailureCallback?.()
+        if (isDebug && typeof window !== "undefined") {
+          try {
+            ;(window as any).__lastApiError = { url, status: response.status }
+          } catch {}
+        }
+        if (!apiOptions?.suppressAuthFailure)
+          this.authFailureCallback?.({ url, status: response.status })
         throw new Error("AUTH_FAILURE")
       }
 
@@ -175,6 +220,21 @@ class ApiClient {
         const error = await response.json().catch(() => ({}))
         const message = error.message || `API Error: ${response.statusText}`
         const errorCode: string | undefined = error.code
+
+        if (isDebug && typeof window !== "undefined") {
+          try {
+            ;(window as any).__lastApiError = {
+              url,
+              status: response.status,
+              message,
+              body: error,
+            }
+            console.warn(
+              "[apiClient] Non-OK response",
+              (window as any).__lastApiError,
+            )
+          } catch {}
+        }
 
         // Blocked/suspended account — surface a clear message instead of
         // silently redirecting to sign-in.
@@ -189,7 +249,12 @@ class ApiClient {
             ;(err as any).code = errorCode || "ACCOUNT_BLOCKED"
           } catch {}
           // Still clear auth so the user isn't stuck in a bad state
-          if (!apiOptions?.suppressAuthFailure) this.authFailureCallback?.()
+          if (!apiOptions?.suppressAuthFailure)
+            this.authFailureCallback?.({
+              url,
+              status: response.status,
+              code: errorCode,
+            })
           throw err
         }
 
@@ -202,7 +267,12 @@ class ApiClient {
               message,
             )
           if (isAuthError) {
-            if (!apiOptions?.suppressAuthFailure) this.authFailureCallback?.()
+            if (!apiOptions?.suppressAuthFailure)
+              this.authFailureCallback?.({
+                url,
+                status: response.status,
+                message,
+              })
             throw new Error("AUTH_FAILURE")
           }
         }
@@ -216,6 +286,15 @@ class ApiClient {
 
       return response.json()
     } catch (error) {
+      if (typeof window !== "undefined") {
+        try {
+          ;(window as any).__lastApiError = {
+            url,
+            error: error instanceof Error ? error.message : String(error),
+          }
+        } catch {}
+      }
+
       if (error instanceof Error) {
         if (error.name === "AbortError" || error.name === "TimeoutError") {
           throw new Error("Request timed out. Please try again.")

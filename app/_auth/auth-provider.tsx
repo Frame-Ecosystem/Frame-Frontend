@@ -143,10 +143,35 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [])
 
   // Handle authentication failure — clear auth and redirect to root with sign-in dialog
-  const handleAuthFailure = useCallback(() => {
-    clearAuth()
-    router.push("/?signin=true")
-  }, [clearAuth, router])
+  // When `localStorage.frame:debugAuth` is true, we expose diagnostic info on
+  // `window.__lastAuthFailure` and delay the redirect so you can inspect network
+  // traces or the `window.__lastApiError` object set by the ApiClient.
+  const handleAuthFailure = useCallback(
+    (info?: any) => {
+      clearAuth()
+      try {
+        if (typeof window !== "undefined") {
+          ;(window as any).__lastAuthFailure = info || null
+        }
+      } catch {}
+
+      const debug =
+        typeof window !== "undefined" &&
+        localStorage.getItem("frame:debugAuth") === "true"
+
+      if (debug) {
+        // Delay redirect for inspection (5s)
+        setTimeout(() => {
+          try {
+            router.push("/?signin=true")
+          } catch {}
+        }, 5000)
+      } else {
+        router.push("/?signin=true")
+      }
+    },
+    [clearAuth, router],
+  )
 
   // Refresh user data from server
   const refreshUser = useCallback(async () => {
