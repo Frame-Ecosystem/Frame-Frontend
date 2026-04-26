@@ -54,6 +54,7 @@ export function NavBrandLogo({
         className="fb-brand-icon fb-brand-icon-dark h-9 w-9 select-none md:h-10 md:w-10"
         draggable={false}
         loading="lazy"
+        optimization="true"
       />
       {/* Light icon — visible on dark themes */}
       <img
@@ -64,6 +65,7 @@ export function NavBrandLogo({
         className="fb-brand-icon fb-brand-icon-light h-9 w-9 select-none md:h-10 md:w-10"
         draggable={false}
         loading="lazy"
+        optimization="true"
       />
     </span>
   )
