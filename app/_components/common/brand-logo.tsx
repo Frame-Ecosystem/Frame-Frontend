@@ -48,24 +48,16 @@ export function NavBrandLogo({
       {/* Dark icon — visible on light themes (better contrast on bright bg) */}
       <img
         src="/images/logos/fb-dark-icon.png"
-        alt="Frame Beauty"
         width={40}
         height={40}
-        className="fb-brand-icon fb-brand-icon-dark h-9 w-9 select-none md:h-10 md:w-10"
-        draggable={false}
-        loading="lazy"
-        optimization="true"
+        alt="logo"
       />
       {/* Light icon — visible on dark themes */}
       <img
         src="/images/logos/fb-light-icon.png"
-        alt="Frame Beauty"
         width={40}
         height={40}
-        className="fb-brand-icon fb-brand-icon-light h-9 w-9 select-none md:h-10 md:w-10"
-        draggable={false}
-        loading="lazy"
-        optimization="true"
+        alt="logo"
       />
     </span>
   )
