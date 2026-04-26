@@ -1,6 +1,5 @@
 "use client"
 
-import Image from "next/image"
 import "./brand-logo.css"
 
 /**
@@ -47,24 +46,24 @@ export function NavBrandLogo({
   return (
     <span dir="ltr" className="hero-logo inline-flex items-center">
       {/* Dark icon — visible on light themes (better contrast on bright bg) */}
-      <Image
+      <img
         src="/images/logos/fb-dark-icon.png"
         alt="Frame Beauty"
         width={40}
         height={40}
-        priority
         className="fb-brand-icon fb-brand-icon-dark h-9 w-9 select-none md:h-10 md:w-10"
         draggable={false}
+        loading="lazy"
       />
       {/* Light icon — visible on dark themes */}
-      <Image
+      <img
         src="/images/logos/fb-light-icon.png"
         alt="Frame Beauty"
         width={40}
         height={40}
-        priority
         className="fb-brand-icon fb-brand-icon-light h-9 w-9 select-none md:h-10 md:w-10"
         draggable={false}
+        loading="lazy"
       />
     </span>
   )
