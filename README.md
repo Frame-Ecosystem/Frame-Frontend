@@ -171,7 +171,6 @@ Required variables:
 NEXT_PUBLIC_API_URL=https://frame-backend-apis.onrender.com
 NEXT_PUBLIC_FRONTEND_URL=http://localhost:2111
 NEXT_PUBLIC_GOOGLE_AUTH_BASE_URL=<optional OAuth API base URL override>
-AUTH_SESSION_COOKIE_NAME=refreshToken
 NEXT_PUBLIC_FIREBASE_API_KEY=<Firebase API key>
 NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=<Firebase auth domain>
 NEXT_PUBLIC_FIREBASE_PROJECT_ID=<Firebase project ID>
@@ -183,9 +182,10 @@ NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=<Google Maps browser key>
 NEXT_PUBLIC_ERROR_REPORTING_ENDPOINT=<optional client error reporting endpoint>
 ```
 
-For production route protection, the backend `refreshToken` HttpOnly cookie must
-be visible to the frontend host. If the API and frontend are on different
-subdomains, configure the backend cookie domain to a shared parent domain.
+Auth uses an in-memory access token plus an HttpOnly `refreshToken` cookie on
+the API origin. For cross-origin setups, the backend must allow credentialed
+requests (CORS) and use appropriate `SameSite` / `Secure` cookie flags so
+`POST /v1/auth/refresh-token` works from the browser.
 
 ### Deploying to Vercel
 

@@ -1,64 +1,28 @@
 import { NextRequest, NextResponse } from "next/server"
 
-const SESSION_COOKIE_NAME =
-  process.env.AUTH_SESSION_COOKIE_NAME?.trim() || "refreshToken"
-
-const PUBLIC_ROUTES = new Set([
-  "/",
-  "/auth/google/callback",
-  "/auth/google/done",
-  "/auth/google/error",
-  "/auth/forgot-password",
-  "/auth/reset-password",
-  "/auth/verify",
-  "/auth/check-email",
-  "/sentry-example-page",
-])
-
-function isPublicRoute(pathname: string): boolean {
-  return PUBLIC_ROUTES.has(pathname)
-}
-
-function isStaticAsset(pathname: string): boolean {
-  return (
-    pathname.startsWith("/_next/") ||
-    pathname === "/favicon.ico" ||
-    pathname === "/manifest.json" ||
-    pathname === "/sw.js" ||
-    pathname === "/firebase-messaging-sw.js" ||
-    /\.[a-z0-9]+$/i.test(pathname)
-  )
-}
-
+/**
+ * Next.js 16+ `proxy` (formerly middleware).
+ *
+ * Only handles production safety for local mock Route Handlers.
+ *
+ * We intentionally do NOT gate HTML/RSC navigations on the `refreshToken`
+ * cookie here: that cookie is set on the API host when the frontend and API
+ * are on different origins, so it is often absent on the Next.js origin. A
+ * redirect in that case breaks client-side navigation after login (blank
+ * main content, headers still client-rendered). Session enforcement stays on
+ * the backend; the app uses `AuthGuard` for UX on the client.
+ */
 export function proxy(request: NextRequest) {
-  const { pathname, search } = request.nextUrl
+  const { pathname } = request.nextUrl
 
-  if (pathname.startsWith("/api/v1")) {
-    if (process.env.NODE_ENV === "production") {
-      return NextResponse.json(
-        { message: "Local mock API routes are disabled in production." },
-        { status: 404 },
-      )
-    }
-
-    return NextResponse.next()
+  if (pathname.startsWith("/api/v1") && process.env.NODE_ENV === "production") {
+    return NextResponse.json(
+      { message: "Local mock API routes are disabled in production." },
+      { status: 404 },
+    )
   }
 
-  if (isStaticAsset(pathname) || isPublicRoute(pathname)) {
-    return NextResponse.next()
-  }
-
-  const hasSession = request.cookies.has(SESSION_COOKIE_NAME)
-  if (hasSession) {
-    return NextResponse.next()
-  }
-
-  const signInUrl = request.nextUrl.clone()
-  signInUrl.pathname = "/"
-  signInUrl.searchParams.set("signin", "true")
-  signInUrl.searchParams.set("next", `${pathname}${search}`)
-
-  return NextResponse.redirect(signInUrl)
+  return NextResponse.next()
 }
 
 export const config = {
