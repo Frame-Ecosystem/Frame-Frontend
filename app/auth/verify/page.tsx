@@ -61,6 +61,8 @@ export default function VerifyPage() {
               const newToken = data.token || data.data?.token
               const user = data.data || data.user || null
               const expiresIn = data.expiresIn || 900
+              const csrfToken =
+                typeof data.csrfToken === "string" ? data.csrfToken : undefined
 
               // Signal the opener window (main app) about verification
               try {
@@ -75,6 +77,7 @@ export default function VerifyPage() {
                       token: newToken,
                       user,
                       expiresIn,
+                      ...(csrfToken ? { csrfToken } : {}),
                     },
                     targetOrigin,
                   )
@@ -123,6 +126,8 @@ export default function VerifyPage() {
                 const newToken = d.token || d.data?.token
                 const user = d.data || d.user || null
                 const expiresIn = d.expiresIn || 900
+                const csrfToken =
+                  typeof d.csrfToken === "string" ? d.csrfToken : undefined
                 // Signal the opener window (main app) about verification
                 try {
                   if (window.opener && !window.opener.closed) {
@@ -136,6 +141,7 @@ export default function VerifyPage() {
                         token: newToken,
                         user,
                         expiresIn,
+                        ...(csrfToken ? { csrfToken } : {}),
                       },
                       targetOrigin,
                     )

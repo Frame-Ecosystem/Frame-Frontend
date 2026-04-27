@@ -1,6 +1,7 @@
 ﻿import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { authService } from "@/app/_auth"
 import { useAuth } from "@/app/_auth"
+import { setSessionCsrfToken } from "@/app/_auth/lib/csrf"
 import { usePushNotificationContext } from "@/app/_providers/push-notification"
 
 /**
@@ -20,6 +21,7 @@ export function useSignIn() {
     }) => authService.signIn(emailOrPhone, password),
     onSuccess: (data) => {
       if (data) {
+        if (data.csrfToken) setSessionCsrfToken(data.csrfToken)
         setAuth(data.data, data.token, data.expiresIn)
         queryClient.invalidateQueries({ queryKey: ["currentUser"] })
       }

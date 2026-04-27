@@ -1,5 +1,9 @@
 // API Base Configuration
-import { withCsrfHeader, isStateChanging } from "@/app/_auth"
+import {
+  withCsrfHeader,
+  isStateChanging,
+  setSessionCsrfToken,
+} from "@/app/_auth"
 
 const LOCAL_API_FALLBACK = "http://localhost:3000"
 const isProduction = process.env.NODE_ENV === "production"
@@ -78,6 +82,33 @@ class ApiClient {
   // The callback may receive an optional diagnostic object when debug enabled.
   setAuthFailureCallback(callback: (info?: any) => void) {
     this.authFailureCallback = callback
+  }
+
+  /**
+   * Bootstrap/recover CSRF for cross-origin web clients.
+   * Backend returns the same token in cookie + JSON.
+   */
+  private async bootstrapCsrfToken(): Promise<string | null> {
+    try {
+      const res = await fetch(`${this.baseUrl}/v1/auth/csrf-token`, {
+        method: "GET",
+        credentials: "include",
+        headers: { Accept: "application/json" },
+        signal: AbortSignal.timeout(this.defaultTimeout),
+      })
+      if (!res.ok) return null
+
+      const body = await res.json().catch(() => null)
+      const token =
+        typeof body?.csrfToken === "string" && body.csrfToken
+          ? body.csrfToken
+          : null
+
+      if (token) setSessionCsrfToken(token)
+      return token
+    } catch {
+      return null
+    }
   }
 
   private async request<T>(
@@ -224,9 +255,39 @@ class ApiClient {
       }
 
       if (!response.ok) {
-        const error = await response.json().catch(() => ({}))
-        const message = error.message || `API Error: ${response.statusText}`
-        const errorCode: string | undefined = error.code
+        let error = await response.json().catch(() => ({}))
+        let message = error.message || `API Error: ${response.statusText}`
+        let errorCode: string | undefined = error.code
+
+        // CSRF recovery path:
+        // 1) get fresh csrf-token/csrfToken pair
+        // 2) retry once with updated x-csrf-token
+        const isCsrfFailure =
+          response.status === 403 && /csrf\s*token/i.test(message)
+        if (isCsrfFailure && isStateChanging(method) && !isPublicAuth) {
+          const freshCsrf = await this.bootstrapCsrfToken()
+          if (freshCsrf) {
+            headers = {
+              ...headers,
+              "x-csrf-token": freshCsrf,
+            }
+
+            response = await fetch(url, {
+              ...options,
+              headers,
+              credentials: "include",
+              signal: AbortSignal.timeout(this.defaultTimeout),
+            })
+
+            if (response.ok) {
+              return response.json()
+            }
+
+            error = await response.json().catch(() => ({}))
+            message = error.message || `API Error: ${response.statusText}`
+            errorCode = error.code
+          }
+        }
 
         if (isDebug && typeof window !== "undefined") {
           try {
@@ -268,8 +329,10 @@ class ApiClient {
         // Catch auth-related errors from non-401 responses (e.g. 403)
         // but NOT for public auth endpoints (login, signup, etc.)
         if (!isPublicAuth) {
+          const isCsrfError =
+            response.status === 403 && /csrf\s*token/i.test(message)
           const isAuthError =
-            response.status === 403 ||
+            (response.status === 403 && !isCsrfError) ||
             /authenticat|unauthori|token.*expired|session.*expired/i.test(
               message,
             )

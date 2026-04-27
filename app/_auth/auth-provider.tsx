@@ -26,6 +26,7 @@ import React, {
 import { useRouter } from "next/navigation"
 import { authService } from "./auth.service"
 import { tokenManager } from "./lib/token-manager"
+import { clearSessionCsrfToken, setSessionCsrfToken } from "./lib/csrf"
 import type { User } from "../_types"
 import { apiClient } from "../_services/api"
 import { getSocket, disconnectSocket } from "../_services/socket"
@@ -97,6 +98,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (result?.ok && result.data) {
         const newToken = result.data.token
         const expiresIn = result.data.expiresIn || DEFAULT_EXPIRES_IN
+        if (result.data.csrfToken) setSessionCsrfToken(result.data.csrfToken)
         if (newToken) {
           tokenManager.set(newToken, expiresIn)
           setAccessToken(newToken)
@@ -138,6 +140,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setUser(null)
     setAccessToken(null)
     tokenManager.clear()
+    clearSessionCsrfToken()
     // Disconnect Socket.IO
     disconnectSocket()
   }, [])
@@ -231,6 +234,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         if (result?.ok && result.data) {
           const newToken = result.data.token
           const expiresIn = result.data.expiresIn || DEFAULT_EXPIRES_IN
+          if (result.data.csrfToken) setSessionCsrfToken(result.data.csrfToken)
 
           if (newToken) {
             tokenManager.set(newToken, expiresIn)
@@ -275,6 +279,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         if (result?.ok && result.data?.token) {
           const newToken = result.data.token
           const expiresIn = result.data.expiresIn || DEFAULT_EXPIRES_IN
+          if (result.data.csrfToken) setSessionCsrfToken(result.data.csrfToken)
           tokenManager.set(newToken, expiresIn)
           setAccessTokenRef.current(newToken)
           apiClient.setAccessTokenGetter(() => newToken)
@@ -295,6 +300,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setUserRef.current(null)
         setAccessTokenRef.current(null)
         tokenManager.clear()
+        clearSessionCsrfToken()
         disconnectSocket()
       }
     }
@@ -312,9 +318,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       try {
         if (!event?.data) return
-        const { type, token, user, expiresIn } = event.data
+        const { type, token, user, expiresIn, csrfToken } = event.data
 
         if (type === "VERIFICATION_COMPLETED" && token) {
+          if (typeof csrfToken === "string" && csrfToken)
+            setSessionCsrfToken(csrfToken)
           tokenManager.set(token, expiresIn || DEFAULT_EXPIRES_IN)
           setAccessToken(token)
           apiClient.setAccessTokenGetter(() => token)
