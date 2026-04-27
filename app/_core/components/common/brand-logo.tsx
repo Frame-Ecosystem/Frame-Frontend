@@ -52,7 +52,10 @@ export function NavBrandLogo({
         alt="Frame Beauty"
         width={40}
         height={40}
-        priority
+        loading="eager"
+        fetchPriority="high"
+        sizes="40px"
+        unoptimized
         className="fb-brand-icon fb-brand-icon-dark h-9 w-9 select-none md:h-10 md:w-10"
         draggable={false}
       />
@@ -62,7 +65,10 @@ export function NavBrandLogo({
         alt="Frame Beauty"
         width={40}
         height={40}
-        priority
+        loading="eager"
+        fetchPriority="high"
+        sizes="40px"
+        unoptimized
         className="fb-brand-icon fb-brand-icon-light h-9 w-9 select-none md:h-10 md:w-10"
         draggable={false}
       />

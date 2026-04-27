@@ -1174,6 +1174,7 @@ const LandingPage = () => {
                     width={240}
                     height={240}
                     priority
+                    unoptimized
                     className="h-40 w-40 drop-shadow-xl select-none sm:h-48 sm:w-48 lg:h-56 lg:w-56"
                     draggable={false}
                   />
