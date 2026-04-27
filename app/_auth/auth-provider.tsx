@@ -249,7 +249,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
               applyUserLanguage(userData)
               getSocket() // Connect socket after session restore
             } else {
-              tokenManager.clear()
+              // Refresh succeeded — keep access token + hasRefreshToken so a
+              // transient /v1/me failure does not log the user out on reload.
+              console.warn(
+                "[AuthProvider] Session restored but profile fetch returned no user",
+              )
             }
           } else {
             tokenManager.clear()
