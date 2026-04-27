@@ -5,7 +5,7 @@ import {
   setSessionCsrfToken,
 } from "@/app/_auth"
 
-const LOCAL_API_FALLBACK = "http://localhost:3000"
+const LOCAL_API_FALLBACK = "http://0.0.0.0:2000"
 const isProduction = process.env.NODE_ENV === "production"
 
 function normalizeBaseUrl(value?: string | null): string | null {
@@ -17,7 +17,8 @@ function normalizeBaseUrl(value?: string | null): string | null {
 
 function getBrowserLocalApiUrl(): string {
   if (typeof window === "undefined") return LOCAL_API_FALLBACK
-  return `${window.location.protocol}//${window.location.hostname}:3000`
+  // Auto-adapt to the current LAN host/IP while keeping backend local port fixed.
+  return `${window.location.protocol}//${window.location.hostname}:2000`
 }
 
 function getApiBaseUrl(): string {
