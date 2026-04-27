@@ -117,11 +117,11 @@ export function MessageInput({
     e.target.value = ""
   }
 
-  const clearFile = () => {
+  const clearFile = useCallback(() => {
     if (previewUrl) URL.revokeObjectURL(previewUrl)
     setSelectedFile(null)
     setPreviewUrl(null)
-  }
+  }, [previewUrl])
 
   const resolveContentType = (file?: File | null): MessageContentType => {
     if (!file) return "text"

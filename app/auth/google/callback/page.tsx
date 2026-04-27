@@ -62,7 +62,7 @@ export default function GoogleCallbackPage() {
         setMessage(t("auth.google.closeAndReturn"))
       }, 500)
     }, 1000)
-  }, [])
+  }, [t])
 
   return (
     <div className="bg-background flex min-h-screen items-center justify-center p-6">

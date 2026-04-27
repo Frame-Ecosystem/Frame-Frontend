@@ -161,11 +161,17 @@ npm start
 
 ### Environment Variables
 
-Create a `.env.local` with:
+Use `.env` for local development and `.env.production` for production builds.
+Do not keep `.env.local` in this project because Next.js loads it for every
+environment and it would override both files.
+
+Required variables:
 
 ```env
-NEXT_PUBLIC_API_URL=https://backend-server-dob4.onrender.com
+NEXT_PUBLIC_API_URL=https://frame-backend-apis.onrender.com
+NEXT_PUBLIC_FRONTEND_URL=http://localhost:2111
 NEXT_PUBLIC_GOOGLE_AUTH_BASE_URL=<optional OAuth API base URL override>
+AUTH_SESSION_COOKIE_NAME=refreshToken
 NEXT_PUBLIC_FIREBASE_API_KEY=<Firebase API key>
 NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=<Firebase auth domain>
 NEXT_PUBLIC_FIREBASE_PROJECT_ID=<Firebase project ID>
@@ -173,7 +179,13 @@ NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=<FCM sender ID>
 NEXT_PUBLIC_FIREBASE_APP_ID=<Firebase app ID>
 NEXT_PUBLIC_FIREBASE_VAPID_KEY=<FCM VAPID key>
 NEXT_PUBLIC_GOOGLE_CLIENT_ID=<Google OAuth client ID>
+NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=<Google Maps browser key>
+NEXT_PUBLIC_ERROR_REPORTING_ENDPOINT=<optional client error reporting endpoint>
 ```
+
+For production route protection, the backend `refreshToken` HttpOnly cookie must
+be visible to the frontend host. If the API and frontend are on different
+subdomains, configure the backend cookie domain to a shared parent domain.
 
 ### Deploying to Vercel
 

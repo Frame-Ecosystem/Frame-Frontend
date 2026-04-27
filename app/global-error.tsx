@@ -1,15 +1,14 @@
 "use client"
 
 import NextError from "next/error"
+import { reportError } from "@/app/_lib/report-error"
 
 export default function GlobalError({
   error,
 }: {
   error: Error & { digest?: string }
 }) {
-  // Keep simple: render default Next.js error UI. Previously Sentry was used
-  // to capture exceptions here; Sentry has been removed.
-  console.error(error)
+  reportError(error, { source: "global-error", digest: error.digest })
 
   return (
     <html lang="en">

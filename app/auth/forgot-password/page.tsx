@@ -36,7 +36,7 @@ export default function ForgotPasswordPage() {
           .min(1, t("auth.forgot.emailRequired"))
           .email(t("auth.forgot.invalidEmail")),
       }),
-    [],
+    [t],
   )
 
   type Values = z.infer<typeof schema>

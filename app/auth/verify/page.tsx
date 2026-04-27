@@ -167,7 +167,7 @@ export default function VerifyPage() {
     }
 
     verifyMagicLink()
-  }, [token])
+  }, [token, t])
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-gray-50">

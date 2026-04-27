@@ -114,6 +114,7 @@ export function AccountSettings({
     isBioSectionOpen,
     isPasswordSectionOpen,
     isOpen,
+    scrollToElement,
     user?.type,
   ])
 

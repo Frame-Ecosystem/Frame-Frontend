@@ -39,7 +39,7 @@ export function CategoryPicker({
   const { data, isLoading, isError, refetch } = useProductCategories({
     activeOnly: true,
   })
-  const all = data?.data ?? []
+  const all = useMemo(() => data?.data ?? [], [data?.data])
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase()

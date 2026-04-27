@@ -2,6 +2,7 @@
 import { withCsrfHeader, isStateChanging } from "@/app/_auth"
 
 const LOCAL_API_FALLBACK = "http://localhost:3000"
+const isProduction = process.env.NODE_ENV === "production"
 
 function normalizeBaseUrl(value?: string | null): string | null {
   if (!value) return null
@@ -15,31 +16,37 @@ function getBrowserLocalApiUrl(): string {
   return `${window.location.protocol}//${window.location.hostname}:3000`
 }
 
+function getApiBaseUrl(): string {
+  const configured = normalizeBaseUrl(process.env.NEXT_PUBLIC_API_URL)
+  if (configured) return configured
+
+  if (isProduction) {
+    throw new Error("NEXT_PUBLIC_API_URL is required in production.")
+  }
+
+  return normalizeBaseUrl(getBrowserLocalApiUrl()) ?? LOCAL_API_FALLBACK
+}
+
+function getGoogleAuthBaseUrl(): string {
+  const configured =
+    normalizeBaseUrl(process.env.NEXT_PUBLIC_GOOGLE_AUTH_BASE_URL) ??
+    normalizeBaseUrl(process.env.GOOGLE_AUTH_LOCAL_API_URL)
+
+  return configured ?? getApiBaseUrl()
+}
+
 /**
  * Primary API base URL used by all REST and socket clients.
- * Resolution order:
- * 1) NEXT_PUBLIC_API_URL
- * 2) Browser host + :3000 (dev fallback)
- * 3) localhost fallback (SSR/build-time fallback)
+ * Production requires NEXT_PUBLIC_API_URL. Development falls back to the
+ * browser host on port 3000, then localhost, for local backend work.
  */
-export const API_BASE_URL =
-  normalizeBaseUrl(process.env.NEXT_PUBLIC_API_URL) ??
-  normalizeBaseUrl(getBrowserLocalApiUrl()) ??
-  LOCAL_API_FALLBACK
+export const API_BASE_URL = getApiBaseUrl()
 
 /**
  * OAuth base URL can be overridden independently when needed.
- * Resolution order:
- * 1) NEXT_PUBLIC_GOOGLE_AUTH_BASE_URL
- * 2) GOOGLE_AUTH_LOCAL_API_URL (backward compatibility)
- * 3) NEXT_PUBLIC_API_URL
- * 4) localhost fallback
+ * Falls back to API_BASE_URL after optional OAuth-specific overrides.
  */
-export const GOOGLE_AUTH_BASE_URL =
-  normalizeBaseUrl(process.env.NEXT_PUBLIC_GOOGLE_AUTH_BASE_URL) ??
-  normalizeBaseUrl(process.env.GOOGLE_AUTH_LOCAL_API_URL) ??
-  normalizeBaseUrl(process.env.NEXT_PUBLIC_API_URL) ??
-  LOCAL_API_FALLBACK
+export const GOOGLE_AUTH_BASE_URL = getGoogleAuthBaseUrl()
 
 class ApiClient {
   private baseUrl: string
