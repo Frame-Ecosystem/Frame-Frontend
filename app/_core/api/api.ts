@@ -1,7 +1,12 @@
 // API Base Configuration
-import { withCsrfHeader, isStateChanging } from "@/app/_auth"
+import {
+  withCsrfHeader,
+  isStateChanging,
+  setSessionCsrfToken,
+} from "@/app/_auth"
 
 const LOCAL_API_FALLBACK = "http://localhost:3000"
+const isProduction = process.env.NODE_ENV === "production"
 
 function normalizeBaseUrl(value?: string | null): string | null {
   if (!value) return null
@@ -15,31 +20,37 @@ function getBrowserLocalApiUrl(): string {
   return `${window.location.protocol}//${window.location.hostname}:3000`
 }
 
+function getApiBaseUrl(): string {
+  const configured = normalizeBaseUrl(process.env.NEXT_PUBLIC_API_URL)
+  if (configured) return configured
+
+  if (isProduction) {
+    throw new Error("NEXT_PUBLIC_API_URL is required in production.")
+  }
+
+  return normalizeBaseUrl(getBrowserLocalApiUrl()) ?? LOCAL_API_FALLBACK
+}
+
+function getGoogleAuthBaseUrl(): string {
+  const configured =
+    normalizeBaseUrl(process.env.NEXT_PUBLIC_GOOGLE_AUTH_BASE_URL) ??
+    normalizeBaseUrl(process.env.GOOGLE_AUTH_LOCAL_API_URL)
+
+  return configured ?? getApiBaseUrl()
+}
+
 /**
  * Primary API base URL used by all REST and socket clients.
- * Resolution order:
- * 1) NEXT_PUBLIC_API_URL
- * 2) Browser host + :3000 (dev fallback)
- * 3) localhost fallback (SSR/build-time fallback)
+ * Production requires NEXT_PUBLIC_API_URL. Development falls back to the
+ * browser host on port 3000, then localhost, for local backend work.
  */
-export const API_BASE_URL =
-  normalizeBaseUrl(process.env.NEXT_PUBLIC_API_URL) ??
-  normalizeBaseUrl(getBrowserLocalApiUrl()) ??
-  LOCAL_API_FALLBACK
+export const API_BASE_URL = getApiBaseUrl()
 
 /**
  * OAuth base URL can be overridden independently when needed.
- * Resolution order:
- * 1) NEXT_PUBLIC_GOOGLE_AUTH_BASE_URL
- * 2) GOOGLE_AUTH_LOCAL_API_URL (backward compatibility)
- * 3) NEXT_PUBLIC_API_URL
- * 4) localhost fallback
+ * Falls back to API_BASE_URL after optional OAuth-specific overrides.
  */
-export const GOOGLE_AUTH_BASE_URL =
-  normalizeBaseUrl(process.env.NEXT_PUBLIC_GOOGLE_AUTH_BASE_URL) ??
-  normalizeBaseUrl(process.env.GOOGLE_AUTH_LOCAL_API_URL) ??
-  normalizeBaseUrl(process.env.NEXT_PUBLIC_API_URL) ??
-  LOCAL_API_FALLBACK
+export const GOOGLE_AUTH_BASE_URL = getGoogleAuthBaseUrl()
 
 class ApiClient {
   private baseUrl: string
@@ -71,6 +82,33 @@ class ApiClient {
   // The callback may receive an optional diagnostic object when debug enabled.
   setAuthFailureCallback(callback: (info?: any) => void) {
     this.authFailureCallback = callback
+  }
+
+  /**
+   * Bootstrap/recover CSRF for cross-origin web clients.
+   * Backend returns the same token in cookie + JSON.
+   */
+  private async bootstrapCsrfToken(): Promise<string | null> {
+    try {
+      const res = await fetch(`${this.baseUrl}/v1/auth/csrf-token`, {
+        method: "GET",
+        credentials: "include",
+        headers: { Accept: "application/json" },
+        signal: AbortSignal.timeout(this.defaultTimeout),
+      })
+      if (!res.ok) return null
+
+      const body = await res.json().catch(() => null)
+      const token =
+        typeof body?.csrfToken === "string" && body.csrfToken
+          ? body.csrfToken
+          : null
+
+      if (token) setSessionCsrfToken(token)
+      return token
+    } catch {
+      return null
+    }
   }
 
   private async request<T>(
@@ -217,9 +255,39 @@ class ApiClient {
       }
 
       if (!response.ok) {
-        const error = await response.json().catch(() => ({}))
-        const message = error.message || `API Error: ${response.statusText}`
-        const errorCode: string | undefined = error.code
+        let error = await response.json().catch(() => ({}))
+        let message = error.message || `API Error: ${response.statusText}`
+        let errorCode: string | undefined = error.code
+
+        // CSRF recovery path:
+        // 1) get fresh csrf-token/csrfToken pair
+        // 2) retry once with updated x-csrf-token
+        const isCsrfFailure =
+          response.status === 403 && /csrf\s*token/i.test(message)
+        if (isCsrfFailure && isStateChanging(method) && !isPublicAuth) {
+          const freshCsrf = await this.bootstrapCsrfToken()
+          if (freshCsrf) {
+            headers = {
+              ...headers,
+              "x-csrf-token": freshCsrf,
+            }
+
+            response = await fetch(url, {
+              ...options,
+              headers,
+              credentials: "include",
+              signal: AbortSignal.timeout(this.defaultTimeout),
+            })
+
+            if (response.ok) {
+              return response.json()
+            }
+
+            error = await response.json().catch(() => ({}))
+            message = error.message || `API Error: ${response.statusText}`
+            errorCode = error.code
+          }
+        }
 
         if (isDebug && typeof window !== "undefined") {
           try {
@@ -261,8 +329,10 @@ class ApiClient {
         // Catch auth-related errors from non-401 responses (e.g. 403)
         // but NOT for public auth endpoints (login, signup, etc.)
         if (!isPublicAuth) {
+          const isCsrfError =
+            response.status === 403 && /csrf\s*token/i.test(message)
           const isAuthError =
-            response.status === 403 ||
+            (response.status === 403 && !isCsrfError) ||
             /authenticat|unauthori|token.*expired|session.*expired/i.test(
               message,
             )

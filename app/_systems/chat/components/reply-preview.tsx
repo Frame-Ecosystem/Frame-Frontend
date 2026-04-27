@@ -1,6 +1,6 @@
 "use client"
 
-import { Reply, Mic, Image, FileText } from "lucide-react"
+import { Reply, Mic, Image as ImageIcon, FileText } from "lucide-react"
 import type { MessageReplyPreview, MessageContentType } from "../types"
 
 interface ReplyPreviewProps {
@@ -15,7 +15,7 @@ interface ReplyPreviewProps {
 
 function contentTypeIcon(type: MessageContentType) {
   if (type === "audio") return <Mic className="h-3 w-3" />
-  if (type === "image") return <Image className="h-3 w-3" />
+  if (type === "image") return <ImageIcon className="h-3 w-3" />
   if (type === "file") return <FileText className="h-3 w-3" />
   return null
 }

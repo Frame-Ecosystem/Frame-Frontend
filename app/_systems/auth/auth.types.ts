@@ -57,6 +57,8 @@ export interface AuthTokenResponse {
   token: string
   expiresIn: number // seconds (default 900 = 15min)
   message?: string
+  /** Double-submit CSRF when API is cross-origin (cookie not readable on app host). */
+  csrfToken?: string
 }
 
 /** Signup response (magic link sent, NO tokens) */
@@ -70,6 +72,7 @@ export interface RefreshTokenResponse {
   token: string
   expiresIn: number
   message?: string
+  csrfToken?: string
 }
 
 /** Generic message response (logout, forgot-password, reset-password) */

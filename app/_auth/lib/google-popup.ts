@@ -1,5 +1,6 @@
 import { GOOGLE_AUTH_BASE_URL, apiClient } from "../../_services/api"
 import { authService } from "../auth.service"
+import { setSessionCsrfToken } from "./csrf"
 
 // ── Types ────────────────────────────────────────────────────
 
@@ -55,6 +56,9 @@ async function tryRefreshToken() {
       headers: { "Content-Type": "application/json" },
     })
     const body = await res.json().catch(() => null)
+    const csrfToken = body?.csrfToken
+    if (typeof csrfToken === "string" && csrfToken)
+      setSessionCsrfToken(csrfToken)
     return {
       ok: res.ok,
       token: body?.token || body?.data?.token,

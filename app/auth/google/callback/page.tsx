@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react"
 import { GOOGLE_OAUTH_ERROR_MESSAGES } from "@/app/_auth/auth.types"
+import { setSessionCsrfToken } from "@/app/_auth/lib/csrf"
 import { useTranslation } from "@/app/_i18n"
 
 export default function GoogleCallbackPage() {
@@ -12,6 +13,21 @@ export default function GoogleCallbackPage() {
   const [message, setMessage] = useState(t("auth.google.pleaseWait"))
 
   useEffect(() => {
+    // OAuth redirect carries CSRF in the fragment (cookie is on API host only).
+    const hash = window.location.hash.replace(/^#/, "")
+    if (hash) {
+      const hp = new URLSearchParams(hash)
+      const csrf = hp.get("csrf")
+      if (csrf) {
+        setSessionCsrfToken(csrf)
+        window.history.replaceState(
+          null,
+          "",
+          `${window.location.pathname}${window.location.search}`,
+        )
+      }
+    }
+
     const params = new URLSearchParams(window.location.search)
     const urlStatus = params.get("status")
     const errorCode = params.get("error")
@@ -62,7 +78,7 @@ export default function GoogleCallbackPage() {
         setMessage(t("auth.google.closeAndReturn"))
       }, 500)
     }, 1000)
-  }, [])
+  }, [t])
 
   return (
     <div className="bg-background flex min-h-screen items-center justify-center p-6">

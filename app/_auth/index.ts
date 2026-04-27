@@ -37,6 +37,9 @@ export { EmailVerification } from "./components/email-verification"
 export { mapAuthError } from "./lib/error-mapper"
 export {
   getCsrfTokenFromCookie,
+  getCsrfTokenForRequest,
+  setSessionCsrfToken,
+  clearSessionCsrfToken,
   isStateChanging,
   withCsrfHeader,
 } from "./lib/csrf"

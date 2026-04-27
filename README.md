@@ -3,7 +3,7 @@
 </p>
 
 <p align="center">
-  <strong>Frame</strong> is a Tunisian startup building the all-in-one beauty platform — connecting clients with beauty lounges, agents, and a marketplace, all from a single mobile-first web app.
+  <strong>Frame</strong> is a Tunisian startup building the all-in-one beauty platform — connecting clients with beauty lounges, agents, and a marketplace, all from a single mobile-first web app.</br>Live link: https://framebeautydemo.vercel.app
 </p>
 
 ---
@@ -161,10 +161,15 @@ npm start
 
 ### Environment Variables
 
-Create a `.env.local` with:
+Use `.env` for local development and `.env.production` for production builds.
+Do not keep `.env.local` in this project because Next.js loads it for every
+environment and it would override both files.
+
+Required variables:
 
 ```env
-NEXT_PUBLIC_API_URL=https://backend-server-dob4.onrender.com
+NEXT_PUBLIC_API_URL=https://frame-backend-apis.onrender.com
+NEXT_PUBLIC_FRONTEND_URL=http://localhost:2111
 NEXT_PUBLIC_GOOGLE_AUTH_BASE_URL=<optional OAuth API base URL override>
 NEXT_PUBLIC_FIREBASE_API_KEY=<Firebase API key>
 NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=<Firebase auth domain>
@@ -173,7 +178,14 @@ NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=<FCM sender ID>
 NEXT_PUBLIC_FIREBASE_APP_ID=<Firebase app ID>
 NEXT_PUBLIC_FIREBASE_VAPID_KEY=<FCM VAPID key>
 NEXT_PUBLIC_GOOGLE_CLIENT_ID=<Google OAuth client ID>
+NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=<Google Maps browser key>
+NEXT_PUBLIC_ERROR_REPORTING_ENDPOINT=<optional client error reporting endpoint>
 ```
+
+Auth uses an in-memory access token plus an HttpOnly `refreshToken` cookie on
+the API origin. For cross-origin setups, the backend must allow credentialed
+requests (CORS) and use appropriate `SameSite` / `Secure` cookie flags so
+`POST /v1/auth/refresh-token` works from the browser.
 
 ### Deploying to Vercel
 

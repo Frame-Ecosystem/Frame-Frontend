@@ -262,7 +262,7 @@ export default function AdminProductCategoriesPage() {
   const updateMutation = useAdminUpdateProductCategory()
   const deleteMutation = useAdminDeleteProductCategory()
 
-  const all = data?.data ?? []
+  const all = useMemo(() => data?.data ?? [], [data?.data])
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase()
     if (!q) return all

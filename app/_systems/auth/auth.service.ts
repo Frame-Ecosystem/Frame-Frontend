@@ -1,6 +1,6 @@
 ﻿import { apiClient } from "@/app/_services/api"
 import { API_BASE_URL } from "@/app/_services/api"
-import { getCsrfTokenFromCookie } from "./lib/csrf"
+import { getCsrfTokenForRequest } from "./lib/csrf"
 import type { User, Gender } from "@/app/_types"
 import type {
   AuthTokenResponse,
@@ -128,7 +128,7 @@ class AuthService {
       const headers: Record<string, string> = {
         "Content-Type": "application/json",
       }
-      const csrfToken = getCsrfTokenFromCookie()
+      const csrfToken = getCsrfTokenForRequest()
       if (csrfToken) {
         headers["x-csrf-token"] = csrfToken
       }

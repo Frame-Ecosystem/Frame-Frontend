@@ -47,7 +47,7 @@ export default function ResetPasswordPage() {
     if (!token) {
       setError(t("auth.reset.invalidToken"))
     }
-  }, [token])
+  }, [token, t])
 
   const schema = useMemo(
     () =>
@@ -90,7 +90,7 @@ export default function ResetPasswordPage() {
             message: validationError,
           })
         }),
-    [],
+    [t],
   )
 
   type Values = z.infer<typeof schema>

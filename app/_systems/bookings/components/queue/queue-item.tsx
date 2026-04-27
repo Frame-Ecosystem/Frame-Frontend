@@ -136,7 +136,7 @@ export default function QueueItem({
       }, 400)
       return () => clearTimeout(timer)
     }
-  }, [isHighlighted])
+  }, [isHighlighted, scrollToElement])
 
   const isStaff = mode === "staff"
   const bookingId = person.bookingId?._id
