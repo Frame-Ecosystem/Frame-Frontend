@@ -3,7 +3,7 @@
 </p>
 
 <p align="center">
-  <strong>Frame</strong> is a Tunisian startup building the all-in-one beauty platform — connecting clients with beauty lounges, agents, and a marketplace, all from a single mobile-first web app.
+  <strong>Frame</strong> is a Tunisian startup building the all-in-one beauty platform — connecting clients with beauty lounges, agents, and a marketplace, all from a single mobile-first web app.</br>Live link: https://framebeautydemo.vercel.app
 </p>
 
 ---
