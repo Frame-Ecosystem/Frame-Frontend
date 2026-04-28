@@ -150,7 +150,7 @@ npm install
 npm run dev
 ```
 
-Dev server starts at **http://localhost:2111** (Turbopack).
+Dev server starts at **http://0.0.0.0:2111** (Turbopack) and is reachable on your current LAN IP.
 
 ### Build
 
@@ -168,8 +168,8 @@ environment and it would override both files.
 Required variables:
 
 ```env
-NEXT_PUBLIC_API_URL=https://frame-backend-apis.onrender.com
-NEXT_PUBLIC_FRONTEND_URL=http://localhost:2111
+NEXT_PUBLIC_API_URL=http://0.0.0.0:2000
+NEXT_PUBLIC_FRONTEND_URL=http://0.0.0.0:2111
 NEXT_PUBLIC_GOOGLE_AUTH_BASE_URL=<optional OAuth API base URL override>
 NEXT_PUBLIC_FIREBASE_API_KEY=<Firebase API key>
 NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=<Firebase auth domain>

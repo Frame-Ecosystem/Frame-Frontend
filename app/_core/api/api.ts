@@ -5,7 +5,7 @@ import {
   setSessionCsrfToken,
 } from "@/app/_auth"
 
-const LOCAL_API_FALLBACK = "http://localhost:3000"
+const LOCAL_API_FALLBACK = "http://0.0.0.0:2000"
 const isProduction = process.env.NODE_ENV === "production"
 
 function normalizeBaseUrl(value?: string | null): string | null {
@@ -15,20 +15,44 @@ function normalizeBaseUrl(value?: string | null): string | null {
   return trimmed.replace(/\/+$/, "")
 }
 
+/**
+ * `0.0.0.0` / `::` are valid bind addresses for servers but are not reliable
+ * as fetch targets in browsers. Rewrite to the host the user actually loaded
+ * the app from (e.g. LAN IP) so refresh cookies and API calls hit the same machine.
+ */
+function rewriteBindAllHostForBrowser(base: string): string {
+  if (typeof window === "undefined" || !base) return base
+  try {
+    const u = new URL(base)
+    const h = u.hostname
+    if (h === "0.0.0.0" || h === "::" || h === "[::]") {
+      u.hostname = window.location.hostname
+      return normalizeBaseUrl(u.origin) ?? u.origin
+    }
+  } catch {
+    return base
+  }
+  return base
+}
+
 function getBrowserLocalApiUrl(): string {
   if (typeof window === "undefined") return LOCAL_API_FALLBACK
-  return `${window.location.protocol}//${window.location.hostname}:3000`
+  // Auto-adapt to the current LAN host/IP while keeping backend local port fixed.
+  return `${window.location.protocol}//${window.location.hostname}:2000`
 }
 
 function getApiBaseUrl(): string {
   const configured = normalizeBaseUrl(process.env.NEXT_PUBLIC_API_URL)
-  if (configured) return configured
+  if (configured) {
+    return rewriteBindAllHostForBrowser(configured)
+  }
 
   if (isProduction) {
     throw new Error("NEXT_PUBLIC_API_URL is required in production.")
   }
 
-  return normalizeBaseUrl(getBrowserLocalApiUrl()) ?? LOCAL_API_FALLBACK
+  const local = normalizeBaseUrl(getBrowserLocalApiUrl()) ?? LOCAL_API_FALLBACK
+  return rewriteBindAllHostForBrowser(local)
 }
 
 function getGoogleAuthBaseUrl(): string {
@@ -36,13 +60,15 @@ function getGoogleAuthBaseUrl(): string {
     normalizeBaseUrl(process.env.NEXT_PUBLIC_GOOGLE_AUTH_BASE_URL) ??
     normalizeBaseUrl(process.env.GOOGLE_AUTH_LOCAL_API_URL)
 
-  return configured ?? getApiBaseUrl()
+  if (configured) return rewriteBindAllHostForBrowser(configured)
+
+  return getApiBaseUrl()
 }
 
 /**
  * Primary API base URL used by all REST and socket clients.
  * Production requires NEXT_PUBLIC_API_URL. Development falls back to the
- * browser host on port 3000, then localhost, for local backend work.
+ * browser host on port 2000, or `http://0.0.0.0:2000` rewritten to that host.
  */
 export const API_BASE_URL = getApiBaseUrl()
 
