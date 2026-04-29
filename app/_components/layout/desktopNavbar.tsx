@@ -1,6 +1,6 @@
 "use client"
 
-import { Shield, Search, Plus } from "lucide-react"
+import { Shield, Search } from "lucide-react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { Card, CardContent } from "../ui/card"
@@ -12,6 +12,7 @@ import { useAuth } from "@/app/_auth"
 import { NAV_LINKS } from "../../_constants/navigation"
 import { getProfilePath, getHomePath } from "../../_lib/profile"
 import { useTranslation } from "../../_i18n"
+import { CreateContentButton } from "@/app/_components/content/create-content-button"
 
 const DesktopNavbar = () => {
   const pathname = usePathname()
@@ -118,18 +119,7 @@ const DesktopNavbar = () => {
         {/* Action buttons */}
         <div className="flex items-center gap-1.5 md:gap-2 lg:gap-3">
           {pathname.startsWith("/lounges/") && pathname !== "/lounges" && (
-            <Link href="/create">
-              <Button
-                variant="ghost"
-                size="icon"
-                className="hover:bg-primary/10 relative flex items-center justify-center rounded-full"
-                title="Create new content"
-              >
-                <div className="flex h-9 w-9 items-center justify-center rounded-full border">
-                  <Plus className="h-5 w-5" />
-                </div>
-              </Button>
-            </Link>
+            <CreateContentButton compact />
           )}
 
           <Link href="/lounges">

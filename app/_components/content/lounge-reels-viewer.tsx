@@ -1,38 +1,44 @@
 "use client"
 
 import { useState, useRef, useEffect, useMemo, useCallback } from "react"
-import { useSearchParams } from "next/navigation"
 import { Loader2 } from "lucide-react"
-import { ErrorBoundary } from "../_components/common/errorBoundary"
-import { ReelPlayer } from "../_components/content/reel-player"
-import { CommentSheet } from "../_components/content/comment-sheet"
-import { EmptyState } from "../_components/content/empty-state"
-import { useReelMutePreference } from "../_components/content/hooks/use-reel-mute-preference"
-import { useExploreFeed } from "../_hooks/queries/useContent"
-import type { Reel } from "../_types/content"
-import { useScrollToTarget } from "../_hooks/useScrollToTarget"
+import { ErrorBoundary } from "../common/errorBoundary"
+import { ReelPlayer } from "./reel-player"
+import { CommentSheet } from "./comment-sheet"
+import { EmptyState } from "./empty-state"
+import { useReelMutePreference } from "./hooks/use-reel-mute-preference"
+import { useLoungeReels } from "@/app/_systems/feed/hooks/useReels"
+import type { Reel } from "@/app/_types/content"
 
-export default function ReelsPage() {
-  useScrollToTarget()
-  const searchParams = useSearchParams()
-  const targetReelId = searchParams.get("id")
-  const hasJumped = useRef(false)
+interface LoungeReelsViewerProps {
+  loungeId: string
+  initialReelId?: string
+  onClose: () => void
+}
 
+/**
+ * Fullscreen reel viewer for a specific lounge's reels.
+ * Works like the main `/reels` page but scoped to one lounge.
+ */
+export function LoungeReelsViewer({
+  loungeId,
+  initialReelId,
+  onClose,
+}: LoungeReelsViewerProps) {
   const [activeIndex, setActiveIndexRaw] = useState(0)
   const containerRef = useRef<HTMLDivElement>(null)
   const isTransitioning = useRef(false)
   const touchStartY = useRef<number | null>(null)
   const touchStartX = useRef<number | null>(null)
   const swiped = useRef(false)
-  // Persisted, gesture-aware mute preference. First user interaction
-  // (tap/scroll/key) auto-unmutes; the choice is remembered for future reels.
+  const hasJumped = useRef(false)
+
   const [globalMuted, setGlobalMuted] = useReelMutePreference()
   const [commentsOpen, setCommentsOpen] = useState(false)
   const [highlightCommentId, setHighlightCommentId] = useState<string | null>(
     null,
   )
 
-  // Wrap setActiveIndex to also close comments on reel change
   const setActiveIndex = useCallback(
     (update: number | ((prev: number) => number)) => {
       setActiveIndexRaw(update)
@@ -43,7 +49,7 @@ export default function ReelsPage() {
 
   const handleCommentClick = useCallback(() => setCommentsOpen(true), [])
 
-  // Lock body scroll while on the reels page
+  // Lock body scroll while viewer is open
   useEffect(() => {
     document.body.style.overflow = "hidden"
     return () => {
@@ -51,57 +57,27 @@ export default function ReelsPage() {
     }
   }, [])
 
-  // Fetch explore feed and filter for reels
-  const exploreQuery = useExploreFeed()
-  const reels = useMemo(() => {
-    const items =
-      exploreQuery.data?.pages.flatMap((page) => page.data ?? []) ?? []
-    const seen = new Set<string>()
-    return items.filter((item): item is Reel & { contentType: "reel" } => {
-      if (!item || item.contentType !== "reel") return false
-      if (typeof item._id !== "string" || item._id === "") return false
-      if (seen.has(item._id)) return false
-      seen.add(item._id)
-      return true
-    })
-  }, [exploreQuery.data])
+  // Fetch lounge reels
+  const loungeReelsQuery = useLoungeReels(loungeId, 12)
+  const reels: Reel[] = useMemo(
+    () => loungeReelsQuery.data?.pages.flatMap((p) => p.data ?? []) ?? [],
+    [loungeReelsQuery.data],
+  )
 
-  // Jump to a specific reel when navigated via ?id= param
+  // Jump to a specific reel if initialReelId provided
   useEffect(() => {
-    if (!targetReelId || hasJumped.current || reels.length === 0) return
-    const idx = reels.findIndex((r) => r._id === targetReelId)
+    if (!initialReelId || hasJumped.current || reels.length === 0) return
+    const idx = reels.findIndex((r) => r._id === initialReelId)
     if (idx !== -1) {
-      // Use rAF to avoid synchronous setState inside effect body
       requestAnimationFrame(() => {
         setActiveIndexRaw(idx)
       })
       hasJumped.current = true
     }
-  }, [targetReelId, reels])
-
-  // Auto-open CommentSheet when navigated from a notification with ?openComments=true
-  const openCommentsParam = searchParams.get("openComments")
-  const commentIdParam = searchParams.get("commentId")
-  useEffect(() => {
-    if (!openCommentsParam || reels.length === 0) return
-    if (!hasJumped.current && targetReelId) return // wait for reel jump first
-
-    const timer = setTimeout(() => {
-      setHighlightCommentId(commentIdParam)
-      setCommentsOpen(true)
-    }, 600)
-
-    // Clean up URL params
-    const url = new URL(window.location.href)
-    url.searchParams.delete("openComments")
-    url.searchParams.delete("commentId")
-    window.history.replaceState({}, "", url.toString())
-
-    return () => clearTimeout(timer)
-  }, [openCommentsParam, commentIdParam, reels, targetReelId])
+  }, [initialReelId, reels])
 
   // Load more when approaching the end
-  const { hasNextPage, isFetchingNextPage, fetchNextPage } = exploreQuery
+  const { hasNextPage, isFetchingNextPage, fetchNextPage } = loungeReelsQuery
   useEffect(() => {
     if (activeIndex >= reels.length - 2 && hasNextPage && !isFetchingNextPage) {
       fetchNextPage()
@@ -114,7 +90,7 @@ export default function ReelsPage() {
     fetchNextPage,
   ])
 
-  // Debounced navigation — one reel per gesture
+  // Debounced navigation
   const goTo = useCallback(
     (direction: "next" | "prev") => {
       if (isTransitioning.current) return
@@ -133,7 +109,7 @@ export default function ReelsPage() {
     [reels.length, setActiveIndex],
   )
 
-  // Wheel handler (passive: false for preventDefault)
+  // Wheel handler
   useEffect(() => {
     const el = containerRef.current
     if (!el) return
@@ -148,7 +124,7 @@ export default function ReelsPage() {
     return () => el.removeEventListener("wheel", onWheel)
   }, [goTo])
 
-  // Keyboard support — skip when user is typing in an input/textarea
+  // Keyboard support
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       const tag = (e.target as HTMLElement)?.tagName
@@ -165,15 +141,18 @@ export default function ReelsPage() {
       } else if (e.key === "ArrowUp") {
         e.preventDefault()
         goTo("prev")
+      } else if (e.key === "Escape") {
+        e.preventDefault()
+        onClose()
       }
     }
     window.addEventListener("keydown", onKey)
     return () => window.removeEventListener("keydown", onKey)
-  }, [goTo])
+  }, [goTo, onClose])
 
-  if (exploreQuery.isLoading) {
+  if (loungeReelsQuery.isLoading) {
     return (
-      <div className="fixed inset-x-0 top-[73px] bottom-0 z-10 flex items-center justify-center lg:top-[96px]">
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm">
         <Loader2 className="text-muted-foreground h-8 w-8 animate-spin" />
       </div>
     )
@@ -181,7 +160,7 @@ export default function ReelsPage() {
 
   if (reels.length === 0) {
     return (
-      <div className="fixed inset-x-0 top-[73px] bottom-0 z-10 flex items-center justify-center lg:top-[96px]">
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm">
         <EmptyState type="reels" />
       </div>
     )
@@ -189,11 +168,24 @@ export default function ReelsPage() {
 
   return (
     <ErrorBoundary>
-      {/* Fixed layer that fills exactly between top bar & bottom of viewport */}
-      <div className="bg-background fixed inset-x-0 top-[73px] bottom-0 z-10 flex justify-center lg:top-[96px]">
+      {/* Overlay backdrop */}
+      <div
+        className="fixed inset-0 z-50 bg-black"
+        onClick={onClose}
+        role="button"
+        tabIndex={0}
+        aria-label="Close viewer"
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === " ") onClose()
+        }}
+      />
+
+      {/* Viewer container */}
+      <div className="fixed inset-0 z-50 flex items-center justify-center">
         <div
           ref={containerRef}
           className="relative h-full w-full overflow-hidden lg:max-w-[420px]"
+          onClick={(e) => e.stopPropagation()}
           onTouchStart={(e) => {
             touchStartY.current = e.touches[0].clientY
             touchStartX.current = e.touches[0].clientX
@@ -205,7 +197,6 @@ export default function ReelsPage() {
             const diffX = Math.abs(
               (touchStartX.current ?? 0) - e.touches[0].clientX,
             )
-            // Mark as swipe if moved enough vertically and mostly vertical
             if (diffY > 30 && diffY > diffX) {
               swiped.current = true
             }
@@ -215,7 +206,6 @@ export default function ReelsPage() {
             const diff = touchStartY.current - e.changedTouches[0].clientY
             touchStartY.current = null
             touchStartX.current = null
-            // Only navigate on intentional vertical swipes
             if (!swiped.current) return
             if (diff > 50) goTo("next")
             else if (diff < -50) goTo("prev")
@@ -245,8 +235,8 @@ export default function ReelsPage() {
           </div>
         </div>
       </div>
-      {/* CommentSheet rendered OUTSIDE the transform wrapper so fixed
-          positioning works correctly on every reel, not just the first */}
+
+      {/* CommentSheet */}
       {reels[activeIndex] && (
         <CommentSheet
           open={commentsOpen}
@@ -260,6 +250,27 @@ export default function ReelsPage() {
           highlightCommentId={highlightCommentId}
         />
       )}
+
+      {/* Close button (top-left) */}
+      <button
+        onClick={onClose}
+        className="text-foreground hover:text-foreground/80 absolute top-4 left-4 z-50 rounded-full bg-black/50 p-2 transition-colors"
+        aria-label="Close viewer"
+      >
+        <svg
+          className="h-6 w-6"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M6 18L18 6M6 6l12 12"
+          />
+        </svg>
+      </button>
     </ErrorBoundary>
   )
 }

@@ -106,11 +106,11 @@ export function ServiceTable({
                     service.agentIds.length > 0 ? (
                       <div className="flex -space-x-1">
                         {(service.agentIds as LoungeServiceAgent[]).map(
-                          (agent) => {
+                          (agent, agentIndex) => {
                             const url = getAgentImageUrl(agent.profileImage)
                             return url ? (
                               <Image
-                                key={agent._id}
+                                key={`agent-${agent._id}-${agentIndex}`}
                                 src={url}
                                 alt={agent.agentName}
                                 width={28}
@@ -121,7 +121,7 @@ export function ServiceTable({
                               />
                             ) : (
                               <div
-                                key={agent._id}
+                                key={`agent-${agent._id}-${agentIndex}`}
                                 title={agent.agentName}
                                 className="bg-muted flex h-7 w-7 items-center justify-center rounded-full border-2 border-white dark:border-gray-900"
                               >

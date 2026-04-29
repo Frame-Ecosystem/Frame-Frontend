@@ -48,9 +48,9 @@ export function ContentGrid({
     return (
       <div>
         <div className="grid grid-cols-3 gap-1">
-          {(items as Reel[]).map((reel) => (
+          {(items as Reel[]).map((reel, index) => (
             <ReelCard
-              key={reel._id}
+              key={`${reel._id}-${index}`}
               reel={reel}
               onClick={() => onReelClick?.(reel)}
             />
@@ -72,9 +72,9 @@ export function ContentGrid({
   return (
     <div>
       <div className="grid grid-cols-3 gap-1">
-        {(items as Post[]).map((post) => (
+        {(items as Post[]).map((post, index) => (
           <PostGridItem
-            key={post._id}
+            key={`${post._id}-${index}`}
             post={post}
             onClick={() => onPostClick?.(post)}
           />

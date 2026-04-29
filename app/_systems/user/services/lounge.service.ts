@@ -178,8 +178,11 @@ class LoungeService {
         `/v1/lounge-services/service-name/${serviceId}`,
       )
       return response.data?.name || "Unknown Service"
-    } catch (error) {
-      console.error("Failed to fetch service name:", error)
+    } catch {
+      // Handle API errors gracefully - service might not exist or API might be down
+      console.warn(
+        `Service not found or API error for service ID: ${serviceId}`,
+      )
       return "Unknown Service"
     }
   }

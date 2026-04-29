@@ -36,6 +36,7 @@ import { Lounge, LoungeService } from "@/app/_types"
 import { useAuth } from "@/app/_auth"
 import { useCallback, useEffect, useRef, useState } from "react"
 import { useParams, useRouter, useSearchParams } from "next/navigation"
+import { getProfilePath } from "@/app/_systems/user/lib/profile"
 import { isLoungeCurrentlyOpen } from "@/app/_components/bookings/booking-utils"
 import { clientService } from "@/app/_services"
 import { toast } from "sonner"
@@ -52,8 +53,8 @@ export default function LoungePage() {
 
   // Redirect to own profile if visiting yourself
   useEffect(() => {
-    if (!authLoading && user && user._id === id) {
-      router.replace("/profile/lounge")
+    if (!authLoading && user && user.type === "lounge" && user._id === id) {
+      router.replace(getProfilePath(user))
     }
   }, [authLoading, user, id, router])
 
