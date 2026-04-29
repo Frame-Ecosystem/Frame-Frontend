@@ -37,6 +37,18 @@ export function useUserReels(userId: string | undefined, limit = 12) {
   })
 }
 
+/** Lounge's reels (infinite scroll) */
+export function useLoungeReels(loungeId: string | undefined, limit = 12) {
+  return useInfiniteQuery({
+    queryKey: contentKeys.loungeReels(loungeId ?? ""),
+    queryFn: ({ pageParam = 1 }) =>
+      reelService.getLoungeReels(loungeId!, pageParam, limit),
+    initialPageParam: 1,
+    getNextPageParam: extractPagination,
+    enabled: !!loungeId,
+  })
+}
+
 /** Create reel mutation */
 export function useCreateReel() {
   const qc = useQueryClient()

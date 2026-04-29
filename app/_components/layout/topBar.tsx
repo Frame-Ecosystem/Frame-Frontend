@@ -1,21 +1,15 @@
 "use client"
 
 import Link from "next/link"
-import React, { useState, useEffect, useRef } from "react"
+import React from "react"
 import UserSession from "../profile/user-session"
 import NotificationButton from "../common/notification-button"
-import { CreateContentButton } from "../content/create-content-button"
 import { Button } from "../ui/button"
-import { Search, MessageCircle, ChevronLeft } from "lucide-react"
-import { Badge } from "../ui/badge"
+import { Search, Plus } from "lucide-react"
 import { NavBrandLogo } from "../common/brand-logo"
 import { useRouter, usePathname } from "next/navigation"
 import { useAuth } from "@/app/_auth"
-import { useNotificationContext } from "../../_providers/notification"
-import { useScrollDirection } from "../../_hooks/useScrollDirection"
 import { useTranslation } from "../../_i18n"
-import { useChatPanel } from "@/app/_providers/chat-panel"
-import { useTotalUnreadMessages } from "@/app/_systems/chat/hooks/useChatQueries"
 
 interface TopBarProps {
   onGetStarted?: () => void
@@ -23,12 +17,6 @@ interface TopBarProps {
   showGetStarted?: boolean
   isLoading?: boolean
 }
-
-const ICON_OUTER =
-  "flex h-10 w-10 items-center justify-center rounded-full border border-primary/30"
-const ICON_INNER = "h-5 w-5"
-const ICON_BTN =
-  "hover:bg-primary/10 relative flex h-10 w-10 items-center justify-center rounded-full"
 
 const TopBar: React.FC<TopBarProps> = ({
   onGetStarted,
@@ -39,29 +27,7 @@ const TopBar: React.FC<TopBarProps> = ({
   const { user } = useAuth()
   const router = useRouter()
   const pathname = usePathname()
-  const isReelsPage = pathname?.startsWith("/reels") ?? false
   const { t } = useTranslation()
-  const [trayOpen, setTrayOpen] = useState(true)
-  const autoMode = useRef(true)
-  const { unreadCount } = useNotificationContext()
-  const trayRef = useRef<HTMLDivElement>(null)
-  const scrollDir = useScrollDirection()
-  const { open: openChat } = useChatPanel()
-  const unreadMessages = useTotalUnreadMessages()
-
-  // Auto-close tray once on first scroll, then leave it alone.
-  // On the reels page, keep the tray open and disable auto-close.
-  useEffect(() => {
-    if (isReelsPage) {
-      setTrayOpen(true) // eslint-disable-line react-hooks/set-state-in-effect -- force open on reels
-      autoMode.current = false
-      return
-    }
-    if (scrollDir && autoMode.current) {
-      setTrayOpen(false)
-      autoMode.current = false
-    }
-  }, [scrollDir, isReelsPage])
 
   return (
     <div
@@ -96,119 +62,21 @@ const TopBar: React.FC<TopBarProps> = ({
         )}
         {/* ── Mobile: arrow toggle with icons behind it, UserSession always visible ── */}
         {user && (
-          <div
-            ref={trayRef}
-            className="relative flex items-center gap-1.5 md:hidden"
-          >
-            {/* Themed toggle — left of icons when open */}
-            <Button
-              variant="ghost"
-              size="icon"
-              className={`${ICON_BTN} relative order-first`}
-              onClick={() => setTrayOpen((v) => !v)}
-            >
-              <div
-                className={`relative flex h-10 w-10 items-center justify-center rounded-full border transition-colors duration-300 ${
-                  trayOpen
-                    ? "bg-primary/10 border-primary/30"
-                    : "border-border bg-transparent"
-                }`}
-              >
-                <ChevronLeft
-                  className={`text-primary h-5 w-5 transition-transform duration-400 ease-[cubic-bezier(0.34,1.56,0.64,1)] ${
-                    trayOpen ? "rotate-180" : "rotate-0"
-                  }`}
-                />
-                {!trayOpen && unreadCount > 0 && (
-                  <Badge
-                    variant="destructive"
-                    className="absolute -top-1.5 -right-1.5 flex h-4 w-4 items-center justify-center p-0 text-[9px] font-bold"
-                  >
-                    {unreadCount > 9 ? "9+" : unreadCount}
-                  </Badge>
-                )}
-              </div>
-            </Button>
-
-            {/* Animated expanding tray — action icons with stagger */}
-            {/* py-2 + pr-2 give the message badge room to render without being clipped by overflow-hidden */}
-            <div
-              className="flex items-center overflow-hidden py-2 pr-2 transition-all duration-1200 ease-[cubic-bezier(0.34,1.56,0.64,1)]"
-              style={{
-                maxWidth: trayOpen ? "300px" : "0px",
-                opacity: trayOpen ? 1 : 0,
-              }}
-            >
-              <div className="flex items-center gap-1">
-                {[
-                  <CreateContentButton compact key="create" />,
-                  <Button
-                    key="search"
-                    variant="ghost"
-                    size="icon"
-                    className={ICON_BTN}
-                    onClick={() => {
-                      router.push("/lounges")
-                      setTrayOpen(false)
-                    }}
-                  >
-                    <div className={ICON_OUTER}>
-                      <Search className={ICON_INNER} />
-                    </div>
-                  </Button>,
-                  <NotificationButton compact key="notif" />,
-                  <Button
-                    key="msg"
-                    variant="ghost"
-                    size="icon"
-                    className={`${ICON_BTN} relative`}
-                    onClick={() => {
-                      openChat()
-                      setTrayOpen(false)
-                    }}
-                  >
-                    <div className={ICON_OUTER}>
-                      <MessageCircle className={ICON_INNER} />
-                    </div>
-                    {unreadMessages > 0 && (
-                      <Badge
-                        variant="destructive"
-                        className="absolute -top-1.5 -right-1.5 flex h-4 w-4 items-center justify-center p-0 text-[9px] font-bold"
-                      >
-                        {unreadMessages > 9 ? "9+" : unreadMessages}
-                      </Badge>
-                    )}
-                  </Button>,
-                ].map((icon, i) => (
-                  <div
-                    key={i}
-                    className="transition-all ease-out"
-                    style={{
-                      transitionDuration: "900ms",
-                      transitionDelay: trayOpen
-                        ? `${i * 150}ms`
-                        : `${(3 - i) * 100}ms`,
-                      opacity: trayOpen ? 1 : 0,
-                      transform: trayOpen
-                        ? "scale(1) translateX(0)"
-                        : "scale(0.6) translateX(-6px)",
-                    }}
-                  >
-                    {icon}
+          <div className="flex items-center gap-2 md:hidden">
+            {pathname.startsWith("/lounges/") && pathname !== "/lounges" && (
+              <Link href="/create">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="hover:bg-primary/10 relative flex items-center justify-center rounded-full"
+                  title="Create new content"
+                >
+                  <div className="flex h-10 w-10 items-center justify-center rounded-full border">
+                    <Plus className="h-5 w-5" />
                   </div>
-                ))}
-              </div>
-            </div>
-
-            {/* UserSession always visible */}
-            <UserSession compact />
-          </div>
-        )}
-
-        {/* ── Desktop/tablet: all icons visible ── */}
-        {user && (
-          <div className="hidden items-center gap-2 md:flex">
-            <CreateContentButton />
+                </Button>
+              </Link>
+            )}
             <Button
               variant="ghost"
               size="icon"
@@ -220,25 +88,24 @@ const TopBar: React.FC<TopBarProps> = ({
               </div>
             </Button>
             <NotificationButton compact />
+            <UserSession compact />
+          </div>
+        )}
+
+        {/* ── Desktop/tablet: all icons visible ── */}
+        {user && (
+          <div className="hidden items-center gap-2 md:flex">
             <Button
               variant="ghost"
               size="icon"
-              onClick={() => openChat()}
-              aria-label="Open messages"
               className="hover:bg-primary/10 relative flex items-center justify-center rounded-full"
+              onClick={() => router.push("/lounges")}
             >
               <div className="flex h-10 w-10 items-center justify-center rounded-full border">
-                <MessageCircle className="h-5 w-5" />
+                <Search className="h-5 w-5" />
               </div>
-              {unreadMessages > 0 && (
-                <Badge
-                  variant="destructive"
-                  className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center p-0 text-[9px] font-bold"
-                >
-                  {unreadMessages > 9 ? "9+" : unreadMessages}
-                </Badge>
-              )}
             </Button>
+            <NotificationButton compact />
             <UserSession compact />
           </div>
         )}

@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { InfoIcon, FileText, Film, CalendarIcon, Users } from "lucide-react"
+import { InfoIcon, Film, CalendarIcon, Users } from "lucide-react"
 import { Card, CardContent, CardHeader } from "@/app/_components/ui/card"
 import { Button } from "@/app/_components/ui/button"
 import OpeningHours from "@/app/_components/forms/opening-hours"
@@ -10,13 +10,12 @@ import Extras from "@/app/_components/common/extras"
 import ContactInfo from "@/app/_components/common/profile-display/contact-info"
 import OurServices from "@/app/_components/services/our-services"
 import QueueDisplay from "@/app/_components/queue/queue-display"
-import { UserPostsTab } from "@/app/_components/profile/user-posts-tab"
 import { UserReelsTab } from "@/app/_components/profile/user-reels-tab"
 import type { LoungeDetail } from "../_lib/use-lounge-data"
 
 // ── Types & Constants ───────────────────────────────────────────
 
-type Tab = "info" | "posts" | "reels" | "services" | "queue"
+type Tab = "info" | "reels" | "services" | "queue"
 
 const TABS: {
   id: Tab
@@ -24,8 +23,7 @@ const TABS: {
   icon: React.ComponentType<{ className?: string }>
 }[] = [
   { id: "info", label: "Info", icon: InfoIcon },
-  { id: "posts", label: "Posts", icon: FileText },
-  { id: "reels", label: "Reels", icon: Film },
+  { id: "reels", label: "Works", icon: Film },
   { id: "services", label: "Services", icon: CalendarIcon },
   { id: "queue", label: "Queue", icon: Users },
 ]
@@ -97,10 +95,8 @@ function TabContent({
       return <InfoTab lounge={lounge} />
     case "services":
       return <OurServices services={lounge.services} center={lounge} />
-    case "posts":
-      return <UserPostsTab userId={loungeId} />
     case "reels":
-      return <UserReelsTab userId={loungeId} />
+      return <UserReelsTab userId={loungeId} isLounge />
     case "queue":
       return (
         <QueueDisplay

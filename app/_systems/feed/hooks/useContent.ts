@@ -35,6 +35,7 @@ export {
 export {
   useReel,
   useUserReels,
+  useLoungeReels,
   useCreateReel,
   useUpdateReel,
   useDeleteReel,
