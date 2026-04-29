@@ -965,6 +965,9 @@ const tr: Record<string, string> = {
   "admin.categories.headerIcon": "Simge",
   "admin.categories.deleteConfirm": "Kategori silinsin mi?",
   "admin.categories.editCategory": "Kategoriyi Düzenle",
+  "admin.categories.addCategoryDesc":
+    "Hizmetlerinizi organize etmek için yeni bir hizmet kategorisi oluşturun",
+  "admin.categories.editCategoryDesc": "Kategori ayrıntılarını güncelleyin",
   "admin.categories.iconPlaceholder": "örn. makas, spa, palet",
   "admin.categories.saving": "Kaydediliyor...",
   "admin.categories.create": "Oluştur",
@@ -1346,6 +1349,8 @@ const tr: Record<string, string> = {
   "admin.loungeServices.tableGender": "Cinsiyet",
   "admin.loungeServices.tableStatus": "Durum",
   "admin.loungeServices.assignTitle": "Salona Hizmet Ata",
+  "admin.loungeServices.assignDesc":
+    "Bir salon seçin ve bu hizmet için fiyat belirleyin",
   "admin.loungeServices.selectLounge": "Salon seçin",
   "admin.loungeServices.selectService": "Hizmet seçin",
   "admin.loungeServices.durationMin": "Süre (dk)",

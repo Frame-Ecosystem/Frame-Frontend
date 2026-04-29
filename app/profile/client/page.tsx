@@ -64,7 +64,7 @@ export default function ClientProfilePage() {
   const [activeTab, setActiveTab] = useState<TabKey>(() => {
     const tab = searchParams.get("tab")
     if (
-      tab === "posts" ||
+      tab === "account" ||
       tab === "reels" ||
       tab === "likes" ||
       tab === "ratings" ||

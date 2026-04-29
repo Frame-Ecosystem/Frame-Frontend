@@ -22,6 +22,7 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogDescription,
   DialogFooter,
 } from "../../_components/ui/dialog"
 import { Input } from "../../_components/ui/input"
@@ -202,6 +203,11 @@ function CategoryFormDialog({
               ? t("admin.categories.editCategory")
               : t("admin.categories.addCategory")}
           </DialogTitle>
+          <DialogDescription>
+            {initial
+              ? t("admin.categories.editCategoryDesc")
+              : t("admin.categories.addCategoryDesc")}
+          </DialogDescription>
         </DialogHeader>
         <div className="space-y-4 py-4">
           <div className="space-y-2">

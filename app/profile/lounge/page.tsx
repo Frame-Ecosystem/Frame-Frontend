@@ -52,7 +52,7 @@ export default function LoungeProfilePage() {
   const [activeTab, setActiveTab] = useState<TabKey>(() => {
     const tab = searchParams.get("tab")
     if (
-      tab === "posts" ||
+      tab === "account" ||
       tab === "reels" ||
       tab === "reviews" ||
       tab === "saved"
