@@ -19,7 +19,7 @@ const ar: Record<string, string> = {
   "nav.reels": "ريلز",
   "nav.lounges": "الصالونات",
   "nav.queue": "الانتظار",
-  "nav.queues": "الإنتضار قائمة",
+  "nav.queues": " قائمة الإنتضار",
   "nav.bookings": "الحجوزات",
   "nav.chat": "الدردشة",
   "nav.store": "المتجر",
