@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect, useCallback, useRef } from "react"
-import { useSearchParams } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import { Button } from "../../_components/ui/button"
 import {
   Pencil,
@@ -39,6 +39,7 @@ const TABS: { key: TabKey; icon: typeof Grid3X3; labelKey: string }[] = [
 
 export default function LoungeProfilePage() {
   const { user, isLoading, setAuth, accessToken } = useAuth()
+  const router = useRouter()
   const { t } = useTranslation()
   const searchParams = useSearchParams()
   const [updating, setUpdating] = useState(false)
@@ -160,7 +161,26 @@ export default function LoungeProfilePage() {
     return <LoungeProfileSkeleton />
   }
 
-  if (user && user.type !== "lounge") {
+  if (!user) {
+    return (
+      <div className="from-background via-background to-muted/20 min-h-screen bg-linear-to-br">
+        <div className="mx-auto max-w-7xl p-5 lg:px-8 lg:py-12">
+          <div className="flex min-h-[400px] items-center justify-center">
+            <div className="text-center">
+              <p className="text-muted-foreground mb-4">
+                {t("lounge.signInToView")}
+              </p>
+              <Button onClick={() => router.push("/choose-type")}>
+                {t("lounge.signIn")}
+              </Button>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  if (user.type !== "lounge") {
     return (
       <ErrorBoundary>
         <div className="from-background via-background to-muted/20 min-h-screen bg-linear-to-br">
@@ -376,7 +396,7 @@ export default function LoungeProfilePage() {
           )}
 
           {activeTab === "reels" && user?._id && (
-            <UserReelsTab userId={user._id} />
+            <UserReelsTab userId={user._id} isLounge={true} />
           )}
 
           {activeTab === "saved" && <SavedContentTab />}

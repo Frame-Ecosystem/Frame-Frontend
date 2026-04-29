@@ -4,6 +4,7 @@ import { useEffect } from "react"
 import { ErrorBoundary } from "@/app/_components/common/errorBoundary"
 import { Button } from "@/app/_components/ui/button"
 import { useParams, useRouter } from "next/navigation"
+import { getProfilePath } from "@/app/_systems/user/lib/profile"
 import { AlertTriangle, Lock, SearchX } from "lucide-react"
 import { useTranslation } from "@/app/_i18n"
 import { useLoungeData } from "./_lib/use-lounge-data"
@@ -51,8 +52,8 @@ export default function LoungePage() {
 
   // Redirect to own profile if visiting yourself
   useEffect(() => {
-    if (user && user._id === id) {
-      router.replace("/profile/lounge")
+    if (user && user.type === "lounge" && user._id === id) {
+      router.replace(getProfilePath(user))
     }
   }, [user, id, router])
 

@@ -5,11 +5,12 @@ import React from "react"
 import UserSession from "../profile/user-session"
 import NotificationButton from "../common/notification-button"
 import { Button } from "../ui/button"
-import { Search, Plus } from "lucide-react"
+import { Search } from "lucide-react"
 import { NavBrandLogo } from "../common/brand-logo"
 import { useRouter, usePathname } from "next/navigation"
 import { useAuth } from "@/app/_auth"
 import { useTranslation } from "../../_i18n"
+import { CreateContentButton } from "../content/create-content-button"
 
 interface TopBarProps {
   onGetStarted?: () => void
@@ -64,18 +65,7 @@ const TopBar: React.FC<TopBarProps> = ({
         {user && (
           <div className="flex items-center gap-2 md:hidden">
             {pathname.startsWith("/lounges/") && pathname !== "/lounges" && (
-              <Link href="/create">
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="hover:bg-primary/10 relative flex items-center justify-center rounded-full"
-                  title="Create new content"
-                >
-                  <div className="flex h-10 w-10 items-center justify-center rounded-full border">
-                    <Plus className="h-5 w-5" />
-                  </div>
-                </Button>
-              </Link>
+              <CreateContentButton compact />
             )}
             <Button
               variant="ghost"
