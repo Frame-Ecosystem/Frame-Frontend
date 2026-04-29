@@ -9,7 +9,7 @@ import { CommentSheet } from "../_components/content/comment-sheet"
 import { EmptyState } from "../_components/content/empty-state"
 import { useReelMutePreference } from "../_components/content/hooks/use-reel-mute-preference"
 import { useExploreFeed } from "../_hooks/queries/useContent"
-import type { Reel, FeedItem } from "../_types/content"
+import type { Reel } from "../_types/content"
 import { useScrollToTarget } from "../_hooks/useScrollToTarget"
 
 export default function ReelsPage() {
@@ -55,10 +55,11 @@ export default function ReelsPage() {
   const exploreQuery = useExploreFeed()
   const reels = useMemo(() => {
     const items =
-      exploreQuery.data?.pages.flatMap((page) => page.data as FeedItem[]) ?? []
+      exploreQuery.data?.pages.flatMap((page) => page.data ?? []) ?? []
     const seen = new Set<string>()
     return items.filter((item): item is Reel & { contentType: "reel" } => {
-      if (item.contentType !== "reel") return false
+      if (!item || item.contentType !== "reel") return false
+      if (typeof item._id !== "string" || item._id === "") return false
       if (seen.has(item._id)) return false
       seen.add(item._id)
       return true
@@ -226,7 +227,7 @@ export default function ReelsPage() {
             style={{ transform: `translateY(-${activeIndex * 100}%)` }}
           >
             {reels.map((reel, index) => (
-              <div key={reel._id} className="h-full">
+              <div key={reel._id ?? `reel-${index}`} className="h-full">
                 <ReelPlayer
                   reel={reel}
                   autoPlay={index === activeIndex}

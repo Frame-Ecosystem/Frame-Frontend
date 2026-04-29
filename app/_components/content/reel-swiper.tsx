@@ -33,9 +33,9 @@ export function ReelSwiper({ reels }: ReelSwiperProps) {
           WebkitOverflowScrolling: "touch",
         }}
       >
-        {reels.map((reel) => (
+        {reels.map((reel, index) => (
           <button
-            key={reel._id}
+            key={reel._id ?? `reel-${index}`}
             onClick={() => openReel(reel)}
             onMouseEnter={() => prefetchReel(reel)}
             onTouchStart={() => prefetchReel(reel)}

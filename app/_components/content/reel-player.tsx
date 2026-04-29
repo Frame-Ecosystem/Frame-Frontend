@@ -59,8 +59,9 @@ export function ReelPlayer({
   const [showDoubleTapHeart, setShowDoubleTapHeart] = useState(false)
   const heartTimeout = useRef<ReturnType<typeof setTimeout> | null>(null)
 
-  const likeMutation = useToggleReelLike(reel._id)
-  const saveMutation = useToggleReelSave(reel._id)
+  const reelId = reel._id ?? ""
+  const likeMutation = useToggleReelLike(reelId)
+  const saveMutation = useToggleReelSave(reelId)
   const deleteMutation = useDeleteReel()
   const hideMutation = useAdminHideReel()
   const unhideMutation = useAdminUnhideReel()
@@ -68,7 +69,7 @@ export function ReelPlayer({
 
   const isLiked = reel.isLiked ?? false
   const isSaved = reel.isSaved ?? false
-  const isOwner = user?._id === reel.authorId._id
+  const isOwner = user?._id === reel.authorId?._id
   const isAdmin = user?.type === "admin"
 
   // ── Playback hook ──
@@ -83,7 +84,7 @@ export function ReelPlayer({
     toggleMute,
   } = useReelPlayback({
     autoPlay,
-    videoUrl: reel.videoUrl,
+    videoUrl: reel.videoUrl ?? "",
     initialMuted,
     onMuteChange: onMuteChangeProp,
   })
@@ -101,6 +102,14 @@ export function ReelPlayer({
     onSingleTap: togglePlay,
     onDoubleTap: handleDoubleTap,
   })
+
+  if (!reelId) {
+    return (
+      <div className="relative flex h-full w-full items-center justify-center bg-black text-white">
+        Invalid reel data
+      </div>
+    )
+  }
 
   return (
     <div
