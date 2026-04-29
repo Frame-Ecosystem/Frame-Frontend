@@ -17,6 +17,7 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogDescription,
   DialogFooter,
 } from "../../_components/ui/dialog"
 import { Input } from "../../_components/ui/input"
@@ -233,6 +234,9 @@ function AssignDialog({
       <DialogContent>
         <DialogHeader>
           <DialogTitle>{t("admin.loungeServices.assignTitle")}</DialogTitle>
+          <DialogDescription>
+            {t("admin.loungeServices.assignDesc")}
+          </DialogDescription>
         </DialogHeader>
         <div className="space-y-4 py-4">
           <div className="space-y-2">

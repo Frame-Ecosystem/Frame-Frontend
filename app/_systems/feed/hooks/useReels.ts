@@ -5,7 +5,6 @@
   useInfiniteQuery,
 } from "@tanstack/react-query"
 import { useEffect, useRef, useState } from "react"
-import { reelService } from "@/app/_services/reel.service"
 import { toast } from "sonner"
 import type { Reel } from "@/app/_types"
 import {
@@ -15,6 +14,7 @@ import {
   updateFeedItemOptimistic,
   RATE_LIMIT_COOLDOWN,
 } from "./content-keys"
+import { reelService } from "../services"
 
 /** Single reel detail */
 export function useReel(reelId: string | undefined) {

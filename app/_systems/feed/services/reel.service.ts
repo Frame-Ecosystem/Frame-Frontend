@@ -49,6 +49,17 @@ class ReelServiceClass {
     )
   }
 
+  /** Get a user's reels (paginated) */
+  async getUserReels(
+    userId: string,
+    page = 1,
+    limit = 10,
+  ): Promise<PaginatedContentResponse<Reel>> {
+    return apiClient.get<PaginatedContentResponse<Reel>>(
+      `/v1/reels/user/${userId}?page=${page}&limit=${limit}`,
+    )
+  }
+
   /** Update reel caption/hashtags */
   async updateReel(reelId: string, data: UpdateReelInput): Promise<Reel> {
     const res = await apiClient.put<SingleContentResponse<Reel>>(

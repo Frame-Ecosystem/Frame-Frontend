@@ -34,6 +34,7 @@ import {
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogFooter,
@@ -318,6 +319,9 @@ export default function UsersPage() {
               <DialogTitle>
                 {t("admin.users.resetPwTitle", { email: resetPwUser.email })}
               </DialogTitle>
+              <DialogDescription>
+                {t("admin.users.resetPwDesc")}
+              </DialogDescription>
             </DialogHeader>
             <div className="space-y-3 py-4">
               <Label>{t("admin.users.newPassword")}</Label>
@@ -395,6 +399,9 @@ function CreateUserDialog({
       <DialogContent>
         <DialogHeader>
           <DialogTitle>{t("admin.users.createUser")}</DialogTitle>
+          <DialogDescription>
+            {t("admin.users.createUserDesc")}
+          </DialogDescription>
         </DialogHeader>
         <div className="space-y-4 py-4">
           <div className="space-y-2">
@@ -505,6 +512,7 @@ function EditUserDialog({
       <DialogContent>
         <DialogHeader>
           <DialogTitle>{t("admin.users.editUser")}</DialogTitle>
+          <DialogDescription>{t("admin.users.editUserDesc")}</DialogDescription>
         </DialogHeader>
         <div className="space-y-4 py-4">
           <div className="space-y-2">

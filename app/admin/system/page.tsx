@@ -27,6 +27,7 @@ import { Label } from "../../_components/ui/label"
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogFooter,
@@ -220,6 +221,9 @@ export default function SystemPage() {
         <DialogContent>
           <DialogHeader>
             <DialogTitle>{t("admin.system.resetPassword")}</DialogTitle>
+            <DialogDescription>
+              {t("admin.system.resetPasswordDesc")}
+            </DialogDescription>
           </DialogHeader>
           <div className="space-y-3 py-4">
             <Label>{t("admin.system.newPassword")}</Label>

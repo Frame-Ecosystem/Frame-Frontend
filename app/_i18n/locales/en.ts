@@ -994,6 +994,9 @@ const en: Record<string, string> = {
   "admin.categories.headerIcon": "Icon",
   "admin.categories.deleteConfirm": "Delete category?",
   "admin.categories.editCategory": "Edit Category",
+  "admin.categories.addCategoryDesc":
+    "Create a new service category to organize your services",
+  "admin.categories.editCategoryDesc": "Update the category details",
   "admin.categories.iconPlaceholder": "e.g. scissors, spa, palette",
   "admin.categories.saving": "Saving...",
   "admin.categories.create": "Create",
@@ -1377,6 +1380,8 @@ const en: Record<string, string> = {
   "admin.loungeServices.tableGender": "Gender",
   "admin.loungeServices.tableStatus": "Status",
   "admin.loungeServices.assignTitle": "Assign Service to Lounge",
+  "admin.loungeServices.assignDesc":
+    "Select a lounge and set the price for this service",
   "admin.loungeServices.selectLounge": "Select lounge",
   "admin.loungeServices.selectService": "Select service",
   "admin.loungeServices.durationMin": "Duration (min)",
