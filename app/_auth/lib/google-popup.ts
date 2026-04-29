@@ -48,17 +48,38 @@ function readPopupUrl(popup: Window): string | null {
   }
 }
 
+async function fetchCsrfToken(origin: string) {
+  try {
+    const res = await fetch(`${origin.replace(/\/$/, "")}/v1/auth/csrf-token`, {
+      method: "GET",
+      credentials: "include",
+      headers: { Accept: "application/json" },
+    })
+    if (!res.ok) return null
+    const body = await res.json().catch(() => null)
+    return typeof body?.csrfToken === "string" ? body.csrfToken : null
+  } catch {
+    return null
+  }
+}
+
 async function tryRefreshToken() {
   try {
+    const csrfToken = await fetchCsrfToken(GOOGLE_AUTH_BASE_URL)
+    const headers: Record<string, string> = {
+      "Content-Type": "application/json",
+    }
+    if (csrfToken) headers["x-csrf-token"] = csrfToken
+
     const res = await fetch(`${GOOGLE_AUTH_BASE_URL}/v1/auth/refresh-token`, {
       method: "POST",
       credentials: "include",
-      headers: { "Content-Type": "application/json" },
+      headers,
     })
     const body = await res.json().catch(() => null)
-    const csrfToken = body?.csrfToken
-    if (typeof csrfToken === "string" && csrfToken)
-      setSessionCsrfToken(csrfToken)
+    const csrfTokenFromBody = body?.csrfToken
+    if (typeof csrfTokenFromBody === "string" && csrfTokenFromBody)
+      setSessionCsrfToken(csrfTokenFromBody)
     return {
       ok: res.ok,
       token: body?.token || body?.data?.token,

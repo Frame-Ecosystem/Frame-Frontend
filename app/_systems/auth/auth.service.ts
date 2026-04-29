@@ -1,6 +1,6 @@
 ﻿import { apiClient } from "@/app/_services/api"
 import { API_BASE_URL } from "@/app/_services/api"
-import { getCsrfTokenForRequest } from "./lib/csrf"
+import { getCsrfTokenForRequest, setSessionCsrfToken } from "./lib/csrf"
 import type { User, Gender } from "@/app/_types"
 import type {
   AuthTokenResponse,
@@ -119,6 +119,24 @@ class AuthService {
    * Uses raw fetch to avoid ApiClient's 401 retry loop.
    * Returns parsed response with ok/status for the caller to handle.
    */
+  async getCsrfToken(): Promise<string | null> {
+    try {
+      const res = await fetch(`${API_BASE_URL}/v1/auth/csrf-token`, {
+        method: "GET",
+        credentials: "include",
+        headers: { Accept: "application/json" },
+      })
+      if (!res.ok) return null
+
+      const body = await res.json().catch(() => null)
+      const token = typeof body?.csrfToken === "string" ? body.csrfToken : null
+      if (token) setSessionCsrfToken(token)
+      return token
+    } catch {
+      return null
+    }
+  }
+
   async refreshToken(): Promise<{
     ok: boolean
     status: number
@@ -128,7 +146,10 @@ class AuthService {
       const headers: Record<string, string> = {
         "Content-Type": "application/json",
       }
-      const csrfToken = getCsrfTokenForRequest()
+      let csrfToken = getCsrfTokenForRequest()
+      if (!csrfToken) {
+        csrfToken = await this.getCsrfToken()
+      }
       if (csrfToken) {
         headers["x-csrf-token"] = csrfToken
       }
