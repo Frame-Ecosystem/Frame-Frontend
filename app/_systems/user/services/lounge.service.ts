@@ -288,7 +288,28 @@ class LoungeService {
         }
       }
 
-      return agentsData
+      // Normalize agents to populate legacy idLoungeService field
+      const normalizedAgents = agentsData.agents.map((agent) => {
+        const normalized = { ...agent }
+        if (agent.services && !agent.idLoungeService) {
+          // Handle both array of objects and array of strings
+          if (Array.isArray(agent.services)) {
+            normalized.idLoungeService = agent.services
+              .map((s) => {
+                if (typeof s === "string") return s
+                if (typeof s === "object" && s && "_id" in s) return s._id
+                return null
+              })
+              .filter(Boolean) as string[]
+          }
+        }
+        return normalized
+      })
+
+      return {
+        ...agentsData,
+        agents: normalizedAgents,
+      }
     } catch (error) {
       console.error("Failed to fetch lounge agents:", error)
       throw error
