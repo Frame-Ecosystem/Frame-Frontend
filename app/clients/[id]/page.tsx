@@ -2,13 +2,7 @@
 
 import { useState, useEffect, useCallback, useRef } from "react"
 import { useParams, useRouter } from "next/navigation"
-import {
-  ArrowLeft,
-  User as UserIcon,
-  FileText,
-  Film,
-  BookOpen,
-} from "lucide-react"
+import { ArrowLeft, User as UserIcon, Film, BookOpen } from "lucide-react"
 import { ErrorBoundary } from "@/app/_components/common/errorBoundary"
 import { useAuth } from "@/app/_auth"
 import { Button } from "@/app/_components/ui/button"
@@ -20,12 +14,11 @@ import { VisitorProfileSkeleton } from "@/app/_components/clients/visitor-profil
 import { VisitorProfileHeader } from "@/app/_components/clients/visitor-profile-header"
 import { VisitorStatsCards } from "@/app/_components/clients/visitor-stats-cards"
 import { VisitorOverviewTab } from "@/app/_components/clients/visitor-overview-tab"
-import { VisitorPostsTab } from "@/app/_components/clients/visitor-posts-tab"
 import { VisitorBookingsTab } from "@/app/_components/clients/visitor-bookings-tab"
 import { UserReelsTab } from "@/app/_components/profile/user-reels-tab"
 
 // -- Tab types --
-type Tab = "overview" | "posts" | "reels" | "bookings"
+type Tab = "overview" | "reels" | "bookings"
 
 export default function ClientVisitorProfilePage() {
   const params = useParams()
@@ -181,15 +174,6 @@ export default function ClientVisitorProfilePage() {
             <Button
               variant="ghost"
               size="sm"
-              className={`shrink-0 rounded-lg border px-3 py-2 text-sm font-medium transition-all duration-300 ${activeTab === "posts" ? "border-primary bg-primary/10 text-primary" : "border-border text-foreground hover:border-primary/50 hover:text-primary hover:bg-primary/5"}`}
-              onClick={() => setActiveTab("posts")}
-            >
-              <FileText className="h-4 w-4" />
-              {t("clients.tabs.posts")}
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
               className={`shrink-0 rounded-lg border px-3 py-2 text-sm font-medium transition-all duration-300 ${activeTab === "reels" ? "border-primary bg-primary/10 text-primary" : "border-border text-foreground hover:border-primary/50 hover:text-primary hover:bg-primary/5"}`}
               onClick={() => setActiveTab("reels")}
             >
@@ -211,12 +195,6 @@ export default function ClientVisitorProfilePage() {
         {/* ── Tab Content ─────────────────────────────────── */}
         <div className="mx-auto max-w-5xl px-4 py-6 sm:px-6 lg:px-8">
           {activeTab === "overview" && <VisitorOverviewTab profile={profile} />}
-          {activeTab === "posts" && (
-            <VisitorPostsTab
-              clientId={clientId}
-              onImageClick={handleImageClick}
-            />
-          )}
           {activeTab === "reels" && <UserReelsTab userId={clientId} />}
           {activeTab === "bookings" && (
             <VisitorBookingsTab clientId={clientId} />

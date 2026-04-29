@@ -10,9 +10,11 @@ const en: Record<string, string> = {
   // ── Navigation ──────────────────────────────────────────────────────────
   "nav.home": "Home",
   "nav.reels": "Reels",
-  "nav.lounges": "Lounges",
+  "nav.lounges": "Salons",
   "nav.queue": "Queue",
+  "nav.queues": "Queues",
   "nav.bookings": "Bookings",
+  "nav.chat": "Chat",
   "nav.store": "Store",
   "nav.admin": "Admin",
   "nav.profile": "Profile",

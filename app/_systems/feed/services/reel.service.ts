@@ -38,14 +38,14 @@ class ReelServiceClass {
     return res.data
   }
 
-  /** Get a user's reels (paginated) */
-  async getUserReels(
-    userId: string,
+  /** Get a lounge's reels (paginated) */
+  async getLoungeReels(
+    loungeId: string,
     page = 1,
     limit = 10,
   ): Promise<PaginatedContentResponse<Reel>> {
     return apiClient.get<PaginatedContentResponse<Reel>>(
-      `/v1/reels/user/${userId}?page=${page}&limit=${limit}`,
+      `/v1/reels/lounge/${loungeId}?page=${page}&limit=${limit}`,
     )
   }
 

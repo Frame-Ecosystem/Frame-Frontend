@@ -20,7 +20,6 @@ import { ProfileCover } from "../../_components/common/profile-display/profile-c
 import { AccountSettings } from "../../_components/profile/account-settings"
 import { AccountInformation } from "../../_components/profile/account-information"
 import { OpeningHoursDisplay } from "../../_components/forms/opening-hours-display"
-import { UserPostsTab } from "../../_components/profile/user-posts-tab"
 import { UserReelsTab } from "../../_components/profile/user-reels-tab"
 import { SavedContentTab } from "../../_components/content/saved-content-tab"
 import { RatingSummaryBadge } from "../../_components/common/star-rating"
@@ -29,11 +28,10 @@ import { LoungeProfileSkeleton } from "./_components/lounge-profile-skeleton"
 import { FollowStats } from "../../_components/common/follow-stats"
 import { useTranslation } from "@/app/_i18n"
 
-type TabKey = "account" | "posts" | "reels" | "reviews" | "saved"
+type TabKey = "account" | "reels" | "reviews" | "saved"
 
 const TABS: { key: TabKey; icon: typeof Grid3X3; labelKey: string }[] = [
   { key: "account", icon: Settings, labelKey: "profile.tabs.account" },
-  { key: "posts", icon: Grid3X3, labelKey: "profile.tabs.posts" },
   { key: "reels", icon: Film, labelKey: "profile.tabs.reels" },
   { key: "reviews", icon: MessageSquare, labelKey: "profile.tabs.reviews" },
   { key: "saved", icon: Bookmark, labelKey: "profile.tabs.saved" },
@@ -375,10 +373,6 @@ export default function LoungeProfilePage() {
                 openBioSection={openBioSection}
               />
             </div>
-          )}
-
-          {activeTab === "posts" && user?._id && (
-            <UserPostsTab userId={user._id} />
           )}
 
           {activeTab === "reels" && user?._id && (

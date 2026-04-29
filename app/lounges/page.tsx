@@ -239,7 +239,7 @@ export default function LoungesPage() {
       lounge.loungeTitle ||
       `${lounge.firstName || ""} ${lounge.lastName || ""}`.trim(),
     address: lounge.bio || "",
-    imageUrl: lounge.profileImage?.url || "/images/default-lounge.png",
+    imageUrl: lounge.profileImage?.url || "/images/placeholder.png",
     phones: lounge.phoneNumber ? [lounge.phoneNumber] : [],
     isOpen: isCurrentlyOpen(lounge.openingHours),
     averageRating: lounge.averageRating ?? 0,

@@ -14,6 +14,7 @@ export const contentKeys = {
   reels: ["reels"] as const,
   reel: (id: string) => ["reels", id] as const,
   userReels: (userId: string) => ["reels", "user", userId] as const,
+  loungeReels: (loungeId: string) => ["reels", "lounge", loungeId] as const,
 
   // Comments
   comments: (targetType: string, targetId: string) =>

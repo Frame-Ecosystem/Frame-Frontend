@@ -19,7 +19,6 @@ import { authService } from "@/app/_auth"
 import { ProfileCover } from "../../_components/common/profile-display/profile-cover"
 import { AccountSettings } from "../../_components/profile/account-settings"
 import { AccountInformation } from "../../_components/profile/account-information"
-import { UserPostsTab } from "../../_components/profile/user-posts-tab"
 import { UserReelsTab } from "../../_components/profile/user-reels-tab"
 import { SavedContentTab } from "../../_components/content/saved-content-tab"
 import {
@@ -40,11 +39,10 @@ import {
 import { resolveProfileImage } from "../../_lib/image-utils"
 import { useTranslation } from "@/app/_i18n"
 
-type TabKey = "account" | "posts" | "reels" | "likes" | "ratings" | "saved"
+type TabKey = "account" | "reels" | "likes" | "ratings" | "saved"
 
 const TABS: { key: TabKey; icon: typeof Grid3X3; labelKey: string }[] = [
   { key: "account", icon: Settings, labelKey: "profile.tabs.account" },
-  { key: "posts", icon: Grid3X3, labelKey: "profile.tabs.posts" },
   { key: "reels", icon: Film, labelKey: "profile.tabs.reels" },
   { key: "likes", icon: Heart, labelKey: "profile.tabs.likes" },
   { key: "ratings", icon: StarIcon, labelKey: "profile.tabs.ratings" },
@@ -331,10 +329,6 @@ export default function ClientProfilePage() {
                 openBioSection={openBioSection}
               />
             </div>
-          )}
-
-          {activeTab === "posts" && user?._id && (
-            <UserPostsTab userId={user._id} />
           )}
 
           {activeTab === "reels" && user?._id && (
