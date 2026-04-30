@@ -31,9 +31,9 @@ const MobileNavbar = () => {
     <>
       <nav
         data-nav-mobile
-        className={`bg-card/95 border-border fixed right-0 bottom-0 left-0 z-[9999] h-[100px] border-t shadow-[0_-2px_12px_0_rgba(0,0,0,0.04)] backdrop-blur-sm transition-transform duration-300 ease-in-out lg:hidden ${hidden ? "translate-y-[200%]" : "translate-y-0"}`}
+        className={`bg-card/95 border-border fixed right-0 bottom-0 left-0 z-[9999] h-[86px] border-t shadow-[0_-2px_12px_0_rgba(0,0,0,0.04)] backdrop-blur-sm transition-transform duration-300 ease-in-out lg:hidden ${hidden ? "translate-y-[200%]" : "translate-y-0"}`}
       >
-        <div className="relative mb-2 flex h-full items-center justify-between gap-1 px-3 py-2 pb-10">
+        <div className="relative mb-2 flex h-full items-center justify-between gap-1 px-3 py-2 pb-8">
           {filteredNavLinks.map((link) => {
             const isHomeLink = link.href === "/home"
             const href = isHomeLink ? getHomePath() : link.href

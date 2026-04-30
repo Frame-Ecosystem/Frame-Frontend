@@ -59,7 +59,7 @@
   --header-offset: 73px; /* mobile / small screens - increased to sit below top bars */
   --header-offset-lg: 96px; /* desktop / large screens - increased to sit below desktop nav */
   /* Mobile bottom nav height (including safe-area padding) */
-  --mobile-nav-height: 100px;
+  --mobile-nav-height: 86px;
 }
 
 /* Hide scrollbar but keep scrolling */
