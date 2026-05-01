@@ -147,7 +147,7 @@ export default function SignUpForm({
         type: selectedType,
       })
 
-      if (response) {
+      if (response?.success !== false) {
         recordSuccess()
         // Keep emailSending true briefly to show success state
         setTimeout(() => {
@@ -155,6 +155,11 @@ export default function SignUpForm({
           onSuccess?.(values.email)
         }, 1000)
       } else {
+        const backendMessage =
+          response?.message ||
+          "Unable to send verification email. Please try again."
+        setFormError(backendMessage)
+        recordFailure()
         setEmailSending(false)
       }
     } catch (err) {
