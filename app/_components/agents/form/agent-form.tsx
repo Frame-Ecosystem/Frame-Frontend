@@ -292,15 +292,27 @@ export function AgentForm({
             <Label htmlFor="phoneNumber">
               {t("agents.form.phoneNumber") || "Phone number"}
             </Label>
-            <Input
-              id="phoneNumber"
-              type="tel"
-              inputMode="tel"
-              value={formData.phoneNumber || ""}
-              onChange={(e) => handleInputChange("phoneNumber", e.target.value)}
-              placeholder="+1 555 000 0000"
-              className={errors.phoneNumber ? "border-destructive" : ""}
-            />
+            <div className="flex">
+              <span className="border-input bg-muted text-muted-foreground flex items-center rounded-l-md border border-r-0 px-3 text-sm select-none">
+                +216
+              </span>
+              <Input
+                id="phoneNumber"
+                type="tel"
+                inputMode="numeric"
+                value={(formData.phoneNumber || "").replace(/^\+?216/, "")}
+                onChange={(e) => {
+                  const digits = e.target.value.replace(/\D/g, "").slice(0, 8)
+                  handleInputChange(
+                    "phoneNumber",
+                    digits ? `+216${digits}` : "",
+                  )
+                }}
+                placeholder="12345678"
+                maxLength={8}
+                className={`rounded-l-none ${errors.phoneNumber ? "border-destructive" : ""}`}
+              />
+            </div>
             {errors.phoneNumber && (
               <p className="text-destructive text-sm">{errors.phoneNumber}</p>
             )}

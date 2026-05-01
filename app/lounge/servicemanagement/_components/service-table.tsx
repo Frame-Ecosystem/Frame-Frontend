@@ -16,6 +16,7 @@ import {
   AlertDialogTrigger,
 } from "../../../_components/ui/alert-dialog"
 import { getImageUrl } from "../../../_lib/image-utils"
+import { useTranslation } from "@/app/_i18n"
 import type { LoungeServiceItem, LoungeServiceAgent } from "../../../_types"
 
 function getAgentImageUrl(
@@ -41,19 +42,36 @@ export function ServiceTable({
   onEdit,
   onDelete,
 }: ServiceTableProps) {
+  const { t } = useTranslation()
   return (
     <div className="overflow-x-auto">
       <table className="w-full border-collapse">
         <thead>
           <tr className="border-b">
-            <th className="p-4 text-left font-medium">Service</th>
-            <th className="p-4 text-left font-medium">Description</th>
-            <th className="p-4 text-left font-medium">Price</th>
-            <th className="p-4 text-left font-medium">Duration</th>
-            <th className="p-4 text-left font-medium">Gender</th>
-            <th className="p-4 text-left font-medium">Agents</th>
-            <th className="p-4 text-left font-medium">isActive</th>
-            <th className="p-4 text-left font-medium">Actions</th>
+            <th className="p-4 text-left font-medium">
+              {t("serviceMgmt.colService")}
+            </th>
+            <th className="p-4 text-left font-medium">
+              {t("serviceMgmt.colDescription")}
+            </th>
+            <th className="p-4 text-left font-medium">
+              {t("serviceMgmt.colPrice")}
+            </th>
+            <th className="p-4 text-left font-medium">
+              {t("serviceMgmt.colDuration")}
+            </th>
+            <th className="p-4 text-left font-medium">
+              {t("serviceMgmt.colGender")}
+            </th>
+            <th className="p-4 text-left font-medium">
+              {t("serviceMgmt.colAgents")}
+            </th>
+            <th className="p-4 text-left font-medium">
+              {t("serviceMgmt.colStatus")}
+            </th>
+            <th className="p-4 text-left font-medium">
+              {t("serviceMgmt.colActions")}
+            </th>
           </tr>
         </thead>
         <tbody>
@@ -133,7 +151,7 @@ export function ServiceTable({
                       </div>
                     ) : (
                       <span className="text-muted-foreground text-xs">
-                        No agents
+                        {t("serviceMgmt.noAgents")}
                       </span>
                     )}
                   </td>
@@ -149,15 +167,15 @@ export function ServiceTable({
                         }
                       >
                         {(service as any).status === "active"
-                          ? "Active"
+                          ? t("serviceMgmt.statusActive")
                           : (service as any).status === "cancelled"
-                            ? "Cancelled"
-                            : "Inactive"}
+                            ? t("serviceMgmt.statusCancelled")
+                            : t("serviceMgmt.statusInactive")}
                       </Badge>
                       {(service as any).status === "cancelled" &&
                         (service as any).cancelledBy && (
                           <div className="text-muted-foreground flex w-full items-center justify-between text-xs">
-                            <span>Cancelled by:</span>
+                            <span>{t("serviceMgmt.cancelledByLabel")}</span>
                             <span>{(service as any).cancelledBy}</span>
                           </div>
                         )}
@@ -180,20 +198,22 @@ export function ServiceTable({
                         </AlertDialogTrigger>
                         <AlertDialogContent>
                           <AlertDialogHeader>
-                            <AlertDialogTitle>Delete Service</AlertDialogTitle>
+                            <AlertDialogTitle>
+                              {t("serviceMgmt.deleteTitle")}
+                            </AlertDialogTitle>
                             <AlertDialogDescription>
-                              Are you sure you want to delete this service? This
-                              action cannot be undone and will remove the
-                              service from your lounge.
+                              {t("serviceMgmt.deleteDesc")}
                             </AlertDialogDescription>
                           </AlertDialogHeader>
                           <AlertDialogFooter>
-                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                            <AlertDialogCancel>
+                              {t("common.cancel")}
+                            </AlertDialogCancel>
                             <AlertDialogAction
                               onClick={() => onDelete((service as any)._id)}
                               className="bg-red-600 hover:bg-red-700"
                             >
-                              Delete Service
+                              {t("serviceMgmt.deleteBtn")}
                             </AlertDialogAction>
                           </AlertDialogFooter>
                         </AlertDialogContent>
@@ -207,8 +227,8 @@ export function ServiceTable({
             <tr>
               <td colSpan={8} className="text-muted-foreground p-8 text-center">
                 {loading
-                  ? "Loading services..."
-                  : "No services found. Create your first service to get started."}
+                  ? t("serviceMgmt.loadingServices")
+                  : t("serviceMgmt.noServices")}
               </td>
             </tr>
           )}

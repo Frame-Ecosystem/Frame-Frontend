@@ -25,11 +25,26 @@ export default function ServiceWorkerRegister() {
       navigator.serviceWorker.getRegistrations().then((registrations) => {
         for (const reg of registrations) {
           const url = reg.active?.scriptURL ?? ""
-          if (url.includes("/sw.js") && !url.includes("firebase")) {
+          if (!url.includes("firebase")) {
             reg.unregister()
           }
         }
       })
+
+      // Clear stale app caches so old chunks don't keep running after deploys.
+      if ("caches" in window) {
+        caches.keys().then((cacheNames) => {
+          for (const cacheName of cacheNames) {
+            if (
+              cacheName.startsWith("frame-") ||
+              cacheName.startsWith("next-") ||
+              cacheName.includes("workbox")
+            ) {
+              void caches.delete(cacheName)
+            }
+          }
+        })
+      }
     }
   }, [])
 

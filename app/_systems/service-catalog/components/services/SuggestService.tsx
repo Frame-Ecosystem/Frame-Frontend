@@ -148,7 +148,7 @@ export default function SuggestService() {
           {t("services.suggest.button")}
         </Button>
       </DialogTrigger>
-      <DialogContent className="max-h-[100vh] overflow-y-auto md:max-h-[80vh]">
+      <DialogContent className="sm:max-w-2xl">
         <DialogHeader>
           <DialogTitle>
             {showSuggestions

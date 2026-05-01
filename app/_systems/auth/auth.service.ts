@@ -74,6 +74,13 @@ export function getUserInitials(user: User | null | undefined): string {
 // ── Auth Service ────────────────────────────────────────────────
 
 class AuthService {
+  private getAuthBaseUrl(): string {
+    // In browsers, always use same-origin paths so Next rewrites can proxy
+    // and cookie/session behavior stays reliable across Chrome/Opera.
+    if (typeof window !== "undefined") return ""
+    return API_BASE_URL
+  }
+
   // ── Auth Endpoints (/v1/auth/*) ─────────────────────────────
 
   /**
@@ -121,7 +128,7 @@ class AuthService {
    */
   async getCsrfToken(): Promise<string | null> {
     try {
-      const res = await fetch(`${API_BASE_URL}/v1/auth/csrf-token`, {
+      const res = await fetch(`${this.getAuthBaseUrl()}/v1/auth/csrf-token`, {
         method: "GET",
         credentials: "include",
         headers: { Accept: "application/json" },
@@ -154,11 +161,14 @@ class AuthService {
         headers["x-csrf-token"] = csrfToken
       }
 
-      const res = await fetch(`${API_BASE_URL}/v1/auth/refresh-token`, {
-        method: "POST",
-        credentials: "include",
-        headers,
-      })
+      const res = await fetch(
+        `${this.getAuthBaseUrl()}/v1/auth/refresh-token`,
+        {
+          method: "POST",
+          credentials: "include",
+          headers,
+        },
+      )
 
       const status = res.status
       let data: RefreshTokenResponse | undefined

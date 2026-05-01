@@ -1692,6 +1692,108 @@ const en: Record<string, string> = {
   "pwa.install.installing": "Installing…",
   "pwa.install.notNow": "Not now",
   "pwa.install.gotIt": "Got it",
+
+  // ── Agents: extended keys ───────────────────────────────────────────────
+  "agents.heading": "Agents",
+  "agents.subtitleAdmin": "Manage all agents",
+  "agents.subtitleOwner": "Manage your agents",
+  "agents.delete": "Delete",
+  "agents.edit": "Edit",
+  "agents.block": "Block",
+  "agents.unblock": "Unblock",
+  "agents.deleteTitle": "Delete Agent",
+  "agents.bulkBlockTitle": "Block Agents",
+  "agents.bulkUnblockTitle": "Unblock Agents",
+  "agents.bulkDeleteTitle": "Delete Agents",
+  "agents.bulkBlockConfirm":
+    "Are you sure you want to block {count} selected agent(s)?",
+  "agents.bulkUnblockConfirm":
+    "Are you sure you want to unblock {count} selected agent(s)?",
+  "agents.bulkDeleteConfirm":
+    "Are you sure you want to delete {count} selected agent(s)? This action cannot be undone.",
+  "agents.showingOf": "Showing {count} of {total} agents",
+  "agents.pageOf": "Page {page} of {totalPages}",
+  "agents.deleteError": "Failed to delete agent",
+  "agents.agentNotFound": "Agent not found",
+  "agents.deleteContactSupport":
+    "Unable to delete agent. Please contact support.",
+  "agents.headerAcceptBookings": "Accept Bookings",
+  "agents.acceptingBookings": "On",
+  "agents.notAcceptingBookings": "Off",
+  "agents.details.unnamedAgent": "Unnamed Agent",
+  "agents.details.blocked": "Blocked",
+  "agents.details.active": "Active",
+  "agents.details.close": "Close",
+
+  // ── Agents form: extended keys ───────────────────────────────────────────
+  "agents.form.agentNameExists":
+    "An agent with this name already exists. Please choose a different name.",
+  "agents.form.saveError": "Failed to save agent",
+  "agents.form.selectImagePlaceholder": "Select agent image",
+  "agents.form.supportedFormats":
+    "Supported formats: JPEG, PNG, GIF, WebP. Max size: 5MB",
+  "agents.form.email": "Email",
+  "agents.form.phoneNumber": "Phone Number",
+  "agents.form.agentNamePlaceholder": "Enter agent name",
+  "agents.form.agentNameAvailable": "Agent name is available",
+  "agents.form.leaveEmpty": "(leave empty to keep current)",
+  "agents.form.newPasswordPlaceholder": "Enter new password",
+  "agents.form.choosePlaceholder": "Choose a lounge",
+  "agents.form.unnamedLounge": "Unnamed Lounge",
+  "agents.form.blockDescription": "Block this agent to prevent login",
+  "agents.form.saving": "Saving...",
+  "agents.form.saveBtn": "Save Changes",
+  "agents.form.createBtn": "Create Agent",
+
+  // ── Common: extended keys ────────────────────────────────────────────────
+  "common.success": "Success",
+  "common.tryAgain": "Try again",
+
+  // ── Service Management: UI labels ─────────────────────────────────────────
+  "serviceMgmt.backToSettings": "Back to Lounge Settings",
+  "serviceMgmt.title": "Lounge Service Management",
+  "serviceMgmt.subtitle": "Manage services for this lounge",
+  "serviceMgmt.servicesTitle": "Services",
+  "serviceMgmt.addService": "Add Service",
+  "serviceMgmt.editTitle": "Edit Service",
+  "serviceMgmt.addTitle": "Add New Service",
+  "serviceMgmt.chooseService": "Choose existing global service",
+  "serviceMgmt.selectService": "Select a global service",
+  "serviceMgmt.description": "Description",
+  "serviceMgmt.serviceImage": "Service Image",
+  "serviceMgmt.currentImage": "Current image",
+  "serviceMgmt.imageHint":
+    "Select an image file (max 5MB, JPG, PNG, GIF, WebP)",
+  "serviceMgmt.price": "Price (dt)",
+  "serviceMgmt.duration": "Duration (minutes)",
+  "serviceMgmt.gender": "Target Gender",
+  "serviceMgmt.noTarget": "No target",
+  "serviceMgmt.status": "Status",
+  "serviceMgmt.statusActive": "Active",
+  "serviceMgmt.statusInactive": "Inactive",
+  "serviceMgmt.statusCancelled": "Cancelled",
+  "serviceMgmt.cancelledBy": "Cancelled By",
+  "serviceMgmt.cancelledByPlaceholder": "Who cancelled this service?",
+  "serviceMgmt.cancelledByLabel": "Cancelled by:",
+  "serviceMgmt.update": "Update",
+  "serviceMgmt.create": "Create",
+  "serviceMgmt.notFound": "Didn't find a service?",
+  "serviceMgmt.colService": "Service",
+  "serviceMgmt.colDescription": "Description",
+  "serviceMgmt.colPrice": "Price",
+  "serviceMgmt.colDuration": "Duration",
+  "serviceMgmt.colGender": "Gender",
+  "serviceMgmt.colAgents": "Agents",
+  "serviceMgmt.colStatus": "Status",
+  "serviceMgmt.colActions": "Actions",
+  "serviceMgmt.noAgents": "No agents",
+  "serviceMgmt.loadingServices": "Loading services...",
+  "serviceMgmt.noServices":
+    "No services found. Create your first service to get started.",
+  "serviceMgmt.deleteTitle": "Delete Service",
+  "serviceMgmt.deleteDesc":
+    "Are you sure you want to delete this service? This action cannot be undone and will remove the service from your lounge.",
+  "serviceMgmt.deleteBtn": "Delete Service",
 }
 
 export default en

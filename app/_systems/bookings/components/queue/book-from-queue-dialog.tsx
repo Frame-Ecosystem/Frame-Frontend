@@ -201,7 +201,7 @@ export default function BookFromQueueDialog({
 
   return (
     <Dialog open={open} onOpenChange={resetAndClose}>
-      <DialogContent className="max-h-[78vh] overflow-y-auto p-4 sm:max-w-lg sm:p-6">
+      <DialogContent className="sm:max-w-lg sm:p-6">
         <DialogHeader>
           <DialogTitle>
             {mode === "staff" ? t("queue.addToQueue") : t("queue.joinTheQueue")}

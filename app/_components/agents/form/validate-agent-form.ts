@@ -1,7 +1,7 @@
 import type { CreateAgentDto, UpdateAgentDto, Agent } from "../../../_types"
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-const PHONE_RE = /^\+?[0-9\s().-]{7,20}$/
+const PHONE_RE = /^\+216[0-9]{8}$/
 
 export function validateAgentForm(
   formData:
@@ -25,7 +25,7 @@ export function validateAgentForm(
   // Phone number — optional but validated when supplied
   const phone = (formData.phoneNumber ?? "").trim()
   if (phone && !PHONE_RE.test(phone)) {
-    errors.phoneNumber = "Please enter a valid phone number"
+    errors.phoneNumber = "Please enter a valid 8-digit Tunisian phone number"
   }
 
   // Agent Name validation

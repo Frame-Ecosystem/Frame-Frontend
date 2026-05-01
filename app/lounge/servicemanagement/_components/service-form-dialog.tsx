@@ -16,6 +16,7 @@ import { Plus } from "lucide-react"
 import SuggestService from "../../../_components/services/SuggestService"
 import { AgentPicker } from "./agent-picker"
 import { getImageUrl } from "../../../_lib/image-utils"
+import { useTranslation } from "@/app/_i18n"
 import type { Service, LoungeAgent } from "../../../_types"
 
 export interface ServiceFormData {
@@ -59,18 +60,21 @@ export function ServiceFormDialog({
   onOpenCreate,
   onImageFileChange,
 }: ServiceFormDialogProps) {
+  const { t } = useTranslation()
   return (
     <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
       <DialogTrigger asChild>
         <Button onClick={onOpenCreate}>
           <Plus className="mr-2 h-4 w-4" />
-          Add Service
+          {t("serviceMgmt.addService")}
         </Button>
       </DialogTrigger>
-      <DialogContent className="max-h-[100vh] overflow-y-auto py-16 md:max-h-[80vh]">
+      <DialogContent className="sm:max-w-lg">
         <DialogHeader>
           <DialogTitle>
-            {editingService ? "Edit Service" : "Add New Service"}
+            {editingService
+              ? t("serviceMgmt.editTitle")
+              : t("serviceMgmt.addTitle")}
           </DialogTitle>
         </DialogHeader>
         <form onSubmit={onSubmit} className="space-y-4">
@@ -83,7 +87,7 @@ export function ServiceFormDialog({
           {/* Global service select */}
           <div>
             <Label htmlFor="selectedServiceId">
-              Choose existing global service *
+              {t("serviceMgmt.chooseService")} *
             </Label>
             <select
               id="selectedServiceId"
@@ -121,7 +125,7 @@ export function ServiceFormDialog({
               required
               className="border-input bg-background flex h-10 w-full rounded-md border px-3 py-2 text-sm"
             >
-              <option value="">Select a global service</option>
+              <option value="">{t("serviceMgmt.selectService")}</option>
               {globalServices.map((gs) => (
                 <option key={(gs as any)._id} value={(gs as any)._id}>
                   {gs.name}
@@ -132,7 +136,9 @@ export function ServiceFormDialog({
 
           {/* Description */}
           <div>
-            <Label htmlFor="description">Description *</Label>
+            <Label htmlFor="description">
+              {t("serviceMgmt.description")} *
+            </Label>
             <Textarea
               id="description"
               value={formData.description}
@@ -148,7 +154,7 @@ export function ServiceFormDialog({
 
           {/* Image */}
           <div>
-            <Label htmlFor="image">Service Image</Label>
+            <Label htmlFor="image">{t("serviceMgmt.serviceImage")}</Label>
             <div className="space-y-2">
               {/* Show existing image when editing */}
               {editingService &&
@@ -163,7 +169,7 @@ export function ServiceFormDialog({
                       className="rounded object-cover"
                     />
                     <span className="text-muted-foreground text-sm">
-                      Current image
+                      {t("serviceMgmt.currentImage")}
                     </span>
                   </div>
                 )}
@@ -192,14 +198,14 @@ export function ServiceFormDialog({
                   </div>
                 )}
               <p className="text-muted-foreground text-xs">
-                Select an image file (max 5MB, JPG, PNG, GIF, WebP)
+                {t("serviceMgmt.imageHint")}
               </p>
             </div>
           </div>
 
           {/* Price */}
           <div>
-            <Label htmlFor="price">Price (dt) *</Label>
+            <Label htmlFor="price">{t("serviceMgmt.price")} *</Label>
             <Input
               id="price"
               type="number"
@@ -214,7 +220,7 @@ export function ServiceFormDialog({
 
           {/* Duration */}
           <div>
-            <Label htmlFor="baseDuration">Duration (minutes) *</Label>
+            <Label htmlFor="baseDuration">{t("serviceMgmt.duration")} *</Label>
             <Input
               id="baseDuration"
               type="number"
@@ -232,7 +238,7 @@ export function ServiceFormDialog({
 
           {/* Gender */}
           <div>
-            <Label htmlFor="gender">Target Gender *</Label>
+            <Label htmlFor="gender">{t("serviceMgmt.gender")} *</Label>
             <select
               id="gender"
               value={formData.gender}
@@ -241,17 +247,17 @@ export function ServiceFormDialog({
               }
               className="border-input bg-background ring-offset-background placeholder:text-muted-foreground focus-visible:ring-ring flex h-10 w-full rounded-md border px-3 py-2 text-sm file:border-0 file:bg-transparent file:text-sm file:font-medium focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50"
             >
-              <option value="">No target</option>
-              <option value="men">Men</option>
-              <option value="women">Women</option>
-              <option value="unisex">Unisex</option>
-              <option value="kids">Kids</option>
+              <option value="">{t("serviceMgmt.noTarget")}</option>
+              <option value="men">{t("gender.men")}</option>
+              <option value="women">{t("gender.women")}</option>
+              <option value="unisex">{t("gender.unisex")}</option>
+              <option value="kids">{t("gender.kids")}</option>
             </select>
           </div>
 
           {/* Status */}
           <div>
-            <Label htmlFor="status">Status *</Label>
+            <Label htmlFor="status">{t("serviceMgmt.status")} *</Label>
             <select
               id="status"
               value={formData.status}
@@ -261,16 +267,22 @@ export function ServiceFormDialog({
               required
               className="border-input bg-background ring-offset-background placeholder:text-muted-foreground focus-visible:ring-ring flex h-10 w-full rounded-md border px-3 py-2 text-sm file:border-0 file:bg-transparent file:text-sm file:font-medium focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50"
             >
-              <option value="active">Active</option>
-              <option value="inactive">Inactive</option>
-              <option value="cancelled">Cancelled</option>
+              <option value="active">{t("serviceMgmt.statusActive")}</option>
+              <option value="inactive">
+                {t("serviceMgmt.statusInactive")}
+              </option>
+              <option value="cancelled">
+                {t("serviceMgmt.statusCancelled")}
+              </option>
             </select>
           </div>
 
           {/* CancelledBy (conditional) */}
           {formData.status === "cancelled" && (
             <div>
-              <Label htmlFor="cancelledBy">Cancelled By</Label>
+              <Label htmlFor="cancelledBy">
+                {t("serviceMgmt.cancelledBy")}
+              </Label>
               <Input
                 id="cancelledBy"
                 value={formData.cancelledBy}
@@ -280,7 +292,7 @@ export function ServiceFormDialog({
                     cancelledBy: e.target.value,
                   }))
                 }
-                placeholder="Who cancelled this service?"
+                placeholder={t("serviceMgmt.cancelledByPlaceholder")}
               />
             </div>
           )}
@@ -300,10 +312,12 @@ export function ServiceFormDialog({
               variant="destructive"
               onClick={() => setDialogOpen(false)}
             >
-              Cancel
+              {t("common.cancel")}
             </Button>
             <Button type="submit" variant="success">
-              {editingService ? "Update" : "Create"}
+              {editingService
+                ? t("serviceMgmt.update")
+                : t("serviceMgmt.create")}
             </Button>
           </div>
         </form>
@@ -311,7 +325,7 @@ export function ServiceFormDialog({
         <div className="mt-4 border-t pt-4">
           <div className="flex items-center justify-between">
             <p className="text-muted-foreground text-sm">
-              Didn&apos;t find a service?
+              {t("serviceMgmt.notFound")}
             </p>
             <SuggestService />
           </div>

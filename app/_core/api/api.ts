@@ -7,6 +7,8 @@ import {
 
 const LOCAL_API_FALLBACK = "http://0.0.0.0:2000"
 const isProduction = process.env.NODE_ENV === "production"
+const USE_BROWSER_SAME_ORIGIN_PROXY =
+  process.env.NEXT_PUBLIC_USE_API_PROXY !== "false"
 
 function normalizeBaseUrl(value?: string | null): string | null {
   if (!value) return null
@@ -44,7 +46,23 @@ function getBrowserLocalApiUrl(): string {
 function getApiBaseUrl(): string {
   const configured = normalizeBaseUrl(process.env.NEXT_PUBLIC_API_URL)
   if (configured) {
-    return rewriteBindAllHostForBrowser(configured)
+    const rewritten = rewriteBindAllHostForBrowser(configured)
+    // Browser cookie auth is more reliable through same-origin requests.
+    if (
+      typeof window !== "undefined" &&
+      USE_BROWSER_SAME_ORIGIN_PROXY &&
+      rewritten
+    ) {
+      try {
+        const configuredOrigin = new URL(rewritten).origin
+        if (configuredOrigin !== window.location.origin) {
+          return ""
+        }
+      } catch {
+        return rewritten
+      }
+    }
+    return rewritten
   }
 
   if (isProduction) {

@@ -4,7 +4,6 @@ import { useEffect, useState } from "react"
 import { useSearchParams } from "next/navigation"
 import { Button } from "../../_components/ui/button"
 import { useTranslation } from "@/app/_i18n"
-import { API_BASE_URL, GOOGLE_AUTH_BASE_URL } from "../../_services/api"
 import { getLoginRedirectPath } from "../../_lib/profile"
 
 export default function VerifyPage() {
@@ -56,11 +55,7 @@ export default function VerifyPage() {
       try {
         // Try verifying against current origin first (handles backend redirects that
         // may have set cookies on the same origin as this page).
-        const originsToTry = [
-          window.location.origin,
-          API_BASE_URL,
-          GOOGLE_AUTH_BASE_URL,
-        ]
+        const originsToTry = [window.location.origin]
         let succeeded = false
         let lastError: any = null
 
@@ -123,11 +118,7 @@ export default function VerifyPage() {
 
         if (!succeeded) {
           // As a last resort, try hitting refresh-token endpoints to detect cookie-set session
-          const refreshOrigins = [
-            window.location.origin,
-            API_BASE_URL,
-            GOOGLE_AUTH_BASE_URL,
-          ]
+          const refreshOrigins = [window.location.origin]
           for (const origin of refreshOrigins) {
             if (!origin) continue
             try {

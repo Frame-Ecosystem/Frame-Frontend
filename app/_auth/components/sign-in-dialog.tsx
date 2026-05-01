@@ -10,7 +10,6 @@ import { Button } from "@/app/_components/ui/button"
 import { Input } from "@/app/_components/ui/input"
 import { Label } from "@/app/_components/ui/label"
 import { DialogHeader, DialogTitle } from "@/app/_components/ui/dialog"
-import { GOOGLE_AUTH_BASE_URL } from "@/app/_services/api"
 import openGoogleOAuthPopup, {
   handleGoogleAuthResult,
 } from "../lib/google-popup"
@@ -116,7 +115,7 @@ const SignInDialog = ({
     setLoading(true)
     try {
       const result = await openGoogleOAuthPopup({
-        url: `${GOOGLE_AUTH_BASE_URL}/v1/auth/google/login`,
+        url: `/v1/auth/google/login`,
         mode: "signin",
       })
       await handleGoogleAuthResult(result, {

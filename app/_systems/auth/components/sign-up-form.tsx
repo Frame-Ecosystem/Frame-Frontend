@@ -7,7 +7,6 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { Button } from "@/app/_components/ui/button"
 import { Input } from "@/app/_components/ui/input"
 import { Label } from "@/app/_components/ui/label"
-import { GOOGLE_AUTH_BASE_URL } from "@/app/_services/api"
 import { useAuth } from "@/app/_auth"
 import { useRouter, useSearchParams } from "next/navigation"
 import { getLoginRedirectPath } from "@/app/_lib/profile"
@@ -195,7 +194,7 @@ export default function SignUpForm({
 
     try {
       const result = await openGoogleOAuthPopup({
-        url: `${GOOGLE_AUTH_BASE_URL}/v1/auth/google/signup?type=${selectedType}`,
+        url: `/v1/auth/google/signup?type=${selectedType}`,
         mode: "signup",
       })
       await handleGoogleAuthResult(result, {
