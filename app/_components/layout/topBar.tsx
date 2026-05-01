@@ -5,9 +5,9 @@ import React from "react"
 import UserSession from "../profile/user-session"
 import NotificationButton from "../common/notification-button"
 import { Button } from "../ui/button"
-import { Search } from "lucide-react"
+import { MessageCircle, Search } from "lucide-react"
 import { NavBrandLogo } from "../common/brand-logo"
-import { useRouter, usePathname } from "next/navigation"
+import { useRouter } from "next/navigation"
 import { useAuth } from "@/app/_auth"
 import { useTranslation } from "../../_i18n"
 import { CreateContentButton } from "../content/create-content-button"
@@ -27,7 +27,6 @@ const TopBar: React.FC<TopBarProps> = ({
 }) => {
   const { user } = useAuth()
   const router = useRouter()
-  const pathname = usePathname()
   const { t } = useTranslation()
 
   return (
@@ -64,9 +63,8 @@ const TopBar: React.FC<TopBarProps> = ({
         {/* ── Mobile: arrow toggle with icons behind it, UserSession always visible ── */}
         {user && (
           <div className="flex items-center gap-2 md:hidden">
-            {pathname.startsWith("/lounges/") && pathname !== "/lounges" && (
-              <CreateContentButton compact />
-            )}
+            <CreateContentButton compact />
+
             <Button
               variant="ghost"
               size="icon"
@@ -77,7 +75,21 @@ const TopBar: React.FC<TopBarProps> = ({
                 <Search className="h-5 w-5" />
               </div>
             </Button>
+
             <NotificationButton compact />
+
+            <Button
+              variant="ghost"
+              size="icon"
+              className="hover:bg-primary/10 relative flex items-center justify-center rounded-full"
+              onClick={() => router.push("/messages")}
+              aria-label={t("nav.chat")}
+            >
+              <div className="flex h-10 w-10 items-center justify-center rounded-full border">
+                <MessageCircle className="h-5 w-5" />
+              </div>
+            </Button>
+
             <UserSession compact />
           </div>
         )}
@@ -85,6 +97,8 @@ const TopBar: React.FC<TopBarProps> = ({
         {/* ── Desktop/tablet: all icons visible ── */}
         {user && (
           <div className="hidden items-center gap-2 md:flex">
+            <CreateContentButton compact />
+
             <Button
               variant="ghost"
               size="icon"
@@ -95,7 +109,21 @@ const TopBar: React.FC<TopBarProps> = ({
                 <Search className="h-5 w-5" />
               </div>
             </Button>
+
             <NotificationButton compact />
+
+            <Button
+              variant="ghost"
+              size="icon"
+              className="hover:bg-primary/10 relative flex items-center justify-center rounded-full"
+              onClick={() => router.push("/messages")}
+              aria-label={t("nav.chat")}
+            >
+              <div className="flex h-10 w-10 items-center justify-center rounded-full border">
+                <MessageCircle className="h-5 w-5" />
+              </div>
+            </Button>
+
             <UserSession compact />
           </div>
         )}

@@ -1,6 +1,7 @@
 ﻿import { apiClient } from "@/app/_services/api"
 import { API_BASE_URL } from "@/app/_services/api"
 import { getCsrfTokenForRequest, setSessionCsrfToken } from "./lib/csrf"
+import { clientLog } from "@/app/_lib/client-logger"
 import type { User, Gender } from "@/app/_types"
 import type {
   AuthTokenResponse,
@@ -195,7 +196,7 @@ class AuthService {
     try {
       await apiClient.post("/v1/auth/logout", {})
     } catch (error) {
-      console.warn("[AuthService] signOut failed:", error)
+      clientLog("[AuthService] signOut failed:", error)
     }
   }
 

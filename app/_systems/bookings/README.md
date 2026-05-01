@@ -246,40 +246,45 @@ app/_systems/bookings/
 
 ## Booking Service API
 
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| `create` | `POST /v1/bookings` | Create new booking |
-| `getAll` | `GET /v1/bookings` | List user's bookings |
-| `getHistory` | `GET /v1/bookings/history` | Past bookings |
-| `getById` | `GET /v1/bookings/:id` | Single booking |
-| `update` | `PUT /v1/bookings/:id` | Update status/details |
-| `delete` | `DELETE /v1/bookings/:id` | Remove booking |
-| `cancel` | `PATCH /v1/bookings/:id/cancel` | Cancel with note |
-| `getBookingServices` | `GET /v1/bookings/:id/services` | Booking's services |
-| `getClientStats` | `GET /v1/bookings/stats/client/:id` | Client booking stats |
-| `getLoungeStats` | `GET /v1/bookings/stats/lounge/:id` | Lounge booking stats |
-| `bookFromQueue` | `POST /v1/bookings/queue` | Walk-in booking |
-| `loungeBookFromQueue` | `POST /v1/bookings/lounge-queue` | Lounge-initiated walk-in |
-| `getAvailability` | `POST /v1/bookings/availability` | Agent availability slots |
+| Method                | Endpoint                                   | Description                         |
+| --------------------- | ------------------------------------------ | ----------------------------------- |
+| `create`              | `POST /v1/bookings`                        | Create new booking                  |
+| `getAll`              | `GET /v1/bookings`                         | List user's bookings                |
+| `getHistory`          | `GET /v1/bookings/history`                 | Past bookings                       |
+| `getById`             | `GET /v1/bookings/:id`                     | Single booking                      |
+| `update`              | `PUT /v1/bookings/:id`                     | Update status/details               |
+| `delete`              | `DELETE /v1/bookings/:id`                  | Remove booking (admin)              |
+| `cancel`              | `PUT /v1/bookings/:id`                     | Cancel with note (status=cancelled) |
+| `getBookingServices`  | `GET /v1/bookings/:id/services`            | Booking's services                  |
+| `getClientStats`      | `GET /v1/bookings/stats/client/:id`        | Client booking stats                |
+| `getLoungeStats`      | `GET /v1/bookings/stats/lounge/:id`        | Lounge booking stats                |
+| `bookFromQueue`       | `POST /v1/bookings/queue`                  | Walk-in booking                     |
+| `loungeBookFromQueue` | `POST /v1/bookings/queue/lounge`           | Lounge-initiated walk-in            |
+| `getAvailability`     | `GET /v1/bookings/availability?agentIds=…` | Agent availability slots            |
 
 ---
 
 ## Queue Service API
 
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| `getAgentQueue` | `GET /v1/queues/agent/:agentId` | Agent's queue for date |
-| `getLoungeQueues` | `GET /v1/queues/lounge/:loungeId` | All queues for lounge |
-| `getMyLoungeQueues` | `GET /v1/queues/my-lounge` | Owner's lounge queues |
-| `addPersonToQueue` | `POST /v1/queues/agent/:id/persons` | Add person to queue |
-| `updatePersonStatus` | `PUT /v1/queues/agent/:id/persons/:bookingId` | Change person status |
-| `removePersonFromQueue` | `DELETE /v1/queues/agent/:id/persons/:bookingId` | Remove from queue |
-| `reorderPerson` | `PUT /v1/queues/agent/:id/persons/:bookingId/reorder` | Change position |
-| `populateDailyQueues` | `POST /v1/queues/populate` | Admin: create daily queues |
+| Method                  | Endpoint                                              | Description                |
+| ----------------------- | ----------------------------------------------------- | -------------------------- |
+| `getAgentQueue`         | `GET /v1/queues/agent/:agentId`                       | Agent's queue for date     |
+| `getLoungeQueues`       | `GET /v1/queues/lounge/:loungeId`                     | All queues for lounge      |
+| `getMyLoungeQueues`     | `GET /v1/queues/my-lounge`                            | Owner's lounge queues      |
+| `addPersonToQueue`      | `POST /v1/queues/agent/:id/persons`                   | Add person to queue        |
+| `updatePersonStatus`    | `PUT /v1/queues/agent/:id/persons/:bookingId`         | Change person status       |
+| `removePersonFromQueue` | `DELETE /v1/queues/agent/:id/persons/:bookingId`      | Remove from queue          |
+| `reorderPerson`         | `PUT /v1/queues/agent/:id/persons/:bookingId/reorder` | Change position            |
+| `populateDailyQueues`   | `POST /v1/queues/populate`                            | Admin: create daily queues |
 
 ---
 
-## Real-Time WebSocket Integration
+## Implementation Notes
+
+- **`mapBooking(raw)`** — private helper used by `getAll`, `getHistory`, and `getById` to consistently resolve agents, client, and lounge onto every returned `Booking` object.
+- **Agent resolution** — when `agentIds` are populated objects the data is used directly; string IDs fall back to an individual `agentService.getAgentById()` call. For large lists, prefer ensuring the backend populates agents to avoid extra round-trips.
+- **`extractArray(response, keys)`** — normalises divergent response envelope shapes (`data[]`, `bookings[]`, `items[]`, or bare array).
+- All service log calls use `clientLog` (gated by `NODE_ENV`) rather than raw `console.*`.
 
 ```mermaid
 sequenceDiagram
@@ -303,12 +308,12 @@ sequenceDiagram
 
 ### Socket Rooms & Events
 
-| Room Pattern | Events | Description |
-|--------------|--------|-------------|
-| `bookings:client:{userId}` | `booking:created`, `booking:updated`, `booking:cancelled`, `booking:statusChanged` | Client booking updates |
-| `bookings:lounge:{userId}` | Same as above | Lounge booking updates |
-| `queue:agent:{agentId}` | `queue:updated` | Single agent queue changes |
-| `queue:lounge:{loungeId}` | `queue:lounge:updated` | All queues for a lounge |
+| Room Pattern               | Events                                                                             | Description                |
+| -------------------------- | ---------------------------------------------------------------------------------- | -------------------------- |
+| `bookings:client:{userId}` | `booking:created`, `booking:updated`, `booking:cancelled`, `booking:statusChanged` | Client booking updates     |
+| `bookings:lounge:{userId}` | Same as above                                                                      | Lounge booking updates     |
+| `queue:agent:{agentId}`    | `queue:updated`                                                                    | Single agent queue changes |
+| `queue:lounge:{loungeId}`  | `queue:lounge:updated`                                                             | All queues for a lounge    |
 
 ---
 
@@ -332,27 +337,27 @@ flowchart TD
 
 ### Queue Statistics Calculation
 
-| Metric | Formula |
-|--------|---------|
-| `totalWaiting` | Count where `status === "waiting"` |
-| `totalInService` | Count where `status === "inService"` |
-| `totalCompleted` | Count where `status === "completed"` |
-| `totalAbsent` | Count where `status === "absent"` |
-| `averageWait` | Mean of `(now - joinedAt)` for waiting persons |
-| `estimatedWaitTime` | Position × avg service time |
+| Metric              | Formula                                        |
+| ------------------- | ---------------------------------------------- |
+| `totalWaiting`      | Count where `status === "waiting"`             |
+| `totalInService`    | Count where `status === "inService"`           |
+| `totalCompleted`    | Count where `status === "completed"`           |
+| `totalAbsent`       | Count where `status === "absent"`              |
+| `averageWait`       | Mean of `(now - joinedAt)` for waiting persons |
+| `estimatedWaitTime` | Position × avg service time                    |
 
 ---
 
 ## Booking Error Codes
 
-| Code | Description |
-|------|-------------|
-| `BOOKING_NOT_FOUND` | Booking ID does not exist |
-| `BOOKING_ALREADY_CANCELLED` | Cannot cancel twice |
-| `BOOKING_ALREADY_COMPLETED` | Cannot modify completed booking |
-| `AGENT_NOT_AVAILABLE` | Agent has conflicting booking |
-| `INVALID_BOOKING_DATE` | Date in the past or invalid |
-| `SERVICE_NOT_FOUND` | Referenced service does not exist |
+| Code                        | Description                       |
+| --------------------------- | --------------------------------- |
+| `BOOKING_NOT_FOUND`         | Booking ID does not exist         |
+| `BOOKING_ALREADY_CANCELLED` | Cannot cancel twice               |
+| `BOOKING_ALREADY_COMPLETED` | Cannot modify completed booking   |
+| `AGENT_NOT_AVAILABLE`       | Agent has conflicting booking     |
+| `INVALID_BOOKING_DATE`      | Date in the past or invalid       |
+| `SERVICE_NOT_FOUND`         | Referenced service does not exist |
 
 ---
 
@@ -371,6 +376,7 @@ flowchart TD
 ```
 
 Utility functions:
+
 - `canAgentPerformAllServices(agent, services)` — checks `agent.idLoungeService` contains all selected service IDs
 - `getUnavailableServices(agent, services)` — returns services the agent cannot perform
 - `getAvailableAgentsForService(agents, serviceId)` — filters agents who can do a specific service

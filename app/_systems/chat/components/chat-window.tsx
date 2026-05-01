@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useCallback, useEffect } from "react"
+import { useState, useCallback, useEffect, useRef } from "react"
 import { MessageCircleOff } from "lucide-react"
 import { useAuth } from "@/app/_auth"
 import {
@@ -70,17 +70,28 @@ export function ChatWindow({
   const [replyTo, setReplyTo] = useState<Message | null>(null)
   const [editingMessage, setEditingMessage] = useState<Message | null>(null)
   const [showSearch, setShowSearch] = useState(false)
+  const lastMarkedConversationRef = useRef<string | null>(null)
 
   // Mark messages as read when entering the conversation
   const handleMarkRead = useCallback(() => {
-    if (!conversationId) return
-    markRead.mutate({})
-  }, [conversationId, markRead])
+    if (!conversationId || !currentUserId) return
+    if (lastMarkedConversationRef.current === conversationId) return
+
+    lastMarkedConversationRef.current = conversationId
+    markRead.mutate(
+      {},
+      {
+        // Don't crash the conversation UI on transient CSRF/bootstrap races.
+        onError: () => {
+          lastMarkedConversationRef.current = null
+        },
+      },
+    )
+  }, [conversationId, currentUserId, markRead])
 
   useEffect(() => {
     handleMarkRead()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [conversationId])
+  }, [handleMarkRead])
 
   // Flatten pages: oldest-first for display
   const messages = data?.pages

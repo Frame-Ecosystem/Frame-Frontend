@@ -28,6 +28,7 @@ import { ChatDrawer } from "./_systems/chat/components/chat-drawer"
 // Client component to handle pathname-based conditional rendering
 import ConditionalHeader from "./_components/layout/conditional-header"
 import ConditionalFooter from "./_components/layout/conditional-footer"
+import ScrollResetOnNavigation from "./_components/layout/scroll-reset-on-navigation"
 
 const inter = Inter({ subsets: ["latin"] })
 const nunito = Nunito({ subsets: ["latin"], variable: "--font-nunito" })
@@ -221,6 +222,7 @@ export default function RootLayout({
                             {/* MAIN LAYOUT STRUCTURE */}
                             {/* Uses flexbox to keep footer at bottom of viewport */}
                             <div className="flex min-h-screen flex-col">
+                              <ScrollResetOnNavigation />
                               {/* Global chat drawer — renders Sheet portal for chat panel */}
                               <ChatDrawer />
                               {/* Header handles top bars and navigation visibility */}

@@ -3,6 +3,7 @@ import {
   withCsrfHeader,
   isStateChanging,
   setSessionCsrfToken,
+  getCsrfTokenForRequest,
 } from "@/app/_auth"
 import { clientDebug } from "@/app/_lib/client-logger"
 
@@ -164,22 +165,26 @@ class ApiClient {
    */
   private async bootstrapCsrfToken(): Promise<string | null> {
     try {
+      const token = this._getAccessToken?.()
       const res = await fetch(`${this.baseUrl}/v1/auth/csrf-token`, {
         method: "GET",
         credentials: "include",
-        headers: { Accept: "application/json" },
+        headers: {
+          Accept: "application/json",
+          ...(token && { Authorization: token }),
+        },
         signal: AbortSignal.timeout(this.defaultTimeout),
       })
       if (!res.ok) return null
 
       const body = await res.json().catch(() => null)
-      const token =
+      const csrfToken =
         typeof body?.csrfToken === "string" && body.csrfToken
           ? body.csrfToken
           : null
 
-      if (token) setSessionCsrfToken(token)
-      return token
+      if (csrfToken) setSessionCsrfToken(csrfToken)
+      return csrfToken
     } catch {
       return null
     }
@@ -222,6 +227,21 @@ class ApiClient {
       endpoint.includes("/v1/auth/google")
 
     if (isStateChanging(method) && !isPublicAuth) {
+      // Proactively bootstrap if no CSRF token is available yet — avoids a
+      // preventable 403 round-trip on first page load or after a hard refresh.
+      if (!getCsrfTokenForRequest()) {
+        if (!token && this.refreshTokenCallback) {
+          const refreshedToken = await this.refreshTokenCallback()
+          if (refreshedToken) {
+            token = refreshedToken
+            headers = {
+              ...headers,
+              Authorization: refreshedToken,
+            }
+          }
+        }
+        await this.bootstrapCsrfToken()
+      }
       headers = withCsrfHeader(headers, method)
     }
 
@@ -263,52 +283,33 @@ class ApiClient {
         this.refreshTokenCallback &&
         !isPublicAuth
       ) {
-        const hasSessionFlag =
-          typeof window !== "undefined" &&
-          localStorage.getItem("hasRefreshToken") === "true"
-        if (!hasSessionFlag && !token) {
-          // Record debug info before triggering global auth-failure
+        const newToken = await this.refreshTokenCallback()
+
+        if (newToken) {
+          headers = {
+            ...headers,
+            Authorization: newToken,
+          }
+
+          response = await fetch(url, {
+            ...options,
+            headers,
+            credentials: "include",
+            signal: AbortSignal.timeout(timeoutMs),
+          })
+        } else {
           if (isDebug && typeof window !== "undefined") {
             try {
               ;(window as any).__lastApiError = {
                 url,
                 status: response.status,
-                reason: "noSessionFlag_and_no_token",
+                reason: "refresh_failed",
               }
             } catch {}
           }
           if (!apiOptions?.suppressAuthFailure)
             this.authFailureCallback?.({ url, status: response.status })
           throw new Error("AUTH_FAILURE")
-        } else {
-          const newToken = await this.refreshTokenCallback()
-
-          if (newToken) {
-            headers = {
-              ...headers,
-              Authorization: newToken,
-            }
-
-            response = await fetch(url, {
-              ...options,
-              headers,
-              credentials: "include",
-              signal: AbortSignal.timeout(timeoutMs),
-            })
-          } else {
-            if (isDebug && typeof window !== "undefined") {
-              try {
-                ;(window as any).__lastApiError = {
-                  url,
-                  status: response.status,
-                  reason: "refresh_failed",
-                }
-              } catch {}
-            }
-            if (!apiOptions?.suppressAuthFailure)
-              this.authFailureCallback?.({ url, status: response.status })
-            throw new Error("AUTH_FAILURE")
-          }
         }
       }
 
@@ -539,4 +540,12 @@ export const apiClient = new ApiClient()
 /** Check if an error is an auth failure (handled globally via redirect) */
 export function isAuthError(error: unknown): boolean {
   return error instanceof Error && error.message === "AUTH_FAILURE"
+}
+
+/** Check if an error is a CSRF token failure (recoverable in many UX flows). */
+export function isCsrfError(error: unknown): boolean {
+  return (
+    error instanceof Error &&
+    /csrf\s*token\s*(missing|invalid)?/i.test(error.message)
+  )
 }

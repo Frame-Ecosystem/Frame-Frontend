@@ -1,4 +1,4 @@
-﻿import { apiClient } from "@/app/_core/api/api"
+﻿import { apiClient, isAuthError, isCsrfError } from "@/app/_core/api/api"
 import type {
   NotificationsResponse,
   UnreadCountResponse,
@@ -18,10 +18,6 @@ const EMPTY_PAGE = (page: number, limit: number): NotificationsResponse => ({
 })
 
 const EMPTY_UNREAD: UnreadCountData = { total: 0, byCategory: {} }
-
-function isAuthError(error: unknown): boolean {
-  return (error as Error)?.message === "AUTH_FAILURE"
-}
 
 class NotificationService {
   async getAll(
@@ -57,9 +53,15 @@ class NotificationService {
   }
 
   async markAsRead(notificationIds?: string[]): Promise<void> {
-    await apiClient.patch("/v1/notifications/read", {
-      notificationIds: notificationIds?.length ? notificationIds : undefined,
-    })
+    try {
+      await apiClient.patch("/v1/notifications/read", {
+        notificationIds: notificationIds?.length ? notificationIds : undefined,
+      })
+    } catch (error) {
+      // Read-state sync is best-effort; auth/csrf races should not hard-fail UI.
+      if (isAuthError(error) || isCsrfError(error)) return
+      throw error
+    }
   }
 
   async delete(id: string): Promise<void> {
