@@ -3,6 +3,7 @@ import {
   withCsrfHeader,
   isStateChanging,
   setSessionCsrfToken,
+  getCsrfTokenForRequest,
 } from "@/app/_auth"
 import { clientDebug } from "@/app/_lib/client-logger"
 
@@ -164,10 +165,14 @@ class ApiClient {
    */
   private async bootstrapCsrfToken(): Promise<string | null> {
     try {
+      const token = this._getAccessToken?.()
       const res = await fetch(`${this.baseUrl}/v1/auth/csrf-token`, {
         method: "GET",
         credentials: "include",
-        headers: { Accept: "application/json" },
+        headers: {
+          Accept: "application/json",
+          ...(token && { Authorization: token }),
+        },
         signal: AbortSignal.timeout(this.defaultTimeout),
       })
       if (!res.ok) return null
@@ -222,6 +227,11 @@ class ApiClient {
       endpoint.includes("/v1/auth/google")
 
     if (isStateChanging(method) && !isPublicAuth) {
+      // Proactively bootstrap if no CSRF token is available yet — avoids a
+      // preventable 403 round-trip on first page load or after a hard refresh.
+      if (!getCsrfTokenForRequest()) {
+        await this.bootstrapCsrfToken()
+      }
       headers = withCsrfHeader(headers, method)
     }
 
