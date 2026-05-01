@@ -560,3 +560,11 @@ export const apiClient = new ApiClient()
 export function isAuthError(error: unknown): boolean {
   return error instanceof Error && error.message === "AUTH_FAILURE"
 }
+
+/** Check if an error is a CSRF token failure (recoverable in many UX flows). */
+export function isCsrfError(error: unknown): boolean {
+  return (
+    error instanceof Error &&
+    /csrf\s*token\s*(missing|invalid)?/i.test(error.message)
+  )
+}

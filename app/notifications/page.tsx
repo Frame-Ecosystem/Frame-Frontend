@@ -51,6 +51,7 @@ export default function NotificationsPage() {
   const deleteAll = useDeleteAllNotifications()
 
   const { navigateTo } = useNotificationNavigate()
+  const lastAutoMarkedHashRef = useRef<string>("")
 
   const notifications = useMemo(
     () => data?.pages.flatMap((p) => p.data) ?? [],
@@ -59,13 +60,23 @@ export default function NotificationsPage() {
 
   // Mark all visible unread notifications as read on mount
   useEffect(() => {
+    if (authLoading || !user) return
     if (notifications.length === 0) return
+
     const unreadIds = notifications.filter((n) => !n.isRead).map((n) => n._id)
-    if (unreadIds.length > 0) {
-      markRead.mutate(unreadIds)
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [notifications.length])
+    if (unreadIds.length === 0) return
+
+    const hash = unreadIds.join("|")
+    if (lastAutoMarkedHashRef.current === hash) return
+
+    lastAutoMarkedHashRef.current = hash
+    markRead.mutate(unreadIds, {
+      onError: () => {
+        // Allow retry on next render cycle if the previous attempt failed.
+        lastAutoMarkedHashRef.current = ""
+      },
+    })
+  }, [authLoading, user, notifications, markRead])
 
   // Infinite scroll
   const handleScroll = useCallback(() => {
