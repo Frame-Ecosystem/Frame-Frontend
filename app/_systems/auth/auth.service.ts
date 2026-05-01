@@ -74,6 +74,8 @@ export function getUserInitials(user: User | null | undefined): string {
 // ── Auth Service ────────────────────────────────────────────────
 
 class AuthService {
+  private signupTimeoutMs = 90_000 // signup can be slower in production due to email provider latency
+
   private getAuthBaseUrl(): string {
     // In browsers, always use same-origin paths so Next rewrites can proxy
     // and cookie/session behavior stays reliable across Chrome/Opera.
@@ -118,7 +120,9 @@ class AuthService {
     if (dto.location) payload.location = dto.location
     if (dto.profileImage) payload.profileImage = dto.profileImage
 
-    return apiClient.post<SignupResponse>("/v1/auth/signup", payload)
+    return apiClient.post<SignupResponse>("/v1/auth/signup", payload, {
+      timeoutMs: this.signupTimeoutMs,
+    })
   }
 
   /**
