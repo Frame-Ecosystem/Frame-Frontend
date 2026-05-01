@@ -1,21 +1,14 @@
 "use client"
 
 import { useRouter } from "next/navigation"
-import { ArrowLeft, Search, Trash2, MoreVertical } from "lucide-react"
+import { ArrowLeft, Search } from "lucide-react"
 import { ChatAvatar, ChatIconBtn } from "./ui/chat-atoms"
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/app/_components/ui/dropdown-menu"
 import type { Conversation } from "../types"
 
 interface ChatHeaderProps {
   conversation: Conversation
   currentUserId: string
   onSearchToggle: () => void
-  onDeleteConversation: () => void
   /** When provided, overrides router.back() for use inside the chat drawer */
   onBack?: () => void
 }
@@ -24,7 +17,6 @@ export function ChatHeader({
   conversation,
   currentUserId,
   onSearchToggle,
-  onDeleteConversation,
   onBack,
 }: ChatHeaderProps) {
   const router = useRouter()
@@ -73,23 +65,6 @@ export function ChatHeader({
           <ChatIconBtn onClick={onSearchToggle} label="Search messages">
             <Search className="h-4 w-4" />
           </ChatIconBtn>
-
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <ChatIconBtn label="More options">
-                <MoreVertical className="h-4 w-4" />
-              </ChatIconBtn>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-44">
-              <DropdownMenuItem
-                onClick={onDeleteConversation}
-                className="text-destructive focus:text-destructive"
-              >
-                <Trash2 className="mr-2 h-4 w-4" />
-                Delete conversation
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
         </div>
       </div>
     </header>

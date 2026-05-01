@@ -1,7 +1,11 @@
 "use client"
 
+import { useCallback } from "react"
 import { useAuth } from "@/app/_auth"
-import { useConversations } from "../_systems/chat/hooks/useChatQueries"
+import {
+  useConversations,
+  useDeleteConversation,
+} from "../_systems/chat/hooks/useChatQueries"
 import { useConversationsSocket } from "../_systems/chat/hooks/useChatSocket"
 import { ConversationList } from "../_systems/chat/components/conversation-list"
 import { MessageCircle } from "lucide-react"
@@ -13,6 +17,13 @@ export default function MessagesPage() {
   const currentUserId = user?._id ?? ""
 
   const { data, isLoading: convLoading } = useConversations()
+  const deleteConversation = useDeleteConversation()
+  const handleDeleteConversation = useCallback(
+    (id: string) => {
+      deleteConversation.mutate(id)
+    },
+    [deleteConversation],
+  )
 
   // Subscribe to real-time conversation updates for the inbox
   useConversationsSocket(currentUserId)
@@ -21,8 +32,8 @@ export default function MessagesPage() {
     return (
       <>
         {/* Mobile skeleton */}
-        <div className="flex h-full flex-col lg:hidden">
-          <header className="border-border/60 bg-background border-b px-4 py-4">
+        <div className="fixed inset-x-0 top-[var(--header-offset)] bottom-[var(--mobile-nav-height)] z-10 flex flex-col overflow-hidden lg:hidden">
+          <header className="border-border/60 bg-background shrink-0 border-b px-4 py-4">
             <div className="bg-muted h-7 w-28 animate-pulse rounded" />
           </header>
           <ConversationList
@@ -53,8 +64,8 @@ export default function MessagesPage() {
   return (
     <>
       {/* ── MOBILE: full page with sticky header pinned below top bar ── */}
-      <div className="from-background via-background to-muted/20 flex min-h-screen flex-col bg-linear-to-br pb-[var(--mobile-nav-height)] lg:hidden">
-        <header className="border-border/60 bg-background/80 sticky top-[var(--header-offset)] z-10 border-b px-4 pt-4 pb-3 backdrop-blur-sm">
+      <div className="from-background via-background to-muted/20 fixed inset-x-0 top-[var(--header-offset)] bottom-[var(--mobile-nav-height)] z-10 flex flex-col overflow-hidden bg-linear-to-br lg:hidden">
+        <header className="border-border/60 bg-background/80 shrink-0 border-b px-4 pt-4 pb-3 backdrop-blur-sm">
           <div className="flex items-center gap-2">
             <MessageCircle className="h-5 w-5" />
             <h1 className="text-xl font-bold">Messages</h1>
@@ -65,6 +76,7 @@ export default function MessagesPage() {
           conversations={data?.data ?? []}
           currentUserId={currentUserId}
           isLoading={convLoading}
+          onDeleteConversation={handleDeleteConversation}
         />
       </div>
 
@@ -90,6 +102,7 @@ export default function MessagesPage() {
             conversations={data?.data ?? []}
             currentUserId={currentUserId}
             isLoading={convLoading}
+            onDeleteConversation={handleDeleteConversation}
           />
         </div>
       </div>

@@ -13,6 +13,7 @@ interface ConversationListProps {
   currentUserId: string
   isLoading: boolean
   activeId?: string
+  onDeleteConversation?: (id: string) => void
   /** When provided, clicking an item calls this instead of navigating */
   onSelect?: (id: string) => void
 }
@@ -22,6 +23,7 @@ export function ConversationList({
   currentUserId,
   isLoading,
   activeId,
+  onDeleteConversation,
   onSelect,
 }: ConversationListProps) {
   const [query, setQuery] = useState("")
@@ -49,9 +51,9 @@ export function ConversationList({
   }
 
   return (
-    <div className="flex flex-1 flex-col overflow-hidden">
+    <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
       {/* Search bar */}
-      <div className="px-4 py-3">
+      <div className="bg-background/90 shrink-0 px-4 py-3 backdrop-blur-sm">
         <div className="bg-muted flex items-center gap-2 rounded-xl px-3 py-2">
           <Search className="text-muted-foreground h-4 w-4 shrink-0" />
           <input
@@ -70,7 +72,7 @@ export function ConversationList({
       </div>
 
       {/* List */}
-      <div className="flex-1 overflow-y-auto px-2">
+      <div className="min-h-0 flex-1 overflow-y-auto px-2">
         {filtered.length === 0 ? (
           <ChatEmptyState
             icon={<MessageCirclePlus className="h-12 w-12" />}
@@ -83,6 +85,7 @@ export function ConversationList({
               conversation={c}
               currentUserId={currentUserId}
               isActive={c._id === activeId}
+              onDeleteConversation={onDeleteConversation}
               onSelect={onSelect}
             />
           ))

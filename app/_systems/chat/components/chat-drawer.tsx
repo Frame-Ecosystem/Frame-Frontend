@@ -26,16 +26,15 @@ export function ChatDrawer() {
 
   const { data, isLoading } = useConversations()
   const deleteConversation = useDeleteConversation()
+  const handleDeleteConversation = useCallback(
+    (id: string) => {
+      deleteConversation.mutate(id)
+    },
+    [deleteConversation],
+  )
 
   // Keep conversation list in sync with real-time events while mounted
   useConversationsSocket(user?._id ?? "")
-
-  const handleDelete = useCallback(() => {
-    if (!activeConversationId) return
-    deleteConversation.mutate(activeConversationId, {
-      onSuccess: goBackToList,
-    })
-  }, [activeConversationId, deleteConversation, goBackToList])
 
   if (!user) return null
 
@@ -52,7 +51,6 @@ export function ChatDrawer() {
           <ChatWindow
             conversationId={activeConversationId}
             onBack={goBackToList}
-            onDeleteConversation={handleDelete}
           />
         ) : (
           <div className="flex flex-1 flex-col overflow-hidden">
@@ -72,6 +70,7 @@ export function ChatDrawer() {
               conversations={data?.data ?? []}
               currentUserId={user._id ?? ""}
               isLoading={isLoading}
+              onDeleteConversation={handleDeleteConversation}
               onSelect={openConversation}
             />
           </div>
