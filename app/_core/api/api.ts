@@ -103,6 +103,17 @@ class ApiClient {
   private authFailureCallback: ((info?: any) => void) | null = null
   private defaultTimeout = 30_000 // 30 seconds
 
+  private resolveTimeoutMs(timeoutMs?: number): number {
+    if (
+      typeof timeoutMs === "number" &&
+      Number.isFinite(timeoutMs) &&
+      timeoutMs > 0
+    ) {
+      return timeoutMs
+    }
+    return this.defaultTimeout
+  }
+
   constructor(baseUrl: string = API_BASE_URL) {
     this.baseUrl = baseUrl
   }
@@ -158,7 +169,7 @@ class ApiClient {
   private async request<T>(
     endpoint: string,
     options: RequestInit = {},
-    apiOptions?: { suppressAuthFailure?: boolean },
+    apiOptions?: { suppressAuthFailure?: boolean; timeoutMs?: number },
   ): Promise<T> {
     const url = `${this.baseUrl}${endpoint}`
 
@@ -196,11 +207,9 @@ class ApiClient {
     }
 
     try {
+      const timeoutMs = this.resolveTimeoutMs(apiOptions?.timeoutMs)
       const controller = new AbortController()
-      const timeoutId = setTimeout(
-        () => controller.abort(),
-        this.defaultTimeout,
-      )
+      const timeoutId = setTimeout(() => controller.abort(), timeoutMs)
 
       // compute debug flag at runtime to avoid SSR errors
       const isDebug =
@@ -267,7 +276,7 @@ class ApiClient {
               ...options,
               headers,
               credentials: "include",
-              signal: AbortSignal.timeout(this.defaultTimeout),
+              signal: AbortSignal.timeout(timeoutMs),
             })
           } else {
             if (isDebug && typeof window !== "undefined") {
@@ -320,7 +329,7 @@ class ApiClient {
               ...options,
               headers,
               credentials: "include",
-              signal: AbortSignal.timeout(this.defaultTimeout),
+              signal: AbortSignal.timeout(timeoutMs),
             })
 
             if (response.ok) {
@@ -430,17 +439,25 @@ class ApiClient {
 
   async get<T>(
     endpoint: string,
-    apiOptions?: { suppressAuthFailure?: boolean },
+    apiOptions?: { suppressAuthFailure?: boolean; timeoutMs?: number },
   ): Promise<T> {
     return this.request<T>(endpoint, { method: "GET" }, apiOptions)
   }
 
-  async post<T>(endpoint: string, data?: unknown): Promise<T> {
+  async post<T>(
+    endpoint: string,
+    data?: unknown,
+    apiOptions?: { suppressAuthFailure?: boolean; timeoutMs?: number },
+  ): Promise<T> {
     const body = data instanceof FormData ? data : JSON.stringify(data)
-    return this.request<T>(endpoint, {
-      method: "POST",
-      body,
-    })
+    return this.request<T>(
+      endpoint,
+      {
+        method: "POST",
+        body,
+      },
+      apiOptions,
+    )
   }
 
   async put<T>(endpoint: string, data?: unknown): Promise<T> {
