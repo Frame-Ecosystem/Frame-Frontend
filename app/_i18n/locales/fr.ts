@@ -1098,6 +1098,10 @@ const fr: Record<string, string> = {
   "cover.chooseCover": "Choisir une photo de couverture",
   "cover.updateProfilePhoto": "Mettre à jour la photo de profil",
   "cover.chooseProfile": "Choisir une photo de profil",
+  "cover.seePhoto": "Voir la photo",
+  "cover.editPhoto": "Modifier la photo",
+  "cover.addCoverPhoto": "Ajouter une photo de couverture",
+  "cover.addProfilePhoto": "Ajouter une photo de profil",
 
   // ── Client profile page ─────────────────────────────────────────────────
   "profile.updateName": "Mettre à jour votre nom",

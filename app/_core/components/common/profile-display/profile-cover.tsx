@@ -127,7 +127,7 @@ export function ProfileCover({
                   <span className="hidden sm:inline">{t("cover.edit")}</span>
                 </Button>
               </DialogTrigger>
-              <DialogContent>
+              <DialogContent className="max-h-[min(90dvh,36rem)]">
                 <DialogHeader>
                   <DialogTitle>{t("cover.dialogTitleCover")}</DialogTitle>
                 </DialogHeader>
@@ -191,7 +191,7 @@ export function ProfileCover({
                       <CameraIcon className="h-4 w-4" />
                     </Button>
                   </DialogTrigger>
-                  <DialogContent>
+                  <DialogContent className="max-h-[min(90dvh,36rem)]">
                     <DialogHeader>
                       <DialogTitle>{t("cover.dialogTitleProfile")}</DialogTitle>
                     </DialogHeader>

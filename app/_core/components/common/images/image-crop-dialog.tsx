@@ -3,15 +3,9 @@
 import React, { useState, useCallback } from "react"
 import Cropper from "react-easy-crop"
 import type { Area } from "react-easy-crop"
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-} from "@/app/_core/ui/dialog"
+import { Dialog, DialogContent, DialogTitle } from "@/app/_core/ui/dialog"
 import { Button } from "@/app/_core/ui/button"
-import { ZoomIn, ZoomOut, RotateCw } from "lucide-react"
+import { ZoomIn, ZoomOut, RotateCw, Eye, Pencil } from "lucide-react"
 import { useTranslation } from "@/app/_i18n"
 
 interface ImageCropDialogProps {
@@ -82,6 +76,7 @@ export function ImageCropDialog({
   const { t } = useTranslation()
   const [croppedAreaPixels, setCroppedAreaPixels] = useState<Area | null>(null)
   const [isSaving, setIsSaving] = useState(false)
+  const [showOverlay, setShowOverlay] = useState(false)
 
   const onCropChange = useCallback(
     (_croppedArea: Area, croppedAreaPixels: Area) => {
@@ -107,12 +102,36 @@ export function ImageCropDialog({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-lg p-0">
-        <DialogHeader className="px-6 pt-6">
-          <DialogTitle>{title}</DialogTitle>
-        </DialogHeader>
+        {/* Title */}
+        <DialogTitle className="px-4 pt-4 text-center text-base">
+          {title}
+        </DialogTitle>
 
-        {/* Crop area */}
-        <div className="relative mx-6 h-[350px] overflow-hidden rounded-lg bg-black">
+        {/* Action buttons — same row, centered, under title */}
+        <div className="flex justify-center gap-3 px-4 pt-2 pb-0">
+          <Button
+            variant="outline"
+            size="sm"
+            className="w-28"
+            onClick={() => onOpenChange(false)}
+          >
+            {t("common.cancel")}
+          </Button>
+          <Button
+            size="sm"
+            className="w-28"
+            onClick={handleConfirm}
+            disabled={isSaving}
+          >
+            {isSaving ? t("imageCrop.saving") : t("common.apply")}
+          </Button>
+        </div>
+
+        {/* Crop area — clickable, shows overlay with See / Edit options */}
+        <div
+          className="relative mx-4 mt-3 h-[300px] cursor-pointer overflow-hidden rounded-lg bg-black"
+          onClick={() => setShowOverlay((v) => !v)}
+        >
           <Cropper
             image={imageSrc}
             crop={crop}
@@ -126,10 +145,36 @@ export function ImageCropDialog({
             onRotationChange={setRotation}
             onCropComplete={onCropChange}
           />
+
+          {/* Click overlay */}
+          {showOverlay && (
+            <div className="absolute inset-0 z-10 flex items-center justify-center gap-4 bg-black/60 backdrop-blur-sm">
+              <button
+                onClick={(e) => {
+                  e.stopPropagation()
+                  window.open(imageSrc, "_blank", "noopener,noreferrer")
+                }}
+                className="flex flex-col items-center gap-1.5 rounded-xl bg-white/10 px-5 py-3 text-white transition-colors hover:bg-white/20"
+              >
+                <Eye className="h-6 w-6" />
+                <span className="text-xs font-medium">See image</span>
+              </button>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation()
+                  setShowOverlay(false)
+                }}
+                className="flex flex-col items-center gap-1.5 rounded-xl bg-white/10 px-5 py-3 text-white transition-colors hover:bg-white/20"
+              >
+                <Pencil className="h-6 w-6" />
+                <span className="text-xs font-medium">Edit image</span>
+              </button>
+            </div>
+          )}
         </div>
 
-        {/* Controls */}
-        <div className="flex items-center justify-center gap-3 px-6 py-2">
+        {/* Zoom / rotate controls */}
+        <div className="flex items-center justify-center gap-3 px-4 py-3">
           <Button
             variant="outline"
             size="icon"
@@ -161,15 +206,6 @@ export function ImageCropDialog({
             <RotateCw className="h-4 w-4" />
           </Button>
         </div>
-
-        <DialogFooter className="px-6 pb-6">
-          <Button variant="outline" onClick={() => onOpenChange(false)}>
-            {t("common.cancel")}
-          </Button>
-          <Button onClick={handleConfirm} disabled={isSaving}>
-            {isSaving ? t("imageCrop.saving") : t("common.apply")}
-          </Button>
-        </DialogFooter>
       </DialogContent>
     </Dialog>
   )

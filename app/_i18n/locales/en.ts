@@ -1109,6 +1109,10 @@ const en: Record<string, string> = {
   "cover.chooseCover": "Choose a cover photo",
   "cover.updateProfilePhoto": "Update Profile Photo",
   "cover.chooseProfile": "Choose a profile photo",
+  "cover.seePhoto": "See photo",
+  "cover.editPhoto": "Edit photo",
+  "cover.addCoverPhoto": "Add cover photo",
+  "cover.addProfilePhoto": "Add profile photo",
 
   // ── Client profile page ─────────────────────────────────────────────────
   "profile.updateName": "Update your name",
