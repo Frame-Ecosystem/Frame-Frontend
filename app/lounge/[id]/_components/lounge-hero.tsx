@@ -2,17 +2,31 @@
 
 import Image from "next/image"
 import { useRouter } from "next/navigation"
-import { useState } from "react"
 import { StarIcon, Heart, UserPlus, UserCheck, MapPin } from "lucide-react"
 import { Card, CardContent } from "@/app/_components/ui/card"
+import { useCheckLiked, useToggleLike } from "@/app/_systems/feed/hooks"
+import {
+  useCheckFollowing,
+  useFollowCounts,
+  useToggleFollow,
+} from "@/app/_systems/user/hooks"
 import type { LoungeDetail } from "../_lib/use-lounge-data"
 
 export function LoungeHero({ lounge }: { lounge: LoungeDetail }) {
   const router = useRouter()
+  const targetId = lounge._id ?? lounge.id
 
-  // TODO: Replace with real API-backed like/follow + actual counts
-  const [isLiked, setIsLiked] = useState(false)
-  const [isFollowing, setIsFollowing] = useState(false)
+  const { data: isLiked = false } = useCheckLiked(targetId)
+  const likeMutation = useToggleLike(targetId)
+
+  const { data: isFollowing = false } = useCheckFollowing(targetId)
+  const followMutation = useToggleFollow(targetId)
+  const { data: followCounts } = useFollowCounts(targetId)
+
+  const rating = lounge.averageRating ?? 0
+  const ratingCount = lounge.ratingCount ?? 0
+  const likeCount = lounge.likeCount ?? 0
+  const followersCount = followCounts?.followersCount ?? 0
 
   return (
     <div className="relative h-[60vh] lg:h-[70vh]">
@@ -51,12 +65,16 @@ export function LoungeHero({ lounge }: { lounge: LoungeDetail }) {
                       {lounge.description}
                     </p>
 
-                    {/* Rating — TODO: Use real data */}
                     <div className="mb-4 flex items-center gap-4">
                       <div className="flex items-center gap-1">
                         <StarIcon className="h-5 w-5 fill-yellow-400 text-yellow-400" />
-                        <span className="font-semibold text-white">4.8</span>
-                        <span className="text-white/80">(2.1k reviews)</span>
+                        <span className="font-semibold text-white">
+                          {ratingCount > 0 ? rating.toFixed(1) : "-"}
+                        </span>
+                        <span className="text-white/80">
+                          ({ratingCount}{" "}
+                          {ratingCount === 1 ? "review" : "reviews"})
+                        </span>
                       </div>
                     </div>
 
@@ -70,23 +88,29 @@ export function LoungeHero({ lounge }: { lounge: LoungeDetail }) {
                   {/* Action Buttons */}
                   <div className="flex flex-col gap-3 lg:flex-row lg:items-center">
                     <button
-                      onClick={() => setIsLiked((prev) => !prev)}
+                      onClick={() => likeMutation.mutate()}
                       className="flex items-center gap-1.5 rounded-full bg-white/10 px-3 py-1.5 backdrop-blur-sm transition-colors hover:bg-white/20"
                       aria-label="Like"
+                      disabled={
+                        likeMutation.isPending || likeMutation.isRateLimited
+                      }
                     >
                       <Heart
                         size={16}
                         className={`transition-colors ${isLiked ? "fill-red-500 text-red-500" : "text-white"}`}
                       />
                       <span className="text-sm font-medium text-white">
-                        1.2k likes
+                        {likeCount} {likeCount === 1 ? "like" : "likes"}
                       </span>
                     </button>
 
                     <button
-                      onClick={() => setIsFollowing((prev) => !prev)}
+                      onClick={() => followMutation.mutate()}
                       className="flex items-center gap-1.5 rounded-full bg-white/10 px-3 py-1.5 backdrop-blur-sm transition-colors hover:bg-white/20"
                       aria-label={isFollowing ? "Following" : "Follow"}
+                      disabled={
+                        followMutation.isPending || followMutation.isRateLimited
+                      }
                     >
                       {isFollowing ? (
                         <UserCheck size={16} className="text-green-500" />
@@ -94,7 +118,8 @@ export function LoungeHero({ lounge }: { lounge: LoungeDetail }) {
                         <UserPlus size={16} className="text-white" />
                       )}
                       <span className="text-sm font-medium text-white">
-                        2.1k followers
+                        {followersCount}{" "}
+                        {followersCount === 1 ? "follower" : "followers"}
                       </span>
                     </button>
                   </div>

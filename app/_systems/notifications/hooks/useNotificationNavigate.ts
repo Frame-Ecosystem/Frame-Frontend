@@ -18,6 +18,10 @@ const SCROLL_DELAY = 100
 const HIGHLIGHT_DURATION = 3_500
 /** CSS class that triggers the pulse animation (defined in globals.css). */
 const HIGHLIGHT_CLASS = "notif-highlight"
+/** Number of retries to re-apply scroll/focus while layout is still settling. */
+const FOCUS_RETRIES = 6
+/** Delay between retries (ms). */
+const FOCUS_RETRY_DELAY = 220
 
 // ── Scroll + highlight helper (framework-agnostic) ───────────
 
@@ -29,16 +33,84 @@ function getHeaderOffset(): number {
   return parseInt(raw, 10) || 0
 }
 
+function isVerticallyScrollable(el: HTMLElement): boolean {
+  const style = getComputedStyle(el)
+  const canScroll = /(auto|scroll|overlay)/.test(style.overflowY)
+  return canScroll && el.scrollHeight > el.clientHeight
+}
+
+function getScrollableAncestors(el: HTMLElement): HTMLElement[] {
+  const ancestors: HTMLElement[] = []
+  let current: HTMLElement | null = el.parentElement
+
+  while (current) {
+    if (isVerticallyScrollable(current)) ancestors.push(current)
+    current = current.parentElement
+  }
+
+  return ancestors
+}
+
+function scrollWithinContainer(
+  container: HTMLElement,
+  target: HTMLElement,
+): void {
+  const containerRect = container.getBoundingClientRect()
+  const targetRect = target.getBoundingClientRect()
+  const desiredTop =
+    container.scrollTop +
+    (targetRect.top - containerRect.top) -
+    container.clientHeight / 2 +
+    targetRect.height / 2
+
+  container.scrollTo({ top: Math.max(0, desiredTop), behavior: "smooth" })
+}
+
+function focusElement(el: HTMLElement): void {
+  const hadTabIndex = el.hasAttribute("tabindex")
+  if (!hadTabIndex) el.setAttribute("tabindex", "-1")
+
+  el.focus({ preventScroll: true })
+
+  if (!hadTabIndex) {
+    setTimeout(() => {
+      if (el.getAttribute("tabindex") === "-1") el.removeAttribute("tabindex")
+    }, HIGHLIGHT_DURATION)
+  }
+}
+
 function scrollAndHighlight(el: HTMLElement): void {
+  // Let the browser scroll through nested scroll containers first.
+  el.scrollIntoView({ behavior: "smooth", block: "center", inline: "nearest" })
+
+  // Explicitly scroll nested containers to keep the target centered.
+  const ancestors = getScrollableAncestors(el)
+  ancestors.forEach((ancestor) => scrollWithinContainer(ancestor, el))
+
+  // Apply viewport/header-aware correction for the root window scroll.
   const headerPx = getHeaderOffset()
   const top = el.getBoundingClientRect().top + window.scrollY - headerPx - 16
-
   window.scrollTo({ top: Math.max(0, top), behavior: "smooth" })
+
   el.classList.add(HIGHLIGHT_CLASS)
+  focusElement(el)
 
   setTimeout(() => {
     el.classList.remove(HIGHLIGHT_CLASS)
   }, HIGHLIGHT_DURATION)
+}
+
+function repeatedlyFocusTarget(
+  el: HTMLElement,
+  retriesLeft = FOCUS_RETRIES,
+): void {
+  scrollAndHighlight(el)
+  if (retriesLeft <= 0) return
+
+  setTimeout(() => {
+    if (!document.contains(el)) return
+    repeatedlyFocusTarget(el, retriesLeft - 1)
+  }, FOCUS_RETRY_DELAY)
 }
 
 /**
@@ -50,7 +122,7 @@ function waitForElementAndHighlight(elementId: string): void {
   // Element might already be in the DOM (same-page hash navigation)
   const existing = document.getElementById(elementId)
   if (existing) {
-    setTimeout(() => scrollAndHighlight(existing), SCROLL_DELAY)
+    setTimeout(() => repeatedlyFocusTarget(existing), SCROLL_DELAY)
     return
   }
 
@@ -59,7 +131,7 @@ function waitForElementAndHighlight(elementId: string): void {
     const el = document.getElementById(elementId)
     if (el) {
       observer.disconnect()
-      setTimeout(() => scrollAndHighlight(el), SCROLL_DELAY)
+      setTimeout(() => repeatedlyFocusTarget(el), SCROLL_DELAY)
     }
   })
 

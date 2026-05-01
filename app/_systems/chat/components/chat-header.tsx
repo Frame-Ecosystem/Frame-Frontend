@@ -1,5 +1,6 @@
 "use client"
 
+import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { ArrowLeft, Search } from "lucide-react"
 import { ChatAvatar, ChatIconBtn } from "./ui/chat-atoms"
@@ -33,6 +34,27 @@ export function ChatHeader({
       ? other.profileImage
       : (other?.profileImage as any)?.url
 
+  const otherProfileHref = (() => {
+    if (!other?._id) return null
+    if (other.type === "lounge") return `/lounges/${other._id}`
+    if (other.type === "client") return `/clients/${other._id}`
+    return null
+  })()
+
+  const participantIdentity = (
+    <>
+      <ChatAvatar
+        src={avatarSrc}
+        name={displayName}
+        size="md"
+        className="shrink-0"
+      />
+      <div className="min-w-0">
+        <p className="truncate leading-tight font-semibold">{displayName}</p>
+      </div>
+    </>
+  )
+
   return (
     <header className="border-border/60 bg-background/90 fixed inset-x-0 top-[var(--header-offset)] z-30 border-b backdrop-blur-sm lg:static lg:top-auto lg:z-auto">
       <div className="flex h-14 items-center gap-3 px-4">
@@ -46,19 +68,19 @@ export function ChatHeader({
         </ChatIconBtn>
 
         {/* Avatar + name */}
-        <div className="flex flex-1 items-center gap-3 overflow-hidden">
-          <ChatAvatar
-            src={avatarSrc}
-            name={displayName}
-            size="md"
-            className="shrink-0"
-          />
-          <div className="min-w-0">
-            <p className="truncate leading-tight font-semibold">
-              {displayName}
-            </p>
+        {otherProfileHref ? (
+          <Link
+            href={otherProfileHref}
+            className="hover:bg-muted/60 flex flex-1 items-center gap-3 overflow-hidden rounded-lg px-1 py-1 transition-colors"
+            aria-label={`Open ${displayName} profile`}
+          >
+            {participantIdentity}
+          </Link>
+        ) : (
+          <div className="flex flex-1 items-center gap-3 overflow-hidden">
+            {participantIdentity}
           </div>
-        </div>
+        )}
 
         {/* Actions */}
         <div className="flex shrink-0 items-center gap-1">

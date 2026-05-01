@@ -80,7 +80,7 @@ export function PostCard({
   return (
     <article
       id={`post-${post._id}`}
-      className="border-border bg-card relative border-b"
+      className="border-border/50 bg-card relative overflow-hidden rounded-xl border shadow-sm transition-shadow hover:shadow-md"
     >
       {/* Hidden indicator for admins */}
       {post.isHidden && isAdmin && (
@@ -157,26 +157,29 @@ export function PostCard({
       )}
 
       {/* Action bar */}
-      <ActionBar
-        likeCount={post.likeCount}
-        commentCount={post.commentCount}
-        saveCount={post.saveCount}
-        isLiked={isLiked}
-        isSaved={isSaved}
-        onLike={() => likeMutation.mutate()}
-        onComment={() => onCommentClick?.()}
-        onSave={() => saveMutation.mutate()}
-        isLikeDisabled={likeMutation.isRateLimited}
-        className="px-4 py-1"
-      />
+      <div className="border-border/30 border-t">
+        <ActionBar
+          likeCount={post.likeCount}
+          commentCount={post.commentCount}
+          saveCount={post.saveCount}
+          isLiked={isLiked}
+          isSaved={isSaved}
+          onLike={() => likeMutation.mutate()}
+          onComment={() => onCommentClick?.()}
+          onSave={() => saveMutation.mutate()}
+          isLikeDisabled={likeMutation.isRateLimited}
+          className="px-3 py-1"
+        />
+      </div>
 
       {/* Comment preview / button */}
       {post.commentCount > 0 && onCommentClick && (
         <button
           onClick={onCommentClick}
-          className="text-muted-foreground block px-4 pb-3 text-sm"
+          className="text-muted-foreground hover:text-foreground block px-4 pb-3 text-xs font-medium transition-colors"
         >
-          {post.commentCount} comments · view all
+          View all {post.commentCount} comment
+          {post.commentCount !== 1 ? "s" : ""}
         </button>
       )}
 

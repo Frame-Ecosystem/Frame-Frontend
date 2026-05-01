@@ -11,6 +11,7 @@ import { Loader2 } from "lucide-react"
 export default function QueuePage() {
   const router = useRouter()
   const searchParams = useSearchParams()
+  const queryString = searchParams.toString()
   const agentId = searchParams.get("agent")
   const loungeIdParam = searchParams.get("lounge")
   const highlightBookingId = searchParams.get("bookingId")
@@ -22,8 +23,10 @@ export default function QueuePage() {
 
   // Agents have their own dedicated queue surface.
   useEffect(() => {
-    if (isAgent) router.replace("/agent/queue")
-  }, [isAgent, router])
+    if (!isAgent) return
+    const target = queryString ? `/agent/queue?${queryString}` : "/agent/queue"
+    router.replace(target)
+  }, [isAgent, queryString, router])
 
   if (isAgent) {
     return (

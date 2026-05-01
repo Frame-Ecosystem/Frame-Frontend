@@ -1,6 +1,7 @@
 "use client"
 
 import { useMemo } from "react"
+import { useSearchParams } from "next/navigation"
 import {
   Loader2,
   PhoneCall,
@@ -32,6 +33,10 @@ import { cn } from "@/app/_lib/utils"
 // ── Page ────────────────────────────────────────────────────────
 
 export default function AgentQueuePage() {
+  const searchParams = useSearchParams()
+  const highlightBookingId =
+    searchParams.get("bookingId") ?? searchParams.get("highlight")
+
   const queueQuery = useMyQueue()
   const statsQuery = useMyQueueStats()
   const callNext = useCallNextPerson()
@@ -191,6 +196,7 @@ export default function AgentQueuePage() {
                 reorder.mutate({ bookingId, newPosition })
               }
               isUpdating={isUpdating}
+              highlightBookingId={highlightBookingId}
               emptyTitle="No one in your queue right now"
               emptyHint="Clients will appear here when they join."
             />

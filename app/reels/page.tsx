@@ -191,6 +191,14 @@ export default function ReelsPage() {
     <ErrorBoundary>
       {/* Fixed layer that fills exactly between top bar & bottom of viewport */}
       <div className="bg-background fixed inset-x-0 top-[73px] bottom-0 z-10 flex justify-center lg:top-[96px]">
+        {/* Reel counter badge */}
+        {reels.length > 1 && (
+          <div className="pointer-events-none absolute top-3 left-1/2 z-40 -translate-x-1/2">
+            <span className="rounded-full bg-black/40 px-3 py-1 text-xs font-semibold text-white/90 backdrop-blur-sm">
+              {activeIndex + 1} / {reels.length}
+            </span>
+          </div>
+        )}
         <div
           ref={containerRef}
           className="relative h-full w-full overflow-hidden lg:max-w-[420px]"

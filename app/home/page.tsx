@@ -38,13 +38,15 @@ const Home = () => {
           <div className="p-5 lg:px-8 lg:py-12">
             {/* Page Header */}
             <div className="mb-8 lg:mb-12">
-              <div dir={dir} className="mt-6 mb-4 flex items-center gap-3">
-                <HomeIcon className="text-primary h-8 w-8 lg:h-10 lg:w-10" />
-                <h1 className="text-3xl font-bold lg:text-4xl">
+              <div dir={dir} className="mt-6 mb-2 flex items-center gap-3">
+                <div className="bg-primary/10 rounded-xl p-2">
+                  <HomeIcon className="text-primary h-6 w-6 lg:h-7 lg:w-7" />
+                </div>
+                <h1 className="text-2xl font-bold tracking-tight lg:text-3xl">
                   {t("home.title")}
                 </h1>
               </div>
-              <p className="text-muted-foreground lg:text-lg">
+              <p className="text-muted-foreground ml-1 text-sm lg:text-base">
                 {t("home.subtitle")}
               </p>
             </div>

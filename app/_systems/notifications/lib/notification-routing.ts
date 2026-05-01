@@ -22,6 +22,72 @@ const UPCOMING_BOOKING_TYPES: ReadonlySet<string> = new Set([
   NotificationType.BOOKING_CONFIRMED,
 ])
 
+const HISTORY_QUEUE_TYPES: ReadonlySet<string> = new Set([
+  NotificationType.QUEUE_AUTO_CANCELLED,
+  "queue:completed",
+  "queue:absent",
+])
+
+function withQuery(
+  pathname: string,
+  params?: Record<string, string | undefined>,
+): string {
+  if (!params) return pathname
+  const search = new URLSearchParams()
+  for (const [key, value] of Object.entries(params)) {
+    if (value) search.set(key, value)
+  }
+  const query = search.toString()
+  return query ? `${pathname}?${query}` : pathname
+}
+
+function normalizeActionUrl(actionUrl?: string): string | null {
+  if (!actionUrl) return null
+
+  let path = actionUrl.trim()
+  try {
+    if (/^https?:\/\//i.test(path)) {
+      const url = new URL(path)
+      path = `${url.pathname}${url.search}${url.hash}`
+    }
+  } catch {
+    // Keep original path if URL parsing fails
+  }
+
+  if (!path.startsWith("/")) return null
+
+  if (path === "/chat" || path === "/chats") return "/messages"
+
+  const chatConversationMatch = path.match(
+    /^\/chat\/(?:conversation\/)?([^/?#]+)/i,
+  )
+  if (chatConversationMatch?.[1]) return `/messages/${chatConversationMatch[1]}`
+
+  const conversationMatch = path.match(/^\/conversations\/([^/?#]+)/i)
+  if (conversationMatch?.[1]) return `/messages/${conversationMatch[1]}`
+
+  return path
+}
+
+function getMessageRoute(notification: AppNotification): string | null {
+  const { type, metadata, actionUrl } = notification
+
+  const conversationId =
+    metadata?.conversationId ?? metadata?.chatId ?? metadata?.threadId
+
+  if (conversationId) return `/messages/${conversationId}`
+
+  const normalizedAction = normalizeActionUrl(actionUrl)
+  if (normalizedAction) {
+    if (normalizedAction === "/messages") return normalizedAction
+    if (/^\/messages\/(.+)/i.test(normalizedAction)) return normalizedAction
+  }
+
+  if (/message|chat/i.test(type)) return "/messages"
+
+  return null
+}
+
 // ── Main resolver ────────────────────────────────────────────
 
 /**
@@ -31,50 +97,68 @@ const UPCOMING_BOOKING_TYPES: ReadonlySet<string> = new Set([
  */
 export function getRedirectPath(notification: AppNotification): string | null {
   const { type, metadata, actionUrl } = notification
+  const normalizedAction = normalizeActionUrl(actionUrl)
+
+  const messageRoute = getMessageRoute(notification)
+  if (messageRoute) return messageRoute
 
   // ── Booking → bookings page with highlight for scroll-to-target ──
   if (HISTORY_BOOKING_TYPES.has(type)) {
-    const params = new URLSearchParams({ view: "history" })
-    if (metadata?.bookingId) params.set("highlight", metadata.bookingId)
-    return `/bookings?${params}`
+    return withQuery("/bookings", {
+      view: "history",
+      highlight: metadata?.bookingId,
+    })
   }
   if (UPCOMING_BOOKING_TYPES.has(type)) {
-    const params = new URLSearchParams()
-    if (metadata?.bookingId) params.set("highlight", metadata.bookingId)
-    return `/bookings?${params}`
+    return withQuery("/bookings", {
+      highlight: metadata?.bookingId,
+    })
   }
 
   // ── Queue → lounge queue tab ──
   if (type === NotificationType.BOOKING_IN_QUEUE || type.startsWith("queue:")) {
-    if (metadata?.loungeId) {
-      const params = new URLSearchParams({ tab: "queue" })
-      if (metadata.agentId) params.set("agentId", metadata.agentId)
-      return `/lounges/${metadata.loungeId}?${params}`
+    if (HISTORY_QUEUE_TYPES.has(type)) {
+      return withQuery("/bookings", {
+        view: "history",
+        highlight: metadata?.bookingId,
+      })
     }
-    return "/queue"
+
+    if (metadata?.loungeId) {
+      return withQuery(`/lounges/${metadata.loungeId}`, {
+        tab: "queue",
+        agentId: metadata.agentId,
+        bookingId: metadata.bookingId,
+      })
+    }
+    return withQuery("/queue", {
+      agent: metadata?.agentId,
+      lounge: metadata?.loungeId,
+      bookingId: metadata?.bookingId,
+    })
   }
 
   // ── Content → post or reel with scroll-to-target ──
   if (type === NotificationType.POST_LIKED) {
     if (metadata?.postId) return `/home#post-${metadata.postId}`
-    return actionUrl ?? "/home"
+    return normalizedAction ?? "/home"
   }
   if (type === NotificationType.POST_COMMENTED) {
     if (metadata?.postId) {
       const params = new URLSearchParams({ openComments: metadata.postId })
       return `/home?${params}#post-${metadata.postId}`
     }
-    return actionUrl ?? "/home"
+    return normalizedAction ?? "/home"
   }
   if (type === NotificationType.REEL_LIKED) {
     if (metadata?.reelId)
       return `/reels?id=${metadata.reelId}#reel-${metadata.reelId}`
-    return actionUrl ?? "/reels"
+    return normalizedAction ?? "/reels"
   }
   if (type === NotificationType.REEL_COMMENTED) {
     if (metadata?.reelId)
       return `/reels?id=${metadata.reelId}&openComments=true#reel-${metadata.reelId}`
-    return actionUrl ?? "/reels"
+    return normalizedAction ?? "/reels"
   }
   if (
     type === NotificationType.COMMENT_REPLIED ||
@@ -93,54 +177,54 @@ export function getRedirectPath(notification: AppNotification): string | null {
       if (metadata.commentId) params.set("commentId", metadata.commentId)
       return `/reels?${params}#reel-${metadata.reelId}`
     }
-    return actionUrl ?? "/home"
+    return normalizedAction ?? "/home"
   }
 
   // ── Social → profile ──
   if (type === NotificationType.NEW_FOLLOWER) {
     if (metadata?.followerId) return `/profile/${metadata.followerId}`
-    return actionUrl ?? "/notifications"
+    return normalizedAction ?? "/notifications"
   }
   if (
     type === NotificationType.LOUNGE_LIKED ||
     type === NotificationType.LOUNGE_RATED
   ) {
     if (metadata?.loungeId) return `/lounges/${metadata.loungeId}`
-    return actionUrl ?? "/notifications"
+    return normalizedAction ?? "/notifications"
   }
 
   // ── Admin ──
   if (type === NotificationType.SUGGESTION_CREATED) {
     if (metadata?.suggestionId)
       return `/admin/suggestions/${metadata.suggestionId}`
-    return actionUrl ?? "/admin/suggestions"
+    return normalizedAction ?? "/admin/suggestions"
   }
   if (
     type === NotificationType.SUGGESTION_APPROVED ||
     type === NotificationType.SUGGESTION_REJECTED
   ) {
-    return actionUrl ?? "/lounge/suggestions"
+    return normalizedAction ?? "/lounge/suggestions"
   }
   if (type === NotificationType.CONTENT_HIDDEN) {
     if (metadata?.postId) return `/posts/${metadata.postId}`
     if (metadata?.reelId)
       return `/reels?id=${metadata.reelId}#reel-${metadata.reelId}`
-    return actionUrl ?? "/notifications"
+    return normalizedAction ?? "/notifications"
   }
 
   // ── Product category suggestions ──
   if (type === NotificationType.PRODUCT_CATEGORY_SUGGESTION_CREATED) {
-    return actionUrl ?? "/admin/marketplace/category-suggestions"
+    return normalizedAction ?? "/admin/marketplace/category-suggestions"
   }
   if (
     type === NotificationType.PRODUCT_CATEGORY_SUGGESTION_APPROVED ||
     type === NotificationType.PRODUCT_CATEGORY_SUGGESTION_REJECTED
   ) {
-    return actionUrl ?? "/store/my-store/suggestions"
+    return normalizedAction ?? "/store/my-store/suggestions"
   }
 
   // ── Fallback to actionUrl from backend ──
-  return actionUrl ?? null
+  return normalizedAction
 }
 
 // ── Target element resolver ──────────────────────────────────
@@ -158,6 +242,14 @@ export function getTargetElementId(
   // Bookings
   if (
     (HISTORY_BOOKING_TYPES.has(type) || UPCOMING_BOOKING_TYPES.has(type)) &&
+    metadata?.bookingId
+  ) {
+    return `booking-${metadata.bookingId}`
+  }
+
+  // Queue notifications that reference a booking card
+  if (
+    (type === NotificationType.BOOKING_IN_QUEUE || type.startsWith("queue:")) &&
     metadata?.bookingId
   ) {
     return `booking-${metadata.bookingId}`
@@ -217,6 +309,9 @@ export function resolveRouteFromFCM(data: Record<string, string>): string {
       loungeId: data.loungeId,
       clientId: data.clientId,
       agentId: data.agentId,
+      conversationId: data.conversationId,
+      chatId: data.chatId,
+      threadId: data.threadId,
       postId: data.postId,
       reelId: data.reelId,
       commentId: data.commentId,
