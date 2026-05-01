@@ -1,5 +1,6 @@
 import type { Metadata } from "next"
 import { Inter, Nunito } from "next/font/google"
+import { Suspense } from "react"
 
 // Global styles
 import "./globals.css"
@@ -222,7 +223,9 @@ export default function RootLayout({
                             {/* MAIN LAYOUT STRUCTURE */}
                             {/* Uses flexbox to keep footer at bottom of viewport */}
                             <div className="flex min-h-screen flex-col">
-                              <ScrollResetOnNavigation />
+                              <Suspense fallback={null}>
+                                <ScrollResetOnNavigation />
+                              </Suspense>
                               {/* Global chat drawer — renders Sheet portal for chat panel */}
                               <ChatDrawer />
                               {/* Header handles top bars and navigation visibility */}
