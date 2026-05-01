@@ -69,11 +69,10 @@ const TopBar: React.FC<TopBarProps> = ({
               variant="ghost"
               size="icon"
               className="hover:bg-primary/10 relative flex items-center justify-center rounded-full"
-              onClick={() => router.push("/messages")}
-              aria-label={t("nav.chat")}
+              onClick={() => router.push("/lounges")}
             >
               <div className="flex h-10 w-10 items-center justify-center rounded-full border">
-                <MessageCircle className="h-5 w-5" />
+                <Search className="h-5 w-5" />
               </div>
             </Button>
 
@@ -83,10 +82,11 @@ const TopBar: React.FC<TopBarProps> = ({
               variant="ghost"
               size="icon"
               className="hover:bg-primary/10 relative flex items-center justify-center rounded-full"
-              onClick={() => router.push("/lounges")}
+              onClick={() => router.push("/messages")}
+              aria-label={t("nav.chat")}
             >
               <div className="flex h-10 w-10 items-center justify-center rounded-full border">
-                <Search className="h-5 w-5" />
+                <MessageCircle className="h-5 w-5" />
               </div>
             </Button>
 
@@ -103,11 +103,10 @@ const TopBar: React.FC<TopBarProps> = ({
               variant="ghost"
               size="icon"
               className="hover:bg-primary/10 relative flex items-center justify-center rounded-full"
-              onClick={() => router.push("/messages")}
-              aria-label={t("nav.chat")}
+              onClick={() => router.push("/lounges")}
             >
               <div className="flex h-10 w-10 items-center justify-center rounded-full border">
-                <MessageCircle className="h-5 w-5" />
+                <Search className="h-5 w-5" />
               </div>
             </Button>
 
@@ -117,10 +116,11 @@ const TopBar: React.FC<TopBarProps> = ({
               variant="ghost"
               size="icon"
               className="hover:bg-primary/10 relative flex items-center justify-center rounded-full"
-              onClick={() => router.push("/lounges")}
+              onClick={() => router.push("/messages")}
+              aria-label={t("nav.chat")}
             >
               <div className="flex h-10 w-10 items-center justify-center rounded-full border">
-                <Search className="h-5 w-5" />
+                <MessageCircle className="h-5 w-5" />
               </div>
             </Button>
 

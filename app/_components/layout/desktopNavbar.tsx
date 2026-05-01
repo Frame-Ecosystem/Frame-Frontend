@@ -105,20 +105,6 @@ const DesktopNavbar = () => {
         <div className="flex items-center gap-1.5 md:gap-2 lg:gap-3">
           <CreateContentButton compact />
 
-          <Link href="/messages" aria-label={t("nav.chat")}>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="hover:bg-primary/10 relative flex items-center justify-center rounded-full"
-            >
-              <div className="flex h-9 w-9 items-center justify-center rounded-full border">
-                <MessageCircle className="h-5 w-5" />
-              </div>
-            </Button>
-          </Link>
-
-          <NotificationButton />
-
           <Link href="/lounges">
             <Button
               variant="ghost"
@@ -127,6 +113,20 @@ const DesktopNavbar = () => {
             >
               <div className="flex h-9 w-9 items-center justify-center rounded-full border">
                 <Search className="h-5 w-5" />
+              </div>
+            </Button>
+          </Link>
+
+          <NotificationButton />
+
+          <Link href="/messages" aria-label={t("nav.chat")}>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="hover:bg-primary/10 relative flex items-center justify-center rounded-full"
+            >
+              <div className="flex h-9 w-9 items-center justify-center rounded-full border">
+                <MessageCircle className="h-5 w-5" />
               </div>
             </Button>
           </Link>
