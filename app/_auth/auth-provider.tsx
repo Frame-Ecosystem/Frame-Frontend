@@ -37,6 +37,20 @@ import type { Locale } from "../_i18n"
 /** Default token lifetime (seconds) when backend doesn't provide expiresIn. */
 const DEFAULT_EXPIRES_IN = 900
 
+function isAuthDebugEnabled(): boolean {
+  if (typeof window === "undefined") return false
+
+  const allowInProd = process.env.NEXT_PUBLIC_ENABLE_AUTH_DEBUG === "true"
+  const isProd = process.env.NODE_ENV === "production"
+  if (isProd && !allowInProd) return false
+
+  try {
+    return localStorage.getItem("frame:debugAuth") === "true"
+  } catch {
+    return false
+  }
+}
+
 interface AuthContextType {
   user: User | null
   accessToken: string | null
@@ -158,9 +172,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
       } catch {}
 
-      const debug =
-        typeof window !== "undefined" &&
-        localStorage.getItem("frame:debugAuth") === "true"
+      const debug = isAuthDebugEnabled()
 
       if (debug) {
         // Delay redirect for inspection (5s)
