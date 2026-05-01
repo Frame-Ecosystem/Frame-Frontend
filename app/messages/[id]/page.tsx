@@ -67,6 +67,8 @@ export default function ConversationPage() {
   }
 
   return (
-    <div className="flex h-[100dvh] flex-col overflow-hidden">{window_}</div>
+    <div className="fixed inset-0 z-10 flex flex-col overflow-hidden">
+      {window_}
+    </div>
   )
 }

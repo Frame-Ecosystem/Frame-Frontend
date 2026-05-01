@@ -94,8 +94,11 @@ export function MessageList({
       <div
         ref={scrollRef}
         onScroll={handleScroll}
-        className="flex flex-1 flex-col overflow-y-auto overscroll-none py-2"
+        className="flex flex-1 flex-col overflow-y-auto overscroll-none pt-2 pb-[calc(5rem+env(safe-area-inset-bottom,0px))] lg:pb-2"
       >
+        {/* Spacer: pushes messages to the bottom when there are few */}
+        <div className="flex-1" />
+
         {/* Top sentinel for loading older messages */}
         <div ref={topRef} className="flex h-8 items-center justify-center">
           {isLoadingMore && <PulseDots />}
@@ -103,8 +106,12 @@ export function MessageList({
 
         {messages.map((msg, idx) => {
           const senderId =
-            typeof msg.senderId === "string" ? msg.senderId : msg.senderId._id
-          const isSent = senderId === currentUserId
+            typeof msg.senderId === "string"
+              ? msg.senderId
+              : ((msg.senderId as any)?._id ?? (msg.senderId as any)?.id)
+          const isSent =
+            (!!currentUserId && String(senderId) === String(currentUserId)) ||
+            !!msg._pending
 
           return (
             <MessageBubble
@@ -124,7 +131,7 @@ export function MessageList({
 
         {isOtherTyping && <TypingIndicator />}
 
-        <div ref={bottomRef} />
+        <div className="h-0" ref={bottomRef} />
       </div>
 
       {/* Scroll-to-bottom FAB */}

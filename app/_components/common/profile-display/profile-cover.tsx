@@ -107,7 +107,7 @@ export function ProfileCover({
             </button>
           ) : (
             /* Default gradient cover */
-            <div className="from-primary/15 via-primary/5 absolute inset-0 bg-gradient-to-br to-transparent" />
+            <div className="from-primary/15 via-primary/5 block h-28 w-full bg-gradient-to-br to-transparent sm:h-32 md:h-36" />
           )}
 
           {/* Gradient overlay at bottom for text readability */}
