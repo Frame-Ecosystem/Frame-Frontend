@@ -205,8 +205,24 @@ export function usePushNotifications(): PushNotificationControls {
     if (!isBrowser) return
 
     const onSWMessage = (event: MessageEvent) => {
-      if (event.data?.type === "NOTIFICATION_CLICK" && event.data.url) {
-        router.push(event.data.url)
+      if (event.data?.type !== "NOTIFICATION_CLICK") return
+
+      const rawData = event.data?.data
+      const payloadData: Record<string, string> =
+        rawData && typeof rawData === "object"
+          ? (rawData as Record<string, string>)
+          : {}
+
+      const route =
+        typeof event.data?.url === "string" && event.data.url
+          ? event.data.url
+          : resolveRouteFromFCM(payloadData)
+
+      router.push(route)
+
+      // Reuse the same DOM target highlighting used by in-app notification clicks.
+      if (Object.keys(payloadData).length > 0) {
+        scrollToNotificationTargetFromFCM(payloadData)
       }
     }
 

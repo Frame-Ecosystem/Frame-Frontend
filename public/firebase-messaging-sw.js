@@ -53,6 +53,20 @@ const ROUTE_MAP = {
   "queue:absent": "/bookings?view=history",
 }
 
+const HISTORY_BOOKING_TYPES = new Set([
+  "booking:cancelled",
+  "booking:completed",
+  "booking:absent",
+])
+
+const UPCOMING_BOOKING_TYPES = new Set(["booking:created", "booking:confirmed"])
+
+const HISTORY_QUEUE_TYPES = new Set([
+  "queue:autoCancelled",
+  "queue:completed",
+  "queue:absent",
+])
+
 const NOTIFICATION_DEFAULTS = {
   icon: "/images/logos/fb-logo.png",
   badge: "/images/logos/fb-logo.png",
@@ -71,13 +85,192 @@ function getOpenWindows() {
   return self.clients.matchAll({ type: "window", includeUncontrolled: true })
 }
 
+function withQuery(pathname, params) {
+  const search = new URLSearchParams()
+  Object.entries(params || {}).forEach(([key, value]) => {
+    if (value) search.set(key, value)
+  })
+  const query = search.toString()
+  return query ? `${pathname}?${query}` : pathname
+}
+
+function normalizeActionUrl(actionUrl) {
+  if (!actionUrl || typeof actionUrl !== "string") return null
+
+  let path = actionUrl.trim()
+  try {
+    if (/^https?:\/\//i.test(path)) {
+      const url = new URL(path)
+      path = `${url.pathname}${url.search}${url.hash}`
+    }
+  } catch {
+    // keep original path when parsing fails
+  }
+
+  if (!path.startsWith("/")) return null
+
+  if (path === "/chat" || path === "/chats") return "/messages"
+
+  const chatConversationMatch = path.match(
+    /^\/chat\/(?:conversation\/)?([^/?#]+)/i,
+  )
+  if (chatConversationMatch?.[1]) return `/messages/${chatConversationMatch[1]}`
+
+  const conversationMatch = path.match(/^\/conversations\/([^/?#]+)/i)
+  if (conversationMatch?.[1]) return `/messages/${conversationMatch[1]}`
+
+  return path
+}
+
+function resolveMessageRoute(type, data) {
+  const conversationId = data?.conversationId || data?.chatId || data?.threadId
+  if (conversationId) return `/messages/${conversationId}`
+
+  const normalizedAction = normalizeActionUrl(data?.actionUrl)
+  if (normalizedAction) {
+    if (normalizedAction === "/messages") return normalizedAction
+    if (/^\/messages\/(.+)/i.test(normalizedAction)) return normalizedAction
+  }
+
+  if (/message|chat/i.test(type || "")) return "/messages"
+
+  return null
+}
+
 function resolveRoute(type, data) {
-  const base = ROUTE_MAP[type] || FALLBACK_ROUTE
-  if (data && data.bookingId && base.startsWith("/bookings")) {
+  const messageRoute = resolveMessageRoute(type, data)
+  if (messageRoute) return messageRoute
+
+  const normalizedAction = normalizeActionUrl(data?.actionUrl)
+  if (normalizedAction) return normalizedAction
+
+  if (HISTORY_BOOKING_TYPES.has(type)) {
+    return withQuery("/bookings", {
+      view: "history",
+      highlight: data?.bookingId,
+    })
+  }
+
+  if (UPCOMING_BOOKING_TYPES.has(type)) {
+    return withQuery("/bookings", {
+      highlight: data?.bookingId,
+    })
+  }
+
+  if (type === "booking:inQueue" || type?.startsWith("queue:")) {
+    if (HISTORY_QUEUE_TYPES.has(type)) {
+      return withQuery("/bookings", {
+        view: "history",
+        highlight: data?.bookingId,
+      })
+    }
+
+    if (data?.loungeId) {
+      return withQuery(`/lounges/${data.loungeId}`, {
+        tab: "queue",
+        agentId: data?.agentId,
+        bookingId: data?.bookingId,
+      })
+    }
+
+    return withQuery("/queue", {
+      lounge: data?.loungeId,
+      agent: data?.agentId,
+      bookingId: data?.bookingId,
+    })
+  }
+
+  if (type === "content:postLiked") {
+    if (data?.postId) return `/home#post-${data.postId}`
+    return "/home"
+  }
+
+  if (type === "content:postCommented") {
+    if (data?.postId) {
+      return `${withQuery("/home", { openComments: data.postId })}#post-${data.postId}`
+    }
+    return "/home"
+  }
+
+  if (type === "content:reelLiked") {
+    if (data?.reelId) {
+      return `${withQuery("/reels", { id: data.reelId })}#reel-${data.reelId}`
+    }
+    return "/reels"
+  }
+
+  if (type === "content:reelCommented") {
+    if (data?.reelId) {
+      return `${withQuery("/reels", { id: data.reelId, openComments: "true" })}#reel-${data.reelId}`
+    }
+    return "/reels"
+  }
+
+  if (type === "content:commentReplied" || type === "content:commentLiked") {
+    if (data?.postId) {
+      return `${withQuery("/home", {
+        openComments: data.postId,
+        commentId: data?.commentId,
+      })}#post-${data.postId}`
+    }
+    if (data?.reelId) {
+      return `${withQuery("/reels", {
+        id: data.reelId,
+        openComments: "true",
+        commentId: data?.commentId,
+      })}#reel-${data.reelId}`
+    }
+    return "/home"
+  }
+
+  if (type === "social:newFollower") {
+    if (data?.followerId) return `/profile/${data.followerId}`
+    return FALLBACK_ROUTE
+  }
+
+  if (type === "social:loungeLiked" || type === "social:loungeRated") {
+    if (data?.loungeId) return `/lounges/${data.loungeId}`
+    return FALLBACK_ROUTE
+  }
+
+  if (type === "admin:suggestionCreated") {
+    if (data?.suggestionId) return `/admin/suggestions/${data.suggestionId}`
+    return "/admin/suggestions"
+  }
+
+  if (
+    type === "admin:suggestionApproved" ||
+    type === "admin:suggestionRejected"
+  ) {
+    return "/lounge/suggestions"
+  }
+
+  if (type === "admin:contentHidden") {
+    if (data?.postId) return `/posts/${data.postId}`
+    if (data?.reelId) {
+      return `${withQuery("/reels", { id: data.reelId })}#reel-${data.reelId}`
+    }
+    return FALLBACK_ROUTE
+  }
+
+  if (type === "admin:productCategorySuggestionCreated") {
+    return "/admin/marketplace/category-suggestions"
+  }
+
+  if (
+    type === "admin:productCategorySuggestionApproved" ||
+    type === "admin:productCategorySuggestionRejected"
+  ) {
+    return "/store/my-store/suggestions"
+  }
+
+  if (data?.bookingId && ROUTE_MAP[type]?.startsWith("/bookings")) {
+    const base = ROUTE_MAP[type]
     const sep = base.includes("?") ? "&" : "?"
     return `${base}${sep}highlight=${data.bookingId}`
   }
-  return base
+
+  return ROUTE_MAP[type] || FALLBACK_ROUTE
 }
 
 /**

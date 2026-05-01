@@ -87,6 +87,12 @@ export interface NotificationMetadata {
   loungeId?: string
   clientId?: string
   agentId?: string
+  /** Chat thread identifier used by message notifications */
+  conversationId?: string
+  /** Legacy alias for conversationId */
+  chatId?: string
+  /** Legacy alias for conversationId */
+  threadId?: string
   postId?: string
   reelId?: string
   commentId?: string
