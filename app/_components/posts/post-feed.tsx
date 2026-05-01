@@ -27,6 +27,7 @@ import { PostFeedSkeleton } from "../skeletons/posts"
 import { getProfilePath } from "../../_lib/profile"
 import type { FeedItem } from "../../_types/content"
 import { useTranslation } from "@/app/_i18n"
+import { resetScrollAndFocusHeader } from "@/app/_lib/scroll-reset"
 
 // ── Types & Constants ──────────────────────────────────────────
 
@@ -62,6 +63,7 @@ export function PostFeed() {
   const observerRef = useRef<IntersectionObserver | null>(null)
   const [tabsHidden, setTabsHidden] = useState(false)
   const [mounted, setMounted] = useState(false)
+  const hasMountedTabStateRef = useRef(false)
 
   useEffect(() => setMounted(true), []) // eslint-disable-line react-hooks/set-state-in-effect -- one-time mount flag
 
@@ -91,6 +93,23 @@ export function PostFeed() {
       observerRef.current = null
     }
   }, [])
+
+  // When switching feed tabs inside the same route, reset viewport to header.
+  useEffect(() => {
+    if (!isHomePage) return
+    if (!hasMountedTabStateRef.current) {
+      hasMountedTabStateRef.current = true
+      return
+    }
+
+    const frame = window.requestAnimationFrame(() => {
+      resetScrollAndFocusHeader()
+    })
+
+    return () => {
+      window.cancelAnimationFrame(frame)
+    }
+  }, [activeTab, isHomePage])
 
   // Mixed feed: posts + reels together as the backend intended
   const feedItems: FeedItem[] = useMemo(() => {
