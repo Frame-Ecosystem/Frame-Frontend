@@ -1,9 +1,8 @@
 "use client"
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
-import { ArrowLeft } from "lucide-react"
+import { Bell, CheckCheck, ChevronDown, Trash2 } from "lucide-react"
 import { Button } from "../_components/ui/button"
-import { Badge } from "../_components/ui/badge"
 import { ErrorBoundary } from "../_components/common/errorBoundary"
 import { useAuth } from "@/app/_auth"
 import { useNotificationContext } from "../_providers/notification"
@@ -14,24 +13,44 @@ import {
   useDeleteNotification,
   useDeleteAllNotifications,
 } from "../_hooks/queries/useNotifications"
-import type { NotificationCategory, AppNotification } from "../_types"
-import { useRouter } from "next/navigation"
+import { NotificationCategory } from "../_types"
+import type { AppNotification } from "../_types"
 import {
   NotificationsPageSkeleton,
   NotificationRowSkeleton,
 } from "../_components/skeletons/notifications"
 import { useTranslation } from "../_i18n"
 import { NotificationRow } from "@/app/_systems/notifications/components/notification-row"
-import { NotificationCategoryTabs } from "@/app/_systems/notifications/components/notification-category-tabs"
-import { NotificationActionBar } from "@/app/_systems/notifications/components/notification-action-bar"
 import { NotificationEmptyState } from "@/app/_systems/notifications/components/notification-empty-state"
 import { NotificationUnauthState } from "@/app/_systems/notifications/components/notification-unauth-state"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/app/_components/ui/dropdown-menu"
 
-// ── Page ─────────────────────────────────────────────────────
+const FILTER_OPTIONS: Array<{
+  value: NotificationCategory | undefined
+  labelKey: string
+}> = [
+  { value: undefined, labelKey: "notifications.catAll" },
+  {
+    value: NotificationCategory.BOOKING,
+    labelKey: "notifications.catBookings",
+  },
+  { value: NotificationCategory.QUEUE, labelKey: "notifications.catQueue" },
+  { value: NotificationCategory.CONTENT, labelKey: "notifications.catContent" },
+  { value: NotificationCategory.SOCIAL, labelKey: "notifications.catSocial" },
+  { value: NotificationCategory.ADMIN, labelKey: "notifications.catAdmin" },
+]
+
+const CONTROL_BUTTON_CLASS =
+  "h-9 shrink-0 rounded-full bg-muted/60 px-3 text-sm font-medium text-muted-foreground hover:bg-muted"
+
 export default function NotificationsPage() {
   const { user, isLoading: authLoading } = useAuth()
-  const { unreadCount, unreadByCategory } = useNotificationContext()
-  const router = useRouter()
+  const { unreadCount } = useNotificationContext()
   const { t, dir } = useTranslation()
   const scrollRef = useRef<HTMLDivElement>(null)
   const [activeCategory, setActiveCategory] = useState<
@@ -53,12 +72,16 @@ export default function NotificationsPage() {
   const { navigateTo } = useNotificationNavigate()
   const lastAutoMarkedHashRef = useRef<string>("")
 
+  const activeFilterLabel = useMemo(() => {
+    const option = FILTER_OPTIONS.find((o) => o.value === activeCategory)
+    return option ? t(option.labelKey) : t("notifications.catAll")
+  }, [activeCategory, t])
+
   const notifications = useMemo(
     () => data?.pages.flatMap((p) => p.data) ?? [],
     [data],
   )
 
-  // Mark all visible unread notifications as read on mount
   useEffect(() => {
     if (authLoading || !user) return
     if (notifications.length === 0) return
@@ -72,13 +95,11 @@ export default function NotificationsPage() {
     lastAutoMarkedHashRef.current = hash
     markRead.mutate(unreadIds, {
       onError: () => {
-        // Allow retry on next render cycle if the previous attempt failed.
         lastAutoMarkedHashRef.current = ""
       },
     })
   }, [authLoading, user, notifications, markRead])
 
-  // Infinite scroll
   const handleScroll = useCallback(() => {
     const el = scrollRef.current
     if (!el || !hasNextPage || isFetchingNextPage) return
@@ -95,7 +116,6 @@ export default function NotificationsPage() {
     [navigateTo],
   )
 
-  // ── Loading state ──
   if (authLoading) {
     return (
       <ErrorBoundary>
@@ -104,7 +124,6 @@ export default function NotificationsPage() {
     )
   }
 
-  // ── Unauthenticated state ──
   if (!user) {
     return (
       <ErrorBoundary>
@@ -113,69 +132,69 @@ export default function NotificationsPage() {
     )
   }
 
-  // ── Authenticated state ──
   return (
     <ErrorBoundary>
-      <div className="from-background via-background to-muted/20 min-h-screen bg-linear-to-br">
-        <div className="mx-auto max-w-2xl px-4 pt-6 pb-8 lg:px-8 lg:pt-10 lg:pb-12">
-          {/* Page Header */}
-          <div className="mb-6 lg:mb-8">
-            <div className="mt-4 mb-3 flex items-center justify-between">
-              <div dir={dir} className="flex items-center gap-3">
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="hover:bg-primary/10 h-9 w-9 rounded-full"
-                  onClick={() => router.back()}
-                >
-                  <ArrowLeft className="h-5 w-5" />
+      <div className="from-background via-background to-muted/20 flex min-h-screen flex-col bg-linear-to-br">
+        <header className="border-border/60 bg-background/80 sticky top-[var(--header-offset)] z-10 border-b px-4 pt-4 pb-3 backdrop-blur-sm lg:top-[var(--header-offset-lg)] lg:px-8">
+          <div
+            dir={dir}
+            className="mx-auto flex w-full max-w-2xl items-center gap-2"
+          >
+            <Bell className="text-primary h-5 w-5" />
+            <h1 className="text-xl font-bold">{t("notifications.title")}</h1>
+          </div>
+        </header>
+
+        <div
+          ref={scrollRef}
+          onScroll={handleScroll}
+          className="mx-auto flex w-full max-w-2xl flex-1 flex-col overflow-y-auto px-4 py-4 lg:px-8 lg:py-6"
+        >
+          <div className="mb-4 flex items-center gap-2 overflow-x-auto p-2 pb-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className={CONTROL_BUTTON_CLASS}>
+                  {activeFilterLabel}
+                  <ChevronDown className="ml-1.5 h-3.5 w-3.5" />
                 </Button>
-                <div>
-                  <h1 className="text-2xl font-bold lg:text-3xl">
-                    {t("notifications.title")}
-                  </h1>
-                  <p className="text-muted-foreground mt-0.5 text-sm">
-                    {t("notifications.stayUpToDate")}
-                  </p>
-                </div>
-              </div>
-              {unreadCount > 0 && (
-                <Badge
-                  variant="secondary"
-                  className="bg-primary/10 text-primary border-primary/20 border text-xs"
-                >
-                  {t("notifications.new", { count: unreadCount })}
-                </Badge>
-              )}
-            </div>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="start" className="min-w-[180px]">
+                {FILTER_OPTIONS.map((option) => (
+                  <DropdownMenuItem
+                    key={option.labelKey}
+                    onClick={() => setActiveCategory(option.value)}
+                    className="text-sm"
+                  >
+                    {t(option.labelKey)}
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
+
+            <Button
+              variant="ghost"
+              size="sm"
+              className={CONTROL_BUTTON_CLASS}
+              onClick={() => markRead.mutate(undefined)}
+              disabled={markRead.isPending || unreadCount === 0}
+            >
+              <CheckCheck className="mr-1.5 h-3.5 w-3.5" />
+              {t("notifications.markAllReadBtn")}
+            </Button>
+
+            <Button
+              variant="ghost"
+              size="sm"
+              className={CONTROL_BUTTON_CLASS}
+              onClick={() => deleteAll.mutate()}
+              disabled={deleteAll.isPending || notifications.length === 0}
+            >
+              <Trash2 className="mr-1.5 h-3.5 w-3.5" />
+              {t("notifications.clearAll")}
+            </Button>
           </div>
 
-          {/* Category Tabs */}
-          <NotificationCategoryTabs
-            activeCategory={activeCategory}
-            onCategoryChange={setActiveCategory}
-            unreadCount={unreadCount}
-            unreadByCategory={unreadByCategory}
-            t={t}
-          />
-
-          {/* Action bar */}
-          {notifications.length > 0 && (
-            <NotificationActionBar
-              onMarkAllRead={() => markRead.mutate(undefined)}
-              onClearAll={() => deleteAll.mutate()}
-              isMarkingRead={markRead.isPending}
-              isClearing={deleteAll.isPending}
-              t={t}
-            />
-          )}
-
-          {/* Notification list */}
-          <div
-            ref={scrollRef}
-            onScroll={handleScroll}
-            className="max-h-[calc(100vh-300px)] space-y-2 overflow-y-auto pr-1 lg:max-h-[calc(100vh-340px)]"
-          >
+          <div className="space-y-2 pr-1 pb-8">
             {listLoading ? (
               <div className="space-y-2">
                 {Array.from({ length: 5 }).map((_, i) => (
