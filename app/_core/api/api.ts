@@ -392,8 +392,17 @@ class ApiClient {
         }
 
         const err = new Error(message)
+        const retryAfterRaw =
+          error?.retryAfter ?? response.headers.get("retry-after")
+        const retryAfter =
+          typeof retryAfterRaw === "number"
+            ? retryAfterRaw
+            : Number.parseInt(String(retryAfterRaw ?? ""), 10)
         try {
           ;(err as any).code = errorCode
+          if (Number.isFinite(retryAfter) && retryAfter > 0) {
+            ;(err as any).retryAfter = retryAfter
+          }
         } catch {}
         throw err
       }
