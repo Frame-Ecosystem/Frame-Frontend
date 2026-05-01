@@ -8,6 +8,7 @@ import { Textarea } from "../ui/textarea"
 import type { Post } from "../../_types"
 import { useUpdatePost } from "../../_hooks/queries/useContent"
 import { useTranslation } from "@/app/_i18n"
+import { useHashtagComposer } from "@/app/_hooks/useHashtagComposer"
 
 interface EditPostDialogProps {
   post: Post
@@ -23,29 +24,22 @@ export function EditPostDialog({
   onOpenChange,
 }: EditPostDialogProps) {
   const [text, setText] = useState(post.text ?? "")
-  const [hashtags, setHashtags] = useState<string[]>(post.hashtags ?? [])
-  const [hashtagInput, setHashtagInput] = useState("")
+  const {
+    hashtags,
+    hashtagInput,
+    setHashtagInput,
+    addHashtag,
+    removeHashtag,
+    mergeWithInlineHashtags,
+  } = useHashtagComposer({
+    initialHashtags: post.hashtags ?? [],
+    maxHashtags: 10,
+  })
   const updatePost = useUpdatePost()
   const { t } = useTranslation()
 
-  const addHashtag = useCallback(() => {
-    const tag = hashtagInput.trim().replace(/^#/, "").replace(/\s+/g, "")
-    if (tag && !hashtags.includes(tag) && hashtags.length < 10) {
-      setHashtags((prev) => [...prev, tag])
-      setHashtagInput("")
-    }
-  }, [hashtagInput, hashtags])
-
-  const removeHashtag = useCallback(
-    (tag: string) => setHashtags((prev) => prev.filter((t) => t !== tag)),
-    [],
-  )
-
   const handleSubmit = useCallback(() => {
-    const inlineHashtags = (text.match(/#([\w]+)/g) || []).map((t) =>
-      t.slice(1),
-    )
-    const allHashtags = [...new Set([...hashtags, ...inlineHashtags])]
+    const allHashtags = mergeWithInlineHashtags(text)
 
     updatePost.mutate(
       {
@@ -57,7 +51,7 @@ export function EditPostDialog({
         onSuccess: () => onOpenChange(false),
       },
     )
-  }, [text, hashtags, updatePost, post._id, onOpenChange])
+  }, [text, updatePost, post._id, onOpenChange, mergeWithInlineHashtags])
 
   const hasChanges =
     text !== (post.text ?? "") ||

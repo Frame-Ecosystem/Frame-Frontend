@@ -11,6 +11,7 @@ import { useAuth } from "@/app/_auth"
 import { useCreateReel } from "../../_hooks/queries/useContent"
 import { getProfilePath } from "../../_lib/profile"
 import { useTranslation } from "@/app/_i18n"
+import { useHashtagComposer } from "@/app/_hooks/useHashtagComposer"
 
 interface CreateReelDialogProps {
   open: boolean
@@ -31,8 +32,15 @@ export function CreateReelDialog({
   const [thumbnailFile, setThumbnailFile] = useState<File | null>(null)
   const [thumbnailPreview, setThumbnailPreview] = useState<string | null>(null)
   const [caption, setCaption] = useState("")
-  const [hashtagInput, setHashtagInput] = useState("")
-  const [hashtags, setHashtags] = useState<string[]>([])
+  const {
+    hashtagInput,
+    setHashtagInput,
+    hashtags,
+    addHashtag,
+    removeHashtag,
+    resetHashtags,
+    mergeWithInlineHashtags,
+  } = useHashtagComposer({ maxHashtags: 10 })
   const [durationError, setDurationError] = useState(false)
   const videoInputRef = useRef<HTMLInputElement>(null)
   const thumbInputRef = useRef<HTMLInputElement>(null)
@@ -101,19 +109,6 @@ export function CreateReelDialog({
     setThumbnailPreview(null)
   }, [thumbnailPreview])
 
-  const addHashtag = useCallback(() => {
-    const tag = hashtagInput.trim().replace(/^#/, "").replace(/\s+/g, "")
-    if (tag && !hashtags.includes(tag) && hashtags.length < 10) {
-      setHashtags((prev) => [...prev, tag])
-      setHashtagInput("")
-    }
-  }, [hashtagInput, hashtags])
-
-  const removeHashtag = useCallback(
-    (tag: string) => setHashtags((prev) => prev.filter((t) => t !== tag)),
-    [],
-  )
-
   const resetForm = useCallback(() => {
     if (videoPreview) URL.revokeObjectURL(videoPreview)
     if (thumbnailPreview) URL.revokeObjectURL(thumbnailPreview)
@@ -123,18 +118,14 @@ export function CreateReelDialog({
     setThumbnailFile(null)
     setThumbnailPreview(null)
     setCaption("")
-    setHashtags([])
-    setHashtagInput("")
+    resetHashtags([])
     setDurationError(false)
-  }, [videoPreview, thumbnailPreview])
+  }, [videoPreview, thumbnailPreview, resetHashtags])
 
   const handleSubmit = useCallback(() => {
     if (!videoFile) return
 
-    const inlineHashtags = (caption.match(/#([\w]+)/g) || []).map((t) =>
-      t.slice(1),
-    )
-    const allHashtags = [...new Set([...hashtags, ...inlineHashtags])]
+    const allHashtags = mergeWithInlineHashtags(caption)
 
     createReel.mutate(
       {
@@ -155,11 +146,11 @@ export function CreateReelDialog({
     videoFile,
     thumbnailFile,
     caption,
-    hashtags,
     videoDuration,
     createReel,
     onOpenChange,
     resetForm,
+    mergeWithInlineHashtags,
   ])
 
   const canSubmit = !!videoFile && !createReel.isPending

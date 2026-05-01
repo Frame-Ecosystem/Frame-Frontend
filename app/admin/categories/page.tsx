@@ -112,7 +112,8 @@ export default function CategoriesPage() {
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
                         <DropdownMenuItem onClick={() => setEditItem(c)}>
-                          <Pencil className="mr-2 h-4 w-4" /> Edit
+                          <Pencil className="mr-2 h-4 w-4" />
+                          {t("admin.common.edit")}
                         </DropdownMenuItem>
                         <DropdownMenuItem
                           className="text-destructive"
@@ -120,13 +121,14 @@ export default function CategoriesPage() {
                             confirm({
                               title: t("admin.categories.deleteConfirm"),
                               description: `"${c.name}" will be permanently deleted. Services in this category may become uncategorized.`,
-                              confirmLabel: "Delete",
+                              confirmLabel: t("admin.common.delete"),
                               variant: "destructive",
                               onConfirm: () => deleteMut.mutateAsync(c._id),
                             })
                           }
                         >
-                          <Trash2 className="mr-2 h-4 w-4" /> Delete
+                          <Trash2 className="mr-2 h-4 w-4" />
+                          {t("admin.common.delete")}
                         </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
@@ -235,7 +237,7 @@ function CategoryFormDialog({
         </div>
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>
-            Cancel
+            {t("common.cancel")}
           </Button>
           <Button
             disabled={!form.name || loading}
@@ -244,7 +246,7 @@ function CategoryFormDialog({
             {loading
               ? t("admin.categories.saving")
               : initial
-                ? "Save"
+                ? t("common.save")
                 : t("admin.categories.create")}
           </Button>
         </DialogFooter>
