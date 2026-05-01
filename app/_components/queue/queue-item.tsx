@@ -195,6 +195,7 @@ export default function QueueItem({
 
   return (
     <div
+      id={bookingId ? `booking-${bookingId}` : undefined}
       ref={(node) => {
         if (isStaff) setNodeRef(node)
         ;(
