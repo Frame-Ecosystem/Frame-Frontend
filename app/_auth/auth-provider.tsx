@@ -242,9 +242,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     const checkAuth = async () => {
       try {
-        // Token is in-memory only. On fresh page load, we must refresh.
-        const hasSession = tokenManager.hasSession()
-        if (!hasSession) return
+        // Token is in-memory only. On fresh page load, always try a single
+        // refresh-token recovery from the HttpOnly cookie.
+        // Do not hard-depend on the localStorage session hint.
 
         // Call refresh-token to get a new access token from the HttpOnly cookie
         const result = await authService.refreshToken()

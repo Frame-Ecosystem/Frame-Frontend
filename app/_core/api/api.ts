@@ -283,52 +283,33 @@ class ApiClient {
         this.refreshTokenCallback &&
         !isPublicAuth
       ) {
-        const hasSessionFlag =
-          typeof window !== "undefined" &&
-          localStorage.getItem("hasRefreshToken") === "true"
-        if (!hasSessionFlag && !token) {
-          // Record debug info before triggering global auth-failure
+        const newToken = await this.refreshTokenCallback()
+
+        if (newToken) {
+          headers = {
+            ...headers,
+            Authorization: newToken,
+          }
+
+          response = await fetch(url, {
+            ...options,
+            headers,
+            credentials: "include",
+            signal: AbortSignal.timeout(timeoutMs),
+          })
+        } else {
           if (isDebug && typeof window !== "undefined") {
             try {
               ;(window as any).__lastApiError = {
                 url,
                 status: response.status,
-                reason: "noSessionFlag_and_no_token",
+                reason: "refresh_failed",
               }
             } catch {}
           }
           if (!apiOptions?.suppressAuthFailure)
             this.authFailureCallback?.({ url, status: response.status })
           throw new Error("AUTH_FAILURE")
-        } else {
-          const newToken = await this.refreshTokenCallback()
-
-          if (newToken) {
-            headers = {
-              ...headers,
-              Authorization: newToken,
-            }
-
-            response = await fetch(url, {
-              ...options,
-              headers,
-              credentials: "include",
-              signal: AbortSignal.timeout(timeoutMs),
-            })
-          } else {
-            if (isDebug && typeof window !== "undefined") {
-              try {
-                ;(window as any).__lastApiError = {
-                  url,
-                  status: response.status,
-                  reason: "refresh_failed",
-                }
-              } catch {}
-            }
-            if (!apiOptions?.suppressAuthFailure)
-              this.authFailureCallback?.({ url, status: response.status })
-            throw new Error("AUTH_FAILURE")
-          }
         }
       }
 
