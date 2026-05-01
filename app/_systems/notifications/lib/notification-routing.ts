@@ -123,7 +123,8 @@ export function getRedirectPath(notification: AppNotification): string | null {
   }
   if (type === NotificationType.CONTENT_HIDDEN) {
     if (metadata?.postId) return `/posts/${metadata.postId}`
-    if (metadata?.reelId) return `/reels/${metadata.reelId}`
+    if (metadata?.reelId)
+      return `/reels?id=${metadata.reelId}#reel-${metadata.reelId}`
     return actionUrl ?? "/notifications"
   }
 
