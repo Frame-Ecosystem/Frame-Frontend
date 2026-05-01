@@ -4,7 +4,6 @@ import { useEffect, useState } from "react"
 import { useParams, useRouter } from "next/navigation"
 import { useAuth } from "@/app/_auth"
 import { ChatWindow } from "../../_systems/chat/components/chat-window"
-import { useDeleteConversation } from "../../_systems/chat/hooks/useChatQueries"
 import { ErrorBoundary } from "@/app/_components/common/errorBoundary"
 
 /** True once we know we're on a ≥1024 px viewport (after first paint). */
@@ -29,13 +28,6 @@ export default function ConversationPage() {
 
   const isDesktop = useIsDesktop()
   const conversationId = params.id
-  const deleteConversation = useDeleteConversation()
-
-  const handleDelete = () => {
-    deleteConversation.mutate(conversationId, {
-      onSuccess: () => router.replace("/messages"),
-    })
-  }
 
   if (!conversationId) return null
 
@@ -43,7 +35,6 @@ export default function ConversationPage() {
     <ErrorBoundary>
       <ChatWindow
         conversationId={conversationId}
-        onDeleteConversation={handleDelete}
         onBack={() => router.push("/messages")}
       />
     </ErrorBoundary>

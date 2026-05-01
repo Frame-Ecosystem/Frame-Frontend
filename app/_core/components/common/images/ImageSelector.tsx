@@ -17,6 +17,14 @@ interface ImageSelectorProps {
   cropShape?: "round" | "rect"
   /** Label shown in the dialog */
   label?: string
+  /**
+   * When true, the "Update Image" submit button is hidden so the parent can
+   * render it in a DialogFooter and keep it pinned at the bottom of the dialog.
+   * Use together with `onReadyChange` to know when the button should be enabled.
+   */
+  hideSubmit?: boolean
+  /** Called whenever the user's selection changes — passes whether a file is ready */
+  onReadyChange?: (ready: boolean) => void
 }
 
 export function ImageSelector({
@@ -25,6 +33,8 @@ export function ImageSelector({
   aspect = 1,
   cropShape = "round",
   label = "Click to select a new profile image",
+  hideSubmit = false,
+  onReadyChange,
 }: ImageSelectorProps) {
   const { t } = useTranslation()
   const [rawImageUrl, setRawImageUrl] = useState<string | null>(null)
@@ -56,8 +66,9 @@ export function ImageSelector({
       const url = URL.createObjectURL(blob)
       setCroppedPreviewUrl(url)
       setCroppedBlob(blob)
+      onReadyChange?.(true)
     },
-    [croppedPreviewUrl],
+    [croppedPreviewUrl, onReadyChange],
   )
 
   const handleUpdate = () => {
@@ -75,6 +86,7 @@ export function ImageSelector({
     setCroppedPreviewUrl(null)
     setCroppedBlob(null)
     setFileName("")
+    onReadyChange?.(false)
   }
 
   return (
@@ -152,13 +164,15 @@ export function ImageSelector({
         className="hidden"
       />
 
-      <Button
-        onClick={handleUpdate}
-        disabled={updating || !croppedBlob}
-        className="w-full"
-      >
-        {updating ? "Updating..." : "Update Image"}
-      </Button>
+      <div className="bg-background sticky bottom-0 pt-2 pb-1">
+        <Button
+          onClick={handleUpdate}
+          disabled={updating || !croppedBlob}
+          className={`w-full${hideSubmit ? "hidden" : ""}`}
+        >
+          {updating ? "Updating..." : "Update Image"}
+        </Button>
+      </div>
 
       {/* Crop Dialog */}
       {rawImageUrl && (

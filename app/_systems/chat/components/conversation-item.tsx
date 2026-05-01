@@ -2,14 +2,22 @@
 
 import { formatDistanceToNow } from "date-fns"
 import Link from "next/link"
+import { MoreVertical, Trash2 } from "lucide-react"
 import { cn } from "@/app/_lib/utils"
 import { ChatAvatar } from "./ui/chat-atoms"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/app/_components/ui/dropdown-menu"
 import type { Conversation } from "../types"
 
 interface ConversationItemProps {
   conversation: Conversation
   currentUserId: string
   isActive?: boolean
+  onDeleteConversation?: (id: string) => void
   /** When provided, renders as a button instead of a Link */
   onSelect?: (id: string) => void
 }
@@ -18,8 +26,10 @@ export function ConversationItem({
   conversation,
   currentUserId,
   isActive,
+  onDeleteConversation,
   onSelect,
 }: ConversationItemProps) {
+  const conversationId = conversation._id
   const other = conversation.participants.find((p) => p._id !== currentUserId)
 
   const displayName = other
@@ -56,10 +66,12 @@ export function ConversationItem({
       })
     : null
 
-  const sharedClassName = cn(
-    "flex items-center gap-3 rounded-xl px-3 py-3 transition-colors",
+  const rowClassName = cn(
+    "flex items-center gap-2 rounded-xl px-2 py-2 transition-colors",
     isActive ? "bg-primary/10" : "hover:bg-muted/60 active:bg-muted",
   )
+
+  const sharedClassName = "flex min-w-0 flex-1 items-center gap-3 px-1 py-1"
 
   const content = (
     <>
@@ -99,21 +111,51 @@ export function ConversationItem({
     </>
   )
 
-  if (onSelect) {
-    return (
-      <button
-        type="button"
-        onClick={() => onSelect(conversation._id)}
-        className={cn(sharedClassName, "w-full text-left")}
-      >
-        {content}
-      </button>
-    )
-  }
-
   return (
-    <Link href={`/messages/${conversation._id}`} className={sharedClassName}>
-      {content}
-    </Link>
+    <div className={rowClassName}>
+      {onSelect ? (
+        <button
+          type="button"
+          onClick={() => onSelect(conversationId)}
+          className={cn(sharedClassName, "w-full text-left")}
+        >
+          {content}
+        </button>
+      ) : (
+        <Link href={`/messages/${conversationId}`} className={sharedClassName}>
+          {content}
+        </Link>
+      )}
+
+      {onDeleteConversation && (
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <button
+              type="button"
+              aria-label="Conversation options"
+              className="text-muted-foreground hover:text-foreground hover:bg-muted inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full transition-colors"
+              onClick={(e) => {
+                e.preventDefault()
+                e.stopPropagation()
+              }}
+            >
+              <MoreVertical className="h-4 w-4" />
+            </button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-44">
+            <DropdownMenuItem
+              onClick={(e) => {
+                e.preventDefault()
+                onDeleteConversation(conversationId)
+              }}
+              className="text-destructive focus:text-destructive"
+            >
+              <Trash2 className="mr-2 h-4 w-4" />
+              Delete conversation
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      )}
+    </div>
   )
 }

@@ -11,6 +11,7 @@ import { chatService } from "../service"
 import { useAuth } from "@/app/_auth"
 import type {
   Message,
+  ConversationsResponse,
   MessagesResponseCursor,
   SendMessageDto,
   EditMessageDto,
@@ -153,6 +154,32 @@ export function useDeleteConversation() {
 
   return useMutation({
     mutationFn: (id: string) => chatService.deleteConversation(id),
+    onMutate: async (id) => {
+      await queryClient.cancelQueries({ queryKey: chatKeys.conversations() })
+
+      const previousLists = queryClient.getQueriesData<ConversationsResponse>({
+        queryKey: chatKeys.conversations(),
+      })
+
+      queryClient.setQueriesData(
+        { queryKey: chatKeys.conversations() },
+        (old: ConversationsResponse | undefined) => {
+          if (!old) return old
+          return {
+            ...old,
+            data: old.data.filter((conversation) => conversation._id !== id),
+            total: Math.max(0, old.total - 1),
+          }
+        },
+      )
+
+      return { previousLists }
+    },
+    onError: (_error, _id, context) => {
+      context?.previousLists?.forEach(([key, value]) => {
+        queryClient.setQueryData(key, value)
+      })
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: chatKeys.conversations() })
     },

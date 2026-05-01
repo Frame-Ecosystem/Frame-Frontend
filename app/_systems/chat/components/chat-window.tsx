@@ -22,16 +22,11 @@ import type { Message, SendMessageDto, MessageContentType } from "../types"
 
 interface ChatWindowProps {
   conversationId: string
-  onDeleteConversation: () => void
   /** When set, the back button calls this instead of router.back() (drawer mode) */
   onBack?: () => void
 }
 
-export function ChatWindow({
-  conversationId,
-  onDeleteConversation,
-  onBack,
-}: ChatWindowProps) {
+export function ChatWindow({ conversationId, onBack }: ChatWindowProps) {
   const { user, isLoading: authLoading } = useAuth()
   const currentUserId = user?._id ?? ""
 
@@ -204,7 +199,6 @@ export function ChatWindow({
         conversation={conversation}
         currentUserId={currentUserId}
         onSearchToggle={() => setShowSearch((v) => !v)}
-        onDeleteConversation={onDeleteConversation}
         onBack={onBack}
       />
 

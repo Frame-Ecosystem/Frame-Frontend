@@ -1057,6 +1057,10 @@ const ar: Record<string, string> = {
   "cover.chooseCover": "اختيار صورة الغلاف",
   "cover.updateProfilePhoto": "تحديث صورة الملف الشخصي",
   "cover.chooseProfile": "اختيار صورة الملف الشخصي",
+  "cover.seePhoto": "عرض الصورة",
+  "cover.editPhoto": "تعديل الصورة",
+  "cover.addCoverPhoto": "إضافة صورة غلاف",
+  "cover.addProfilePhoto": "إضافة صورة ملف شخصي",
 
   // ── Client profile page ─────────────────────────────────────────────────
   "profile.updateName": "حدّث اسمك",

@@ -1077,6 +1077,10 @@ const tr: Record<string, string> = {
   "cover.chooseCover": "Kapak fotoğrafı seçin",
   "cover.updateProfilePhoto": "Profil Fotoğrafını Güncelle",
   "cover.chooseProfile": "Profil fotoğrafı seçin",
+  "cover.seePhoto": "Fotoğrafı gör",
+  "cover.editPhoto": "Fotoğrafı düzenle",
+  "cover.addCoverPhoto": "Kapak fotoğrafı ekle",
+  "cover.addProfilePhoto": "Profil fotoğrafı ekle",
 
   // ── Client profile page ─────────────────────────────────────────────────
   "profile.updateName": "Adınızı güncelleyin",

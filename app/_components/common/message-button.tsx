@@ -1,8 +1,8 @@
 "use client"
 
 import { MessageCircle } from "lucide-react"
+import { useRouter } from "next/navigation"
 import { useFindOrCreateConversation } from "@/app/_systems/chat/hooks/useChatQueries"
-import { useChatPanel } from "@/app/_providers/chat-panel"
 
 interface MessageButtonProps {
   recipientId: string
@@ -10,12 +10,12 @@ interface MessageButtonProps {
 }
 
 export function MessageButton({ recipientId, className }: MessageButtonProps) {
+  const router = useRouter()
   const { mutateAsync, isPending } = useFindOrCreateConversation()
-  const { openConversation } = useChatPanel()
 
   const handleClick = async () => {
     const res = await mutateAsync(recipientId)
-    openConversation(res.conversation._id)
+    router.push(`/messages/${res.conversation._id}`)
   }
 
   return (
