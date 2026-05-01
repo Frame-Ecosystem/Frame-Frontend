@@ -33,6 +33,7 @@ import { getSocket, disconnectSocket } from "../_services/socket"
 import { useTheme } from "next-themes"
 import { useTranslation } from "../_i18n"
 import type { Locale } from "../_i18n"
+import { reportError } from "../_lib/report-error"
 
 /** Default token lifetime (seconds) when backend doesn't provide expiresIn. */
 const DEFAULT_EXPIRES_IN = 900
@@ -165,6 +166,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   // traces or the `window.__lastApiError` object set by the ApiClient.
   const handleAuthFailure = useCallback(
     (info?: any) => {
+      reportError(new Error("Authentication failure"), {
+        source: "auth-failure",
+        details: info ?? null,
+      })
+
       clearAuth()
       try {
         if (typeof window !== "undefined") {
