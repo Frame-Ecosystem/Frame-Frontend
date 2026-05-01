@@ -5,6 +5,7 @@ import type {
   LoungeServiceItem,
   LoungeAgentsResponse,
 } from "@/app/_types"
+import { clientDebug } from "@/app/_lib/client-logger"
 
 class LoungeService {
   async getAll(): Promise<LoungeServiceItem[]> {
@@ -267,7 +268,7 @@ class LoungeService {
         `/v1/lounge-services/lounge/${loungeId}/agents`,
       )
 
-      console.log(
+      clientDebug(
         "[getAgentsByLoungeId] raw response:",
         JSON.stringify(response, null, 2),
       )

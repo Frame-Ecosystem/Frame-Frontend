@@ -33,9 +33,24 @@ import { getSocket, disconnectSocket } from "../_services/socket"
 import { useTheme } from "next-themes"
 import { useTranslation } from "../_i18n"
 import type { Locale } from "../_i18n"
+import { reportError } from "../_lib/report-error"
 
 /** Default token lifetime (seconds) when backend doesn't provide expiresIn. */
 const DEFAULT_EXPIRES_IN = 900
+
+function isAuthDebugEnabled(): boolean {
+  if (typeof window === "undefined") return false
+
+  const allowInProd = process.env.NEXT_PUBLIC_ENABLE_AUTH_DEBUG === "true"
+  const isProd = process.env.NODE_ENV === "production"
+  if (isProd && !allowInProd) return false
+
+  try {
+    return localStorage.getItem("frame:debugAuth") === "true"
+  } catch {
+    return false
+  }
+}
 
 interface AuthContextType {
   user: User | null
@@ -151,6 +166,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   // traces or the `window.__lastApiError` object set by the ApiClient.
   const handleAuthFailure = useCallback(
     (info?: any) => {
+      reportError(new Error("Authentication failure"), {
+        source: "auth-failure",
+        details: info ?? null,
+      })
+
       clearAuth()
       try {
         if (typeof window !== "undefined") {
@@ -158,9 +178,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
       } catch {}
 
-      const debug =
-        typeof window !== "undefined" &&
-        localStorage.getItem("frame:debugAuth") === "true"
+      const debug = isAuthDebugEnabled()
 
       if (debug) {
         // Delay redirect for inspection (5s)

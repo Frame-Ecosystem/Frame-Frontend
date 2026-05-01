@@ -1,5 +1,6 @@
 "use client"
 import React from "react"
+import { reportError } from "@/app/_lib/report-error"
 
 interface ErrorBoundaryProps {
   children: React.ReactNode
@@ -25,12 +26,10 @@ export class ErrorBoundary extends React.Component<
   }
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
-    // You can log error info here or send to a logging service
-    void error
-    void errorInfo
-    if (process.env.NODE_ENV === "production") {
-      // TODO: send error and errorInfo to a logging service
-    }
+    reportError(error, {
+      source: "error-boundary",
+      componentStack: errorInfo.componentStack,
+    })
   }
 
   render() {

@@ -4,6 +4,7 @@ import {
   isStateChanging,
   setSessionCsrfToken,
 } from "@/app/_auth"
+import { clientDebug } from "@/app/_lib/client-logger"
 
 const LOCAL_API_FALLBACK = "http://0.0.0.0:2000"
 const isProduction = process.env.NODE_ENV === "production"
@@ -83,6 +84,19 @@ function getGoogleAuthBaseUrl(): string {
   return getApiBaseUrl()
 }
 
+function isAuthDebugEnabled(): boolean {
+  if (typeof window === "undefined") return false
+
+  const allowInProd = process.env.NEXT_PUBLIC_ENABLE_AUTH_DEBUG === "true"
+  if (isProduction && !allowInProd) return false
+
+  try {
+    return localStorage.getItem("frame:debugAuth") === "true"
+  } catch {
+    return false
+  }
+}
+
 /**
  * Primary API base URL used by all REST and socket clients.
  * Production requires NEXT_PUBLIC_API_URL. Development falls back to the
@@ -95,6 +109,11 @@ export const API_BASE_URL = getApiBaseUrl()
  * Falls back to API_BASE_URL after optional OAuth-specific overrides.
  */
 export const GOOGLE_AUTH_BASE_URL = getGoogleAuthBaseUrl()
+
+type ApiRequestOptions = {
+  suppressAuthFailure?: boolean
+  timeoutMs?: number
+}
 
 class ApiClient {
   private baseUrl: string
@@ -169,7 +188,7 @@ class ApiClient {
   private async request<T>(
     endpoint: string,
     options: RequestInit = {},
-    apiOptions?: { suppressAuthFailure?: boolean; timeoutMs?: number },
+    apiOptions?: ApiRequestOptions,
   ): Promise<T> {
     const url = `${this.baseUrl}${endpoint}`
 
@@ -212,9 +231,7 @@ class ApiClient {
       const timeoutId = setTimeout(() => controller.abort(), timeoutMs)
 
       // compute debug flag at runtime to avoid SSR errors
-      const isDebug =
-        typeof window !== "undefined" &&
-        localStorage.getItem("frame:debugAuth") === "true"
+      const isDebug = isAuthDebugEnabled()
 
       let response: Response
       try {
@@ -235,7 +252,7 @@ class ApiClient {
           try {
             // Mask token for safety
             const masked = token ? `${String(token).slice(0, 8)}...` : null
-            console.debug("[apiClient] FETCH", { url, method, masked })
+            clientDebug("[apiClient] FETCH", { url, method, masked })
           } catch {}
         }
       } catch {}
@@ -437,17 +454,14 @@ class ApiClient {
     }
   }
 
-  async get<T>(
-    endpoint: string,
-    apiOptions?: { suppressAuthFailure?: boolean; timeoutMs?: number },
-  ): Promise<T> {
+  async get<T>(endpoint: string, apiOptions?: ApiRequestOptions): Promise<T> {
     return this.request<T>(endpoint, { method: "GET" }, apiOptions)
   }
 
   async post<T>(
     endpoint: string,
     data?: unknown,
-    apiOptions?: { suppressAuthFailure?: boolean; timeoutMs?: number },
+    apiOptions?: ApiRequestOptions,
   ): Promise<T> {
     const body = data instanceof FormData ? data : JSON.stringify(data)
     return this.request<T>(
@@ -461,26 +475,62 @@ class ApiClient {
   }
 
   async put<T>(endpoint: string, data?: unknown): Promise<T> {
+    return this.putWithOptions<T>(endpoint, data)
+  }
+
+  async putWithOptions<T>(
+    endpoint: string,
+    data?: unknown,
+    apiOptions?: ApiRequestOptions,
+  ): Promise<T> {
     const body = data instanceof FormData ? data : JSON.stringify(data)
-    return this.request<T>(endpoint, {
-      method: "PUT",
-      body,
-    })
+    return this.request<T>(
+      endpoint,
+      {
+        method: "PUT",
+        body,
+      },
+      apiOptions,
+    )
   }
 
   async delete<T>(endpoint: string, data?: unknown): Promise<T> {
-    return this.request<T>(endpoint, {
-      method: "DELETE",
-      ...(data !== undefined && { body: JSON.stringify(data) }),
-    })
+    return this.deleteWithOptions<T>(endpoint, data)
+  }
+
+  async deleteWithOptions<T>(
+    endpoint: string,
+    data?: unknown,
+    apiOptions?: ApiRequestOptions,
+  ): Promise<T> {
+    return this.request<T>(
+      endpoint,
+      {
+        method: "DELETE",
+        ...(data !== undefined && { body: JSON.stringify(data) }),
+      },
+      apiOptions,
+    )
   }
 
   async patch<T>(endpoint: string, data?: unknown): Promise<T> {
+    return this.patchWithOptions<T>(endpoint, data)
+  }
+
+  async patchWithOptions<T>(
+    endpoint: string,
+    data?: unknown,
+    apiOptions?: ApiRequestOptions,
+  ): Promise<T> {
     const body = data instanceof FormData ? data : JSON.stringify(data)
-    return this.request<T>(endpoint, {
-      method: "PATCH",
-      body,
-    })
+    return this.request<T>(
+      endpoint,
+      {
+        method: "PATCH",
+        body,
+      },
+      apiOptions,
+    )
   }
 }
 

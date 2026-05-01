@@ -10,6 +10,7 @@ import { toast } from "sonner"
 import { isAuthError } from "@/app/_services/api"
 import { useSocketRoom } from "@/app/_hooks/useSocketRoom"
 import { useAuth } from "@/app/_auth"
+import { clientDebug } from "@/app/_lib/client-logger"
 
 // ── Query Keys ────────────────────────────────────────────────
 export const queueKeys = {
@@ -40,7 +41,7 @@ export function useAgentQueue(agentId: string | null, date?: string) {
         data: unknown
         timestamp: string
       }) => {
-        console.log("[socket] queue:updated → setQueryData")
+        clientDebug("[socket] queue:updated → setQueryData")
         queryClient.setQueryData(
           queueKeys.agentQueue(payload.agentId, date),
           payload.data,
@@ -72,7 +73,7 @@ export function useLoungeQueues(loungeId: string | null, date?: string) {
   const events = useMemo(
     () => ({
       "queue:lounge:updated": () => {
-        console.log(
+        clientDebug(
           "[socket] queue:lounge:updated → invalidating lounge queues",
         )
         queryClient.invalidateQueries({ queryKey: queueKeys.all })
@@ -108,7 +109,7 @@ export function useMyLoungeQueues(date?: string, enabled = true) {
   const events = useMemo(
     () => ({
       "queue:lounge:updated": () => {
-        console.log(
+        clientDebug(
           "[socket] queue:lounge:updated → invalidating my lounge queues",
         )
         queryClient.invalidateQueries({ queryKey: queueKeys.all })
