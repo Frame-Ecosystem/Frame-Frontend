@@ -8,6 +8,7 @@ import { Textarea } from "../ui/textarea"
 import type { Reel } from "../../_types"
 import { useUpdateReel } from "../../_hooks/queries/useContent"
 import { useTranslation } from "@/app/_i18n"
+import { useHashtagComposer } from "@/app/_hooks/useHashtagComposer"
 
 interface EditReelDialogProps {
   reel: Reel
@@ -23,29 +24,22 @@ export function EditReelDialog({
   onOpenChange,
 }: EditReelDialogProps) {
   const [caption, setCaption] = useState(reel.caption ?? "")
-  const [hashtags, setHashtags] = useState<string[]>(reel.hashtags ?? [])
-  const [hashtagInput, setHashtagInput] = useState("")
+  const {
+    hashtags,
+    hashtagInput,
+    setHashtagInput,
+    addHashtag,
+    removeHashtag,
+    mergeWithInlineHashtags,
+  } = useHashtagComposer({
+    initialHashtags: reel.hashtags ?? [],
+    maxHashtags: 10,
+  })
   const updateReel = useUpdateReel()
   const { t } = useTranslation()
 
-  const addHashtag = useCallback(() => {
-    const tag = hashtagInput.trim().replace(/^#/, "").replace(/\s+/g, "")
-    if (tag && !hashtags.includes(tag) && hashtags.length < 10) {
-      setHashtags((prev) => [...prev, tag])
-      setHashtagInput("")
-    }
-  }, [hashtagInput, hashtags])
-
-  const removeHashtag = useCallback(
-    (tag: string) => setHashtags((prev) => prev.filter((t) => t !== tag)),
-    [],
-  )
-
   const handleSubmit = useCallback(() => {
-    const inlineHashtags = (caption.match(/#([\w]+)/g) || []).map((t) =>
-      t.slice(1),
-    )
-    const allHashtags = [...new Set([...hashtags, ...inlineHashtags])]
+    const allHashtags = mergeWithInlineHashtags(caption)
 
     updateReel.mutate(
       {
@@ -57,7 +51,7 @@ export function EditReelDialog({
         onSuccess: () => onOpenChange(false),
       },
     )
-  }, [caption, hashtags, updateReel, reel._id, onOpenChange])
+  }, [caption, updateReel, reel._id, onOpenChange, mergeWithInlineHashtags])
 
   const hasChanges =
     caption !== (reel.caption ?? "") ||

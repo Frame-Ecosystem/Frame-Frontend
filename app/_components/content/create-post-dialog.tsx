@@ -12,6 +12,7 @@ import { useAuth } from "@/app/_auth"
 import { useCreatePost } from "../../_hooks/queries/useContent"
 import { getProfilePath } from "../../_lib/profile"
 import { useTranslation } from "@/app/_i18n"
+import { useHashtagComposer } from "@/app/_hooks/useHashtagComposer"
 
 interface CreatePostDialogProps {
   open: boolean
@@ -29,8 +30,15 @@ export function CreatePostDialog({
   const [text, setText] = useState("")
   const [selectedImages, setSelectedImages] = useState<File[]>([])
   const [imagePreviews, setImagePreviews] = useState<string[]>([])
-  const [hashtagInput, setHashtagInput] = useState("")
-  const [hashtags, setHashtags] = useState<string[]>([])
+  const {
+    hashtagInput,
+    setHashtagInput,
+    hashtags,
+    addHashtag,
+    removeHashtag,
+    resetHashtags,
+    mergeWithInlineHashtags,
+  } = useHashtagComposer({ maxHashtags: 10 })
   const fileInputRef = useRef<HTMLInputElement>(null)
   const createPost = useCreatePost()
   const { t } = useTranslation()
@@ -64,36 +72,18 @@ export function CreatePostDialog({
     [imagePreviews],
   )
 
-  const addHashtag = useCallback(() => {
-    const tag = hashtagInput.trim().replace(/^#/, "").replace(/\s+/g, "")
-    if (tag && !hashtags.includes(tag) && hashtags.length < 10) {
-      setHashtags((prev) => [...prev, tag])
-      setHashtagInput("")
-    }
-  }, [hashtagInput, hashtags])
-
-  const removeHashtag = useCallback(
-    (tag: string) => setHashtags((prev) => prev.filter((t) => t !== tag)),
-    [],
-  )
-
   const resetForm = useCallback(() => {
     setText("")
     imagePreviews.forEach((url) => URL.revokeObjectURL(url))
     setSelectedImages([])
     setImagePreviews([])
-    setHashtags([])
-    setHashtagInput("")
-  }, [imagePreviews])
+    resetHashtags([])
+  }, [imagePreviews, resetHashtags])
 
   const handleSubmit = useCallback(() => {
     if (!text.trim() && selectedImages.length === 0) return
 
-    // Extract inline hashtags from text
-    const inlineHashtags = (text.match(/#([\w]+)/g) || []).map((t) =>
-      t.slice(1),
-    )
-    const allHashtags = [...new Set([...hashtags, ...inlineHashtags])]
+    const allHashtags = mergeWithInlineHashtags(text)
 
     createPost.mutate(
       {
@@ -108,7 +98,14 @@ export function CreatePostDialog({
         },
       },
     )
-  }, [text, selectedImages, hashtags, createPost, onOpenChange, resetForm])
+  }, [
+    text,
+    selectedImages,
+    createPost,
+    onOpenChange,
+    resetForm,
+    mergeWithInlineHashtags,
+  ])
 
   const canSubmit =
     (text.trim() || selectedImages.length > 0) && !createPost.isPending
