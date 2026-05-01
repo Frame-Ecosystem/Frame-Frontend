@@ -14,7 +14,7 @@ import openGoogleOAuthPopup, {
   handleGoogleAuthResult,
 } from "../lib/google-popup"
 import { getLoginRedirectPath } from "@/app/_lib/profile"
-import { useAuth } from "../auth-provider"
+import { useAuth } from "@/app/_auth"
 import { useSignIn } from "@/app/_hooks/queries"
 import GoogleButton from "./google-button"
 import { mapAuthError } from "../lib/error-mapper"
