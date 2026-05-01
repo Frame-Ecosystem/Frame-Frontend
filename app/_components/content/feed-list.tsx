@@ -192,7 +192,7 @@ export function FeedList({
 
   return (
     <>
-      <div className="mx-auto max-w-[630px] space-y-1">
+      <div className="mx-auto max-w-[630px] space-y-4">
         {slots.map((slot, _idx) => {
           if (slot.kind === "post") {
             return (

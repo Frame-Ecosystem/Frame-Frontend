@@ -153,42 +153,47 @@ export function PostFeed() {
       {/* Create content prompt */}
       {user && (
         <>
-          <Card className="mt-8 mb-4 w-full">
+          <Card className="mt-8 mb-4 w-full shadow-sm">
             <CardContent className="pt-4">
               <div className="flex items-center gap-3">
                 <Link href={getProfilePath(user)} className="shrink-0">
-                  <Avatar className="h-10 w-10 cursor-pointer transition-opacity hover:opacity-80">
+                  <Avatar className="hover:ring-primary/30 h-10 w-10 cursor-pointer ring-2 ring-transparent transition-all">
                     <AvatarImage src={profileImage} alt={displayName} />
-                    <AvatarFallback>
+                    <AvatarFallback className="text-sm font-semibold">
                       {displayName.charAt(0).toUpperCase()}
                     </AvatarFallback>
                   </Avatar>
                 </Link>
                 <button
                   onClick={() => setShowPostDialog(true)}
-                  className="text-muted-foreground bg-muted/50 hover:bg-muted flex-1 rounded-full px-4 py-2.5 text-left text-sm transition-colors"
+                  className="text-muted-foreground bg-muted/60 hover:bg-muted hover:text-foreground flex-1 rounded-full px-4 py-2.5 text-left text-sm transition-colors"
                 >
                   {t("postFeed.whatsOnYourMind")}
                 </button>
               </div>
-              <div className="mt-3 flex items-center gap-1 border-t pt-3">
+              <div className="border-border/50 mt-3 flex items-center gap-1 border-t pt-3">
                 <Button
                   variant="ghost"
                   size="sm"
                   onClick={() => setShowPostDialog(true)}
-                  className="text-muted-foreground hover:text-foreground flex items-center gap-1.5"
+                  className="text-muted-foreground hover:text-foreground flex flex-1 items-center justify-center gap-1.5 rounded-lg"
                 >
                   <FileText className="h-4 w-4" />
-                  <span className="text-sm">{t("postFeed.post")}</span>
+                  <span className="text-sm font-medium">
+                    {t("postFeed.post")}
+                  </span>
                 </Button>
+                <div className="bg-border h-5 w-px" />
                 <Button
                   variant="ghost"
                   size="sm"
                   onClick={() => setShowReelDialog(true)}
-                  className="text-muted-foreground hover:text-foreground flex items-center gap-1.5"
+                  className="text-muted-foreground hover:text-foreground flex flex-1 items-center justify-center gap-1.5 rounded-lg"
                 >
                   <Film className="h-4 w-4" />
-                  <span className="text-sm">{t("postFeed.reel")}</span>
+                  <span className="text-sm font-medium">
+                    {t("postFeed.reel")}
+                  </span>
                 </Button>
               </div>
             </CardContent>

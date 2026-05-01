@@ -65,66 +65,120 @@ export function ReelActions({
   isDeleting,
 }: ReelActionsProps) {
   return (
-    <div className="absolute right-3 bottom-24 z-30 flex flex-col items-center gap-5">
+    <div className="absolute right-3 bottom-24 z-30 flex flex-col items-center gap-4">
       {/* Like */}
-      <button onClick={onLike} className="flex flex-col items-center gap-1">
-        <Heart
+      <button
+        onClick={onLike}
+        className="flex flex-col items-center gap-1 transition-transform active:scale-90"
+      >
+        <div
           className={cn(
-            "h-7 w-7 drop-shadow-lg transition",
-            isLiked ? "fill-red-500 text-red-500" : "text-white",
+            "rounded-full p-2 transition-colors",
+            isLiked ? "bg-red-500/20" : "bg-black/20 backdrop-blur-sm",
           )}
-        />
-        <span className="text-xs font-medium text-white drop-shadow">
-          {likeCount}
+        >
+          <Heart
+            className={cn(
+              "h-6 w-6 drop-shadow-lg transition-all",
+              isLiked
+                ? "scale-110 fill-red-500 text-red-500"
+                : "scale-100 text-white",
+            )}
+          />
+        </div>
+        <span className="text-xs font-semibold text-white drop-shadow">
+          {likeCount > 0
+            ? likeCount >= 1000
+              ? `${(likeCount / 1000).toFixed(1)}K`
+              : likeCount
+            : ""}
         </span>
       </button>
 
       {/* Comment */}
-      <button onClick={onComment} className="flex flex-col items-center gap-1">
-        <MessageCircle className="h-7 w-7 text-white drop-shadow-lg" />
-        <span className="text-xs font-medium text-white drop-shadow">
-          {commentCount}
+      <button
+        onClick={onComment}
+        className="flex flex-col items-center gap-1 transition-transform active:scale-90"
+      >
+        <div className="rounded-full bg-black/20 p-2 backdrop-blur-sm">
+          <MessageCircle className="h-6 w-6 text-white drop-shadow-lg" />
+        </div>
+        <span className="text-xs font-semibold text-white drop-shadow">
+          {commentCount > 0
+            ? commentCount >= 1000
+              ? `${(commentCount / 1000).toFixed(1)}K`
+              : commentCount
+            : ""}
         </span>
       </button>
 
       {/* Save */}
-      <button onClick={onSave} className="flex flex-col items-center gap-1">
-        <Bookmark
+      <button
+        onClick={onSave}
+        className="flex flex-col items-center gap-1 transition-transform active:scale-90"
+      >
+        <div
           className={cn(
-            "h-7 w-7 drop-shadow-lg transition",
-            isSaved ? "fill-white text-white" : "text-white",
+            "rounded-full p-2 transition-colors",
+            isSaved ? "bg-white/20" : "bg-black/20 backdrop-blur-sm",
           )}
-        />
+        >
+          <Bookmark
+            className={cn(
+              "h-6 w-6 drop-shadow-lg transition-all",
+              isSaved
+                ? "scale-110 fill-white text-white"
+                : "scale-100 text-white",
+            )}
+          />
+        </div>
       </button>
 
       {/* Mute / Unmute */}
       <button
         onClick={onMuteToggle}
-        className="flex flex-col items-center gap-1"
+        className="flex flex-col items-center gap-1 transition-transform active:scale-90"
       >
-        {isMuted ? (
-          <VolumeX className="h-6 w-6 text-white drop-shadow-lg" />
-        ) : (
-          <Volume2 className="h-6 w-6 text-white drop-shadow-lg" />
-        )}
+        <div className="rounded-full bg-black/20 p-2 backdrop-blur-sm">
+          {isMuted ? (
+            <VolumeX className="h-5 w-5 text-white drop-shadow-lg" />
+          ) : (
+            <Volume2 className="h-5 w-5 text-white drop-shadow-lg" />
+          )}
+        </div>
       </button>
 
       {/* Share */}
-      <button onClick={onShare} className="flex flex-col items-center gap-1">
-        <Share2 className="h-6 w-6 text-white drop-shadow-lg" />
+      <button
+        onClick={onShare}
+        className="flex flex-col items-center gap-1 transition-transform active:scale-90"
+      >
+        <div className="rounded-full bg-black/20 p-2 backdrop-blur-sm">
+          <Share2 className="h-5 w-5 text-white drop-shadow-lg" />
+        </div>
       </button>
 
       {/* Report (non-owner only) */}
       {!isOwner && (
-        <button onClick={onReport} className="flex flex-col items-center gap-1">
-          <Flag className="h-6 w-6 text-white drop-shadow-lg" />
+        <button
+          onClick={onReport}
+          className="flex flex-col items-center gap-1 transition-transform active:scale-90"
+        >
+          <div className="rounded-full bg-black/20 p-2 backdrop-blur-sm">
+            <Flag className="h-5 w-5 text-white drop-shadow-lg" />
+          </div>
         </button>
       )}
 
       {/* Edit (owner only) */}
       {isOwner && onEdit && (
-        <button onClick={onEdit} className="flex flex-col items-center gap-1">
-          <Pencil className="h-6 w-6 text-white drop-shadow-lg" />
+        <button
+          onClick={onEdit}
+          className="flex flex-col items-center gap-1 transition-transform active:scale-90"
+        >
+          <div className="rounded-full bg-black/20 p-2 backdrop-blur-sm">
+            <Pencil className="h-5 w-5 text-white drop-shadow-lg" />
+          </div>
         </button>
       )}
 
@@ -133,14 +187,16 @@ export function ReelActions({
         <button
           onClick={onDelete}
           disabled={isDeleting}
-          className="flex flex-col items-center gap-1"
+          className="flex flex-col items-center gap-1 transition-transform active:scale-90"
         >
-          <Trash2
-            className={cn(
-              "h-6 w-6 drop-shadow-lg transition",
-              isDeleting ? "animate-pulse text-red-300" : "text-white",
-            )}
-          />
+          <div className="rounded-full bg-black/20 p-2 backdrop-blur-sm">
+            <Trash2
+              className={cn(
+                "h-5 w-5 drop-shadow-lg transition",
+                isDeleting ? "animate-pulse text-red-300" : "text-white",
+              )}
+            />
+          </div>
         </button>
       )}
 
@@ -148,13 +204,15 @@ export function ReelActions({
       {isAdmin && !isOwner && (
         <button
           onClick={isHidden ? onUnhide : onHide}
-          className="flex flex-col items-center gap-1"
+          className="flex flex-col items-center gap-1 transition-transform active:scale-90"
         >
-          {isHidden ? (
-            <Eye className="h-6 w-6 text-amber-300 drop-shadow-lg" />
-          ) : (
-            <EyeOff className="h-6 w-6 text-white drop-shadow-lg" />
-          )}
+          <div className="rounded-full bg-black/20 p-2 backdrop-blur-sm">
+            {isHidden ? (
+              <Eye className="h-5 w-5 text-amber-300 drop-shadow-lg" />
+            ) : (
+              <EyeOff className="h-5 w-5 text-white drop-shadow-lg" />
+            )}
+          </div>
         </button>
       )}
 
@@ -162,9 +220,11 @@ export function ReelActions({
       {isAdmin && !isOwner && onAdminDelete && (
         <button
           onClick={onAdminDelete}
-          className="flex flex-col items-center gap-1"
+          className="flex flex-col items-center gap-1 transition-transform active:scale-90"
         >
-          <ShieldAlert className="h-6 w-6 text-red-400 drop-shadow-lg" />
+          <div className="rounded-full bg-red-500/20 p-2 backdrop-blur-sm">
+            <ShieldAlert className="h-5 w-5 text-red-400 drop-shadow-lg" />
+          </div>
         </button>
       )}
     </div>

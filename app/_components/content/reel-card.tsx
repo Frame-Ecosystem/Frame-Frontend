@@ -1,7 +1,7 @@
 "use client"
 
 import Image from "next/image"
-import { Play } from "lucide-react"
+import { Play, Heart } from "lucide-react"
 import { cn } from "@/app/_lib/utils"
 import type { Reel } from "../../_types"
 
@@ -9,6 +9,12 @@ interface ReelCardProps {
   reel: Reel
   onClick?: () => void
   className?: string
+}
+
+function formatCount(n: number): string {
+  if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`
+  if (n >= 1_000) return `${(n / 1_000).toFixed(1)}K`
+  return String(n)
 }
 
 /**
@@ -20,7 +26,7 @@ export function ReelCard({ reel, onClick, className }: ReelCardProps) {
       id={`reel-${reel._id}`}
       onClick={onClick}
       className={cn(
-        "group relative aspect-[9/16] w-full overflow-hidden rounded-md bg-black",
+        "group relative aspect-[9/16] w-full overflow-hidden rounded-xl bg-black shadow-sm transition-all hover:scale-[1.02] hover:shadow-lg",
         className,
       )}
     >
@@ -30,7 +36,7 @@ export function ReelCard({ reel, onClick, className }: ReelCardProps) {
           alt={reel.caption || "Reel"}
           fill
           sizes="(max-width: 768px) 33vw, 200px"
-          className="object-cover transition group-hover:scale-105"
+          className="object-cover transition-transform duration-300 group-hover:scale-105"
         />
       ) : (
         <video
@@ -43,16 +49,26 @@ export function ReelCard({ reel, onClick, className }: ReelCardProps) {
         </video>
       )}
 
-      {/* Play icon overlay */}
-      <div className="absolute inset-0 flex items-center justify-center bg-black/10 opacity-0 transition group-hover:opacity-100">
-        <Play className="h-8 w-8 fill-white text-white drop-shadow-lg" />
+      {/* Play icon overlay on hover */}
+      <div className="absolute inset-0 flex items-center justify-center bg-black/20 opacity-0 transition-opacity duration-200 group-hover:opacity-100">
+        <div className="rounded-full bg-black/40 p-3 backdrop-blur-sm">
+          <Play className="h-7 w-7 fill-white text-white" />
+        </div>
       </div>
 
-      {/* Bottom info */}
-      <div className="absolute right-0 bottom-0 left-0 bg-gradient-to-t from-black/60 to-transparent px-2 pt-6 pb-2">
-        <div className="flex items-center gap-1 text-xs font-medium text-white">
-          <Play className="h-3 w-3 fill-white" />
-          <span>{reel.likeCount}</span>
+      {/* Bottom gradient with stats */}
+      <div className="absolute right-0 bottom-0 left-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent px-2 pt-8 pb-2">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-1 text-xs font-medium text-white">
+            <Play className="h-3 w-3 fill-white" />
+            <span>{formatCount(reel.likeCount)}</span>
+          </div>
+          {reel.likeCount > 0 && (
+            <div className="flex items-center gap-0.5 text-xs text-white/80">
+              <Heart className="h-3 w-3 fill-white/80" />
+              <span>{formatCount(reel.likeCount)}</span>
+            </div>
+          )}
         </div>
       </div>
     </button>

@@ -57,6 +57,7 @@ export function ReelPlayer({
   const [showReport, setShowReport] = useState(false)
   const [showEdit, setShowEdit] = useState(false)
   const [showDoubleTapHeart, setShowDoubleTapHeart] = useState(false)
+  const [progress, setProgress] = useState(0)
   const heartTimeout = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const reelId = reel._id ?? ""
@@ -149,6 +150,11 @@ export function ReelPlayer({
             setIsPlaying(true)
           }}
           onPause={() => setIsPlaying(false)}
+          onTimeUpdate={(e) => {
+            const v = e.currentTarget
+            if (v.duration > 0) setProgress(v.currentTime / v.duration)
+          }}
+          onEnded={() => setProgress(0)}
           className="h-full w-full object-cover"
         />
       ) : reel.thumbnailUrl ? (
@@ -239,6 +245,16 @@ export function ReelPlayer({
 
       {/* Bottom overlay: author + caption */}
       <ReelOverlay reel={reel} />
+
+      {/* Video progress bar */}
+      {autoPlay && (
+        <div className="pointer-events-none absolute right-0 bottom-0 left-0 z-40 h-0.5 bg-white/20">
+          <div
+            className="h-full bg-white/80 transition-[width] duration-100"
+            style={{ width: `${Math.round(progress * 100)}%` }}
+          />
+        </div>
+      )}
 
       <ReportModal
         open={showReport}
