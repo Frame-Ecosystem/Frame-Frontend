@@ -178,13 +178,13 @@ class ApiClient {
       if (!res.ok) return null
 
       const body = await res.json().catch(() => null)
-      const token =
+      const csrfToken =
         typeof body?.csrfToken === "string" && body.csrfToken
           ? body.csrfToken
           : null
 
-      if (token) setSessionCsrfToken(token)
-      return token
+      if (csrfToken) setSessionCsrfToken(csrfToken)
+      return csrfToken
     } catch {
       return null
     }
