@@ -230,6 +230,16 @@ class ApiClient {
       // Proactively bootstrap if no CSRF token is available yet — avoids a
       // preventable 403 round-trip on first page load or after a hard refresh.
       if (!getCsrfTokenForRequest()) {
+        if (!token && this.refreshTokenCallback) {
+          const refreshedToken = await this.refreshTokenCallback()
+          if (refreshedToken) {
+            token = refreshedToken
+            headers = {
+              ...headers,
+              Authorization: refreshedToken,
+            }
+          }
+        }
         await this.bootstrapCsrfToken()
       }
       headers = withCsrfHeader(headers, method)
