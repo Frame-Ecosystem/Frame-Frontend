@@ -264,29 +264,14 @@ export default function ClientProfilePage() {
           <div className="mt-3">
             {user?._id && <FollowStats userId={user._id} />}
           </div>
-
-          {/* Edit Profile button */}
-          <div className="mt-4">
-            <Button
-              variant="outline"
-              size="sm"
-              className="w-full sm:w-auto"
-              onClick={() => {
-                setOpenSettings(true)
-              }}
-            >
-              <Settings className="mr-2 h-4 w-4" />
-              {t("profile.editProfile")}
-            </Button>
-          </div>
         </div>
 
         {/* ── Tab Navigation ──────────────────────────────── */}
         <div
           data-nav-tabs
-          className="border-border/50 bg-background/80 sticky top-[var(--header-offset)] z-50 mt-2 border-b backdrop-blur-md lg:top-[var(--header-offset-lg)]"
+          className="to-background/95 sticky top-[var(--header-offset)] z-50 mt-2 bg-gradient-to-b from-transparent shadow-sm backdrop-blur-md lg:top-[var(--header-offset-lg)]"
         >
-          <div className="mx-auto flex max-w-5xl overflow-x-auto [&::-webkit-scrollbar]:hidden">
+          <div className="mx-auto flex w-full max-w-5xl gap-3 overflow-x-auto px-4 py-3 sm:px-6 lg:justify-evenly lg:px-8 [&::-webkit-scrollbar]:hidden">
             {TABS.map(({ key, icon: Icon, labelKey }) => {
               const isActive = activeTab === key
               return (
@@ -294,17 +279,14 @@ export default function ClientProfilePage() {
                   key={key}
                   ref={isActive ? activeTabRef : undefined}
                   onClick={() => handleTabChange(key)}
-                  className={`relative flex flex-1 shrink-0 flex-col items-center gap-1 px-4 py-3 text-xs font-medium transition-colors sm:flex-row sm:justify-center sm:gap-2 sm:text-sm ${
+                  className={`inline-flex shrink-0 items-center justify-center gap-2 rounded-lg border px-3 py-2 text-sm font-medium whitespace-nowrap transition-all duration-300 ${
                     isActive
-                      ? "text-primary"
-                      : "text-muted-foreground hover:text-foreground"
+                      ? "border-primary bg-primary/10 text-primary"
+                      : "border-border text-foreground hover:border-primary/50 hover:bg-primary/5 hover:text-primary"
                   }`}
                 >
-                  <Icon className="h-5 w-5 sm:h-4 sm:w-4" />
-                  <span className="hidden sm:inline">{t(labelKey)}</span>
-                  {isActive && (
-                    <span className="bg-primary absolute bottom-0 left-0 h-0.5 w-full rounded-t-full" />
-                  )}
+                  <Icon className="h-4 w-4" />
+                  <span>{t(labelKey)}</span>
                 </button>
               )
             })}

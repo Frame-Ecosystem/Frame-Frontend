@@ -10,7 +10,8 @@ import {
   Users,
   CalendarIcon,
   MessageSquare,
-  ArrowLeft,
+  UserPlus,
+  UserCheck,
 } from "lucide-react"
 import {
   Avatar,
@@ -21,10 +22,16 @@ import { ImageLightbox } from "@/app/_components/common/images/image-lightbox"
 import RatingDialog from "@/app/_components/forms/rating-dialog"
 import { RatingSummaryBadge } from "@/app/_components/common/star-rating"
 import ReviewsList from "@/app/_components/common/reviews-list"
-import { useMyRating, useCheckLiked, useToggleLike } from "@/app/_hooks/queries"
-import { FollowButton } from "@/app/_components/common/follow-button"
+import {
+  useMyRating,
+  useCheckLiked,
+  useToggleLike,
+  useFollowCounts,
+  useCheckFollowing,
+  useToggleFollow,
+} from "@/app/_hooks/queries"
 import { MessageButton } from "@/app/_components/common/message-button"
-import { FollowStats } from "@/app/_components/common/follow-stats"
+import { FollowListDialog } from "@/app/_components/common/follow-stats"
 import InfoDisplay from "@/app/_components/lounges/info-display"
 import OurServices from "@/app/_components/services/our-services"
 import QueueDisplay from "@/app/_components/queue/queue-display"
@@ -99,6 +106,14 @@ export default function LoungePage() {
   const toggleLike = useToggleLike(id)
   const { data: myRating } = useMyRating(id)
   const isRated = !!myRating
+  const { data: followCounts } = useFollowCounts(id)
+  const { data: isFollowing = false } = useCheckFollowing(
+    user?.type === "client" ? id : undefined,
+  )
+  const toggleFollow = useToggleFollow(id)
+  const [followDialogMode, setFollowDialogMode] = useState<
+    "followers" | "following" | null
+  >(null)
   const [lightboxSrc, setLightboxSrc] = useState<string | null>(null)
   const [lightboxAlt, setLightboxAlt] = useState("")
   const tabsScrollRef = useRef<HTMLDivElement>(null)
@@ -309,6 +324,13 @@ export default function LoungePage() {
 
   const openingHours = formatOpeningHours(center.openingHours)
 
+  const formatCount = (n: number): string => {
+    if (n >= 1_000_000)
+      return `${(n / 1_000_000).toFixed(1).replace(/\.0$/, "")}M`
+    if (n >= 1_000) return `${(n / 1_000).toFixed(1).replace(/\.0$/, "")}k`
+    return String(n)
+  }
+
   const getInitials = (name: string) => {
     return name
       .split(" ")
@@ -330,11 +352,11 @@ export default function LoungePage() {
       <div className="from-background via-background to-muted/20 min-h-screen bg-linear-to-br">
         {/* ── Hero: Cover + Avatar ────────────────────────── */}
         <div className="relative w-full">
-          <div className="relative h-[200px] w-full overflow-hidden bg-gradient-to-r from-blue-600/20 via-purple-600/20 to-pink-600/20 md:h-[280px] lg:h-[320px]">
+          <div className="relative w-full overflow-hidden bg-gradient-to-r from-blue-600/20 via-purple-600/20 to-pink-600/20">
             {center.coverImageUrl ? (
               <button
                 type="button"
-                className="relative h-full w-full cursor-pointer"
+                className="relative block w-full cursor-pointer"
                 onClick={() => {
                   setLightboxSrc(center.coverImageUrl!)
                   setLightboxAlt(`${center.name} cover`)
@@ -344,10 +366,11 @@ export default function LoungePage() {
                 <Image
                   src={center.coverImageUrl}
                   alt={`${center.name} cover`}
-                  fill
-                  sizes="100vw"
+                  width={1600}
+                  height={500}
+                  sizes="(max-width: 1024px) 100vw, 1600px"
                   quality={80}
-                  className="object-cover"
+                  className="block h-auto w-full object-contain"
                   priority
                 />
               </button>
@@ -355,7 +378,7 @@ export default function LoungePage() {
               center.imageUrl !== "/images/placeholder.svg" ? (
               <button
                 type="button"
-                className="relative h-full w-full cursor-pointer"
+                className="relative block w-full cursor-pointer"
                 onClick={() => {
                   setLightboxSrc(center.imageUrl!)
                   setLightboxAlt(`${center.name} cover`)
@@ -365,10 +388,11 @@ export default function LoungePage() {
                 <Image
                   src={center.imageUrl}
                   alt={`${center.name} cover`}
-                  fill
-                  sizes="100vw"
+                  width={1600}
+                  height={500}
+                  sizes="(max-width: 1024px) 100vw, 1600px"
                   quality={80}
-                  className="object-cover"
+                  className="block h-auto w-full object-contain"
                   priority
                 />
               </button>
@@ -376,21 +400,11 @@ export default function LoungePage() {
               <div className="from-primary/15 via-primary/5 absolute inset-0 bg-gradient-to-br to-transparent" />
             )}
             <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
-
-            <Button
-              variant="secondary"
-              size="sm"
-              onClick={() => router.back()}
-              className="absolute top-3 left-3 z-10 gap-1.5 rounded-lg bg-black/50 p-2 text-white backdrop-blur-sm hover:bg-black/70 sm:top-4 sm:left-4 sm:p-2.5"
-            >
-              <ArrowLeft className="h-4 w-4" />
-              <span className="hidden sm:inline">Back</span>
-            </Button>
           </div>
 
           {/* Avatar + Name */}
           <div className="relative mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
-            <div className="relative -mt-16 flex items-end gap-4 md:-mt-20">
+            <div className="relative -mt-10 flex items-end gap-4 md:-mt-12">
               <div className="relative shrink-0">
                 <button
                   type="button"
@@ -407,7 +421,7 @@ export default function LoungePage() {
                   }}
                   aria-label="View profile photo"
                 >
-                  <Avatar className="ring-background h-28 w-28 shadow-xl ring-4 sm:h-36 sm:w-36 md:h-40 md:w-40">
+                  <Avatar className="ring-background h-20 w-20 shadow-xl ring-4 sm:h-24 sm:w-24 md:h-28 md:w-28">
                     {center.imageUrl &&
                       center.imageUrl !== "/images/placeholder.svg" && (
                         <AvatarImage
@@ -427,12 +441,6 @@ export default function LoungePage() {
                 <h1 className="text-lg font-bold sm:text-xl md:text-2xl lg:text-3xl">
                   {center.name}
                 </h1>
-                {center.address &&
-                  center.address !== "No location available" && (
-                    <p className="text-muted-foreground mt-0.5 truncate text-sm">
-                      {center.address}
-                    </p>
-                  )}
               </div>
             </div>
           </div>
@@ -460,34 +468,80 @@ export default function LoungePage() {
               </div>
             )}
 
-          {/* Stats row: rating · likes · followers */}
-          <div className="mt-3 flex flex-wrap items-center gap-x-5 gap-y-2 text-sm">
+          {/* Stats row: rates · likes · followers · following */}
+          <div className="mt-3 flex items-center justify-center gap-6">
             <button
-              onClick={() => {
-                if (user?.type === "client") setShowRatingPopup(true)
-                else handleTabChange("reviews")
-              }}
-              className="hover:text-primary flex items-center gap-1.5 transition-colors"
+              onClick={() => handleTabChange("reviews")}
+              className="hover:text-primary flex flex-col items-center text-center leading-tight transition-colors"
             >
-              <StarIcon
-                className={`h-3.5 w-3.5 text-yellow-500 ${isRated ? "fill-yellow-500" : ""}`}
-              />
-              <span className="text-foreground/80 font-medium">
-                {(center.ratingCount ?? 0) > 0
-                  ? (center.averageRating ?? 0).toFixed(1)
-                  : "—"}
+              <span className="text-foreground text-sm font-semibold tabular-nums">
+                {center.ratingCount ?? 0}
               </span>
-              {(center.ratingCount ?? 0) > 0 && (
-                <span className="text-muted-foreground text-xs">
-                  ({center.ratingCount} rating
-                  {center.ratingCount !== 1 ? "s" : ""})
-                </span>
-              )}
+              <span className="text-muted-foreground text-xs">Ratings</span>
+            </button>
+
+            <div className="flex flex-col items-center text-center leading-tight">
+              <span className="text-foreground text-sm font-semibold tabular-nums">
+                {formatCount(center.likeCount ?? 0)}
+              </span>
+              <span className="text-muted-foreground text-xs">Likes</span>
+            </div>
+
+            <button
+              onClick={() => setFollowDialogMode("followers")}
+              className="hover:text-primary flex flex-col items-center text-center leading-tight transition-colors"
+            >
+              <span className="text-foreground text-sm font-semibold tabular-nums">
+                {formatCount(followCounts?.followersCount ?? 0)}
+              </span>
+              <span className="text-muted-foreground text-xs">Followers</span>
             </button>
 
             <button
-              onClick={() => {
-                if (user?.type === "client") {
+              onClick={() => setFollowDialogMode("following")}
+              className="hover:text-primary flex flex-col items-center text-center leading-tight transition-colors"
+            >
+              <span className="text-foreground text-sm font-semibold tabular-nums">
+                {formatCount(followCounts?.followingCount ?? 0)}
+              </span>
+              <span className="text-muted-foreground text-xs">Following</span>
+            </button>
+          </div>
+
+          {followDialogMode && (
+            <FollowListDialog
+              open={!!followDialogMode}
+              onOpenChange={(open) => {
+                if (!open) setFollowDialogMode(null)
+              }}
+              userId={id}
+              mode={followDialogMode}
+            />
+          )}
+
+          {/* Action buttons: rate · like · follow · message */}
+          {user?.type === "client" && (
+            <div className="mt-3 flex items-center justify-center gap-3">
+              {/* Rate */}
+              <button
+                onClick={() => setShowRatingPopup(true)}
+                className={`flex items-center gap-1.5 rounded-full px-2 py-1 transition-colors ${
+                  isRated
+                    ? "bg-yellow-500/10 text-yellow-600 hover:bg-yellow-500/20"
+                    : "bg-muted/50 text-muted-foreground hover:bg-muted"
+                }`}
+                aria-label="Rate"
+              >
+                <StarIcon
+                  size={14}
+                  className={isRated ? "fill-yellow-500 text-yellow-500" : ""}
+                />
+                <span className="text-sm font-medium">Rate</span>
+              </button>
+
+              {/* Like */}
+              <button
+                onClick={() => {
                   toggleLike.mutate({
                     onSuccess: (result) => {
                       setCenter((prev) =>
@@ -503,27 +557,44 @@ export default function LoungePage() {
                       )
                     },
                   })
-                }
-              }}
-              disabled={toggleLike.isRateLimited || toggleLike.isPending}
-              className="hover:text-primary flex items-center gap-1.5 transition-colors disabled:pointer-events-none disabled:opacity-50"
-              aria-label="Like"
-            >
-              <Heart
-                className={`h-3.5 w-3.5 transition-colors ${liked ? "fill-red-500 text-red-500" : "text-muted-foreground"}`}
-              />
-              <span className="text-foreground/80 font-medium">
-                {center.likeCount ?? 0}
-              </span>
-            </button>
+                }}
+                disabled={toggleLike.isRateLimited || toggleLike.isPending}
+                className={`flex items-center gap-1.5 rounded-full px-2 py-1 transition-colors disabled:pointer-events-none disabled:opacity-50 ${
+                  liked
+                    ? "bg-red-500/10 text-red-500 hover:bg-red-500/20"
+                    : "bg-muted/50 text-muted-foreground hover:bg-muted"
+                }`}
+                aria-label="Like"
+              >
+                <Heart
+                  size={14}
+                  className={liked ? "fill-red-500 text-red-500" : ""}
+                />
+                <span className="text-sm font-medium">Like</span>
+              </button>
 
-            <FollowStats userId={id} />
-          </div>
+              {/* Follow */}
+              <button
+                onClick={() => toggleFollow.mutate()}
+                disabled={toggleFollow.isRateLimited || toggleFollow.isPending}
+                className={`flex items-center gap-1.5 rounded-full px-2 py-1 transition-colors disabled:pointer-events-none disabled:opacity-50 ${
+                  isFollowing
+                    ? "bg-green-500/10 text-green-600 hover:bg-green-500/20"
+                    : "bg-muted/50 text-muted-foreground hover:bg-muted"
+                }`}
+                aria-label={isFollowing ? "Following" : "Follow"}
+              >
+                {isFollowing ? (
+                  <UserCheck size={14} className="text-green-600" />
+                ) : (
+                  <UserPlus size={14} />
+                )}
+                <span className="text-sm font-medium">
+                  {isFollowing ? "Following" : "Follow"}
+                </span>
+              </button>
 
-          {/* Follow + Message buttons */}
-          {user?.type === "client" && (
-            <div className="mt-3 flex items-center gap-3">
-              <FollowButton targetId={id} />
+              {/* Message */}
               <MessageButton recipientId={id} />
             </div>
           )}

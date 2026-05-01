@@ -1,7 +1,14 @@
 "use client"
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
-import { Bell, CheckCheck, ChevronDown, Trash2 } from "lucide-react"
+import {
+  Bell,
+  Check,
+  CheckCheck,
+  ChevronDown,
+  SlidersHorizontal,
+  Trash2,
+} from "lucide-react"
 import { Button } from "../_components/ui/button"
 import { ErrorBoundary } from "../_components/common/errorBoundary"
 import { useAuth } from "@/app/_auth"
@@ -46,7 +53,11 @@ const FILTER_OPTIONS: Array<{
 ]
 
 const CONTROL_BUTTON_CLASS =
-  "h-9 shrink-0 rounded-full bg-muted/60 px-3 text-sm font-medium text-muted-foreground hover:bg-muted"
+  "h-9 shrink-0 rounded-full border border-border/60 bg-muted/50 px-3 text-sm font-medium text-foreground/90 shadow-xs transition-colors hover:bg-muted"
+const CONTROL_BUTTON_SUCCESS_CLASS =
+  "h-9 shrink-0 rounded-full bg-muted/60 px-3 text-sm font-medium text-emerald-600 hover:bg-emerald-500/10"
+const CONTROL_BUTTON_DANGER_CLASS =
+  "h-9 shrink-0 rounded-full bg-muted/60 px-3 text-sm font-medium text-destructive hover:bg-destructive/10"
 
 export default function NotificationsPage() {
   const { user, isLoading: authLoading } = useAuth()
@@ -136,12 +147,62 @@ export default function NotificationsPage() {
     <ErrorBoundary>
       <div className="from-background via-background to-muted/20 flex min-h-screen flex-col bg-linear-to-br">
         <header className="border-border/60 bg-background/80 sticky top-[var(--header-offset)] z-10 border-b px-4 pt-4 pb-3 backdrop-blur-sm lg:top-[var(--header-offset-lg)] lg:px-8">
-          <div
-            dir={dir}
-            className="mx-auto flex w-full max-w-2xl items-center gap-2"
-          >
-            <Bell className="text-primary h-5 w-5" />
-            <h1 className="text-xl font-bold">{t("notifications.title")}</h1>
+          <div dir={dir} className="mx-auto w-full max-w-2xl">
+            <div className="flex items-center gap-2">
+              <Bell className="text-primary h-5 w-5" />
+              <h1 className="text-xl font-bold">{t("notifications.title")}</h1>
+            </div>
+
+            <div className="mt-3 flex w-full min-w-0 items-center gap-2 overflow-x-auto pb-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" className={CONTROL_BUTTON_CLASS}>
+                    <SlidersHorizontal className="h-3.5 w-3.5" />
+                    {activeFilterLabel}
+                    <ChevronDown className="h-3.5 w-3.5" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent
+                  align="start"
+                  className="border-border/70 min-w-[220px] rounded-xl p-1.5 shadow-lg"
+                >
+                  {FILTER_OPTIONS.map((option) => (
+                    <DropdownMenuItem
+                      key={option.labelKey}
+                      onClick={() => setActiveCategory(option.value)}
+                      className="flex items-center justify-between rounded-lg px-3 py-2 text-sm"
+                    >
+                      <span>{t(option.labelKey)}</span>
+                      {activeCategory === option.value ? (
+                        <Check className="text-primary h-3.5 w-3.5" />
+                      ) : null}
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
+
+              <Button
+                variant="ghost"
+                size="sm"
+                className={CONTROL_BUTTON_SUCCESS_CLASS}
+                onClick={() => markRead.mutate(undefined)}
+                disabled={markRead.isPending || unreadCount === 0}
+              >
+                {t("notifications.markAllReadBtn")}
+                <CheckCheck className="h-3.5 w-3.5" />
+              </Button>
+
+              <Button
+                variant="ghost"
+                size="sm"
+                className={CONTROL_BUTTON_DANGER_CLASS}
+                onClick={() => deleteAll.mutate()}
+                disabled={deleteAll.isPending || notifications.length === 0}
+              >
+                {t("notifications.clearAll")}
+                <Trash2 className="h-3.5 w-3.5" />
+              </Button>
+            </div>
           </div>
         </header>
 
@@ -150,50 +211,6 @@ export default function NotificationsPage() {
           onScroll={handleScroll}
           className="mx-auto flex w-full max-w-2xl flex-1 flex-col overflow-y-auto px-4 py-4 lg:px-8 lg:py-6"
         >
-          <div className="mb-4 flex items-center gap-2 overflow-x-auto p-2 pb-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className={CONTROL_BUTTON_CLASS}>
-                  {activeFilterLabel}
-                  <ChevronDown className="ml-1.5 h-3.5 w-3.5" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="start" className="min-w-[180px]">
-                {FILTER_OPTIONS.map((option) => (
-                  <DropdownMenuItem
-                    key={option.labelKey}
-                    onClick={() => setActiveCategory(option.value)}
-                    className="text-sm"
-                  >
-                    {t(option.labelKey)}
-                  </DropdownMenuItem>
-                ))}
-              </DropdownMenuContent>
-            </DropdownMenu>
-
-            <Button
-              variant="ghost"
-              size="sm"
-              className={CONTROL_BUTTON_CLASS}
-              onClick={() => markRead.mutate(undefined)}
-              disabled={markRead.isPending || unreadCount === 0}
-            >
-              <CheckCheck className="mr-1.5 h-3.5 w-3.5" />
-              {t("notifications.markAllReadBtn")}
-            </Button>
-
-            <Button
-              variant="ghost"
-              size="sm"
-              className={CONTROL_BUTTON_CLASS}
-              onClick={() => deleteAll.mutate()}
-              disabled={deleteAll.isPending || notifications.length === 0}
-            >
-              <Trash2 className="mr-1.5 h-3.5 w-3.5" />
-              {t("notifications.clearAll")}
-            </Button>
-          </div>
-
           <div className="space-y-2 pr-1 pb-8">
             {listLoading ? (
               <div className="space-y-2">

@@ -139,7 +139,6 @@ export default function ClientVisitorProfilePage() {
         {/* Header: Cover + Avatar + Name + Bio + FollowStats + Follow */}
         <VisitorProfileHeader
           profile={profile}
-          onBack={() => router.back()}
           onImageClick={handleImageClick}
         />
 

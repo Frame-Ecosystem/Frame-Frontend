@@ -4,7 +4,6 @@ import { UserPlus, UserCheck } from "lucide-react"
 import {
   useCheckFollowing,
   useToggleFollow,
-  useFollowCounts,
 } from "@/app/_hooks/queries/useFollows"
 import { useTranslation } from "@/app/_i18n"
 
@@ -23,9 +22,6 @@ export function FollowButton({ targetId, className }: FollowButtonProps) {
   const { t } = useTranslation()
   const { data: isFollowing = false } = useCheckFollowing(targetId)
   const toggleFollow = useToggleFollow(targetId)
-  const { data: counts } = useFollowCounts(targetId)
-
-  const followersCount = counts?.followersCount ?? 0
 
   return (
     <button
@@ -46,9 +42,6 @@ export function FollowButton({ targetId, className }: FollowButtonProps) {
       <span className="text-sm font-medium">
         {isFollowing ? t("follow.following") : t("follow.follow")}
       </span>
-      {followersCount > 0 && (
-        <span className="text-sm font-medium">{followersCount}</span>
-      )}
     </button>
   )
 }
