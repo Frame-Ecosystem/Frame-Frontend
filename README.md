@@ -77,17 +77,17 @@ graph TB
 
 ## Domain Systems
 
-| System              | Directory                       | README                                           | Description                                                                                   |
-| ------------------- | ------------------------------- | ------------------------------------------------ | --------------------------------------------------------------------------------------------- |
-| **Auth**            | `app/_auth/` + `app/_systems/auth/` | [README](app/_systems/auth/README.md)        | JWT authentication, Google OAuth, signup, password reset, phone handling, route guards        |
-| **User**            | `app/_systems/user/`            | [README](app/_systems/user/README.md)            | User types (client/lounge/agent), profiles, follow system, lounge management, settings        |
-| **Feed**            | `app/_systems/feed/`            | [README](app/_systems/feed/README.md)            | Posts, reels, comments, likes, saves, hashtags, content moderation                            |
-| **Bookings**        | `app/_systems/bookings/`        | [README](app/_systems/bookings/README.md)        | Appointment booking, real-time queues, drag-and-drop reordering, walk-in support              |
-| **Service Catalog** | `app/_systems/service-catalog/` | [README](app/_systems/service-catalog/README.md) | Global service hierarchy, lounge-specific offerings, ratings, service suggestions             |
-| **Marketplace**     | `app/_systems/marketplace/`     | [README](app/_systems/marketplace/README.md)     | Stores, products, orders, cart, checkout, reviews, wishlists, product categories              |
-| **Notifications**   | `app/_systems/notifications/`   | [README](app/_systems/notifications/README.md)   | Real-time socket notifications, FCM push, sounds, deep-link navigation, 27 notification types |
-| **Admin**           | `app/_systems/admin/`           | [README](app/_systems/admin/README.md)           | User moderation, content control, reports, system health, activity logs                       |
-| **Chat**            | `app/_systems/chat/`            | _TBD_                                            | Real-time conversations, reactions, typing indicators, attachments                            |
+| System              | Directory                           | README                                           | Description                                                                                   |
+| ------------------- | ----------------------------------- | ------------------------------------------------ | --------------------------------------------------------------------------------------------- |
+| **Auth**            | `app/_auth/` + `app/_systems/auth/` | [README](app/_systems/auth/README.md)            | JWT authentication, Google OAuth, signup, password reset, phone handling, route guards        |
+| **User**            | `app/_systems/user/`                | [README](app/_systems/user/README.md)            | User types (client/lounge/agent), profiles, follow system, lounge management, settings        |
+| **Feed**            | `app/_systems/feed/`                | [README](app/_systems/feed/README.md)            | Posts, reels, comments, likes, saves, hashtags, content moderation                            |
+| **Bookings**        | `app/_systems/bookings/`            | [README](app/_systems/bookings/README.md)        | Appointment booking, real-time queues, drag-and-drop reordering, walk-in support              |
+| **Service Catalog** | `app/_systems/service-catalog/`     | [README](app/_systems/service-catalog/README.md) | Global service hierarchy, lounge-specific offerings, ratings, service suggestions             |
+| **Marketplace**     | `app/_systems/marketplace/`         | [README](app/_systems/marketplace/README.md)     | Stores, products, orders, cart, checkout, reviews, wishlists, product categories              |
+| **Notifications**   | `app/_systems/notifications/`       | [README](app/_systems/notifications/README.md)   | Real-time socket notifications, FCM push, sounds, deep-link navigation, 27 notification types |
+| **Admin**           | `app/_systems/admin/`               | [README](app/_systems/admin/README.md)           | User moderation, content control, reports, system health, activity logs                       |
+| **Chat**            | `app/_systems/chat/`                | _TBD_                                            | Real-time conversations, reactions, typing indicators, attachments                            |
 
 ---
 
@@ -109,7 +109,7 @@ graph TB
 | Animation    | **@lottiefiles/dotlottie-react**                                      |
 | Date         | **date-fns v4**, **react-day-picker v9**                              |
 | Toasts       | **Sonner v2**                                                         |
-| Deployment   | **Vercel** (frontend) + **Render.com** (backend)                     |
+| Deployment   | **Vercel** (frontend) + **Render.com** (backend)                      |
 
 ---
 
@@ -191,7 +191,7 @@ Every domain has code in two places:
 
 ## Authentication System
 
-See [app/_systems/auth/README.md](app/_systems/auth/README.md) for the full authentication reference.
+See [app/\_systems/auth/README.md](app/_systems/auth/README.md) for the full authentication reference.
 
 ### Security Model
 
@@ -205,11 +205,11 @@ See [app/_systems/auth/README.md](app/_systems/auth/README.md) for the full auth
 └─────────────────────────────────────────────────────────┘
 ```
 
-| Token        | Storage                        | Lifetime      | Purpose                  |
-| ------------ | ------------------------------ | ------------- | ------------------------ |
-| Access Token | JavaScript variable (memory)   | 15 min (900s) | API authorization        |
-| Refresh Token| HttpOnly secure cookie         | Server-managed| Silent re-authentication |
-| Session Flag | `localStorage.hasRefreshToken` | Until logout  | Cross-tab sync hint      |
+| Token         | Storage                        | Lifetime       | Purpose                  |
+| ------------- | ------------------------------ | -------------- | ------------------------ |
+| Access Token  | JavaScript variable (memory)   | 15 min (900s)  | API authorization        |
+| Refresh Token | HttpOnly secure cookie         | Server-managed | Silent re-authentication |
+| Session Flag  | `localStorage.hasRefreshToken` | Until logout   | Cross-tab sync hint      |
 
 ### Same-Origin Proxy
 
@@ -252,12 +252,12 @@ Do **not** import from `@/app/_systems/auth` — those files are re-export shims
 
 ### Route Guards
 
-| Guard            | Location                          | Purpose                         |
-| ---------------- | --------------------------------- | ------------------------------- |
-| `AuthGuard`      | `app/_auth/guards/auth-guard.tsx` | Redirects unauthenticated users |
-| `AdminGuard`     | `app/_auth/guards/admin-guard.tsx`| Admin-only page protection      |
-| `AgentGuard`     | `app/_auth/guards/agent-guard.tsx`| Agent-only page protection      |
-| `useRequireAuth` | `app/_auth/hooks/use-require-auth`| Page-level hook guard           |
+| Guard            | Location                           | Purpose                         |
+| ---------------- | ---------------------------------- | ------------------------------- |
+| `AuthGuard`      | `app/_auth/guards/auth-guard.tsx`  | Redirects unauthenticated users |
+| `AdminGuard`     | `app/_auth/guards/admin-guard.tsx` | Admin-only page protection      |
+| `AgentGuard`     | `app/_auth/guards/agent-guard.tsx` | Agent-only page protection      |
+| `useRequireAuth` | `app/_auth/hooks/use-require-auth` | Page-level hook guard           |
 
 ---
 
@@ -269,24 +269,24 @@ The `ApiClient` class is the single HTTP gateway for all REST calls.
 
 ### Key Behaviours
 
-| Feature              | Detail                                                                                      |
-| -------------------- | ------------------------------------------------------------------------------------------- |
-| Base URL             | `""` (same-origin proxy) in browser production; `http://0.0.0.0:2000` rewritten to LAN host in development |
-| Default timeout      | 30 seconds per request                                                                      |
-| Per-request timeout  | `ApiRequestOptions.timeoutMs` override (e.g. signup uses 90 000 ms)                        |
-| Authorization        | `Authorization: <accessToken>` header from memory                                          |
-| CSRF                 | `X-CSRF-Token` header on state-changing requests (POST/PUT/PATCH/DELETE)                   |
-| 401 handling         | Calls `refreshTokenCallback` once; retries the original request with new token             |
-| Auth failure         | Calls `authFailureCallback` (clears auth + reports error) after refresh also fails         |
-| Rate-limit errors    | Parses `retryAfter` from response body and `Retry-After` header; attaches to thrown error  |
-| Debug logging        | Gated behind `isAuthDebugEnabled()` — never logs in production unless explicitly enabled   |
+| Feature             | Detail                                                                                                     |
+| ------------------- | ---------------------------------------------------------------------------------------------------------- |
+| Base URL            | `""` (same-origin proxy) in browser production; `http://0.0.0.0:2000` rewritten to LAN host in development |
+| Default timeout     | 30 seconds per request                                                                                     |
+| Per-request timeout | `ApiRequestOptions.timeoutMs` override (e.g. signup uses 90 000 ms)                                        |
+| Authorization       | `Authorization: <accessToken>` header from memory                                                          |
+| CSRF                | `X-CSRF-Token` header on state-changing requests (POST/PUT/PATCH/DELETE)                                   |
+| 401 handling        | Calls `refreshTokenCallback` once; retries the original request with new token                             |
+| Auth failure        | Calls `authFailureCallback` (clears auth + reports error) after refresh also fails                         |
+| Rate-limit errors   | Parses `retryAfter` from response body and `Retry-After` header; attaches to thrown error                  |
+| Debug logging       | Gated behind `isAuthDebugEnabled()` — never logs in production unless explicitly enabled                   |
 
 ### `ApiRequestOptions`
 
 ```ts
 type ApiRequestOptions = {
-  suppressAuthFailure?: boolean  // Prevent global auth failure handler on this call
-  timeoutMs?: number             // Override the 30s default timeout for this call
+  suppressAuthFailure?: boolean // Prevent global auth failure handler on this call
+  timeoutMs?: number // Override the 30s default timeout for this call
 }
 ```
 
@@ -295,9 +295,9 @@ Methods with options support: `getWithOptions`, `postWithOptions`, `putWithOptio
 ### Exported Constants
 
 ```ts
-export const API_BASE_URL         // Computed base URL for REST and Socket.IO
+export const API_BASE_URL // Computed base URL for REST and Socket.IO
 export const GOOGLE_AUTH_BASE_URL // OAuth-specific base URL
-export const apiClient            // Singleton ApiClient instance
+export const apiClient // Singleton ApiClient instance
 ```
 
 ---
@@ -312,10 +312,10 @@ Central error reporting utility used by `ErrorBoundary`, `AuthProvider`, and any
 reportError(error: unknown, context?: Record<string, unknown>): void
 ```
 
-| Environment | Behaviour                                                                              |
-| ----------- | -------------------------------------------------------------------------------------- |
-| Development | `console.error("[reportError]", payload)`                                              |
-| Production  | `navigator.sendBeacon(NEXT_PUBLIC_ERROR_REPORTING_ENDPOINT, payload)` — never throws  |
+| Environment | Behaviour                                                                            |
+| ----------- | ------------------------------------------------------------------------------------ |
+| Development | `console.error("[reportError]", payload)`                                            |
+| Production  | `navigator.sendBeacon(NEXT_PUBLIC_ERROR_REPORTING_ENDPOINT, payload)` — never throws |
 
 Payload includes: serialized error (name, message, stack), context object, current URL, user agent, and ISO timestamp.
 
@@ -343,6 +343,7 @@ clientDebug(...args: unknown[]): void  // Gated console.debug
 **Suppression logic**: logs are silenced when `NODE_ENV === "production"` unless `NEXT_PUBLIC_ENABLE_CLIENT_LOGS=true`.
 
 **Enable in production temporarily**:
+
 ```js
 // Browser DevTools console
 localStorage.setItem("frame:debugAuth", "true")
@@ -364,13 +365,13 @@ getSocket(): Socket       // Lazy-initialize and return the singleton
 disconnectSocket(): void  // Logout / auth failure cleanup
 ```
 
-| Config                  | Value                                   |
-| ----------------------- | --------------------------------------- |
-| Transport               | WebSocket, falling back to polling      |
-| Reconnection attempts   | 10                                      |
-| Reconnection delay      | 1 s initial, max 10 s                   |
-| Connection timeout      | 20 s                                    |
-| Token delivery          | `auth` callback (never in URL/query)    |
+| Config                | Value                                |
+| --------------------- | ------------------------------------ |
+| Transport             | WebSocket, falling back to polling   |
+| Reconnection attempts | 10                                   |
+| Reconnection delay    | 1 s initial, max 10 s                |
+| Connection timeout    | 20 s                                 |
+| Token delivery        | `auth` callback (never in URL/query) |
 
 The `auth` option reads `apiClient.accessToken` at connection time so reconnects always use the freshest token.
 
@@ -388,9 +389,9 @@ Custom translation engine with no runtime dependencies. 4 supported locales: `en
 
 ```ts
 const { t, locale, setLocale } = useTranslation()
-t("key")                        // Basic lookup
-t("key", { count: 3 })          // Automatic pluralization (key_zero / key_one / key_other)
-t("key", { name: "Alice" })     // Interpolation ({name} tokens)
+t("key") // Basic lookup
+t("key", { count: 3 }) // Automatic pluralization (key_zero / key_one / key_other)
+t("key", { name: "Alice" }) // Interpolation ({name} tokens)
 ```
 
 **Lookup chain**: active locale → English fallback → raw key (visible in dev if key is missing).
@@ -424,20 +425,20 @@ LanguageProvider
 
 ## Shared Hooks — `app/_hooks/`
 
-| Hook                     | Purpose                                                       |
-| ------------------------ | ------------------------------------------------------------- |
-| `useHashtagComposer`     | Hashtag state management for post/reel create & edit dialogs  |
-| `useFrameScroll`         | Scroll position tracking with direction awareness             |
-| `useScrollDirection`     | Detects scroll up/down for header hide/show                   |
-| `useScrollToTarget`      | Smooth scroll to a DOM element ref                            |
-| `useMobileNavVisibility` | Controls bottom navigation bar show/hide on scroll            |
-| `usePullToRefresh`       | Touch-based pull-to-refresh gesture                           |
-| `usePushNotifications`   | FCM permission request and token registration                 |
-| `usePwaInstall`          | Browser PWA install prompt management                         |
-| `useSwipeNavigation`     | Horizontal swipe for back/forward navigation on mobile        |
-| `useSocketRoom`          | Join/leave a Socket.IO room with cleanup on unmount           |
-| `useImageSlider`         | State management for image carousel/slider components         |
-| `useBadge`               | Notification badge counter management                         |
+| Hook                     | Purpose                                                      |
+| ------------------------ | ------------------------------------------------------------ |
+| `useHashtagComposer`     | Hashtag state management for post/reel create & edit dialogs |
+| `useFrameScroll`         | Scroll position tracking with direction awareness            |
+| `useScrollDirection`     | Detects scroll up/down for header hide/show                  |
+| `useScrollToTarget`      | Smooth scroll to a DOM element ref                           |
+| `useMobileNavVisibility` | Controls bottom navigation bar show/hide on scroll           |
+| `usePullToRefresh`       | Touch-based pull-to-refresh gesture                          |
+| `usePushNotifications`   | FCM permission request and token registration                |
+| `usePwaInstall`          | Browser PWA install prompt management                        |
+| `useSwipeNavigation`     | Horizontal swipe for back/forward navigation on mobile       |
+| `useSocketRoom`          | Join/leave a Socket.IO room with cleanup on unmount          |
+| `useImageSlider`         | State management for image carousel/slider components        |
+| `useBadge`               | Notification badge counter management                        |
 
 ---
 
