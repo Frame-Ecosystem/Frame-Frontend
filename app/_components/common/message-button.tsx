@@ -22,7 +22,7 @@ export function MessageButton({ recipientId, className }: MessageButtonProps) {
     <button
       onClick={handleClick}
       disabled={isPending}
-      className={`bg-muted/50 text-muted-foreground hover:bg-muted flex items-center gap-1.5 rounded-full px-2 py-1 transition-colors disabled:pointer-events-none disabled:opacity-50 ${className ?? ""}`}
+      className={`flex items-center gap-1.5 rounded-full bg-blue-500/10 px-2 py-1 text-blue-600 transition-colors hover:bg-blue-500/20 disabled:pointer-events-none disabled:opacity-50 ${className ?? ""}`}
       aria-label="Send message"
     >
       <MessageCircle size={14} />

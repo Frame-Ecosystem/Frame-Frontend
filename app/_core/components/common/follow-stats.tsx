@@ -216,10 +216,12 @@ export function FollowStats({ userId, className }: FollowStatsProps) {
 
   return (
     <>
-      <div className={`flex items-center gap-4 ${className ?? ""}`}>
+      <div
+        className={`flex items-start justify-center gap-5 ${className ?? ""}`}
+      >
         <button
           onClick={() => setDialogMode("followers")}
-          className="hover:text-primary flex cursor-pointer items-center gap-1 transition-colors"
+          className="hover:text-primary flex cursor-pointer flex-col items-center text-center leading-tight transition-colors"
         >
           <span className="text-foreground text-sm font-semibold tabular-nums">
             {formatCount(followersCount)}
@@ -231,11 +233,9 @@ export function FollowStats({ userId, className }: FollowStatsProps) {
           </span>
         </button>
 
-        <span className="text-muted-foreground/40 text-sm">·</span>
-
         <button
           onClick={() => setDialogMode("following")}
-          className="hover:text-primary flex cursor-pointer items-center gap-1 transition-colors"
+          className="hover:text-primary flex cursor-pointer flex-col items-center text-center leading-tight transition-colors"
         >
           <span className="text-foreground text-sm font-semibold tabular-nums">
             {formatCount(followingCount)}

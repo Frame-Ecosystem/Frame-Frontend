@@ -71,7 +71,7 @@ export function VisitorProfileHeader({
 
       {/* Avatar + Name */}
       <div className="relative mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
-        <div className="relative -mt-16 flex items-end gap-4 md:-mt-20">
+        <div className="relative -mt-10 flex items-end gap-4 md:-mt-12">
           <button
             type="button"
             className="shrink-0 cursor-pointer"
@@ -80,7 +80,7 @@ export function VisitorProfileHeader({
             }}
             aria-label="View profile photo"
           >
-            <Avatar className="ring-background h-28 w-28 shadow-xl ring-4 sm:h-36 sm:w-36 md:h-40 md:w-40">
+            <Avatar className="ring-background h-20 w-20 shadow-xl ring-4 sm:h-24 sm:w-24 md:h-28 md:w-28">
               {profileUrl && (
                 <AvatarImage
                   src={profileUrl}

@@ -86,21 +86,22 @@ export function ProfileCover({
 
       <div className="relative w-full">
         {/* Cover Image */}
-        <div className="relative h-[200px] w-full overflow-hidden bg-gradient-to-r from-blue-600/20 via-purple-600/20 to-pink-600/20 md:h-[280px] lg:h-[320px]">
+        <div className="relative w-full overflow-hidden bg-gradient-to-r from-blue-600/20 via-purple-600/20 to-pink-600/20">
           {coverUrl ? (
             <button
               type="button"
-              className="relative h-full w-full cursor-pointer"
+              className="relative block w-full cursor-pointer"
               onClick={() => openLightbox(coverUrl, "Cover photo")}
               aria-label={t("cover.viewCover")}
             >
               <Image
                 src={coverUrl}
                 alt="Cover"
-                fill
-                sizes="100vw"
+                width={1600}
+                height={500}
+                sizes="(max-width: 1024px) 100vw, 1600px"
                 quality={80}
-                className="object-cover"
+                className="block h-auto w-full object-contain"
                 priority
               />
             </button>
@@ -144,7 +145,7 @@ export function ProfileCover({
 
         {/* Profile Image — overlapping the cover */}
         <div className="relative mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
-          <div className="relative -mt-16 flex items-end gap-4 sm:-mt-20">
+          <div className="relative -mt-10 flex items-end gap-4 sm:-mt-12">
             {/* Avatar with ring */}
             <div className="relative shrink-0">
               {/* Clickable avatar for fullscreen preview */}
@@ -161,7 +162,7 @@ export function ProfileCover({
                 }}
                 aria-label={t("cover.viewProfile")}
               >
-                <Avatar className="ring-background h-28 w-28 shadow-xl ring-4 sm:h-36 sm:w-36 md:h-40 md:w-40">
+                <Avatar className="ring-background h-20 w-20 shadow-xl ring-4 sm:h-24 sm:w-24 md:h-28 md:w-28">
                   {profileUrl && (
                     <AvatarImage
                       src={profileUrl}
