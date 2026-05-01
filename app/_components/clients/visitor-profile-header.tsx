@@ -49,7 +49,7 @@ export function VisitorProfileHeader({
             />
           </button>
         ) : (
-          <div className="from-primary/15 via-primary/5 absolute inset-0 bg-gradient-to-br to-transparent" />
+          <div className="from-primary/15 via-primary/5 block h-28 w-full bg-gradient-to-br to-transparent sm:h-32 md:h-36" />
         )}
         <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
       </div>

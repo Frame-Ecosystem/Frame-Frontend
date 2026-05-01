@@ -216,11 +216,11 @@ export function MessageBubble({
     return (
       <div
         className={cn(
-          "flex items-end gap-2 px-4 py-0.5",
-          isSent && "flex-row-reverse",
+          "flex w-full items-end px-4 py-0.5",
+          isSent ? "justify-end" : "justify-start",
         )}
       >
-        {!isSent && <div className="h-8 w-8 shrink-0" />}
+        {!isSent && <div className="mr-2 h-8 w-8 shrink-0" />}
         <p className="text-muted-foreground rounded-2xl border border-dashed px-4 py-2 text-sm italic">
           This message was recalled
         </p>
@@ -231,8 +231,8 @@ export function MessageBubble({
   return (
     <div
       className={cn(
-        "group flex items-end gap-2 px-4 py-0.5",
-        isSent && "flex-row-reverse",
+        "group flex w-full items-end px-4 py-0.5",
+        isSent ? "justify-end" : "justify-start",
       )}
       onMouseEnter={() => setShowActions(true)}
       onMouseLeave={() => {
@@ -243,7 +243,7 @@ export function MessageBubble({
       onTouchEnd={handleTouchEnd}
     >
       {/* Avatar slot */}
-      <div className="h-8 w-8 shrink-0">
+      <div className={cn("h-8 w-8 shrink-0", isSent ? "hidden" : "mr-2")}>
         {!isSent && showAvatar && (
           <ChatAvatar src={avatarSrc} name={senderName} size="sm" />
         )}
@@ -252,7 +252,7 @@ export function MessageBubble({
       <div
         className={cn(
           "flex max-w-[75%] flex-col gap-0.5",
-          isSent && "items-end",
+          isSent ? "ml-auto items-end" : "mr-auto items-start",
         )}
       >
         {showPicker && (

@@ -32,7 +32,7 @@ export function ChatWindow({
   onDeleteConversation,
   onBack,
 }: ChatWindowProps) {
-  const { user } = useAuth()
+  const { user, isLoading: authLoading } = useAuth()
   const currentUserId = user?._id ?? ""
 
   // ── Server state ───────────────────────────────────────────
@@ -182,7 +182,7 @@ export function ChatWindow({
 
   // ── Loading / error state ──────────────────────────────────
 
-  if (convLoading || msgsLoading) return <ChatWindowSkeleton />
+  if (authLoading || convLoading || msgsLoading) return <ChatWindowSkeleton />
 
   if (convError || msgsError) {
     return (
@@ -198,7 +198,7 @@ export function ChatWindow({
   if (!conversation) return null
 
   return (
-    <div className="flex h-full flex-col overflow-hidden">
+    <div className="relative flex h-full flex-col overflow-hidden pt-[calc(var(--header-offset)+3.5rem)] pb-[var(--mobile-nav-height)] lg:pt-0 lg:pb-0">
       {/* Header */}
       <ChatHeader
         conversation={conversation}

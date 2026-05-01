@@ -183,7 +183,7 @@ export function MessageInput({
   }
 
   return (
-    <div className="border-border/60 bg-background border-t px-4 pb-4">
+    <div className="border-border/60 bg-background fixed inset-x-0 bottom-[var(--mobile-nav-height)] z-30 min-h-16 border-t px-4 pt-2 pb-[calc(env(safe-area-inset-bottom)+0.5rem)] lg:static lg:bottom-auto lg:z-auto lg:min-h-0">
       {/* Edit bar */}
       {editingMessage && (
         <div className="flex items-center justify-between py-2">

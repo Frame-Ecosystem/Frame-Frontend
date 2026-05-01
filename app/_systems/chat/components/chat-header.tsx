@@ -42,7 +42,7 @@ export function ChatHeader({
       : (other?.profileImage as any)?.url
 
   return (
-    <header className="border-border/60 bg-background/80 border-b backdrop-blur-sm">
+    <header className="border-border/60 bg-background/90 fixed inset-x-0 top-[var(--header-offset)] z-30 border-b backdrop-blur-sm lg:static lg:top-auto lg:z-auto">
       <div className="flex h-14 items-center gap-3 px-4">
         {/* Back */}
         <ChatIconBtn
