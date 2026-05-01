@@ -1,4 +1,4 @@
-import { GOOGLE_AUTH_BASE_URL, apiClient } from "../../_services/api"
+import { apiClient } from "../../_services/api"
 import { authService } from "../auth.service"
 import { setSessionCsrfToken } from "./csrf"
 
@@ -65,13 +65,13 @@ async function fetchCsrfToken(origin: string) {
 
 async function tryRefreshToken() {
   try {
-    const csrfToken = await fetchCsrfToken(GOOGLE_AUTH_BASE_URL)
+    const csrfToken = await fetchCsrfToken(window.location.origin)
     const headers: Record<string, string> = {
       "Content-Type": "application/json",
     }
     if (csrfToken) headers["x-csrf-token"] = csrfToken
 
-    const res = await fetch(`${GOOGLE_AUTH_BASE_URL}/v1/auth/refresh-token`, {
+    const res = await fetch(`/v1/auth/refresh-token`, {
       method: "POST",
       credentials: "include",
       headers,
@@ -118,7 +118,7 @@ export async function openGoogleOAuthPopup({
 }: PopupOptions = {}): Promise<GoogleAuthResult> {
   if (typeof window === "undefined") throw new Error("Not in a browser")
 
-  const targetUrl = url ?? `${GOOGLE_AUTH_BASE_URL}/v1/auth/google/login`
+  const targetUrl = url ?? `/v1/auth/google/login`
   const popup = openCenteredPopup(targetUrl, "google_oauth", 520, 600)
   if (!popup)
     throw new Error("Popup blocked. Please allow popups and try again.")

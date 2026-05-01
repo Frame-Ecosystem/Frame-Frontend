@@ -1693,6 +1693,110 @@ const fr: Record<string, string> = {
   "pwa.install.installing": "Installation…",
   "pwa.install.notNow": "Pas maintenant",
   "pwa.install.gotIt": "Compris",
+
+  // ── Agents: extended keys ───────────────────────────────────────────────
+  "agents.heading": "Agents",
+  "agents.subtitleAdmin": "Gérer tous les agents",
+  "agents.subtitleOwner": "Gérer vos agents",
+  "agents.delete": "Supprimer",
+  "agents.edit": "Modifier",
+  "agents.block": "Bloquer",
+  "agents.unblock": "Débloquer",
+  "agents.deleteTitle": "Supprimer l'agent",
+  "agents.bulkBlockTitle": "Bloquer les agents",
+  "agents.bulkUnblockTitle": "Débloquer les agents",
+  "agents.bulkDeleteTitle": "Supprimer les agents",
+  "agents.bulkBlockConfirm":
+    "Confirmer le blocage de {count} agent(s) sélectionné(s) ?",
+  "agents.bulkUnblockConfirm":
+    "Confirmer le déblocage de {count} agent(s) sélectionné(s) ?",
+  "agents.bulkDeleteConfirm":
+    "Confirmer la suppression de {count} agent(s) sélectionné(s) ? Cette action est irréversible.",
+  "agents.showingOf": "Affichage de {count} sur {total} agents",
+  "agents.pageOf": "Page {page} sur {totalPages}",
+  "agents.deleteError": "Échec de la suppression de l'agent",
+  "agents.agentNotFound": "Agent introuvable",
+  "agents.deleteContactSupport":
+    "Impossible de supprimer. Veuillez contacter le support.",
+  "agents.headerAcceptBookings": "Accepter les réservations",
+  "agents.acceptingBookings": "Oui",
+  "agents.notAcceptingBookings": "Non",
+  "agents.details.unnamedAgent": "Agent sans nom",
+  "agents.details.blocked": "Bloqué",
+  "agents.details.active": "Actif",
+  "agents.details.close": "Fermer",
+
+  // ── Agents form: extended keys ───────────────────────────────────────────
+  "agents.form.agentNameExists":
+    "Un agent avec ce nom existe déjà. Veuillez choisir un autre nom.",
+  "agents.form.saveError": "Échec de l'enregistrement de l'agent",
+  "agents.form.selectImagePlaceholder": "Sélectionner l'image de l'agent",
+  "agents.form.supportedFormats":
+    "Formats supportés : JPEG, PNG, GIF, WebP. Taille max : 5 Mo",
+  "agents.form.email": "E-mail",
+  "agents.form.phoneNumber": "Numéro de téléphone",
+  "agents.form.agentNamePlaceholder": "Saisir le nom de l'agent",
+  "agents.form.agentNameAvailable": "Ce nom d'agent est disponible",
+  "agents.form.leaveEmpty":
+    "(laisser vide pour conserver le mot de passe actuel)",
+  "agents.form.newPasswordPlaceholder": "Saisir le nouveau mot de passe",
+  "agents.form.choosePlaceholder": "Choisir un salon",
+  "agents.form.unnamedLounge": "Salon sans nom",
+  "agents.form.blockDescription":
+    "Bloquer cet agent pour l'empêcher de se connecter",
+  "agents.form.saving": "Enregistrement...",
+  "agents.form.saveBtn": "Enregistrer les modifications",
+  "agents.form.createBtn": "Créer l'agent",
+
+  // ── Common: extended keys ────────────────────────────────────────────────
+  "common.success": "Succès",
+  "common.tryAgain": "Réessayer",
+
+  // ── Service Management: UI labels ─────────────────────────────────────────
+  "serviceMgmt.backToSettings": "Retour aux paramètres du salon",
+  "serviceMgmt.title": "Gestion des services du salon",
+  "serviceMgmt.subtitle": "Gérer les services de ce salon",
+  "serviceMgmt.servicesTitle": "Services",
+  "serviceMgmt.addService": "Ajouter un service",
+  "serviceMgmt.editTitle": "Modifier le service",
+  "serviceMgmt.addTitle": "Ajouter un nouveau service",
+  "serviceMgmt.chooseService": "Choisir un service global existant",
+  "serviceMgmt.selectService": "Sélectionner un service global",
+  "serviceMgmt.description": "Description",
+  "serviceMgmt.serviceImage": "Image du service",
+  "serviceMgmt.currentImage": "Image actuelle",
+  "serviceMgmt.imageHint":
+    "Sélectionner un fichier image (max 5 Mo, JPG, PNG, GIF, WebP)",
+  "serviceMgmt.price": "Prix (dt)",
+  "serviceMgmt.duration": "Durée (minutes)",
+  "serviceMgmt.gender": "Genre cible",
+  "serviceMgmt.noTarget": "Sans cible",
+  "serviceMgmt.status": "Statut",
+  "serviceMgmt.statusActive": "Actif",
+  "serviceMgmt.statusInactive": "Inactif",
+  "serviceMgmt.statusCancelled": "Annulé",
+  "serviceMgmt.cancelledBy": "Annulé par",
+  "serviceMgmt.cancelledByPlaceholder": "Qui a annulé ce service ?",
+  "serviceMgmt.cancelledByLabel": "Annulé par :",
+  "serviceMgmt.update": "Mettre à jour",
+  "serviceMgmt.create": "Créer",
+  "serviceMgmt.notFound": "Vous ne trouvez pas le service ?",
+  "serviceMgmt.colService": "Service",
+  "serviceMgmt.colDescription": "Description",
+  "serviceMgmt.colPrice": "Prix",
+  "serviceMgmt.colDuration": "Durée",
+  "serviceMgmt.colGender": "Genre",
+  "serviceMgmt.colAgents": "Agents",
+  "serviceMgmt.colStatus": "Statut",
+  "serviceMgmt.colActions": "Actions",
+  "serviceMgmt.noAgents": "Aucun agent",
+  "serviceMgmt.loadingServices": "Chargement des services...",
+  "serviceMgmt.noServices":
+    "Aucun service trouvé. Créez votre premier service pour commencer.",
+  "serviceMgmt.deleteTitle": "Supprimer le service",
+  "serviceMgmt.deleteDesc":
+    "Êtes-vous sûr de vouloir supprimer ce service ? Cette action est irréversible et supprimera le service de votre salon.",
+  "serviceMgmt.deleteBtn": "Supprimer le service",
 }
 
 export default fr

@@ -143,7 +143,7 @@ export function OpeningHoursSelector() {
           </span>
         </div>
       </DialogTrigger>
-      <DialogContent className="max-h-[80vh] overflow-y-auto sm:max-w-[500px]">
+      <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
           <DialogTitle>{t("openingHours.title")}</DialogTitle>
         </DialogHeader>

@@ -1660,6 +1660,109 @@ const tr: Record<string, string> = {
   "pwa.install.installing": "Yükleniyor…",
   "pwa.install.notNow": "Şimdi değil",
   "pwa.install.gotIt": "Anladım",
+
+  // ── Agents: extended keys ───────────────────────────────────────────────
+  "agents.heading": "Çalışanlar",
+  "agents.subtitleAdmin": "Tüm çalışanları yönet",
+  "agents.subtitleOwner": "Çalışanlarınızı yönetin",
+  "agents.delete": "Sil",
+  "agents.edit": "Düzenle",
+  "agents.block": "Engelle",
+  "agents.unblock": "Engeli kaldır",
+  "agents.deleteTitle": "Çalışanı sil",
+  "agents.bulkBlockTitle": "Çalışanları engelle",
+  "agents.bulkUnblockTitle": "Çalışanların engelini kaldır",
+  "agents.bulkDeleteTitle": "Çalışanları sil",
+  "agents.bulkBlockConfirm":
+    "{count} seçili çalışanı engellemek istediğinizden emin misiniz?",
+  "agents.bulkUnblockConfirm":
+    "{count} seçili çalışanın engelini kaldırmak istediğinizden emin misiniz?",
+  "agents.bulkDeleteConfirm":
+    "{count} seçili çalışanı silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.",
+  "agents.showingOf": "{total} çalışandan {count} gösteriliyor",
+  "agents.pageOf": "{totalPages} sayfanın {page}. sayfası",
+  "agents.deleteError": "Çalışan silinirken hata oluştu",
+  "agents.agentNotFound": "Çalışan bulunamadı",
+  "agents.deleteContactSupport":
+    "Silinemedi. Lütfen destek ekibiyle iletişime geçin.",
+  "agents.headerAcceptBookings": "Randevu kabul et",
+  "agents.acceptingBookings": "Açık",
+  "agents.notAcceptingBookings": "Kapalı",
+  "agents.details.unnamedAgent": "İsimsiz çalışan",
+  "agents.details.blocked": "Engellendi",
+  "agents.details.active": "Aktif",
+  "agents.details.close": "Kapat",
+
+  // ── Agents form: extended keys ───────────────────────────────────────────
+  "agents.form.agentNameExists":
+    "Bu isimde bir çalışan zaten var. Lütfen farklı bir isim seçin.",
+  "agents.form.saveError": "Çalışan kaydedilemedi",
+  "agents.form.selectImagePlaceholder": "Çalışan fotoğrafı seç",
+  "agents.form.supportedFormats":
+    "Desteklenen formatlar: JPEG, PNG, GIF, WebP. Maks. boyut: 5 MB",
+  "agents.form.email": "E-posta",
+  "agents.form.phoneNumber": "Telefon numarası",
+  "agents.form.agentNamePlaceholder": "Çalışan adını girin",
+  "agents.form.agentNameAvailable": "Bu çalışan adı kullanılabilir",
+  "agents.form.leaveEmpty": "(mevcut şifreyi korumak için boş bırakın)",
+  "agents.form.newPasswordPlaceholder": "Yeni şifreyi girin",
+  "agents.form.choosePlaceholder": "Salon seçin",
+  "agents.form.unnamedLounge": "İsimsiz salon",
+  "agents.form.blockDescription":
+    "Bu çalışanı giriş yapmasını engellemek için bloke edin",
+  "agents.form.saving": "Kaydediliyor...",
+  "agents.form.saveBtn": "Değişiklikleri kaydet",
+  "agents.form.createBtn": "Çalışan oluştur",
+
+  // ── Common: extended keys ────────────────────────────────────────────────
+  "common.success": "Başarılı",
+  "common.tryAgain": "Tekrar dene",
+
+  // ── Service Management: UI labels ─────────────────────────────────────────
+  "serviceMgmt.backToSettings": "Salon ayarlarına dön",
+  "serviceMgmt.title": "Salon Hizmet Yönetimi",
+  "serviceMgmt.subtitle": "Bu salondaki hizmetleri yönetin",
+  "serviceMgmt.servicesTitle": "Hizmetler",
+  "serviceMgmt.addService": "Hizmet ekle",
+  "serviceMgmt.editTitle": "Hizmeti düzenle",
+  "serviceMgmt.addTitle": "Yeni hizmet ekle",
+  "serviceMgmt.chooseService": "Mevcut genel hizmet seç",
+  "serviceMgmt.selectService": "Genel hizmet seçin",
+  "serviceMgmt.description": "Açıklama",
+  "serviceMgmt.serviceImage": "Hizmet görseli",
+  "serviceMgmt.currentImage": "Mevcut görsel",
+  "serviceMgmt.imageHint":
+    "Görsel dosyası seçin (maks 5 MB, JPG, PNG, GIF, WebP)",
+  "serviceMgmt.price": "Fiyat (dt)",
+  "serviceMgmt.duration": "Süre (dakika)",
+  "serviceMgmt.gender": "Hedef kitle",
+  "serviceMgmt.noTarget": "Hedef yok",
+  "serviceMgmt.status": "Durum",
+  "serviceMgmt.statusActive": "Aktif",
+  "serviceMgmt.statusInactive": "Pasif",
+  "serviceMgmt.statusCancelled": "İptal edildi",
+  "serviceMgmt.cancelledBy": "İptal eden",
+  "serviceMgmt.cancelledByPlaceholder": "Bu hizmeti kim iptal etti?",
+  "serviceMgmt.cancelledByLabel": "İptal eden:",
+  "serviceMgmt.update": "Güncelle",
+  "serviceMgmt.create": "Oluştur",
+  "serviceMgmt.notFound": "Hizmet bulunamadı mı?",
+  "serviceMgmt.colService": "Hizmet",
+  "serviceMgmt.colDescription": "Açıklama",
+  "serviceMgmt.colPrice": "Fiyat",
+  "serviceMgmt.colDuration": "Süre",
+  "serviceMgmt.colGender": "Cinsiyet",
+  "serviceMgmt.colAgents": "Çalışanlar",
+  "serviceMgmt.colStatus": "Durum",
+  "serviceMgmt.colActions": "İşlemler",
+  "serviceMgmt.noAgents": "Çalışan yok",
+  "serviceMgmt.loadingServices": "Hizmetler yükleniyor...",
+  "serviceMgmt.noServices":
+    "Hizmet bulunamadı. Başlamak için ilk hizmetinizi oluşturun.",
+  "serviceMgmt.deleteTitle": "Hizmeti sil",
+  "serviceMgmt.deleteDesc":
+    "Bu hizmeti silmek istediğinizden emin misiniz? Bu işlem geri alınamaz ve hizmet salonunuzdan kaldırılacaktır.",
+  "serviceMgmt.deleteBtn": "Hizmeti sil",
 }
 
 export default tr

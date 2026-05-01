@@ -129,22 +129,6 @@ export default function LoungeServiceManagementPage() {
       const data = await loungeService.getAll()
       const svcList = Array.isArray(data) ? data : []
       setServices(svcList)
-
-      const names: Record<string, string> = {}
-      for (const service of svcList) {
-        const serviceIdObj = (service as any).serviceId
-        const serviceId =
-          typeof serviceIdObj === "object" ? serviceIdObj?._id : serviceIdObj
-        if (serviceId) {
-          try {
-            const name = await loungeService.getServiceName(serviceId)
-            names[serviceId] = name
-          } catch {
-            names[serviceId] = "Unknown Service"
-          }
-        }
-      }
-      setServiceNames(names)
     } catch (error) {
       if (isAuthError(error)) return
       console.error("Failed to load lounge services:", error)
@@ -158,6 +142,24 @@ export default function LoungeServiceManagementPage() {
     void loadServices()
     void loadGlobalServices()
   }, [loadGlobalServices, loadServices])
+
+  // Derive service names from already-loaded global services
+  useEffect(() => {
+    if (!globalServices.length || !services.length) return
+    const names: Record<string, string> = {}
+    for (const svc of services) {
+      const serviceIdObj = (svc as any).serviceId
+      const serviceId =
+        typeof serviceIdObj === "object" ? serviceIdObj?._id : serviceIdObj
+      if (serviceId) {
+        const global = globalServices.find(
+          (g) => (g as any)._id === serviceId || g.id === serviceId,
+        )
+        names[serviceId] = global?.name || "Unknown Service"
+      }
+    }
+    setServiceNames(names)
+  }, [globalServices, services])
 
   // Load agents when user becomes available
   useEffect(() => {
@@ -314,19 +316,17 @@ export default function LoungeServiceManagementPage() {
             className="mb-4"
           >
             <ArrowLeft className="mr-2 h-4 w-4" />
-            Back to Lounge Settings
+            {t("serviceMgmt.backToSettings")}
           </Button>
           <h1 className="mb-2 text-3xl font-bold lg:text-4xl" dir={dir}>
-            Lounge Service Management
+            {t("serviceMgmt.title")}
           </h1>
-          <p className="text-muted-foreground">
-            Manage services for this lounge
-          </p>
+          <p className="text-muted-foreground">{t("serviceMgmt.subtitle")}</p>
         </div>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between">
-            <CardTitle>Services</CardTitle>
+            <CardTitle>{t("serviceMgmt.servicesTitle")}</CardTitle>
             <ServiceFormDialog
               dialogOpen={dialogOpen}
               setDialogOpen={setDialogOpen}

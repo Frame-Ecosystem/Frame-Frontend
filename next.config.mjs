@@ -33,5 +33,16 @@ const nextConfig = {
   // matching per domain segment. `*.*.*.*` effectively allows any IPv4 host.
   // Keep this dev-only.
   allowedDevOrigins: ["*.*.*.*"],
+  async rewrites() {
+    const apiBase = process.env.NEXT_PUBLIC_API_URL?.replace(/\/+$/, "")
+    if (!apiBase) return []
+
+    return [
+      {
+        source: "/v1/:path*",
+        destination: `${apiBase}/v1/:path*`,
+      },
+    ]
+  },
 }
 export default nextConfig
