@@ -11,6 +11,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "../../_components/ui/alert-dialog"
+import { useTranslation } from "@/app/_i18n"
 
 interface ConfirmDialogProps {
   open: boolean
@@ -31,6 +32,7 @@ export function ConfirmDialog({
   variant = "default",
   onConfirm,
 }: ConfirmDialogProps) {
+  const { t } = useTranslation()
   const [loading, setLoading] = useState(false)
 
   const handleConfirm = async () => {
@@ -51,7 +53,9 @@ export function ConfirmDialog({
           <AlertDialogDescription>{description}</AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel disabled={loading}>Cancel</AlertDialogCancel>
+          <AlertDialogCancel disabled={loading}>
+            {t("common.cancel")}
+          </AlertDialogCancel>
           <AlertDialogAction
             onClick={handleConfirm}
             disabled={loading}
@@ -61,7 +65,7 @@ export function ConfirmDialog({
                 : undefined
             }
           >
-            {loading ? "Processing..." : confirmLabel}
+            {loading ? t("common.loading") : confirmLabel}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

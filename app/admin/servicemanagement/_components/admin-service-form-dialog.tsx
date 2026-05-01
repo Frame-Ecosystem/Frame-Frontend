@@ -13,6 +13,7 @@ import {
 } from "../../../_components/ui/dialog"
 import { Plus } from "lucide-react"
 import type { Service, ServiceCategory } from "../../../_types"
+import { useTranslation } from "@/app/_i18n"
 
 interface AdminServiceFormDialogProps {
   open: boolean
@@ -41,23 +42,27 @@ export function AdminServiceFormDialog({
   isSubmitting,
   categories,
 }: AdminServiceFormDialogProps) {
+  const { t } = useTranslation()
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogTrigger asChild>
         <Button variant="default" onClick={onOpenCreate}>
           <Plus className="mr-2 h-4 w-4" />
-          Add Service
+          {t("admin.services.addService")}
         </Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>
-            {editingService ? "Edit Service" : "Add New Service"}
+            {editingService
+              ? t("admin.services.editService")
+              : t("admin.services.addService")}
           </DialogTitle>
         </DialogHeader>
         <form onSubmit={onSubmit} className="space-y-4">
           <div>
-            <Label htmlFor="name">Name *</Label>
+            <Label htmlFor="name">{t("common.name")} *</Label>
             <Input
               id="name"
               value={formData.name}
@@ -69,7 +74,9 @@ export function AdminServiceFormDialog({
             />
           </div>
           <div>
-            <Label htmlFor="categoryId">Category *</Label>
+            <Label htmlFor="categoryId">
+              {t("admin.services.headerCategory")} *
+            </Label>
             <select
               id="categoryId"
               value={formData.categoryId}
@@ -80,7 +87,7 @@ export function AdminServiceFormDialog({
               required
               className="border-input bg-background ring-offset-background placeholder:text-muted-foreground focus-visible:ring-ring flex h-10 w-full rounded-md border px-3 py-2 text-sm focus-visible:ring-2 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50"
             >
-              <option value="">Select a category</option>
+              <option value="">{t("admin.services.selectCategory")}</option>
               {categories.map((category) => (
                 <option
                   key={(category as any)._id}
@@ -92,7 +99,7 @@ export function AdminServiceFormDialog({
             </select>
           </div>
           <div>
-            <Label htmlFor="description">Description *</Label>
+            <Label htmlFor="description">{t("common.description")} *</Label>
             <Textarea
               id="description"
               value={formData.description}
@@ -110,14 +117,14 @@ export function AdminServiceFormDialog({
               onClick={() => onOpenChange(false)}
               disabled={isSubmitting}
             >
-              Cancel
+              {t("common.cancel")}
             </Button>
             <Button type="submit" disabled={isSubmitting} variant="success">
               {isSubmitting
-                ? "Saving..."
+                ? t("admin.services.saving")
                 : editingService
-                  ? "Update"
-                  : "Create"}
+                  ? t("common.save")
+                  : t("admin.services.create")}
             </Button>
           </div>
         </form>
