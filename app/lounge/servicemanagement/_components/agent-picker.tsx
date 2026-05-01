@@ -25,12 +25,6 @@ export function AgentPicker({
   selectedIds,
   onChange,
 }: AgentPickerProps) {
-  console.log(
-    "[AgentPicker] agents:",
-    agents.map((a) => a._id),
-    "selectedIds:",
-    selectedIds,
-  )
   if (agents.length === 0) {
     return (
       <div className="space-y-2">

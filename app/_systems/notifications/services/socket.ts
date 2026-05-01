@@ -6,6 +6,7 @@
 
 import { io, Socket } from "socket.io-client"
 import { API_BASE_URL, apiClient } from "@/app/_core/api/api"
+import { clientDebug } from "@/app/_lib/client-logger"
 
 let socket: Socket | null = null
 
@@ -31,11 +32,11 @@ export function getSocket(): Socket {
     })
 
     socket.on("connect", () => {
-      console.log("[socket] connected:", socket?.id)
+      clientDebug("[socket] connected:", socket?.id)
     })
 
     socket.on("disconnect", (reason) => {
-      console.log("[socket] disconnected:", reason)
+      clientDebug("[socket] disconnected:", reason)
     })
 
     socket.on("connect_error", (err) => {

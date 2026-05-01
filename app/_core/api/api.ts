@@ -4,6 +4,7 @@ import {
   isStateChanging,
   setSessionCsrfToken,
 } from "@/app/_auth"
+import { clientDebug } from "@/app/_lib/client-logger"
 
 const LOCAL_API_FALLBACK = "http://0.0.0.0:2000"
 const isProduction = process.env.NODE_ENV === "production"
@@ -251,7 +252,7 @@ class ApiClient {
           try {
             // Mask token for safety
             const masked = token ? `${String(token).slice(0, 8)}...` : null
-            console.debug("[apiClient] FETCH", { url, method, masked })
+            clientDebug("[apiClient] FETCH", { url, method, masked })
           } catch {}
         }
       } catch {}

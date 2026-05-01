@@ -9,28 +9,13 @@ export function canAgentPerformAllServices(
 ): boolean {
   if (!services.length) return true
   if (!agent.idLoungeService || agent.idLoungeService.length === 0) {
-    console.log(
-      `[canAgentPerformAllServices] Agent ${agent.agentName} has no services:`,
-      agent.idLoungeService,
-    )
     return false
   }
 
   const result = services.every((service) => {
     const canPerform = agent.idLoungeService!.includes(service.id)
-    if (!canPerform) {
-      console.log(
-        `[canAgentPerformAllServices] Agent ${agent.agentName} cannot perform service ${service.name} (${service.id})`,
-      )
-      console.log(`Agent services:`, agent.idLoungeService)
-    }
     return canPerform
   })
-
-  console.log(
-    `[canAgentPerformAllServices] Agent ${agent.agentName} can perform all services:`,
-    result,
-  )
   return result
 }
 
