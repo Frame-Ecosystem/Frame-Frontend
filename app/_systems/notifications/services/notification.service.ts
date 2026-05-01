@@ -1,4 +1,4 @@
-﻿import { apiClient } from "@/app/_core/api/api"
+﻿import { apiClient, isAuthError } from "@/app/_core/api/api"
 import type {
   NotificationsResponse,
   UnreadCountResponse,
@@ -18,10 +18,6 @@ const EMPTY_PAGE = (page: number, limit: number): NotificationsResponse => ({
 })
 
 const EMPTY_UNREAD: UnreadCountData = { total: 0, byCategory: {} }
-
-function isAuthError(error: unknown): boolean {
-  return (error as Error)?.message === "AUTH_FAILURE"
-}
 
 class NotificationService {
   async getAll(

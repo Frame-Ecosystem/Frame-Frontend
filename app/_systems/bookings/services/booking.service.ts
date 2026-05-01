@@ -1,4 +1,5 @@
 ﻿import { apiClient, isAuthError } from "@/app/_core/api/api"
+import { clientLog } from "@/app/_lib/client-logger"
 import type {
   Booking,
   CreateBookingInput,
@@ -56,35 +57,17 @@ class BookingService {
   // Helper: Process client data for a booking
   private processBookingClient(booking: any): any {
     if (!booking.clientId) return undefined
-
-    try {
-      // If clientId is an object, try to transform it
-      if (typeof booking.clientId === "object") {
-        return this.transformUser(booking.clientId)
-      }
-
-      return undefined
-    } catch (error) {
-      console.error("Failed to process booking client:", error)
-      return undefined
-    }
+    if (typeof booking.clientId === "object")
+      return this.transformUser(booking.clientId)
+    return undefined
   }
 
   // Helper: Process lounge data for a booking
   private processBookingLounge(booking: any): any {
     if (!booking.loungeId) return undefined
-
-    try {
-      // If loungeId is an object, try to transform it
-      if (typeof booking.loungeId === "object") {
-        return this.transformUser(booking.loungeId)
-      }
-
-      return undefined
-    } catch (error) {
-      console.error("Failed to process booking lounge:", error)
-      return undefined
-    }
+    if (typeof booking.loungeId === "object")
+      return this.transformUser(booking.loungeId)
+    return undefined
   }
 
   // Helper: Process agent data for a booking (supports both single and multiple agents)
@@ -102,7 +85,10 @@ class BookingService {
               try {
                 return await agentService.getAgentById(agentData)
               } catch (error) {
-                console.warn(`Failed to fetch agent ${agentData}:`, error)
+                clientLog(
+                  `[BookingService] Failed to fetch agent ${agentData}:`,
+                  error,
+                )
                 return null
               }
             }
@@ -125,7 +111,10 @@ class BookingService {
                 const agent = await agentService.getAgentById(agentId)
                 if (agent) agents.push(agent)
               } catch (error) {
-                console.warn(`Failed to fetch agent ${agentId}:`, error)
+                clientLog(
+                  `[BookingService] Failed to fetch agent ${agentId}:`,
+                  error,
+                )
               }
             }
           }
@@ -134,15 +123,31 @@ class BookingService {
             const agent = await agentService.getAgentById(booking.agentId)
             if (agent) agents.push(agent)
           } catch (error) {
-            console.warn(`Failed to fetch agent ${booking.agentId}:`, error)
+            clientLog(
+              `[BookingService] Failed to fetch agent ${booking.agentId}:`,
+              error,
+            )
           }
         }
       }
     } catch (error) {
-      console.warn(`Failed to process agents for booking:`, error)
+      clientLog("[BookingService] Failed to process agents for booking:", error)
     }
 
     return agents
+  }
+
+  // Helper: Map a raw booking object to a Booking with resolved agents/client/lounge
+  private async mapBooking(booking: any): Promise<Booking> {
+    return {
+      ...booking,
+      _id: booking._id,
+      loungeServiceIds: booking.loungeServiceIds || [],
+      loungeService: booking.loungeService || [],
+      agents: await this.processBookingAgents(booking),
+      client: this.processBookingClient(booking),
+      lounge: this.processBookingLounge(booking),
+    } as Booking
   }
 
   // Create a new booking
@@ -160,23 +165,10 @@ class BookingService {
         "bookings",
         "items",
       ])
-
-      const mapped = await Promise.all(
-        bookings.map(async (booking) => ({
-          ...booking,
-          _id: booking._id,
-          loungeServiceIds: booking.loungeServiceIds || [],
-          loungeService: booking.loungeService || [],
-          agents: await this.processBookingAgents(booking),
-          client: this.processBookingClient(booking),
-          lounge: this.processBookingLounge(booking),
-        })),
-      )
-
-      return mapped as Booking[]
+      return Promise.all(bookings.map((b) => this.mapBooking(b)))
     } catch (error) {
-      if (isAuthError(error)) throw error // let the caller handle auth failures
-      console.error("Failed to fetch bookings:", error)
+      if (isAuthError(error)) throw error
+      clientLog("[BookingService] Failed to fetch bookings:", error)
       return []
     }
   }
@@ -190,23 +182,10 @@ class BookingService {
         "bookings",
         "items",
       ])
-
-      const mapped = await Promise.all(
-        bookings.map(async (booking) => ({
-          ...booking,
-          _id: booking._id,
-          loungeServiceIds: booking.loungeServiceIds || [],
-          loungeService: booking.loungeService || [],
-          agents: await this.processBookingAgents(booking),
-          client: this.processBookingClient(booking),
-          lounge: this.processBookingLounge(booking),
-        })),
-      )
-
-      return mapped as Booking[]
+      return Promise.all(bookings.map((b) => this.mapBooking(b)))
     } catch (error) {
       if (isAuthError(error)) throw error
-      console.error("Failed to fetch history bookings:", error)
+      clientLog("[BookingService] Failed to fetch history bookings:", error)
       return []
     }
   }
@@ -215,18 +194,8 @@ class BookingService {
   async getById(id: string): Promise<Booking | null> {
     const response = await apiClient.get<any>(`/v1/bookings/${id}`)
     const booking = response?.data || (response?._id ? response : null)
-
     if (!booking) return null
-
-    return {
-      ...booking,
-      _id: booking._id,
-      loungeServiceIds: booking.loungeServiceIds || [],
-      loungeService: booking.loungeService || [],
-      agents: await this.processBookingAgents(booking),
-      client: this.processBookingClient(booking),
-      lounge: this.processBookingLounge(booking),
-    } as Booking
+    return this.mapBooking(booking)
   }
 
   // Update booking
@@ -343,8 +312,8 @@ class BookingService {
         error.message?.includes("not found") ||
         error.message?.includes("Booking not found")
       ) {
-        console.warn(
-          "Availability endpoint not available, assuming all times are available",
+        clientLog(
+          "[BookingService] Availability endpoint not available, assuming all times available",
         )
         return {
           unavailableSlots: [],
@@ -359,7 +328,7 @@ class BookingService {
           },
         }
       }
-      console.error("Failed to fetch availability:", error)
+      clientLog("[BookingService] Failed to fetch availability:", error)
       return {
         unavailableSlots: [],
         loungeOpeningHours: {},

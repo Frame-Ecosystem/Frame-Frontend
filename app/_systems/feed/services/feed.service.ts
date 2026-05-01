@@ -7,8 +7,12 @@ class FeedServiceClass {
     page = 1,
     limit = 10,
   ): Promise<PaginatedContentResponse<FeedItem>> {
+    const params = new URLSearchParams({
+      page: String(page),
+      limit: String(limit),
+    })
     return apiClient.get<PaginatedContentResponse<FeedItem>>(
-      `/v1/feed?page=${page}&limit=${limit}`,
+      `/v1/feed?${params}`,
     )
   }
 
@@ -17,8 +21,12 @@ class FeedServiceClass {
     page = 1,
     limit = 10,
   ): Promise<PaginatedContentResponse<FeedItem>> {
+    const params = new URLSearchParams({
+      page: String(page),
+      limit: String(limit),
+    })
     return apiClient.get<PaginatedContentResponse<FeedItem>>(
-      `/v1/feed/explore?page=${page}&limit=${limit}`,
+      `/v1/feed/explore?${params}`,
     )
   }
 
@@ -27,8 +35,12 @@ class FeedServiceClass {
     page = 1,
     limit = 10,
   ): Promise<PaginatedContentResponse<FeedItem>> {
+    const params = new URLSearchParams({
+      page: String(page),
+      limit: String(limit),
+    })
     return apiClient.get<PaginatedContentResponse<FeedItem>>(
-      `/v1/feed/saved?page=${page}&limit=${limit}`,
+      `/v1/feed/saved?${params}`,
     )
   }
 
@@ -38,23 +50,29 @@ class FeedServiceClass {
     page = 1,
     limit = 10,
   ): Promise<PaginatedContentResponse<FeedItem>> {
+    const params = new URLSearchParams({
+      page: String(page),
+      limit: String(limit),
+    })
     return apiClient.get<PaginatedContentResponse<FeedItem>>(
-      `/v1/feed/hashtag/${encodeURIComponent(tag)}?page=${page}&limit=${limit}`,
+      `/v1/feed/hashtag/${encodeURIComponent(tag)}?${params}`,
     )
   }
 
   /** Trending hashtags */
   async getTrendingHashtags(limit = 20): Promise<Hashtag[]> {
+    const params = new URLSearchParams({ limit: String(limit) })
     const res = await apiClient.get<{ data: Hashtag[]; message: string }>(
-      `/v1/feed/hashtags/trending?limit=${limit}`,
+      `/v1/feed/hashtags/trending?${params}`,
     )
     return res.data
   }
 
   /** Search hashtags */
   async searchHashtags(query: string, limit = 10): Promise<Hashtag[]> {
+    const params = new URLSearchParams({ q: query, limit: String(limit) })
     const res = await apiClient.get<{ data: Hashtag[]; message: string }>(
-      `/v1/feed/hashtags/search?q=${encodeURIComponent(query)}&limit=${limit}`,
+      `/v1/feed/hashtags/search?${params}`,
     )
     return res.data
   }
