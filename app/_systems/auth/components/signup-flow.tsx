@@ -10,7 +10,7 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/app/_components/ui/dialog"
-import { useAuth } from "../auth-provider"
+import { useAuth } from "@/app/_auth"
 import { Mail } from "lucide-react"
 import { useTranslation } from "@/app/_i18n"
 
