@@ -2,9 +2,10 @@
 
 import type { LucideIcon } from "lucide-react"
 import { Button } from "../../_components/ui/button"
-import { ArrowLeft } from "lucide-react"
+import { ArrowLeft, PanelLeftClose, PanelLeftOpen } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { useTranslation } from "@/app/_i18n"
+import { useAdminShell } from "./admin-shell"
 
 interface AdminHeaderProps {
   title: string
@@ -23,10 +24,36 @@ export function AdminHeader({
 }: AdminHeaderProps) {
   const router = useRouter()
   const { dir } = useTranslation()
+  const { isDesktopCollapsed, toggleDesktopCollapsed, toggleMobileOpen } =
+    useAdminShell()
 
   return (
     <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
       <div className="flex items-start gap-3">
+        <Button
+          variant="ghost"
+          size="icon"
+          className="shrink-0 lg:hidden"
+          onClick={toggleMobileOpen}
+          aria-label="Open navigation"
+        >
+          <PanelLeftOpen className="h-4 w-4" />
+        </Button>
+        <Button
+          variant="ghost"
+          size="icon"
+          className="hidden shrink-0 lg:inline-flex"
+          onClick={toggleDesktopCollapsed}
+          aria-label={
+            isDesktopCollapsed ? "Expand navigation" : "Collapse navigation"
+          }
+        >
+          {isDesktopCollapsed ? (
+            <PanelLeftOpen className="h-4 w-4" />
+          ) : (
+            <PanelLeftClose className="h-4 w-4" />
+          )}
+        </Button>
         {backHref && (
           <Button
             variant="ghost"
