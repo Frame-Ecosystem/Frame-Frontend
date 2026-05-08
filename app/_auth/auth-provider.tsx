@@ -23,7 +23,7 @@ import React, {
   useCallback,
   useRef,
 } from "react"
-import { useRouter } from "next/navigation"
+import { usePathname, useRouter } from "next/navigation"
 import { authService } from "./auth.service"
 import { tokenManager } from "./lib/token-manager"
 import { clearSessionCsrfToken, setSessionCsrfToken } from "./lib/csrf"
@@ -37,6 +37,18 @@ import { reportError } from "../_lib/report-error"
 
 /** Default token lifetime (seconds) when backend doesn't provide expiresIn. */
 const DEFAULT_EXPIRES_IN = 900
+
+const PUBLIC_ROUTES = [
+  "/",
+  "/auth/google/callback",
+  "/auth/google/done",
+  "/auth/google/error",
+  "/auth/forgot-password",
+  "/auth/reset-password",
+  "/auth/verify",
+  "/auth/check-email",
+  "/sentry-example-page",
+]
 
 function isAuthDebugEnabled(): boolean {
   if (typeof window === "undefined") return false
@@ -63,6 +75,7 @@ interface AuthContextType {
   ): void
   clearAuth(): void
   refreshUser(): Promise<void>
+  ensureSession(): Promise<boolean>
   isLoading: boolean
 }
 
@@ -77,6 +90,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const { setTheme } = useTheme()
   const { setLocale } = useTranslation()
   const router = useRouter()
+  const pathname = usePathname()
+
+  const isPublicRoute = useCallback(
+    (path: string | null): boolean => {
+      if (!path) return false
+      return PUBLIC_ROUTES.includes(path)
+    },
+    [PUBLIC_ROUTES],
+  )
 
   // Apply user's saved theme preference
   const applyUserTheme = useCallback(
@@ -128,6 +150,56 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }, [])
 
+  const restoreSession = useCallback(async (): Promise<boolean> => {
+    // Don't restore session if user manually logged out
+    if (tokenManager.isManualLogout()) {
+      return false
+    }
+
+    try {
+      const result = await authService.refreshToken()
+
+      if (!result?.ok || !result.data) {
+        tokenManager.clear()
+        return false
+      }
+
+      const newToken = result.data.token
+      const expiresIn = result.data.expiresIn || DEFAULT_EXPIRES_IN
+      if (result.data.csrfToken) setSessionCsrfToken(result.data.csrfToken)
+
+      if (!newToken) {
+        tokenManager.clear()
+        return false
+      }
+
+      tokenManager.set(newToken, expiresIn)
+      setAccessToken(newToken)
+      apiClient.setAccessTokenGetter(() => newToken)
+
+      const userData = await authService.getCurrentUser()
+      if (userData) {
+        setUser(userData)
+        applyUserTheme(userData)
+        applyUserLanguage(userData)
+        getSocket()
+      }
+
+      return true
+    } catch {
+      tokenManager.clear()
+      return false
+    }
+  }, [applyUserTheme, applyUserLanguage])
+
+  const ensureSession = useCallback(async (): Promise<boolean> => {
+    if (user && tokenManager.token) return true
+    // Clear manual logout flag since user is explicitly trying to sign in
+    tokenManager.clearManualLogout()
+    const ok = await restoreSession()
+    return ok
+  }, [restoreSession, user])
+
   // Set authentication state (user + access token in memory)
   const setAuth = useCallback(
     (newUser: User | null, token: string | null, expiresIn?: number) => {
@@ -155,6 +227,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setUser(null)
     setAccessToken(null)
     tokenManager.clear()
+    tokenManager.setManualLogout()
     clearSessionCsrfToken()
     // Disconnect Socket.IO
     disconnectSocket()
@@ -239,55 +312,28 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     tokenManager.setRefreshCallback(async () => {
       await refreshAccessToken()
     })
+  }, [handleAuthFailure, refreshAccessToken])
 
-    const checkAuth = async () => {
-      try {
-        // Token is in-memory only. On fresh page load, always try a single
-        // refresh-token recovery from the HttpOnly cookie.
-        // Do not hard-depend on the localStorage session hint.
-
-        // Call refresh-token to get a new access token from the HttpOnly cookie
-        const result = await authService.refreshToken()
-
-        if (result?.ok && result.data) {
-          const newToken = result.data.token
-          const expiresIn = result.data.expiresIn || DEFAULT_EXPIRES_IN
-          if (result.data.csrfToken) setSessionCsrfToken(result.data.csrfToken)
-
-          if (newToken) {
-            tokenManager.set(newToken, expiresIn)
-            setAccessToken(newToken)
-            apiClient.setAccessTokenGetter(() => newToken)
-
-            // Fetch the current user profile
-            const userData = await authService.getCurrentUser()
-            if (userData) {
-              setUser(userData)
-              applyUserTheme(userData)
-              applyUserLanguage(userData)
-              getSocket() // Connect socket after session restore
-            } else {
-              // Refresh succeeded — keep access token + hasRefreshToken so a
-              // transient /v1/me failure does not log the user out on reload.
-              console.warn(
-                "[AuthProvider] Session restored but profile fetch returned no user",
-              )
-            }
-          } else {
-            tokenManager.clear()
-          }
-        } else {
-          tokenManager.clear()
-        }
-      } catch {
-        tokenManager.clear()
-      } finally {
+  useEffect(() => {
+    const bootstrapAuth = async () => {
+      // Keep public routes fully static/no-auth-API on initial paint.
+      if (isPublicRoute(pathname)) {
         setIsLoading(false)
+        return
       }
+
+      if (user && tokenManager.token) {
+        setIsLoading(false)
+        return
+      }
+
+      setIsLoading(true)
+      await restoreSession()
+      setIsLoading(false)
     }
 
-    checkAuth()
-  }, [handleAuthFailure, refreshAccessToken, applyUserTheme, applyUserLanguage])
+    bootstrapAuth()
+  }, [isPublicRoute, pathname, restoreSession, user])
 
   // ── Cross-tab sync via StorageEvent on `hasRefreshToken` flag ──
 
@@ -369,7 +415,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   return (
     <AuthContext.Provider
-      value={{ user, accessToken, setAuth, clearAuth, refreshUser, isLoading }}
+      value={{
+        user,
+        accessToken,
+        setAuth,
+        clearAuth,
+        refreshUser,
+        ensureSession,
+        isLoading,
+      }}
     >
       {children}
     </AuthContext.Provider>
