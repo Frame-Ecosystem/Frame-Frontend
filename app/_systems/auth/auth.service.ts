@@ -205,6 +205,11 @@ class AuthService {
    */
   async logoutAll(): Promise<void> {
     try {
+      // Ensure CSRF token is available before making the request
+      const csrfToken = getCsrfTokenForRequest()
+      if (!csrfToken) {
+        await this.getCsrfToken()
+      }
       await apiClient.post("/v1/auth/logout-all", {})
     } catch (error) {
       throw error instanceof Error
