@@ -24,20 +24,24 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
   const { user, isLoading } = useAuth()
   const router = useRouter()
   const pathname = usePathname()
+  const publicRoute = isPublicRoute(pathname)
 
   useEffect(() => {
     if (isLoading) return
 
-    if (!user && !isPublicRoute(pathname)) {
+    if (!user && !publicRoute) {
       router.replace("/?signin=true")
     }
-  }, [isLoading, user, pathname, router])
+  }, [isLoading, user, publicRoute, router])
 
-  // While loading, render nothing to avoid flicker
+  // Public routes must render immediately to avoid intermittent white screens.
+  if (isLoading && publicRoute) return <>{children}</>
+
+  // While loading protected routes, keep a blank guard until auth resolves.
   if (isLoading) return null
 
   // On protected routes without auth, render nothing (redirect is in progress)
-  if (!user && !isPublicRoute(pathname)) return null
+  if (!user && !publicRoute) return null
 
   return <>{children}</>
 }
