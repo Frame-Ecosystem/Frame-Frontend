@@ -40,35 +40,41 @@ export function PostCard({
   const [expanded, setExpanded] = useState(false)
   const heartTimeout = useRef<ReturnType<typeof setTimeout> | null>(null)
 
-  const isOwner = user?._id === post.authorId._id
-  const isAdmin = user?.type === "admin"
-
-  const likeMutation = useTogglePostLike(post._id)
-  const saveMutation = useTogglePostSave(post._id)
+  const likeMutation = useTogglePostLike(post?._id ?? "")
+  const saveMutation = useTogglePostSave(post?._id ?? "")
   const deleteMutation = useDeletePost()
   const hideMutation = useAdminHidePost()
   const unhideMutation = useAdminUnhidePost()
   const adminDeleteMutation = useAdminDeletePost()
 
   // Use local optimistic state for like/save (falls back to server value)
-  const isLiked = post.isLiked ?? false
-  const isSaved = post.isSaved ?? false
+  const isLiked = post?.isLiked ?? false
+  const isSaved = post?.isSaved ?? false
 
   const handleDoubleTap = useCallback(() => {
-    if (!isLiked) {
+    if (!isLiked && post?._id) {
       likeMutation.mutate()
     }
     // Show heart animation
     setShowDoubleTapHeart(true)
     if (heartTimeout.current) clearTimeout(heartTimeout.current)
     heartTimeout.current = setTimeout(() => setShowDoubleTapHeart(false), 800)
-  }, [isLiked, likeMutation])
+  }, [isLiked, likeMutation, post])
 
   const handleDelete = useCallback(() => {
+    if (!post?._id) return
     if (window.confirm("Delete this post? This action cannot be undone.")) {
       deleteMutation.mutate(post._id)
     }
-  }, [deleteMutation, post._id])
+  }, [deleteMutation, post])
+
+  // Defensive: validate post data integrity after all hooks
+  if (!post || !post._id || !post.authorId) {
+    return null
+  }
+
+  const isOwner = user?._id === post.authorId._id
+  const isAdmin = user?.type === "admin"
 
   // Text truncation
   const textContent = post.text ?? ""

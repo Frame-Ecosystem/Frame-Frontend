@@ -34,22 +34,25 @@ function buildFeedSlots(
   hasReels: boolean,
   hasLounges: boolean,
 ): FeedSlot[] {
-  if (posts.length === 0) return []
+  // Defensive: filter out any invalid posts that slipped through
+  const validPosts = posts.filter((p) => p && p._id && p.authorId)
+
+  if (validPosts.length === 0) return []
 
   const slots: FeedSlot[] = []
   let reelsInserted = false
   let loungesInserted = false
 
   // Use the first post's ID as a seed for "random" placement
-  const seed = posts[0] ? hashCode(posts[0]._id) : 0
+  const seed = validPosts[0] ? hashCode(validPosts[0]._id) : 0
 
   // Insert reels swiper after post at index (seed % range + 2) → typically 2-5
   const reelSlot = hasReels ? (seed % 3) + 2 : -1
   // Insert lounges swiper a few posts after reels
   const loungeSlot = hasLounges ? reelSlot + (seed % 3) + 3 : -1
 
-  for (let i = 0; i < posts.length; i++) {
-    slots.push({ kind: "post", post: posts[i] })
+  for (let i = 0; i < validPosts.length; i++) {
+    slots.push({ kind: "post", post: validPosts[i] })
 
     if (!reelsInserted && hasReels && i === reelSlot) {
       slots.push({ kind: "reels" })
@@ -152,11 +155,13 @@ export function FeedList({
     }
   }, [inView, hasNextPage, isFetchingNextPage, fetchNextPage])
 
-  // ── Separate posts and reels (deduplicate across pages) ─────
+  // ── Separate posts and reels (deduplicate across pages, filter invalid) ─────
   const posts = useMemo(() => {
     const seen = new Set<string>()
     return items.filter((i): i is Post & { contentType: "post" } => {
       if (i.contentType !== "post" || seen.has(i._id)) return false
+      // Defensive: skip posts with missing critical fields
+      if (!i._id || !i.authorId) return false
       seen.add(i._id)
       return true
     })
@@ -166,6 +171,8 @@ export function FeedList({
     const seen = new Set<string>()
     return items.filter((i): i is Reel & { contentType: "reel" } => {
       if (i.contentType !== "reel" || seen.has(i._id)) return false
+      // Defensive: skip reels with missing ID
+      if (!i._id) return false
       seen.add(i._id)
       return true
     })
