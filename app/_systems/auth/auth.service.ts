@@ -205,7 +205,27 @@ class AuthService {
    */
   async logoutAll(): Promise<void> {
     try {
-      await apiClient.post("/v1/auth/logout-all", {})
+      const headers: Record<string, string> = {
+        "Content-Type": "application/json",
+      }
+      let csrfToken = getCsrfTokenForRequest()
+      if (!csrfToken) {
+        csrfToken = await this.getCsrfToken()
+      }
+      if (csrfToken) {
+        headers["x-csrf-token"] = csrfToken
+      }
+
+      const res = await fetch(`${this.getAuthBaseUrl()}/v1/auth/logout-all`, {
+        method: "POST",
+        credentials: "include",
+        headers,
+        body: JSON.stringify({}),
+      })
+
+      if (!res.ok) {
+        throw new Error(`Logout all failed: ${res.status} ${res.statusText}`)
+      }
     } catch (error) {
       throw error instanceof Error
         ? error
