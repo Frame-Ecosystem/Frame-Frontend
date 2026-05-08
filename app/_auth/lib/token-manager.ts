@@ -9,6 +9,7 @@
  */
 
 const SESSION_FLAG_KEY = "hasRefreshToken"
+const MANUAL_LOGOUT_FLAG_KEY = "manuallyLoggedOut"
 
 /** Buffer before expiry to trigger proactive refresh (2 minutes). */
 const REFRESH_BUFFER_MS = 2 * 60 * 1000
@@ -90,6 +91,38 @@ class TokenManager {
       }
     } catch {
       /* storage errors in incognito etc. */
+    }
+  }
+
+  // ── Manual Logout Flag ────────────────────────────────────
+
+  /** Set the manual logout flag to prevent automatic session restoration. */
+  setManualLogout() {
+    if (typeof window === "undefined") return
+    try {
+      localStorage.setItem(MANUAL_LOGOUT_FLAG_KEY, "true")
+    } catch {
+      /* storage errors in incognito etc. */
+    }
+  }
+
+  /** Clear the manual logout flag. */
+  clearManualLogout() {
+    if (typeof window === "undefined") return
+    try {
+      localStorage.removeItem(MANUAL_LOGOUT_FLAG_KEY)
+    } catch {
+      /* storage errors in incognito etc. */
+    }
+  }
+
+  /** Whether the user manually logged out (prevents automatic restoration). */
+  isManualLogout(): boolean {
+    if (typeof window === "undefined") return false
+    try {
+      return localStorage.getItem(MANUAL_LOGOUT_FLAG_KEY) === "true"
+    } catch {
+      return false
     }
   }
 

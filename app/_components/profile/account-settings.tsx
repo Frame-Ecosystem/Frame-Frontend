@@ -6,7 +6,11 @@ import { useAuth } from "@/app/_auth"
 import { toast } from "sonner"
 import { isAuthError } from "../../_services/api"
 import { useRouter } from "next/navigation"
-import { useChangePassword, useLogoutAll } from "../../_hooks/queries"
+import {
+  useChangePassword,
+  useLogoutAll,
+  useSignOut,
+} from "@/app/_systems/auth/hooks/useAuth"
 import {
   useUpdateClientName,
   useUpdateLoungeTitle,
@@ -125,6 +129,7 @@ export function AccountSettings({
   const updatePhoneMutation = useUpdatePhone()
   const updateBioMutation = useUpdateBio()
   const logoutAllMutation = useLogoutAll()
+  const signOutMutation = useSignOut()
 
   const handleProfileInputChange = (field: string, value: string) => {
     if (field === "loungePhone") {
@@ -239,9 +244,9 @@ export function AccountSettings({
     }
   }
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
     try {
-      logoutAllMutation.mutate()
+      await signOutMutation.mutateAsync()
       toast.success(t("accountSettings.loggedOut"))
       router.push("/")
     } catch {

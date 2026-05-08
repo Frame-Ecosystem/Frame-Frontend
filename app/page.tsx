@@ -219,7 +219,7 @@ function FaqItem({
 }
 
 const LandingPage = () => {
-  const { user, isLoading } = useAuth()
+  const { user, isLoading, ensureSession } = useAuth()
   const router = useRouter()
   const searchParams = useSearchParams()
   const { t } = useTranslation()
@@ -296,7 +296,12 @@ const LandingPage = () => {
   const customersCount = useCounter(1000, 2200, statsInView.inView)
   const ratingCount = useCounter(49, 1600, statsInView.inView)
 
-  const openSignIn = useCallback(() => setSigninOpen(true), [])
+  const openSignIn = useCallback(async () => {
+    const restored = await ensureSession()
+    if (!restored) {
+      setSigninOpen(true)
+    }
+  }, [ensureSession])
   const openSignUp = useCallback(() => setSignupOpen(true), [])
 
   // ?signin=true query parameter

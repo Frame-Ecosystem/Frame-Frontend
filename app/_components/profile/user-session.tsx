@@ -23,10 +23,11 @@ const noop = () => {}
 
 const UserSession = ({ compact }: { compact?: boolean } = {}) => {
   // ===== STATE =====
-  const { user, isLoading } = useAuth()
+  const { user, isLoading, ensureSession } = useAuth()
   const [dialogOpen, setDialogOpen] = useState(false)
   const [signupOpen, setSignupOpen] = useState(false)
   const [popoverOpen, setPopoverOpen] = useState(false)
+  const [isCheckingSession, setIsCheckingSession] = useState(false)
   const isLoggedIn = !!user
 
   // ===== CLOSE HELPERS (the ONLY way dialogs can close) =====
@@ -37,6 +38,18 @@ const UserSession = ({ compact }: { compact?: boolean } = {}) => {
   const handleAddAccount = () => {
     setPopoverOpen(false)
     setDialogOpen(true)
+  }
+
+  const handleOpenSignIn = async () => {
+    if (isLoading || isCheckingSession) return
+
+    setIsCheckingSession(true)
+    const restored = await ensureSession()
+    setIsCheckingSession(false)
+
+    if (!restored) {
+      setDialogOpen(true)
+    }
   }
 
   // ===== SHARED UI ELEMENTS =====
@@ -102,7 +115,7 @@ const UserSession = ({ compact }: { compact?: boolean } = {}) => {
             </PopoverContent>
           </Popover>
         ) : (
-          <span onClick={() => setDialogOpen(true)}>{userButton}</span>
+          <span onClick={handleOpenSignIn}>{userButton}</span>
         ))}
 
       {/* ── Sign-in dialog (always mounted, fully controlled) ── */}

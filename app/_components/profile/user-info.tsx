@@ -1,12 +1,12 @@
 "use client"
 import { Button } from "../ui/button"
 import { Avatar, AvatarImage, AvatarFallback } from "../ui/avatar"
-import { authService, getUserDisplayName, getUserInitials } from "@/app/_auth"
+import { getUserDisplayName, getUserInitials } from "@/app/_auth"
 import type { User } from "../../_types"
-import { useAuth } from "@/app/_auth"
 import { useRouter } from "next/navigation"
 import { UserPlusIcon, LogOutIcon, Settings } from "lucide-react"
 import { useTranslation } from "@/app/_i18n"
+import { useSignOut } from "@/app/_systems/auth/hooks/useAuth"
 
 interface UserProps {
   user: User | null
@@ -15,16 +15,15 @@ interface UserProps {
 }
 
 const UserInfo = ({ user, onAddAccount, onClose }: UserProps) => {
-  const { clearAuth } = useAuth()
   const router = useRouter()
   const { t } = useTranslation()
+  const signOutMutation = useSignOut()
 
   // === EVENT HANDLERS ===
 
   const handleSignOut = async () => {
     if (onClose) onClose()
-    await authService.signOut()
-    clearAuth()
+    await signOutMutation.mutateAsync()
     router.push("/")
   }
 

@@ -32,6 +32,11 @@ export function AuthorHeader({
   createdAt,
   className,
 }: AuthorHeaderProps) {
+  // Defensive: prevent rendering if author is invalid
+  if (!author || !author._id) {
+    return null
+  }
+
   const name = getAuthorName(author)
   const initials = getAuthorInitials(author)
   const href = getAuthorLink(author)
