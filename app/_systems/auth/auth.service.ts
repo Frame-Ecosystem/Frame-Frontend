@@ -208,6 +208,7 @@ class AuthService {
       const headers: Record<string, string> = {
         "Content-Type": "application/json",
       }
+
       let csrfToken = getCsrfTokenForRequest()
       if (!csrfToken) {
         csrfToken = await this.getCsrfToken()
