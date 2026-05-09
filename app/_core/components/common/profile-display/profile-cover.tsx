@@ -87,28 +87,30 @@ export function ProfileCover({
       <div className="relative w-full">
         {/* Cover Image */}
         <div className="relative w-full overflow-hidden bg-gradient-to-r from-blue-600/20 via-purple-600/20 to-pink-600/20">
-          {coverUrl ? (
-            <button
-              type="button"
-              className="relative block w-full cursor-pointer"
-              onClick={() => openLightbox(coverUrl, "Cover photo")}
-              aria-label={t("cover.viewCover")}
-            >
-              <Image
-                src={coverUrl}
-                alt="Cover"
-                width={1600}
-                height={500}
-                sizes="(max-width: 1024px) 100vw, 1600px"
-                quality={80}
-                className="block h-auto w-full object-contain"
-                priority
-              />
-            </button>
-          ) : (
-            /* Default gradient cover */
-            <div className="from-primary/15 via-primary/5 block h-28 w-full bg-gradient-to-br to-transparent sm:h-32 md:h-36" />
-          )}
+          <div className="relative h-28 w-full overflow-hidden sm:h-32 md:h-36">
+            {coverUrl ? (
+              <button
+                type="button"
+                className="relative h-full w-full cursor-pointer"
+                onClick={() => openLightbox(coverUrl, "Cover photo")}
+                aria-label={t("cover.viewCover")}
+              >
+                <Image
+                  src={coverUrl}
+                  alt="Cover"
+                  width={1600}
+                  height={500}
+                  sizes="(max-width: 1024px) 100vw, 1600px"
+                  quality={80}
+                  className="h-full w-full object-cover"
+                  priority
+                />
+              </button>
+            ) : (
+              /* Default gradient cover */
+              <div className="from-primary/15 via-primary/5 block h-full w-full bg-gradient-to-br to-transparent" />
+            )}
+          </div>
 
           {/* Gradient overlay at bottom for text readability */}
           <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />

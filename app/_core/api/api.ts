@@ -1,6 +1,5 @@
 // API Base Configuration
 import {
-  withCsrfHeader,
   isStateChanging,
   setSessionCsrfToken,
   getCsrfTokenForRequest,
@@ -227,9 +226,12 @@ class ApiClient {
       endpoint.includes("/v1/auth/google")
 
     if (isStateChanging(method) && !isPublicAuth) {
-      // Proactively bootstrap if no CSRF token is available yet — avoids a
+      // Always ensure CSRF token is available for state-changing requests.
+      // Proactively bootstrap if not in memory/cookie yet — avoids a
       // preventable 403 round-trip on first page load or after a hard refresh.
-      if (!getCsrfTokenForRequest()) {
+      let csrfToken = getCsrfTokenForRequest()
+      if (!csrfToken) {
+        // Ensure access token is fresh first
         if (!token && this.refreshTokenCallback) {
           const refreshedToken = await this.refreshTokenCallback()
           if (refreshedToken) {
@@ -240,9 +242,16 @@ class ApiClient {
             }
           }
         }
-        await this.bootstrapCsrfToken()
+        // Bootstrap CSRF
+        csrfToken = await this.bootstrapCsrfToken()
       }
-      headers = withCsrfHeader(headers, method)
+      // Attach CSRF header (now guaranteed to have a token)
+      if (csrfToken) {
+        headers = {
+          ...headers,
+          "x-csrf-token": csrfToken,
+        }
+      }
     }
 
     try {
@@ -333,9 +342,9 @@ class ApiClient {
         // CSRF recovery path:
         // 1) get fresh csrf-token/csrfToken pair
         // 2) retry once with updated x-csrf-token
-        const isCsrfFailure =
-          response.status === 403 && /csrf\s*token/i.test(message)
-        if (isCsrfFailure && isStateChanging(method) && !isPublicAuth) {
+        const shouldRetryCsrf =
+          response.status === 403 && isStateChanging(method) && !isPublicAuth
+        if (shouldRetryCsrf) {
           const freshCsrf = await this.bootstrapCsrfToken()
           if (freshCsrf) {
             headers = {

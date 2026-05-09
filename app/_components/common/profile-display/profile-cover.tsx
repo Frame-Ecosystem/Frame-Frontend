@@ -119,88 +119,86 @@ export function ProfileCover({
       <div className="relative w-full">
         {/* Cover Image */}
         <div className="relative w-full overflow-hidden bg-gradient-to-r from-blue-600/20 via-purple-600/20 to-pink-600/20">
-          {coverUrl ? (
-            editable ? (
-              /* Cover exists + editable — click toggles See/Edit overlay */
-              <div
-                className="relative block w-full cursor-pointer"
-                onClick={() => setShowCoverOverlay((v) => !v)}
-              >
-                <Image
-                  src={coverUrl}
-                  alt="Cover"
-                  width={1600}
-                  height={500}
-                  sizes="(max-width: 1024px) 100vw, 1600px"
-                  quality={80}
-                  className="block h-auto w-full object-contain"
-                  priority
-                />
-                {showCoverOverlay && (
-                  <div className="absolute inset-0 z-10 flex items-center justify-center gap-6 bg-black/60 backdrop-blur-sm">
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        setShowCoverOverlay(false)
-                        openLightbox(coverUrl, "Cover photo")
-                      }}
-                      className="flex flex-col items-center gap-1.5 rounded-xl bg-white/10 px-5 py-3 text-white transition-colors hover:bg-white/20"
-                    >
-                      <Eye className="h-6 w-6" />
-                      <span className="text-xs font-medium">
-                        {t("cover.seePhoto")}
-                      </span>
-                    </button>
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        setShowCoverOverlay(false)
-                        setCoverDialogOpen(true)
-                      }}
-                      className="flex flex-col items-center gap-1.5 rounded-xl bg-white/10 px-5 py-3 text-white transition-colors hover:bg-white/20"
-                    >
-                      <Pencil className="h-6 w-6" />
-                      <span className="text-xs font-medium">
-                        {t("cover.editPhoto")}
-                      </span>
-                    </button>
-                  </div>
-                )}
-              </div>
-            ) : (
-              /* Cover exists + not editable — click opens lightbox */
+          <div className="relative h-28 w-full overflow-hidden sm:h-32 md:h-36">
+            {coverUrl ? (
+              editable ? (
+                <div
+                  className="relative h-full w-full cursor-pointer"
+                  onClick={() => setShowCoverOverlay((v) => !v)}
+                >
+                  <Image
+                    src={coverUrl}
+                    alt="Cover"
+                    width={1600}
+                    height={500}
+                    sizes="(max-width: 1024px) 100vw, 1600px"
+                    quality={80}
+                    className="h-full w-full object-cover"
+                    priority
+                  />
+                  {showCoverOverlay && (
+                    <div className="absolute inset-0 z-10 flex items-center justify-center gap-6 bg-black/60 backdrop-blur-sm">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          setShowCoverOverlay(false)
+                          openLightbox(coverUrl, "Cover photo")
+                        }}
+                        className="flex flex-col items-center gap-1.5 rounded-xl bg-white/10 px-5 py-3 text-white transition-colors hover:bg-white/20"
+                      >
+                        <Eye className="h-6 w-6" />
+                        <span className="text-xs font-medium">
+                          {t("cover.seePhoto")}
+                        </span>
+                      </button>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          setShowCoverOverlay(false)
+                          setCoverDialogOpen(true)
+                        }}
+                        className="flex flex-col items-center gap-1.5 rounded-xl bg-white/10 px-5 py-3 text-white transition-colors hover:bg-white/20"
+                      >
+                        <Pencil className="h-6 w-6" />
+                        <span className="text-xs font-medium">
+                          {t("cover.editPhoto")}
+                        </span>
+                      </button>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <button
+                  type="button"
+                  className="relative h-full w-full cursor-pointer"
+                  onClick={() => openLightbox(coverUrl, "Cover photo")}
+                  aria-label={t("cover.editCoverPhoto")}
+                >
+                  <Image
+                    src={coverUrl}
+                    alt="Cover"
+                    width={1600}
+                    height={500}
+                    sizes="(max-width: 1024px) 100vw, 1600px"
+                    quality={80}
+                    className="h-full w-full object-cover"
+                    priority
+                  />
+                </button>
+              )
+            ) : editable ? (
               <button
                 type="button"
-                className="relative block w-full cursor-pointer"
-                onClick={() => openLightbox(coverUrl, "Cover photo")}
-                aria-label={t("cover.editCoverPhoto")}
+                className="from-primary/15 via-primary/5 flex h-full w-full cursor-pointer items-center justify-center bg-gradient-to-br to-transparent transition-opacity hover:opacity-80"
+                onClick={() => setCoverDialogOpen(true)}
+                aria-label={t("cover.addCoverPhoto")}
               >
-                <Image
-                  src={coverUrl}
-                  alt="Cover"
-                  width={1600}
-                  height={500}
-                  sizes="(max-width: 1024px) 100vw, 1600px"
-                  quality={80}
-                  className="block h-auto w-full object-contain"
-                  priority
-                />
+                <CameraIcon className="h-8 w-8 text-white/60" />
               </button>
-            )
-          ) : editable ? (
-            /* No cover + editable — gradient with centered camera icon */
-            <button
-              type="button"
-              className="from-primary/15 via-primary/5 flex h-28 w-full cursor-pointer items-center justify-center bg-gradient-to-br to-transparent transition-opacity hover:opacity-80 sm:h-32 md:h-36"
-              onClick={() => setCoverDialogOpen(true)}
-              aria-label={t("cover.addCoverPhoto")}
-            >
-              <CameraIcon className="h-8 w-8 text-white/60" />
-            </button>
-          ) : (
-            /* No cover + not editable */
-            <div className="from-primary/15 via-primary/5 block h-28 w-full bg-gradient-to-br to-transparent sm:h-32 md:h-36" />
-          )}
+            ) : (
+              <div className="from-primary/15 via-primary/5 block h-full w-full bg-gradient-to-br to-transparent" />
+            )}
+          </div>
 
           {/* Gradient overlay at bottom for text readability */}
           <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
