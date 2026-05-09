@@ -7,7 +7,7 @@ import { ReelPlayer } from "./reel-player"
 import { CommentSheet } from "./comment-sheet"
 import { EmptyState } from "./empty-state"
 import { useReelMutePreference } from "./hooks/use-reel-mute-preference"
-import { useLoungeReels } from "@/app/_systems/feed/hooks/useReels"
+import { useUserReels } from "@/app/_systems/feed/hooks/useReels"
 import type { Reel } from "@/app/_types/content"
 
 interface LoungeReelsViewerProps {
@@ -58,7 +58,7 @@ export function LoungeReelsViewer({
   }, [])
 
   // Fetch lounge reels
-  const loungeReelsQuery = useLoungeReels(loungeId, 12)
+  const loungeReelsQuery = useUserReels(loungeId, 12)
   const reels: Reel[] = useMemo(
     () => loungeReelsQuery.data?.pages.flatMap((p) => p.data ?? []) ?? [],
     [loungeReelsQuery.data],

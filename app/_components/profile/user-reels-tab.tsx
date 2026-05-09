@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react"
-import { useUserReels, useLoungeReels } from "../../_hooks/queries/useContent"
+import { useUserReels } from "../../_hooks/queries/useContent"
 import { ContentGrid } from "../content/content-grid"
 import { useOpenReel } from "../content/hooks/use-open-reel"
 import { LoungeReelsViewer } from "../content/lounge-reels-viewer"
@@ -19,9 +19,7 @@ export function UserReelsTab({ userId, isLounge = false }: UserReelsTabProps) {
   const { openReel } = useOpenReel()
   const [selectedReelId, setSelectedReelId] = useState<string | null>(null)
 
-  const userReelsQuery = useUserReels(userId)
-  const loungeReelsQuery = useLoungeReels(userId)
-  const reelsQuery = isLounge ? loungeReelsQuery : userReelsQuery
+  const reelsQuery = useUserReels(userId)
 
   const reels: Reel[] = useMemo(
     () => reelsQuery.data?.pages.flatMap((p) => p.data) ?? [],
