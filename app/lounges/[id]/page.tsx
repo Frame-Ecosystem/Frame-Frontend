@@ -625,7 +625,7 @@ export default function LoungePage() {
               onClick={() => handleTabChange("reels")}
             >
               <Film className="h-4 w-4" />
-              Works
+              Portfolio
             </Button>
             <Button
               variant="ghost"

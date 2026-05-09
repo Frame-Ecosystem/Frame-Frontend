@@ -48,7 +48,9 @@ export function UserReelsTab({ userId, isLounge = false }: UserReelsTabProps) {
   const handleReelClick = (reel: Reel) => {
     if (isLounge) {
       // For lounges, open fullscreen viewer scoped to this lounge
-      setSelectedReelId(reel._id)
+      if (reel._id) {
+        setSelectedReelId(reel._id)
+      }
     } else {
       // For users, navigate to explore feed
       openReel(reel)
