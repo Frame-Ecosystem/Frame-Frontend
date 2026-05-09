@@ -13,6 +13,7 @@ interface AuthorHeaderProps {
 }
 
 function getAuthorName(author: AuthorSummary): string {
+  if (!author) return "Unknown User"
   if (author.type === "lounge" && author.loungeTitle) return author.loungeTitle
   const parts = [author.firstName, author.lastName].filter(Boolean)
   return parts.length ? parts.join(" ") : "User"
@@ -23,6 +24,7 @@ function getAuthorInitials(author: AuthorSummary): string {
 }
 
 function getAuthorLink(author: AuthorSummary): string {
+  if (!author || !author._id) return "/"
   if (author.type === "lounge") return `/lounges/${author._id}`
   return `/clients/${author._id}`
 }

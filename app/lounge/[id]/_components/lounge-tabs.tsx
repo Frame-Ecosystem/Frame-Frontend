@@ -23,7 +23,7 @@ const TABS: {
   icon: React.ComponentType<{ className?: string }>
 }[] = [
   { id: "info", label: "Info", icon: InfoIcon },
-  { id: "reels", label: "Works", icon: Film },
+  { id: "reels", label: "Portfolio", icon: Film },
   { id: "services", label: "Services", icon: CalendarIcon },
   { id: "queue", label: "Queue", icon: Users },
 ]

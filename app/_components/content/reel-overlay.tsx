@@ -65,7 +65,7 @@ export function ReelOverlay({ reel }: ReelOverlayProps) {
       </div>
 
       {/* Caption */}
-      {caption && (
+      {caption && caption !== "undefined" && (
         <div className="pointer-events-auto mt-2 max-w-[80%]">
           <p className="text-sm leading-snug text-white drop-shadow">
             <HashtagText

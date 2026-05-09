@@ -25,7 +25,7 @@ export interface AuthorSummary {
   firstName?: string
   lastName?: string
   loungeTitle?: string
-  profileImage?: string
+  profileImage?: string | { url: string; publicId: string }
   type: "client" | "lounge"
 }
 
