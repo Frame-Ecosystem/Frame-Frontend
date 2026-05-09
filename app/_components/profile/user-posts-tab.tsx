@@ -1,6 +1,6 @@
 "use client"
 
-import { useMemo } from "react"
+import { useMemo, memo } from "react"
 import { useUserPosts } from "../../_hooks/queries/useContent"
 import { ContentGrid } from "../content/content-grid"
 import type { Post } from "../../_types/content"
@@ -13,7 +13,9 @@ interface UserPostsTabProps {
  * Displays a user's posts in an infinite-scroll 3-column grid.
  * Clicking a post shows a preview or navigates to the post detail.
  */
-export function UserPostsTab({ userId }: UserPostsTabProps) {
+export const UserPostsTab = memo(function UserPostsTab({
+  userId,
+}: UserPostsTabProps) {
   const postsQuery = useUserPosts(userId)
 
   const posts: Post[] = useMemo(
@@ -51,4 +53,4 @@ export function UserPostsTab({ userId }: UserPostsTabProps) {
       emptyType="posts"
     />
   )
-}
+})
