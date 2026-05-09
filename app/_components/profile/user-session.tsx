@@ -28,28 +28,55 @@ const UserSession = ({ compact }: { compact?: boolean } = {}) => {
   const [signupOpen, setSignupOpen] = useState(false)
   const [popoverOpen, setPopoverOpen] = useState(false)
   const [isCheckingSession, setIsCheckingSession] = useState(false)
+  const [sessionUser, setSessionUser] = useState<any>(null)
   const isLoggedIn = !!user
 
   // ===== CLOSE HELPERS (the ONLY way dialogs can close) =====
-  const closeSignIn = () => setDialogOpen(false)
+  const closeSignIn = () => {
+    setDialogOpen(false)
+    setIsCheckingSession(false)
+    setSessionUser(null)
+  }
   const closeSignUp = () => setSignupOpen(false)
 
   // ===== EVENT HANDLERS =====
   const handleAddAccount = () => {
     setPopoverOpen(false)
+    // Reset session state before opening dialog
+    setSessionUser(null)
+    setIsCheckingSession(true)
     setDialogOpen(true)
+    // Start session restoration in background
+    ensureSession().then((restored) => {
+      if (restored) {
+        // Session restored successfully, sessionUser will be set via context
+        setSessionUser(user)
+      }
+      setIsCheckingSession(false)
+    })
   }
 
-  const handleOpenSignIn = async () => {
-    if (isLoading || isCheckingSession) return
+  const handleOpenSignIn = () => {
+    if (isLoading) return
 
+    // Open dialog immediately
+    setSessionUser(null)
     setIsCheckingSession(true)
-    const restored = await ensureSession()
-    setIsCheckingSession(false)
+    setDialogOpen(true)
 
-    if (!restored) {
-      setDialogOpen(true)
-    }
+    // Start session restoration in background
+    ensureSession().then((restored) => {
+      if (restored) {
+        // Session restored - user will be set via context
+        setSessionUser(user)
+      }
+      setIsCheckingSession(false)
+    })
+  }
+
+  const handleContinueSession = async () => {
+    // User confirmed to continue with existing session
+    closeSignIn()
   }
 
   // ===== SHARED UI ELEMENTS =====
@@ -145,6 +172,9 @@ const UserSession = ({ compact }: { compact?: boolean } = {}) => {
               closeSignIn()
               setSignupOpen(true)
             }}
+            isCheckingSession={isCheckingSession}
+            sessionUser={sessionUser}
+            onContinueSession={handleContinueSession}
           />
         </DialogContent>
       </Dialog>

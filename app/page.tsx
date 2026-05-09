@@ -225,9 +225,21 @@ const LandingPage = () => {
   const { t } = useTranslation()
   const [signupOpen, setSignupOpen] = useState(false)
   const [signinOpen, setSigninOpen] = useState(false)
+  const [isCheckingSession, setIsCheckingSession] = useState(false)
+  const [sessionUser, setSessionUser] = useState<any>(null)
   const [notifyEmail, setNotifyEmail] = useState("")
   const [notifySubmitted, setNotifySubmitted] = useState(false)
   const hasProcessedSigninRef = useRef(false)
+
+  const closeSignIn = () => {
+    setSigninOpen(false)
+    setIsCheckingSession(false)
+    setSessionUser(null)
+  }
+
+  const handleContinueSession = async () => {
+    closeSignIn()
+  }
 
   const PILLARS = useMemo(
     () =>
@@ -296,12 +308,20 @@ const LandingPage = () => {
   const customersCount = useCounter(1000, 2200, statsInView.inView)
   const ratingCount = useCounter(49, 1600, statsInView.inView)
 
-  const openSignIn = useCallback(async () => {
-    const restored = await ensureSession()
-    if (!restored) {
-      setSigninOpen(true)
-    }
-  }, [ensureSession])
+  const openSignIn = useCallback(() => {
+    // Open dialog immediately
+    setSessionUser(null)
+    setIsCheckingSession(true)
+    setSigninOpen(true)
+
+    // Start session restoration in background
+    ensureSession().then((restored) => {
+      if (restored) {
+        setSessionUser(user)
+      }
+      setIsCheckingSession(false)
+    })
+  }, [user, ensureSession])
   const openSignUp = useCallback(() => setSignupOpen(true), [])
 
   // ?signin=true query parameter
@@ -1640,18 +1660,21 @@ const LandingPage = () => {
       </Dialog>
 
       {/* ── Sign-in Dialog ── */}
-      <Dialog open={signinOpen} onOpenChange={setSigninOpen}>
+      <Dialog open={signinOpen} onOpenChange={closeSignIn}>
         <DialogContent
           className="max-h-[90vh] w-[90%] overflow-y-auto rounded-2xl"
           onInteractOutside={(e) => e.preventDefault()}
         >
           <SignInDialog
-            onSuccess={() => setSigninOpen(false)}
-            onClose={() => setSigninOpen(false)}
+            onSuccess={() => closeSignIn()}
+            onClose={() => closeSignIn()}
             onOpenSignUpFlow={() => {
-              setSigninOpen(false)
+              closeSignIn()
               setSignupOpen(true)
             }}
+            isCheckingSession={isCheckingSession}
+            sessionUser={sessionUser}
+            onContinueSession={handleContinueSession}
           />
         </DialogContent>
       </Dialog>
