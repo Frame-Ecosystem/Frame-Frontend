@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react"
 import { useRouter } from "next/navigation"
-import { Eye, EyeOff } from "lucide-react"
+import { Eye, EyeOff, Loader2, LogOut } from "lucide-react"
 import { Controller, useForm } from "react-hook-form"
 import { z } from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
@@ -14,12 +14,18 @@ import openGoogleOAuthPopup, {
   handleGoogleAuthResult,
 } from "../lib/google-popup"
 import { getLoginRedirectPath } from "@/app/_lib/profile"
-import { useAuth } from "@/app/_auth"
+import { useAuth, getUserDisplayName, getUserInitials } from "@/app/_auth"
 import { useSignIn } from "@/app/_hooks/queries"
 import GoogleButton from "./google-button"
 import { mapAuthError } from "../lib/error-mapper"
 import { useAuthRateLimit } from "../hooks/use-rate-limit"
 import { useTranslation } from "@/app/_i18n"
+import {
+  Avatar,
+  AvatarImage,
+  AvatarFallback,
+} from "@/app/_components/ui/avatar"
+import type { User } from "@/app/_types"
 
 const MAX_PHONE_DIGITS = 8
 const EMAIL_CHAR_PATTERN = /[a-zA-Z._-]/
@@ -55,12 +61,18 @@ interface SignInDialogProps {
   onSuccess?: () => void
   onClose?: () => void
   onOpenSignUpFlow?: () => void
+  isCheckingSession?: boolean
+  sessionUser?: User | null
+  onContinueSession?: () => void | Promise<void>
 }
 
 const SignInDialog = ({
   onSuccess,
   onClose,
   onOpenSignUpFlow,
+  isCheckingSession = false,
+  sessionUser = null,
+  onContinueSession,
 }: SignInDialogProps) => {
   const router = useRouter()
   const { setAuth } = useAuth()
@@ -68,11 +80,27 @@ const SignInDialog = ({
   const { t } = useTranslation()
 
   const [loading, setLoading] = useState(false)
+  const [continuingSession, setContinuingSession] = useState(false)
   const [formError, setFormError] = useState("")
   const [showPassword, setShowPassword] = useState(false)
   const [submitAttempted, setSubmitAttempted] = useState(false)
   const { isLocked, remainingSeconds, recordFailure, recordSuccess } =
     useAuthRateLimit()
+
+  const handleContinueSession = async () => {
+    setContinuingSession(true)
+    try {
+      await onContinueSession?.()
+      onSuccess?.()
+    } finally {
+      setContinuingSession(false)
+    }
+  }
+
+  const handleSignInDifferent = () => {
+    setFormError("")
+    setSubmitAttempted(false)
+  }
 
   const signInSchema = useMemo(
     () =>
@@ -193,134 +221,190 @@ const SignInDialog = ({
       </DialogHeader>
 
       <div className="space-y-4">
-        <form
-          onSubmit={handleSubmit(onSubmit, () => setSubmitAttempted(true))}
-          className="space-y-4"
-        >
-          {/* Email / Phone */}
-          <div className="space-y-2">
-            <Label htmlFor="emailOrPhone">
-              {t("auth.signin.emailOrPhone")}
-            </Label>
-            <Controller
-              control={control}
-              name="emailOrPhone"
-              render={({ field }) => (
-                <div className="relative">
-                  {isPhone && (
-                    <div className="text-muted-foreground pointer-events-none absolute top-1/2 left-3 z-10 flex -translate-y-1/2 items-center gap-1 text-sm">
-                      <span className="font-medium">+216</span>
-                      <span className="bg-muted text-muted-foreground rounded px-1 py-0.5 text-xs">
-                        TN
-                      </span>
-                    </div>
-                  )}
-                  <Input
-                    id="emailOrPhone"
-                    type="text"
-                    placeholder={t("auth.signin.emailPhonePlaceholder")}
-                    value={field.value}
-                    onChange={(e) => {
-                      const raw = e.target.value
-                      setFormError("")
-
-                      if (raw.includes("@") || EMAIL_CHAR_PATTERN.test(raw)) {
-                        field.onChange(raw)
-                        return
-                      }
-
-                      field.onChange(
-                        raw.replace(/\D/g, "").slice(0, MAX_PHONE_DIGITS),
-                      )
-                    }}
-                    className={isPhone ? "pl-20" : ""}
-                    required
-                    autoComplete="username"
-                  />
-                </div>
-              )}
-            />
-            {errors.emailOrPhone?.message && (
-              <p className="text-destructive text-sm">
-                {errors.emailOrPhone.message}
-              </p>
-            )}
+        {/* Session Restoration Loading State */}
+        {isCheckingSession && (
+          <div className="border-border/50 bg-muted/30 flex items-center justify-center gap-2 rounded-lg border py-4">
+            <Loader2 className="h-4 w-4 animate-spin" />
+            <span className="text-muted-foreground text-sm">
+              Checking for existing session...
+            </span>
           </div>
+        )}
 
-          {/* Password */}
-          <div className="space-y-2">
-            <Label htmlFor="password">{t("auth.signin.password")}</Label>
-            <div className="relative">
-              <Input
-                id="password"
-                type={showPassword ? "text" : "password"}
-                placeholder="••••••••"
-                required
-                minLength={8}
-                className="pr-10"
-                autoComplete="current-password"
-                {...register("password", {
-                  onChange: () => setFormError(""),
-                })}
+        {/* Continue with Session Button */}
+        {!isCheckingSession && sessionUser && (
+          <div className="border-border/50 bg-muted/30 space-y-3 rounded-lg border p-4">
+            <p className="text-muted-foreground text-xs">
+              Existing session found
+            </p>
+            <Button
+              onClick={handleContinueSession}
+              disabled={continuingSession}
+              className="w-full"
+              variant="default"
+            >
+              {continuingSession && (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              )}
+              <Avatar className="mr-2 h-5 w-5">
+                {sessionUser?.profileImage &&
+                  typeof sessionUser.profileImage === "string" && (
+                    <AvatarImage src={sessionUser.profileImage} />
+                  )}
+                <AvatarFallback className="text-xs">
+                  {getUserInitials(sessionUser)}
+                </AvatarFallback>
+              </Avatar>
+              <span className="truncate">
+                Continue as {getUserDisplayName(sessionUser)}
+              </span>
+            </Button>
+            <Button
+              onClick={handleSignInDifferent}
+              disabled={continuingSession}
+              className="w-full"
+              variant="outline"
+              size="sm"
+            >
+              <LogOut className="mr-2 h-4 w-4" />
+              Sign in with different account
+            </Button>
+          </div>
+        )}
+
+        {/* Sign-in Form (shown when no session or user chose to sign in differently) */}
+        {!sessionUser && (
+          <form
+            onSubmit={handleSubmit(onSubmit, () => setSubmitAttempted(true))}
+            className="space-y-4"
+          >
+            {/* Email / Phone */}
+            <div className="space-y-2">
+              <Label htmlFor="emailOrPhone">
+                {t("auth.signin.emailOrPhone")}
+              </Label>
+              <Controller
+                control={control}
+                name="emailOrPhone"
+                render={({ field }) => (
+                  <div className="relative">
+                    {isPhone && (
+                      <div className="text-muted-foreground pointer-events-none absolute top-1/2 left-3 z-10 flex -translate-y-1/2 items-center gap-1 text-sm">
+                        <span className="font-medium">+216</span>
+                        <span className="bg-muted text-muted-foreground rounded px-1 py-0.5 text-xs">
+                          TN
+                        </span>
+                      </div>
+                    )}
+                    <Input
+                      id="emailOrPhone"
+                      type="text"
+                      placeholder={t("auth.signin.emailPhonePlaceholder")}
+                      value={field.value}
+                      onChange={(e) => {
+                        const raw = e.target.value
+                        setFormError("")
+
+                        if (raw.includes("@") || EMAIL_CHAR_PATTERN.test(raw)) {
+                          field.onChange(raw)
+                          return
+                        }
+
+                        field.onChange(
+                          raw.replace(/\D/g, "").slice(0, MAX_PHONE_DIGITS),
+                        )
+                      }}
+                      className={isPhone ? "pl-20" : ""}
+                      required
+                      autoComplete="username"
+                    />
+                  </div>
+                )}
               />
+              {errors.emailOrPhone?.message && (
+                <p className="text-destructive text-sm">
+                  {errors.emailOrPhone.message}
+                </p>
+              )}
+            </div>
+
+            {/* Password */}
+            <div className="space-y-2">
+              <Label htmlFor="password">{t("auth.signin.password")}</Label>
+              <div className="relative">
+                <Input
+                  id="password"
+                  type={showPassword ? "text" : "password"}
+                  placeholder="••••••••"
+                  required
+                  minLength={8}
+                  className="pr-10"
+                  autoComplete="current-password"
+                  {...register("password", {
+                    onChange: () => setFormError(""),
+                  })}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword((prev) => !prev)}
+                  className="text-muted-foreground hover:text-foreground absolute inset-y-0 right-0 flex items-center pr-3"
+                >
+                  {showPassword ? (
+                    <EyeOff className="h-4 w-4" />
+                  ) : (
+                    <Eye className="h-4 w-4" />
+                  )}
+                </button>
+              </div>
+              {errors.password?.message && (
+                <p className="text-destructive text-sm">
+                  {errors.password.message}
+                </p>
+              )}
+            </div>
+
+            {formError && (
+              <p className="text-destructive text-sm">{formError}</p>
+            )}
+
+            <Button
+              type="submit"
+              className="w-full"
+              disabled={loading || isLocked || (!isValid && submitAttempted)}
+              onClick={() => setSubmitAttempted(true)}
+            >
+              {isLocked
+                ? t("auth.rateLimit", {
+                    remainingSeconds: String(remainingSeconds),
+                  })
+                : loading
+                  ? t("common.loading")
+                  : t("auth.signin.submit")}
+            </Button>
+
+            <div className="text-center">
               <button
                 type="button"
-                onClick={() => setShowPassword((prev) => !prev)}
-                className="text-muted-foreground hover:text-foreground absolute inset-y-0 right-0 flex items-center pr-3"
+                onClick={handleForgotPassword}
+                className="text-primary text-sm hover:underline"
               >
-                {showPassword ? (
-                  <EyeOff className="h-4 w-4" />
-                ) : (
-                  <Eye className="h-4 w-4" />
-                )}
+                {t("auth.signin.forgotPassword")}
               </button>
             </div>
-            {errors.password?.message && (
-              <p className="text-destructive text-sm">
-                {errors.password.message}
-              </p>
-            )}
-          </div>
 
-          {formError && <p className="text-destructive text-sm">{formError}</p>}
+            <GoogleButton onClick={handleGoogleSignIn} />
 
-          <Button
-            type="submit"
-            className="w-full"
-            disabled={loading || isLocked || (!isValid && submitAttempted)}
-            onClick={() => setSubmitAttempted(true)}
-          >
-            {isLocked
-              ? t("auth.rateLimit", {
-                  remainingSeconds: String(remainingSeconds),
-                })
-              : loading
-                ? t("common.loading")
-                : t("auth.signin.submit")}
-          </Button>
-
-          <div className="text-center">
-            <button
-              type="button"
-              onClick={handleForgotPassword}
-              className="text-primary text-sm hover:underline"
-            >
-              {t("auth.signin.forgotPassword")}
-            </button>
-          </div>
-
-          <GoogleButton onClick={handleGoogleSignIn} />
-
-          <div className="text-center text-sm">
-            <button
-              type="button"
-              onClick={handleSignUp}
-              className="text-primary hover:underline"
-            >
-              {t("auth.signin.noAccount")}
-            </button>
-          </div>
-        </form>
+            <div className="text-center text-sm">
+              <button
+                type="button"
+                onClick={handleSignUp}
+                className="text-primary hover:underline"
+              >
+                {t("auth.signin.noAccount")}
+              </button>
+            </div>
+          </form>
+        )}
       </div>
     </>
   )
