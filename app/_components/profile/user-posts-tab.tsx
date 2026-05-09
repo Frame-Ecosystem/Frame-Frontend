@@ -1,11 +1,8 @@
 "use client"
 
-import { useEffect, useMemo } from "react"
-import { Loader2 } from "lucide-react"
-import { useInView } from "react-intersection-observer"
+import { useMemo } from "react"
 import { useUserPosts } from "../../_hooks/queries/useContent"
-import { PostCard } from "../posts/post-card"
-import { EmptyState } from "../content/empty-state"
+import { ContentGrid } from "../content/content-grid"
 import type { Post } from "../../_types/content"
 
 interface UserPostsTabProps {
@@ -13,44 +10,45 @@ interface UserPostsTabProps {
 }
 
 /**
- * Displays a user's posts as full post cards (same as home feed).
- * Drop this into any profile tab (own profile or visitor).
+ * Displays a user's posts in an infinite-scroll 3-column grid.
+ * Clicking a post shows a preview or navigates to the post detail.
  */
 export function UserPostsTab({ userId }: UserPostsTabProps) {
   const postsQuery = useUserPosts(userId)
-  const { ref, inView } = useInView()
-
-  const { hasNextPage, isFetchingNextPage, fetchNextPage, isLoading } =
-    postsQuery
 
   const posts: Post[] = useMemo(
     () => postsQuery.data?.pages.flatMap((p) => p.data) ?? [],
     [postsQuery.data],
   )
 
-  useEffect(() => {
-    if (inView && hasNextPage && !isFetchingNextPage) {
-      fetchNextPage()
-    }
-  }, [inView, hasNextPage, isFetchingNextPage, fetchNextPage])
-
-  if (!isLoading && posts.length === 0) {
-    return <EmptyState type="posts" />
+  // Handle loading and error states
+  if (postsQuery.isLoading) {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <div className="text-muted-foreground">Loading posts...</div>
+      </div>
+    )
   }
 
-  return (
-    <div className="mx-auto max-w-2xl space-y-8 sm:space-y-10">
-      {posts.map((post, index) => (
-        <PostCard key={post._id} post={post} priority={index === 0} />
-      ))}
+  if (postsQuery.isError) {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <div className="text-destructive">Failed to load posts</div>
+      </div>
+    )
+  }
 
-      {hasNextPage && (
-        <div ref={ref} className="flex justify-center py-4">
-          {isFetchingNextPage && (
-            <Loader2 className="text-muted-foreground h-5 w-5 animate-spin" />
-          )}
-        </div>
-      )}
-    </div>
+  // For now, posts in grid view don't have click handlers
+  // They just display as thumbnails
+  return (
+    <ContentGrid
+      items={posts}
+      type="posts"
+      hasNextPage={!!postsQuery.hasNextPage}
+      isFetchingNextPage={postsQuery.isFetchingNextPage}
+      fetchNextPage={postsQuery.fetchNextPage}
+      isLoading={postsQuery.isLoading}
+      emptyType="posts"
+    />
   )
 }

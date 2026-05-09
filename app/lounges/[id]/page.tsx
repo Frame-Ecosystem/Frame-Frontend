@@ -12,6 +12,7 @@ import {
   MessageSquare,
   UserPlus,
   UserCheck,
+  Grid3X3,
 } from "lucide-react"
 import {
   Avatar,
@@ -36,6 +37,7 @@ import InfoDisplay from "@/app/_components/lounges/info-display"
 import OurServices from "@/app/_components/services/our-services"
 import QueueDisplay from "@/app/_components/queue/queue-display"
 import { UserReelsTab } from "@/app/_components/profile/user-reels-tab"
+import { UserPostsTab } from "@/app/_components/profile/user-posts-tab"
 import { Button } from "@/app/_components/ui/button"
 import { LoungeDetailSkeleton } from "@/app/_components/skeletons/lounges"
 
@@ -48,7 +50,7 @@ import { isLoungeCurrentlyOpen } from "@/app/_components/bookings/booking-utils"
 import { clientService } from "@/app/_services"
 import { toast } from "sonner"
 
-type Tab = "info" | "reels" | "services" | "queue" | "reviews"
+type Tab = "info" | "posts" | "reels" | "services" | "queue" | "reviews"
 
 export default function LoungePage() {
   const params = useParams()
@@ -79,14 +81,15 @@ export default function LoungePage() {
   const [error, setError] = useState<string | null>(null)
   const [activeTab, setActiveTab] = useState<Tab>(() => {
     const tab = searchParams.get("tab") as Tab
-    if (["reels", "services", "queue", "reviews"].includes(tab)) return tab
+    if (["posts", "reels", "services", "queue", "reviews"].includes(tab))
+      return tab
     return "info"
   })
 
   // Sync tab when searchParams change
   useEffect(() => {
     const tab = searchParams.get("tab") as Tab
-    if (["reels", "services", "queue", "reviews"].includes(tab)) {
+    if (["posts", "reels", "services", "queue", "reviews"].includes(tab)) {
       setActiveTab(tab)
     }
   }, [searchParams])
@@ -621,6 +624,15 @@ export default function LoungePage() {
             <Button
               variant="ghost"
               size="sm"
+              className={`shrink-0 rounded-lg border px-3 py-2 text-sm font-medium transition-all duration-300 ${activeTab === "posts" ? "border-primary bg-primary/10 text-primary" : "border-border text-foreground hover:border-primary/50 hover:text-primary hover:bg-primary/5"}`}
+              onClick={() => handleTabChange("posts")}
+            >
+              <Grid3X3 className="h-4 w-4" />
+              Posts
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
               className={`shrink-0 rounded-lg border px-3 py-2 text-sm font-medium transition-all duration-300 ${activeTab === "reels" ? "border-primary bg-primary/10 text-primary" : "border-border text-foreground hover:border-primary/50 hover:text-primary hover:bg-primary/5"}`}
               onClick={() => handleTabChange("reels")}
             >
@@ -679,6 +691,7 @@ export default function LoungePage() {
               openingHours={openingHours}
             />
           )}
+          {activeTab === "posts" && id && <UserPostsTab userId={id} />}
           {activeTab === "reels" && id && <UserReelsTab userId={id} isLounge />}
           {activeTab === "services" && (
             <OurServices services={center.services} center={center} />
