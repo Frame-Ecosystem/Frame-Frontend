@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useCallback, useRef, useEffect } from "react"
 import { UserIcon, X } from "lucide-react"
 import {
   SignInDialog,
@@ -21,6 +21,9 @@ const prevent = (e: Event) => e.preventDefault()
 /** Noop — Radix cannot change dialog state, only our callbacks can. */
 const noop = () => {}
 
+/** Session check timeout in ms — prevents indefinite loading state */
+const SESSION_CHECK_TIMEOUT = 5000
+
 const UserSession = ({ compact }: { compact?: boolean } = {}) => {
   // ===== STATE =====
   const { user, isLoading, ensureSession } = useAuth()
@@ -28,56 +31,96 @@ const UserSession = ({ compact }: { compact?: boolean } = {}) => {
   const [signupOpen, setSignupOpen] = useState(false)
   const [popoverOpen, setPopoverOpen] = useState(false)
   const [isCheckingSession, setIsCheckingSession] = useState(false)
-  const [sessionUser, setSessionUser] = useState<any>(null)
+  const [sessionUser, setSessionUser] = useState<typeof user | null>(null)
+  const sessionCheckAbortRef = useRef<AbortController | null>(null)
+  const sessionCheckTimeoutRef = useRef<NodeJS.Timeout | null>(null)
   const isLoggedIn = !!user
 
-  // ===== CLOSE HELPERS (the ONLY way dialogs can close) =====
-  const closeSignIn = () => {
+  // ===== CLEANUP =====
+  useEffect(() => {
+    return () => {
+      // Cleanup on unmount
+      sessionCheckAbortRef.current?.abort()
+      if (sessionCheckTimeoutRef.current) {
+        clearTimeout(sessionCheckTimeoutRef.current)
+      }
+    }
+  }, [])
+
+  // ===== CLOSE HELPERS =====
+  const closeSignIn = useCallback(() => {
     setDialogOpen(false)
     setIsCheckingSession(false)
     setSessionUser(null)
-  }
-  const closeSignUp = () => setSignupOpen(false)
+    sessionCheckAbortRef.current?.abort()
+    if (sessionCheckTimeoutRef.current) {
+      clearTimeout(sessionCheckTimeoutRef.current)
+    }
+  }, [])
+
+  const closeSignUp = useCallback(() => setSignupOpen(false), [])
+
+  // ===== SESSION CHECK LOGIC =====
+  const checkSession = useCallback(async () => {
+    // Cancel any previous check
+    sessionCheckAbortRef.current?.abort()
+    sessionCheckAbortRef.current = new AbortController()
+
+    setIsCheckingSession(true)
+    setSessionUser(null)
+
+    try {
+      // Race between ensureSession and timeout
+      const checkPromise = ensureSession()
+      const timeoutPromise = new Promise<boolean>((_, reject) => {
+        sessionCheckTimeoutRef.current = setTimeout(() => {
+          reject(new Error("Session check timeout"))
+        }, SESSION_CHECK_TIMEOUT)
+      })
+
+      const restored = await Promise.race([checkPromise, timeoutPromise])
+
+      // Only update state if not aborted
+      if (!sessionCheckAbortRef.current?.signal.aborted) {
+        if (restored && user) {
+          setSessionUser(user)
+        }
+      }
+    } catch {
+      // Timeout or abort — silently fail and show login form
+      if (!sessionCheckAbortRef.current?.signal.aborted) {
+        setSessionUser(null)
+      }
+    } finally {
+      if (sessionCheckTimeoutRef.current) {
+        clearTimeout(sessionCheckTimeoutRef.current)
+      }
+      setIsCheckingSession(false)
+    }
+  }, [ensureSession, user])
 
   // ===== EVENT HANDLERS =====
-  const handleAddAccount = () => {
+  const handleAddAccount = useCallback(() => {
     setPopoverOpen(false)
-    // Reset session state before opening dialog
-    setSessionUser(null)
-    setIsCheckingSession(true)
     setDialogOpen(true)
-    // Start session restoration in background
-    ensureSession().then((restored) => {
-      if (restored) {
-        // Session restored successfully, sessionUser will be set via context
-        setSessionUser(user)
-      }
-      setIsCheckingSession(false)
-    })
-  }
+    // Start session check in background (non-blocking)
+    checkSession()
+  }, [checkSession])
 
-  const handleOpenSignIn = () => {
+  const handleOpenSignIn = useCallback(() => {
     if (isLoading) return
-
-    // Open dialog immediately
-    setSessionUser(null)
-    setIsCheckingSession(true)
     setDialogOpen(true)
+    // Start session check in background (non-blocking)
+    checkSession()
+  }, [isLoading, checkSession])
 
-    // Start session restoration in background
-    ensureSession().then((restored) => {
-      if (restored) {
-        // Session restored - user will be set via context
-        setSessionUser(user)
-      }
-      setIsCheckingSession(false)
-    })
-  }
-
-  const handleContinueSession = async () => {
-    // User confirmed to continue with existing session
+  const handleContinueSession = useCallback(async () => {
     closeSignIn()
-  }
+  }, [closeSignIn])
+
+  const handleSignInDifferent = useCallback(() => {
+    setSessionUser(null)
+  }, [])
 
   // ===== SHARED UI ELEMENTS =====
   const userButton = (
@@ -125,7 +168,6 @@ const UserSession = ({ compact }: { compact?: boolean } = {}) => {
 
   // ===== RENDER =====
   // CRITICAL: NO early returns — dialogs must ALWAYS stay in the React tree.
-  // The trigger area is hidden during loading, but dialogs are never unmounted.
   return (
     <>
       {/* ── Trigger area — hidden while auth is loading ── */}
@@ -146,9 +188,6 @@ const UserSession = ({ compact }: { compact?: boolean } = {}) => {
         ))}
 
       {/* ── Sign-in dialog (always mounted, fully controlled) ── */}
-      {/* onOpenChange={noop} → Radix can NEVER close this dialog.            */}
-      {/* [&>button:last-child]:hidden → hides broken built-in X button.      */}
-      {/* Our own <button> calls closeSignIn() which is the ONLY close path.  */}
       <Dialog open={dialogOpen} onOpenChange={noop}>
         <DialogContent
           className="z-[9999] max-h-[90vh] w-[90%] overflow-y-auto rounded-2xl [&>button:last-child]:hidden"
@@ -175,6 +214,7 @@ const UserSession = ({ compact }: { compact?: boolean } = {}) => {
             isCheckingSession={isCheckingSession}
             sessionUser={sessionUser}
             onContinueSession={handleContinueSession}
+            onSignInDifferent={handleSignInDifferent}
           />
         </DialogContent>
       </Dialog>
