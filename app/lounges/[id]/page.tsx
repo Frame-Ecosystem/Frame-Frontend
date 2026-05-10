@@ -20,7 +20,7 @@ import {
   AvatarFallback,
 } from "@/app/_components/ui/avatar"
 import { ImageLightbox } from "@/app/_components/common/images/image-lightbox"
-import RatingDialog from "@/app/_components/forms/rating-dialog"
+import RatingDialog from "@/app/_core/components/forms/rating-dialog"
 import { RatingSummaryBadge } from "@/app/_components/common/star-rating"
 import ReviewsList from "@/app/_components/common/reviews-list"
 import {
