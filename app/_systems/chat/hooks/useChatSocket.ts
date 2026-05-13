@@ -162,7 +162,7 @@ export function useChatSocket({
           if (ack?.ok) {
             joinedRef.current = true
           } else if (ack?.error) {
-            console.warn("[chat:join] denied:", ack.error)
+            // Join denied
           }
         },
       )

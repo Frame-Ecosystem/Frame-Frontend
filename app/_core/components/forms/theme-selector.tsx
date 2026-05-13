@@ -1,4 +1,4 @@
-﻿"use client"
+"use client"
 
 import { Check, Palette, ChevronDown } from "lucide-react"
 import { useTheme } from "next-themes"
@@ -34,9 +34,8 @@ export function ThemeSelector() {
         await authService.updateTheme(newTheme)
         toast.success(t("toast.themeUpdated"))
       }
-    } catch (error) {
+    } catch (_) {
       if (isAuthError(error)) return
-      console.error("Failed to update theme:", error)
       toast.error(t("toast.error"))
       // Revert to previous theme on error
       setTheme(previousTheme || "system")

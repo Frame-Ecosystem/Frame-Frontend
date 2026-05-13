@@ -1,4 +1,4 @@
-﻿import { apiClient } from "@/app/_core/api/api"
+import { apiClient } from "@/app/_core/api/api"
 import type {
   FollowToggleResult,
   FollowCheckResult,
@@ -33,8 +33,7 @@ class FollowService {
       )
       const payload = (res as any).data ?? res
       return !!(payload.isFollowing ?? payload.following ?? false)
-    } catch (error) {
-      console.warn("[FollowService] checkFollowing failed:", error)
+    } catch (_) {
       return false
     }
   }
@@ -111,8 +110,7 @@ class FollowService {
         followersCount: payload.followersCount ?? 0,
         followingCount: payload.followingCount ?? 0,
       }
-    } catch (error) {
-      console.warn("[FollowService] getCounts failed:", error)
+    } catch (_) {
       return { followersCount: 0, followingCount: 0 }
     }
   }

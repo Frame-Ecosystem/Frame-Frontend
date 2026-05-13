@@ -50,9 +50,8 @@ export default function SuggestService() {
       const suggestions =
         await serviceSuggestionsService.getMySuggestions(loungeId)
       setUserSuggestions(suggestions)
-    } catch (error) {
+    } catch (_) {
       if (isAuthError(error)) return
-      console.error("Failed to fetch suggestions:", error)
       toast.error(t("services.suggest.loadFailed"))
       setUserSuggestions([])
     } finally {
@@ -106,9 +105,8 @@ export default function SuggestService() {
         estimatedDuration: "",
         targetGender: "unisex",
       })
-    } catch (err) {
+    } catch (_) {
       if (isAuthError(err)) return
-      console.error("Failed to submit suggestion", err)
 
       // Handle specific backend error messages
       if (err instanceof Error) {

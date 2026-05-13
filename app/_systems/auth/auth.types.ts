@@ -75,6 +75,27 @@ export interface RefreshTokenResponse {
   csrfToken?: string
 }
 
+/** Active session metadata for deterministic switching. */
+export interface SessionInfo {
+  sessionId: string
+  userId: string
+  displayName: string
+  emailOrPhoneMasked: string
+  deviceName?: string
+  createdAt: string
+  lastUsedAt?: string
+  isCurrent: boolean
+}
+
+/** Response for POST /v1/auth/switch-session. */
+export interface SwitchSessionResponse {
+  token: string
+  expiresIn: number
+  data: User
+  message?: string
+  csrfToken?: string
+}
+
 /** Generic message response (logout, forgot-password, reset-password) */
 export interface MessageResponse {
   message: string

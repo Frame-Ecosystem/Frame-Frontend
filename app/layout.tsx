@@ -10,7 +10,7 @@ import { Toaster } from "sonner"
 import { SpeedInsights } from "@vercel/speed-insights/next"
 
 // Internal components
-import ProgressProvider from "./_components/forms/progress-bar"
+import ProgressProvider from "./_core/components/forms/progress-bar"
 import MainContentWrapper from "./_components/layout/mainContentWrapper"
 
 // Context providers

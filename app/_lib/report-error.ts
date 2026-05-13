@@ -25,7 +25,6 @@ export function reportError(error: unknown, context: ErrorContext = {}) {
   }
 
   if (process.env.NODE_ENV !== "production") {
-    console.error("[reportError]", payload)
     return
   }
 

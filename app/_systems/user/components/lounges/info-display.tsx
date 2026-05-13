@@ -2,7 +2,7 @@
 
 import ContactInfo from "@/app/_components/common/profile-display/contact-info"
 import DisplayLocation from "./display-location"
-import OpeningHours from "@/app/_components/forms/opening-hours"
+import OpeningHours from "@/app/_core/components/forms/opening-hours"
 import Extras from "@/app/_components/common/extras"
 
 interface InfoDisplayProps {

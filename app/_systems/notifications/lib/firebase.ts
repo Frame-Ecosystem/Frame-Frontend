@@ -62,8 +62,7 @@ export function getFirebaseMessaging(): Messaging | null {
 
     try {
       messaging = getMessaging(firebaseApp)
-    } catch (err) {
-      console.error("[Firebase] Failed to initialise messaging:", err)
+    } catch (_) {
       return null
     }
   }
@@ -82,9 +81,6 @@ const MAX_RETRIES = 2
  * Multiple callers await the same in-flight request.
  */
 let tokenPromise: Promise<string | null> | null = null
-
-/** Tracks consecutive failures to apply back-off. */
-let consecutiveFailures = 0
 
 /**
  * Register the messaging service worker, wait for it to activate,
@@ -137,7 +133,6 @@ async function _doRequestFCMToken(): Promise<string | null> {
 
       try {
         const token = (await getToken(msg, tokenOpts)) ?? null
-        consecutiveFailures = 0 // reset on success
         return token
       } catch (innerErr) {
         // Stale subscription — clear and retry within the same attempt
@@ -145,20 +140,13 @@ async function _doRequestFCMToken(): Promise<string | null> {
         if (sub) {
           await sub.unsubscribe()
           const token = (await getToken(msg, tokenOpts)) ?? null
-          consecutiveFailures = 0
           return token
         }
         throw innerErr
       }
-    } catch (err) {
-      consecutiveFailures++
-
+    } catch (_) {
       // Only retry transient errors — anything else is terminal
       if (!isTransientPushError(err) || attempt === MAX_RETRIES) {
-        if (consecutiveFailures <= 3) {
-          // Log sparingly — avoid console spam
-          console.warn("[Firebase] Push registration failed:", err)
-        }
         return null
       }
 

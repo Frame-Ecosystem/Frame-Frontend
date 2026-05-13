@@ -1,4 +1,4 @@
-﻿import { clsx, type ClassValue } from "clsx"
+import { clsx, type ClassValue } from "clsx"
 import { twMerge } from "tailwind-merge"
 import type { User } from "@/app/_types"
 
@@ -15,8 +15,7 @@ export function formatMemberSinceDate(dateString?: string): string {
       year: "numeric",
       month: "short",
     })
-  } catch (error) {
-    console.error("Error formatting date:", error)
+  } catch (_) {
     return "Unknown"
   }
 }

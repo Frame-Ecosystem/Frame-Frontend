@@ -1,4 +1,4 @@
-﻿"use client"
+"use client"
 
 import { useState, useEffect } from "react"
 import { Clock } from "lucide-react"
@@ -108,9 +108,8 @@ export function OpeningHoursSelector() {
 
       toast.success(t("openingHours.updated"))
       setOpen(false)
-    } catch (error) {
+    } catch (_) {
       if (isAuthError(error)) return
-      console.error("Failed to update opening hours:", error)
       if (error instanceof Error) {
         toast.error(error.message)
       } else {

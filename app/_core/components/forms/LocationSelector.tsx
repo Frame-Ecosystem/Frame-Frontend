@@ -1,4 +1,4 @@
-﻿"use client"
+"use client"
 
 import { useState, useRef, useEffect, useCallback } from "react"
 import { Button } from "@/app/_core/ui/button"
@@ -41,9 +41,6 @@ export function LocationSelector({
 
   const initializeMap = useCallback(() => {
     if (!mapRef.current || !window.google) {
-      console.error(
-        "LocationSelector: Map container or Google Maps not available",
-      )
       return
     }
 
@@ -194,8 +191,8 @@ export function LocationSelector({
       // Store references for cleanup if needed
       // setMap(mapInstance)
       // setMarker(markerInstance)
-    } catch (error) {
-      console.error("LocationSelector: Error initializing map:", error)
+    } catch (_) {
+      // Map initialization failed silently
     }
   }, [])
 
@@ -209,7 +206,6 @@ export function LocationSelector({
       if (!existingScript) {
         const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY
         if (!apiKey) {
-          console.error("LocationSelector: Google Maps API key not found")
           return
         }
         const script = document.createElement("script")
@@ -223,7 +219,7 @@ export function LocationSelector({
         }
 
         script.onerror = () => {
-          console.error("LocationSelector: Failed to load Google Maps script")
+          // Google Maps failed to load
         }
       } else {
         // Script is already loading, wait for it
@@ -281,9 +277,8 @@ export function LocationSelector({
         setSearchQuery("")
         setIsOpen(false) // Close the expanded view after successful update
       }
-    } catch (error) {
+    } catch (_) {
       if (isAuthError(error)) return
-      console.error("Failed to update location:", error)
     } finally {
       setIsUpdating(false)
     }

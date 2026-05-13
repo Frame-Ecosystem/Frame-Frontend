@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useCallback, useRef, useEffect } from "react"
 import { UserIcon, X } from "lucide-react"
 import {
   SignInDialog,
@@ -9,6 +9,12 @@ import {
   getUserDisplayName,
   getUserInitials,
 } from "@/app/_auth"
+import {
+  saveSession,
+  getAllSessions,
+  type StoredSession,
+} from "@/app/_auth/lib/sessions-manager"
+import { useTranslation } from "@/app/_i18n"
 import { Button } from "../ui/button"
 import { Popover, PopoverTrigger, PopoverContent } from "../ui/popover"
 import { Dialog, DialogContent } from "../ui/dialog"
@@ -21,63 +27,145 @@ const prevent = (e: Event) => e.preventDefault()
 /** Noop — Radix cannot change dialog state, only our callbacks can. */
 const noop = () => {}
 
+/** Session check timeout in ms — prevents indefinite loading state */
+const SESSION_CHECK_TIMEOUT = 5000
+
 const UserSession = ({ compact }: { compact?: boolean } = {}) => {
   // ===== STATE =====
-  const { user, isLoading, ensureSession } = useAuth()
+  const { user, isLoading, ensureSession, loadStoredSession } = useAuth()
+  const { t } = useTranslation()
   const [dialogOpen, setDialogOpen] = useState(false)
   const [signupOpen, setSignupOpen] = useState(false)
   const [popoverOpen, setPopoverOpen] = useState(false)
   const [isCheckingSession, setIsCheckingSession] = useState(false)
-  const [sessionUser, setSessionUser] = useState<any>(null)
+  const [sessionUser, setSessionUser] = useState<typeof user | null>(null)
+  const [storedSessions, setStoredSessions] = useState<StoredSession[]>([])
+  const [showStoredSessions, setShowStoredSessions] = useState(false)
+  const sessionCheckAbortRef = useRef<AbortController | null>(null)
+  const sessionCheckTimeoutRef = useRef<NodeJS.Timeout | null>(null)
   const isLoggedIn = !!user
 
-  // ===== CLOSE HELPERS (the ONLY way dialogs can close) =====
-  const closeSignIn = () => {
+  // ===== CLEANUP =====
+  useEffect(() => {
+    return () => {
+      // Cleanup on unmount
+      sessionCheckAbortRef.current?.abort()
+      if (sessionCheckTimeoutRef.current) {
+        clearTimeout(sessionCheckTimeoutRef.current)
+      }
+    }
+  }, [])
+
+  // ===== CLOSE HELPERS =====
+  const closeSignIn = useCallback(() => {
     setDialogOpen(false)
     setIsCheckingSession(false)
     setSessionUser(null)
-  }
-  const closeSignUp = () => setSignupOpen(false)
+    setShowStoredSessions(false)
+    sessionCheckAbortRef.current?.abort()
+    if (sessionCheckTimeoutRef.current) {
+      clearTimeout(sessionCheckTimeoutRef.current)
+    }
+  }, [])
+
+  const closeSignUp = useCallback(() => setSignupOpen(false), [])
+
+  // ===== SESSION CHECK LOGIC =====
+  /**
+   * Check for existing session WITHOUT auto-logging in.
+   * This just detects if a session exists and shows it as an option to continue.
+   */
+  const checkSession = useCallback(async () => {
+    // Cancel any previous check
+    sessionCheckAbortRef.current?.abort()
+    sessionCheckAbortRef.current = new AbortController()
+
+    setIsCheckingSession(true)
+    setSessionUser(null)
+
+    try {
+      // Race between ensureSession and timeout
+      const checkPromise = ensureSession()
+      const timeoutPromise = new Promise<boolean>((_, reject) => {
+        sessionCheckTimeoutRef.current = setTimeout(() => {
+          reject(new Error("Session check timeout"))
+        }, SESSION_CHECK_TIMEOUT)
+      })
+
+      const restored = await Promise.race([checkPromise, timeoutPromise])
+
+      // Only update state if not aborted
+      if (!sessionCheckAbortRef.current?.signal.aborted) {
+        if (restored && user) {
+          // Found a session — show as "continue with" option
+          setSessionUser(user)
+        }
+      }
+    } catch {
+      // Timeout or abort — silently fail and show login form
+      if (!sessionCheckAbortRef.current?.signal.aborted) {
+        setSessionUser(null)
+      }
+    } finally {
+      if (sessionCheckTimeoutRef.current) {
+        clearTimeout(sessionCheckTimeoutRef.current)
+      }
+      setIsCheckingSession(false)
+    }
+  }, [ensureSession, user])
 
   // ===== EVENT HANDLERS =====
-  const handleAddAccount = () => {
+  const handleAddAccount = useCallback(() => {
     setPopoverOpen(false)
-    // Reset session state before opening dialog
-    setSessionUser(null)
-    setIsCheckingSession(true)
-    setDialogOpen(true)
-    // Start session restoration in background
-    ensureSession().then((restored) => {
-      if (restored) {
-        // Session restored successfully, sessionUser will be set via context
-        setSessionUser(user)
-      }
-      setIsCheckingSession(false)
-    })
-  }
 
-  const handleOpenSignIn = () => {
+    // Save current session before opening signin
+    if (user) {
+      saveSession(user)
+      // Load all stored sessions to show options
+      setStoredSessions(getAllSessions())
+      setShowStoredSessions(true)
+    }
+
+    setDialogOpen(true)
+    // Don't check session when explicitly adding new account
+  }, [user])
+
+  const handleOpenSignIn = useCallback(() => {
     if (isLoading) return
-
-    // Open dialog immediately
-    setSessionUser(null)
-    setIsCheckingSession(true)
     setDialogOpen(true)
+    // Check for existing session (will show as "continue with" option if found)
+    checkSession()
+  }, [isLoading, checkSession])
 
-    // Start session restoration in background
-    ensureSession().then((restored) => {
-      if (restored) {
-        // Session restored - user will be set via context
-        setSessionUser(user)
-      }
-      setIsCheckingSession(false)
-    })
-  }
-
-  const handleContinueSession = async () => {
-    // User confirmed to continue with existing session
+  const handleContinueSession = useCallback(async () => {
     closeSignIn()
-  }
+  }, [closeSignIn])
+
+  const handleSignInDifferent = useCallback(() => {
+    setSessionUser(null)
+    setShowStoredSessions(false)
+  }, [])
+
+  const handleSelectStoredSession = useCallback(
+    (session: StoredSession) => {
+      // Load the selected session into auth context and close dialogs
+      closeSignIn()
+      // Trigger session load asynchronously
+      ;(async () => {
+        const success = await loadStoredSession(session)
+        if (success) {
+          // Session loaded successfully — dialogs will close automatically
+          // and auth context will reflect the new user
+        } else {
+          // Session failed to load — show signin dialog again to re-authenticate
+          setDialogOpen(true)
+          setSessionUser(session.user)
+          setShowStoredSessions(true)
+        }
+      })()
+    },
+    [closeSignIn, loadStoredSession],
+  )
 
   // ===== SHARED UI ELEMENTS =====
   const userButton = (
@@ -125,7 +213,6 @@ const UserSession = ({ compact }: { compact?: boolean } = {}) => {
 
   // ===== RENDER =====
   // CRITICAL: NO early returns — dialogs must ALWAYS stay in the React tree.
-  // The trigger area is hidden during loading, but dialogs are never unmounted.
   return (
     <>
       {/* ── Trigger area — hidden while auth is loading ── */}
@@ -146,9 +233,6 @@ const UserSession = ({ compact }: { compact?: boolean } = {}) => {
         ))}
 
       {/* ── Sign-in dialog (always mounted, fully controlled) ── */}
-      {/* onOpenChange={noop} → Radix can NEVER close this dialog.            */}
-      {/* [&>button:last-child]:hidden → hides broken built-in X button.      */}
-      {/* Our own <button> calls closeSignIn() which is the ONLY close path.  */}
       <Dialog open={dialogOpen} onOpenChange={noop}>
         <DialogContent
           className="z-[9999] max-h-[90vh] w-[90%] overflow-y-auto rounded-2xl [&>button:last-child]:hidden"
@@ -165,6 +249,49 @@ const UserSession = ({ compact }: { compact?: boolean } = {}) => {
             <X className="h-4 w-4" />
             <span className="sr-only">Close</span>
           </button>
+
+          {/* Show stored sessions browser before signin form */}
+          {showStoredSessions && storedSessions.length > 1 && (
+            <div className="mb-4 space-y-3">
+              <p className="text-muted-foreground text-sm font-medium">
+                {t("auth.signin.savedSessions")}
+              </p>
+              <div className="space-y-2">
+                {storedSessions.map((session) => (
+                  <button
+                    key={session.id}
+                    onClick={() => handleSelectStoredSession(session)}
+                    className="border-border hover:bg-muted/50 flex w-full items-center gap-3 rounded-lg border p-3 transition-colors"
+                  >
+                    <Avatar className="h-8 w-8">
+                      {session.user.profileImage &&
+                        typeof session.user.profileImage === "string" && (
+                          <AvatarImage src={session.user.profileImage} />
+                        )}
+                      <AvatarFallback className="text-xs">
+                        {getUserInitials(session.user)}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="flex-1 text-left">
+                      <p className="text-sm font-medium">
+                        {getUserDisplayName(session.user)}
+                      </p>
+                      <p className="text-muted-foreground text-xs">
+                        {session.user.email || session.user.phoneNumber}
+                      </p>
+                    </div>
+                  </button>
+                ))}
+              </div>
+              <button
+                onClick={() => setShowStoredSessions(false)}
+                className="text-primary text-sm font-medium hover:underline"
+              >
+                {t("auth.signin.signInWithDifferent")}
+              </button>
+            </div>
+          )}
+
           <SignInDialog
             onSuccess={closeSignIn}
             onClose={closeSignIn}
@@ -175,6 +302,7 @@ const UserSession = ({ compact }: { compact?: boolean } = {}) => {
             isCheckingSession={isCheckingSession}
             sessionUser={sessionUser}
             onContinueSession={handleContinueSession}
+            onSignInDifferent={handleSignInDifferent}
           />
         </DialogContent>
       </Dialog>

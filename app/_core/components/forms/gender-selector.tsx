@@ -1,4 +1,4 @@
-﻿"use client"
+"use client"
 
 import { Check, Users, ChevronDown } from "lucide-react"
 import { useState } from "react"
@@ -42,9 +42,8 @@ export function GenderSelector() {
       await refreshUser()
       toast.success(t("genderSelector.updated"))
       setIsOpen(false)
-    } catch (error) {
+    } catch (_) {
       if (isAuthError(error)) return
-      console.error("Failed to update gender preference:", error)
       toast.error(t("genderSelector.updateFailed"))
     }
   }
