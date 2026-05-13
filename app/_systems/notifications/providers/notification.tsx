@@ -1,6 +1,12 @@
 ﻿"use client"
 
-import React, { createContext, useContext, useMemo, useCallback } from "react"
+import React, {
+  createContext,
+  useContext,
+  useMemo,
+  useCallback,
+  useEffect,
+} from "react"
 import { useQueryClient } from "@tanstack/react-query"
 import { toast } from "sonner"
 import { useRouter } from "next/navigation"
@@ -13,10 +19,15 @@ import {
 } from "@/app/_hooks/queries/useNotifications"
 import { useBadge } from "@/app/_hooks/useBadge"
 import { getNotificationEngine } from "@/app/_lib/notification-engine"
+import { getSocket } from "@/app/_services/socket"
 import type { AppNotification, UnreadCountData } from "@/app/_types"
 import { NotificationType } from "@/app/_types"
 import { getRedirectPath } from "../lib/notification-routing"
 import { scrollToNotificationTarget } from "../hooks/useNotificationNavigate"
+import {
+  getMessageCountFromByCategory,
+  isMessageNotification,
+} from "../lib/message-notification"
 
 // Re-export for backward compatibility (consumers import from _providers/notification)
 export { getRedirectPath } from "../lib/notification-routing"
@@ -63,12 +74,19 @@ const TOAST_TYPES: ReadonlySet<string> = new Set([
 
 // ── Context ──────────────────────────────────────────────────
 interface NotificationContextValue {
+  /** Non-message unread notifications (for bell icon). */
   unreadCount: number
+  /** Total unread message notifications (for messages icon). */
+  unreadMessageCount: number
+  /** Total unread notifications across all categories. */
+  unreadTotalCount: number
   unreadByCategory: Record<string, number>
 }
 
 const EMPTY_CTX: NotificationContextValue = {
   unreadCount: 0,
+  unreadMessageCount: 0,
+  unreadTotalCount: 0,
   unreadByCategory: {},
 }
 const NotificationContext = createContext<NotificationContextValue>(EMPTY_CTX)
@@ -79,7 +97,7 @@ export const useNotificationContext = () => useContext(NotificationContext)
 export function NotificationProvider({
   children,
 }: {
-  children: React.ReactNode
+  readonly children: React.ReactNode
 }) {
   const { user, isLoading, accessToken } = useAuth()
   const isAuthenticated = !isLoading && !!user && !!accessToken
@@ -99,21 +117,26 @@ export function NotificationProvider({
 function AuthenticatedNotifications({
   children,
 }: {
-  children: React.ReactNode
+  readonly children: React.ReactNode
 }) {
   const { user } = useAuth()
   const queryClient = useQueryClient()
   const router = useRouter()
   const { data: unreadData } = useUnreadNotificationCount()
 
-  const unreadCount = unreadData?.total ?? 0
+  const unreadTotalCount = unreadData?.total ?? 0
   const unreadByCategory = useMemo(
     () => unreadData?.byCategory ?? {},
     [unreadData?.byCategory],
   )
+  const unreadMessageCount = useMemo(
+    () => getMessageCountFromByCategory(unreadByCategory),
+    [unreadByCategory],
+  )
+  const unreadCount = Math.max(unreadTotalCount - unreadMessageCount, 0)
 
-  // Sync badge count to favicon + PWA home-screen icon
-  useBadge(unreadCount)
+  // Sync total unread to favicon + PWA home-screen icon.
+  useBadge(unreadTotalCount)
 
   // Socket room
   const rooms = useMemo(
@@ -122,30 +145,41 @@ function AuthenticatedNotifications({
   )
 
   const handleNewNotification = useCallback(
-    (payload: { data: AppNotification }) => {
-      const { type, title, body } = payload.data
+    (payload: { data?: AppNotification } | AppNotification) => {
+      const notificationCandidate =
+        "data" in payload ? payload.data : (payload as AppNotification)
+      if (!notificationCandidate || typeof notificationCandidate !== "object") {
+        return
+      }
+
+      const notification = notificationCandidate
+
+      const { type, title, body } = notification
+      const isMessage = isMessageNotification(notification)
 
       // Optimistically bump unread count
       queryClient.setQueryData<UnreadCountData>(
         notificationKeys.unreadCount(),
-        (old) => ({
-          total: (old?.total ?? 0) + 1,
-          byCategory: {
-            ...old?.byCategory,
-            ...(payload.data.category
-              ? {
-                  [payload.data.category]:
-                    ((old?.byCategory as Record<string, number>)?.[
-                      payload.data.category
-                    ] ?? 0) + 1,
-                }
-              : {}),
-          },
-        }),
+        (old) => {
+          const oldByCategory = old?.byCategory as Record<string, number>
+          let byCategory = { ...oldByCategory }
+
+          if (isMessage) {
+            byCategory.messages = (oldByCategory?.messages ?? 0) + 1
+          } else if (notification.category) {
+            byCategory[notification.category] =
+              (oldByCategory?.[notification.category] ?? 0) + 1
+          }
+
+          return {
+            total: (old?.total ?? 0) + 1,
+            byCategory,
+          }
+        },
       )
-      queryClient.invalidateQueries({
-        queryKey: notificationKeys.all,
-      })
+
+      // Ensure list data updates without requiring page navigation.
+      queryClient.invalidateQueries({ queryKey: notificationKeys.all })
 
       // Play notification sound
       getNotificationEngine().handle(type)
@@ -154,7 +188,7 @@ function AuthenticatedNotifications({
       if (TOAST_TYPES.has(type)) {
         const duration = HIGH_PRIORITY_TYPES.has(type) ? 8000 : 5000
         const show = HIGH_PRIORITY_TYPES.has(type) ? toast.success : toast
-        const redirectPath = getRedirectPath(payload.data)
+        const redirectPath = getRedirectPath(notification)
 
         const id = show(title, {
           description: body,
@@ -165,7 +199,7 @@ function AuthenticatedNotifications({
               onClick: () => {
                 toast.dismiss(id)
                 router.push(redirectPath)
-                scrollToNotificationTarget(payload.data)
+                scrollToNotificationTarget(notification)
               },
             },
           }),
@@ -182,9 +216,37 @@ function AuthenticatedNotifications({
 
   useSocketRoom(rooms, socketEvents)
 
+  // Keep notification state fresh after reconnects and server-side changes.
+  useEffect(() => {
+    const socket = getSocket()
+
+    const syncUnread = () => {
+      queryClient.invalidateQueries({ queryKey: notificationKeys.all })
+    }
+
+    const onAnyNotificationEvent = (event: string) => {
+      if (!event.startsWith("notification:")) return
+      if (event === "notification:new") return
+      syncUnread()
+    }
+
+    socket.on("connect", syncUnread)
+    socket.onAny(onAnyNotificationEvent)
+
+    return () => {
+      socket.off("connect", syncUnread)
+      socket.offAny(onAnyNotificationEvent)
+    }
+  }, [queryClient])
+
   const value = useMemo<NotificationContextValue>(
-    () => ({ unreadCount, unreadByCategory }),
-    [unreadCount, unreadByCategory],
+    () => ({
+      unreadCount,
+      unreadMessageCount,
+      unreadTotalCount,
+      unreadByCategory,
+    }),
+    [unreadCount, unreadMessageCount, unreadTotalCount, unreadByCategory],
   )
 
   return (

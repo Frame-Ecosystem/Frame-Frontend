@@ -4,9 +4,10 @@ import Link from "next/link"
 import React, { useState, useEffect, useRef } from "react"
 import UserSession from "@/app/_components/profile/user-session"
 import NotificationButton from "../common/notification-button"
+import MessageButton from "../common/message-button"
 import { CreateContentButton } from "@/app/_components/content/create-content-button"
 import { Button } from "@/app/_core/ui/button"
-import { Search, MessageCircle, ChevronLeft } from "lucide-react"
+import { Search, ChevronLeft } from "lucide-react"
 import { Badge } from "@/app/_core/ui/badge"
 import { NavBrandLogo } from "../common/brand-logo"
 import { useRouter } from "next/navigation"
@@ -39,7 +40,7 @@ const TopBar: React.FC<TopBarProps> = ({
   const { t } = useTranslation()
   const [trayOpen, setTrayOpen] = useState(true)
   const autoMode = useRef(true)
-  const { unreadCount } = useNotificationContext()
+  const { unreadTotalCount } = useNotificationContext()
   const trayRef = useRef<HTMLDivElement>(null)
   const scrollDir = useScrollDirection()
 
@@ -107,12 +108,12 @@ const TopBar: React.FC<TopBarProps> = ({
                     trayOpen ? "rotate-180" : "rotate-0"
                   }`}
                 />
-                {!trayOpen && unreadCount > 0 && (
+                {!trayOpen && unreadTotalCount > 0 && (
                   <Badge
                     variant="destructive"
                     className="absolute -top-1.5 -right-1.5 flex h-4 w-4 items-center justify-center p-0 text-[9px] font-bold"
                   >
-                    {unreadCount > 9 ? "9+" : unreadCount}
+                    {unreadTotalCount > 9 ? "9+" : unreadTotalCount}
                   </Badge>
                 )}
               </div>
@@ -129,35 +130,39 @@ const TopBar: React.FC<TopBarProps> = ({
             >
               <div className="flex items-center gap-1">
                 {[
-                  <CreateContentButton compact key="create" />,
-                  <Button
-                    key="search"
-                    variant="ghost"
-                    size="icon"
-                    className={ICON_BTN}
-                    onClick={() => {
-                      router.push("/lounges")
-                      setTrayOpen(false)
-                    }}
-                  >
-                    <div className={ICON_OUTER}>
-                      <Search className={ICON_INNER} />
-                    </div>
-                  </Button>,
-                  <NotificationButton compact key="notif" />,
-                  <Button
-                    key="msg"
-                    variant="ghost"
-                    size="icon"
-                    className={ICON_BTN}
-                  >
-                    <div className={ICON_OUTER}>
-                      <MessageCircle className={ICON_INNER} />
-                    </div>
-                  </Button>,
-                ].map((icon, i) => (
+                  {
+                    id: "create",
+                    node: <CreateContentButton compact />,
+                  },
+                  {
+                    id: "search",
+                    node: (
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className={ICON_BTN}
+                        onClick={() => {
+                          router.push("/lounges")
+                          setTrayOpen(false)
+                        }}
+                      >
+                        <div className={ICON_OUTER}>
+                          <Search className={ICON_INNER} />
+                        </div>
+                      </Button>
+                    ),
+                  },
+                  {
+                    id: "notif",
+                    node: <NotificationButton compact />,
+                  },
+                  {
+                    id: "msg",
+                    node: <MessageButton compact />,
+                  },
+                ].map((item, i) => (
                   <div
-                    key={i}
+                    key={item.id}
                     className="transition-all ease-out"
                     style={{
                       transitionDuration: "900ms",
@@ -170,7 +175,7 @@ const TopBar: React.FC<TopBarProps> = ({
                         : "scale(0.6) translateX(-6px)",
                     }}
                   >
-                    {icon}
+                    {item.node}
                   </div>
                 ))}
               </div>
@@ -188,23 +193,15 @@ const TopBar: React.FC<TopBarProps> = ({
             <Button
               variant="ghost"
               size="icon"
-              className="hover:bg-primary/10 relative flex items-center justify-center rounded-full"
+              className="hover:bg-primary/10 relative flex h-10 w-10 items-center justify-center rounded-full p-0"
               onClick={() => router.push("/lounges")}
             >
-              <div className="flex h-10 w-10 items-center justify-center rounded-full border">
+              <div className="border-primary/30 flex h-10 w-10 items-center justify-center rounded-full border">
                 <Search className="h-5 w-5" />
               </div>
             </Button>
             <NotificationButton compact />
-            <Button
-              variant="ghost"
-              size="icon"
-              className="hover:bg-primary/10 relative flex items-center justify-center rounded-full"
-            >
-              <div className="flex h-10 w-10 items-center justify-center rounded-full border">
-                <MessageCircle className="h-5 w-5" />
-              </div>
-            </Button>
+            <MessageButton compact />
             <UserSession compact />
           </div>
         )}

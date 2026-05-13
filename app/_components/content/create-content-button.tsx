@@ -13,7 +13,9 @@ import { useTranslation } from "../../_i18n"
  * Top-bar button for creating posts and reels.
  * Styled to match the notification bell icon button.
  */
-export function CreateContentButton({ compact }: { compact?: boolean } = {}) {
+export function CreateContentButton({
+  compact: _compact,
+}: { compact?: boolean } = {}) {
   const { user } = useAuth()
   const { t } = useTranslation()
   const [open, setOpen] = useState(false)
@@ -29,15 +31,10 @@ export function CreateContentButton({ compact }: { compact?: boolean } = {}) {
           <Button
             variant="ghost"
             size="icon"
-            className={`hover:bg-primary/10 relative flex items-center justify-center rounded-full transition-transform active:scale-95 ${compact ? "h-10 w-10" : ""}`}
+            className="hover:bg-primary/10 relative flex h-10 w-10 items-center justify-center rounded-full p-0 transition-transform active:scale-95"
           >
-            <div
-              className={`flex items-center justify-center rounded-full border ${compact ? "h-10 w-10" : "h-10 w-10"}`}
-            >
-              <Plus
-                className={compact ? "h-5 w-5" : "h-5 w-5"}
-                strokeWidth={2}
-              />
+            <div className="border-primary/30 flex h-10 w-10 items-center justify-center rounded-full border">
+              <Plus className="h-5 w-5" strokeWidth={2} />
             </div>
           </Button>
         </PopoverTrigger>

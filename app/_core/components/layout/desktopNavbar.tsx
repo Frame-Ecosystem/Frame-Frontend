@@ -1,12 +1,13 @@
 ﻿"use client"
 
-import { Shield, Search, MessageCircle } from "lucide-react"
+import { Shield, Search } from "lucide-react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { Card, CardContent } from "@/app/_core/ui/card"
 import { Button } from "@/app/_core/ui/button"
 import UserSession from "@/app/_components/profile/user-session"
 import NotificationButton from "../common/notification-button"
+import MessageButton from "../common/message-button"
 import { CreateContentButton } from "@/app/_components/content/create-content-button"
 import { NavBrandLogo } from "../common/brand-logo"
 import { useAuth } from "@/app/_auth"
@@ -111,25 +112,17 @@ const DesktopNavbar = () => {
             <Button
               variant="ghost"
               size="icon"
-              className="hover:bg-primary/10 relative flex items-center justify-center rounded-full"
+              className="hover:bg-primary/10 relative flex h-10 w-10 items-center justify-center rounded-full p-0"
             >
-              <div className="flex h-9 w-9 items-center justify-center rounded-full border">
+              <div className="border-primary/30 flex h-10 w-10 items-center justify-center rounded-full border">
                 <Search className="h-5 w-5" />
               </div>
             </Button>
           </Link>
           {/* Notification Button */}
-          <NotificationButton />
+          <NotificationButton compact />
           {/* Messaging Button */}
-          <Button
-            variant="ghost"
-            size="icon"
-            className="hover:bg-primary/10 relative flex items-center justify-center rounded-full"
-          >
-            <div className="flex h-9 w-9 items-center justify-center rounded-full border">
-              <MessageCircle className="h-5 w-5" />
-            </div>
-          </Button>
+          <MessageButton compact />
           {/* User Session */}
           <UserSession />
         </div>
