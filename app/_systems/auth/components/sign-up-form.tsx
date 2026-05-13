@@ -162,8 +162,7 @@ export default function SignUpForm({
         recordFailure()
         setEmailSending(false)
       }
-    } catch (err) {
-      console.error("Signup error:", err)
+    } catch (_) {
       const mapped = mapAuthError(err, "signup")
       recordFailure(mapped.retryAfter)
       setFormError(mapped.formError)
@@ -208,7 +207,7 @@ export default function SignUpForm({
         redirect: (path) => router.push(path),
         getRedirectPath: getLoginRedirectPath,
       })
-    } catch (err) {
+    } catch (_) {
       setFormError(err instanceof Error ? err.message : String(err))
     } finally {
       setLoading(false)

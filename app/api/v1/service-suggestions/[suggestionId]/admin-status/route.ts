@@ -295,8 +295,7 @@ export async function PATCH(
         { status: 400 },
       )
     }
-  } catch (error) {
-    console.error("Error in admin status update:", error)
+  } catch (_) {
     return NextResponse.json(
       { error: "Failed to update suggestion status" },
       { status: 500 },

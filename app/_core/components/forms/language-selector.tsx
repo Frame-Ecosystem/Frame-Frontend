@@ -1,4 +1,4 @@
-﻿"use client"
+"use client"
 
 import { Check, ChevronDown, Globe } from "lucide-react"
 import { useLayoutEffect, useState } from "react"
@@ -34,9 +34,8 @@ export function LanguageSelector() {
         await authService.updateLanguage(code)
       }
       setTimeout(() => toast.success(t("toast.languageUpdated")), 0)
-    } catch (error) {
+    } catch (_) {
       if (isAuthError(error)) return
-      console.error("Failed to update language:", error)
       // Revert on failure
       setLocale(previousLocale)
       toast.error(t("toast.error"))
@@ -66,7 +65,7 @@ export function LanguageSelector() {
 
   return (
     <div className="space-y-2">
-      {/* ── Collapsed header ─────────────────────────────────────────── */}
+      {/* -- Collapsed header ------------------------------------------- */}
       <button
         onClick={() => setIsOpen(!isOpen)}
         className="border-border hover:bg-card/50 w-full rounded-lg border p-4 text-left transition-colors"
@@ -87,7 +86,7 @@ export function LanguageSelector() {
         </div>
       </button>
 
-      {/* ── Expanded language list ───────────────────────────────────── */}
+      {/* -- Expanded language list ------------------------------------- */}
       {isOpen && (
         <div className="space-y-1 px-1">
           {LANGUAGES.map((lang) => {

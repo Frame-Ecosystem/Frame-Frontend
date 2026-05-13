@@ -1,4 +1,4 @@
-﻿import { apiClient } from "@/app/_core/api/api"
+import { apiClient } from "@/app/_core/api/api"
 import type { ServiceCategory } from "@/app/_types"
 
 class ServiceCategoryService {
@@ -20,17 +20,9 @@ class ServiceCategoryService {
         } else if (response.items && Array.isArray(response.items)) {
           categories = response.items
         } else {
-          console.warn(
-            "Unexpected response format for /v1/admin/service-categories:",
-            response,
-          )
           return []
         }
       } else {
-        console.warn(
-          "Unexpected response format for /v1/admin/service-categories:",
-          response,
-        )
         return []
       }
 
@@ -70,8 +62,7 @@ class ServiceCategoryService {
       }
 
       return null
-    } catch (error) {
-      console.error("Failed to fetch service category:", error)
+    } catch (_) {
       return null
     }
   }
@@ -105,7 +96,7 @@ class ServiceCategoryService {
       }
 
       throw new Error("Invalid response format from create service category")
-    } catch (error) {
+    } catch (_) {
       throw error
     }
   }
@@ -140,7 +131,7 @@ class ServiceCategoryService {
       }
 
       throw new Error("Invalid response format from update service category")
-    } catch (error) {
+    } catch (_) {
       throw error
     }
   }

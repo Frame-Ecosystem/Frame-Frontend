@@ -23,8 +23,7 @@ export async function GET(
     }
 
     return NextResponse.json(agent)
-  } catch (error) {
-    console.error("API: Failed to fetch agent:", error)
+  } catch (_) {
     return NextResponse.json(
       { error: "Failed to fetch agent" },
       { status: 500 },

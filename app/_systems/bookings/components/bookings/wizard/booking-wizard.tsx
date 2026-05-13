@@ -1,4 +1,4 @@
-﻿"use client"
+"use client"
 
 import { useState, useEffect, useCallback } from "react"
 import {
@@ -102,12 +102,10 @@ export function BookingWizard({
           )
           setAgents(filteredAgents)
         } else {
-          console.warn("No agents found for lounge:", loungeId)
           setAgents([])
         }
       } catch (agentsError) {
         if (isAuthError(agentsError)) return
-        console.error("Failed to load agents:", agentsError)
         setAgents([])
       }
     }
@@ -142,9 +140,8 @@ export function BookingWizard({
       try {
         const availabilityData = await bookingService.getAvailability(agentIds)
         setAvailability(availabilityData)
-      } catch (error) {
+      } catch (_) {
         if (isAuthError(error)) return
-        console.error("Failed to load availability:", error)
         setAvailability({
           unavailableSlots: [],
           loungeOpeningHours: {},
@@ -275,7 +272,6 @@ export function BookingWizard({
       onSuccess?.()
     } catch (error: any) {
       if (isAuthError(error)) return
-      console.error("Failed to create booking:", error)
       const code = error?.code ?? ""
       const msg =
         BOOKING_ERROR_MESSAGES[code] ??

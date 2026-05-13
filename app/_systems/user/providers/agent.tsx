@@ -1,4 +1,4 @@
-﻿"use client"
+"use client"
 
 import {
   createContext,
@@ -171,7 +171,7 @@ export function AgentProvider({ children }: { children: ReactNode }) {
             limit,
           )
         } else {
-          // For lounge users, use the same endpoint — backend auto-scopes.
+          // For lounge users, use the same endpoint � backend auto-scopes.
           result = await agentService.getAllAgentsPaginated(
             state.filters,
             page,
@@ -216,7 +216,6 @@ export function AgentProvider({ children }: { children: ReactNode }) {
       dispatch({ type: "SET_LOUNGES", payload: response.data || [] })
     } catch (error: any) {
       if (isAuthError(error)) return
-      console.error("Failed to fetch lounges:", error)
       dispatch({ type: "SET_LOUNGES", payload: [] })
     }
   }
@@ -291,7 +290,6 @@ export function AgentProvider({ children }: { children: ReactNode }) {
       dispatch({ type: "SET_STATS", payload: stats })
     } catch (error: any) {
       if (isAuthError(error)) return
-      console.error("Failed to fetch agent stats:", error)
     }
   }
 

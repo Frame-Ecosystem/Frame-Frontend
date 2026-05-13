@@ -52,8 +52,7 @@ export async function GET(
     }
 
     return NextResponse.json(service)
-  } catch (error) {
-    console.error("Error fetching service:", error)
+  } catch (_) {
     return NextResponse.json(
       { error: "Failed to fetch service" },
       { status: 500 },
@@ -107,8 +106,7 @@ export async function PUT(
     mockServices[serviceIndex] = updatedService
 
     return NextResponse.json(updatedService)
-  } catch (error) {
-    console.error("Error updating service:", error)
+  } catch (_) {
     return NextResponse.json(
       { error: "Failed to update service" },
       { status: 500 },
@@ -133,8 +131,7 @@ export async function DELETE(
     mockServices.splice(serviceIndex, 1)
 
     return NextResponse.json({ message: "Service deleted successfully" })
-  } catch (error) {
-    console.error("Error deleting service:", error)
+  } catch (_) {
     return NextResponse.json(
       { error: "Failed to delete service" },
       { status: 500 },

@@ -277,8 +277,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         applyUserTheme(userData)
         applyUserLanguage(userData)
       }
-    } catch (error) {
-      console.error("[AuthProvider] Failed to refresh user data:", error)
+    } catch (_) {
+      // Failed to refresh user data
     }
   }, [applyUserTheme, applyUserLanguage])
 

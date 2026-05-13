@@ -22,8 +22,7 @@ export async function GET(
     }
 
     return NextResponse.json(category)
-  } catch (error) {
-    console.error("Error fetching service category:", error)
+  } catch (_) {
     return NextResponse.json(
       { error: "Failed to fetch service category" },
       { status: 500 },
@@ -59,8 +58,7 @@ export async function PUT(
     mockCategories[categoryIndex] = updatedCategory
 
     return NextResponse.json(updatedCategory)
-  } catch (error) {
-    console.error("Error updating service category:", error)
+  } catch (_) {
     return NextResponse.json(
       { error: "Failed to update service category" },
       { status: 500 },
@@ -90,8 +88,7 @@ export async function DELETE(
     return NextResponse.json({
       message: "Service category deleted successfully",
     })
-  } catch (error) {
-    console.error("Error deleting service category:", error)
+  } catch (_) {
     return NextResponse.json(
       { error: "Failed to delete service category" },
       { status: 500 },

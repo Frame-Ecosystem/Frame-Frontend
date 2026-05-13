@@ -1,4 +1,4 @@
-﻿/**
+/**
  * @file socket.ts
  * @description Singleton Socket.IO client for real-time WebSocket subscriptions.
  * Connects to the same backend as the REST API (port 3000).
@@ -39,8 +39,8 @@ export function getSocket(): Socket {
       clientDebug("[socket] disconnected:", reason)
     })
 
-    socket.on("connect_error", (err) => {
-      console.warn("[socket] connection error:", err.message)
+    socket.on("connect_error", (_) => {
+      // Connection error occurred
     })
   }
 

@@ -40,9 +40,8 @@ const PhoneItem = ({ phone }: PhoneItemProps) => {
       } finally {
         document.body.removeChild(textArea)
       }
-    } catch (error) {
-      console.error("Failed to copy phone number:", error)
-      // Fallback: show the number in an alert
+    } catch (_) {
+      // Copy failed silently
       toast.error(t("contact.copyNotSupported", { phone }))
     }
   }

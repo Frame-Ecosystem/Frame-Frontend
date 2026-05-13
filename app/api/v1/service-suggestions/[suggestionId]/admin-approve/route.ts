@@ -211,8 +211,7 @@ export async function PATCH(
     }
 
     return NextResponse.json(response, { status: 200 })
-  } catch (error) {
-    console.error("Error in admin approve service suggestion:", error)
+  } catch (_) {
     return NextResponse.json(
       { error: "Failed to approve service suggestion" },
       { status: 500 },

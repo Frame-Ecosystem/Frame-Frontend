@@ -1,4 +1,4 @@
-﻿"use client"
+"use client"
 
 import React, { useState, useCallback } from "react"
 import Cropper from "react-easy-crop"
@@ -92,8 +92,7 @@ export function ImageCropDialog({
       const blob = await getCroppedImg(imageSrc, croppedAreaPixels)
       onCropComplete(blob)
       onOpenChange(false)
-    } catch (err) {
-      console.error("Crop failed:", err)
+    } catch (_) {
     } finally {
       setIsSaving(false)
     }
@@ -107,7 +106,7 @@ export function ImageCropDialog({
           {title}
         </DialogTitle>
 
-        {/* Action buttons — same row, centered, under title */}
+        {/* Action buttons � same row, centered, under title */}
         <div className="flex justify-center gap-3 px-4 pt-2 pb-0">
           <Button
             variant="outline"
@@ -127,7 +126,7 @@ export function ImageCropDialog({
           </Button>
         </div>
 
-        {/* Crop area — clickable, shows overlay with See / Edit options */}
+        {/* Crop area � clickable, shows overlay with See / Edit options */}
         <div
           className="relative mx-4 mt-3 h-[300px] cursor-pointer overflow-hidden rounded-lg bg-black"
           onClick={() => setShowOverlay((v) => !v)}

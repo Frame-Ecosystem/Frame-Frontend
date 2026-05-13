@@ -80,7 +80,6 @@ export function useLoungeData(id: string) {
         )
       } catch (err: any) {
         if (isAuthError(err) || cancelled) return
-        console.error("Error fetching lounge:", err)
         setError(err?.message || "Failed to load lounge details")
       } finally {
         if (!cancelled) setIsFetching(false)

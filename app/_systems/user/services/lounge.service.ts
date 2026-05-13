@@ -1,4 +1,4 @@
-﻿import { apiClient } from "@/app/_core/api/api"
+import { apiClient } from "@/app/_core/api/api"
 import type {
   Service,
   CreateLoungeServicePayload,
@@ -86,7 +86,7 @@ class LoungeService {
         } as Service
       }
       throw new Error("Invalid response format from create lounge service")
-    } catch (error) {
+    } catch (_) {
       throw error
     }
   }
@@ -126,7 +126,7 @@ class LoungeService {
       }
 
       throw new Error("Invalid response from create lounge service")
-    } catch (error) {
+    } catch (_) {
       throw error
     }
   }
@@ -156,7 +156,7 @@ class LoungeService {
         } as Service
       }
       throw new Error("Invalid response format from update lounge service")
-    } catch (error) {
+    } catch (_) {
       throw error
     }
   }
@@ -168,7 +168,6 @@ class LoungeService {
   async getServiceName(serviceId: string): Promise<string> {
     // Validate serviceId format (MongoDB ObjectId: 24 hex chars)
     if (!serviceId || !/^[a-fA-F0-9]{24}$/.test(serviceId)) {
-      console.warn(`Invalid service ID format: ${serviceId}`)
       return "Unknown Service"
     }
 
@@ -179,9 +178,6 @@ class LoungeService {
       return response.data?.name || "Unknown Service"
     } catch {
       // Handle API errors gracefully - service might not exist or API might be down
-      console.warn(
-        `Service not found or API error for service ID: ${serviceId}`,
-      )
       return "Unknown Service"
     }
   }
@@ -234,7 +230,7 @@ class LoungeService {
         `/v1/lounge-services/lounge/${loungeId}/opening-hours`,
       )
       return response.openingHours || response.data || response
-    } catch (error) {
+    } catch (_) {
       // 404 is expected if opening hours haven't been set yet
       const isNotFound =
         (error as any)?.message?.includes("Not Found") ||
@@ -242,7 +238,6 @@ class LoungeService {
       if (isNotFound) {
         return {} // Return empty hours for first-time setup
       }
-      console.error("Failed to fetch opening hours:", error)
       throw error
     }
   }
@@ -253,8 +248,7 @@ class LoungeService {
         `/v1/lounge-services/lounge/${loungeId}/opening-hours`,
         openingHours,
       )
-    } catch (error) {
-      console.error("Failed to update opening hours:", error)
+    } catch (_) {
       throw error
     }
   }
@@ -307,8 +301,7 @@ class LoungeService {
         ...agentsData,
         agents: normalizedAgents,
       }
-    } catch (error) {
-      console.error("Failed to fetch lounge agents:", error)
+    } catch (_) {
       throw error
     }
   }
@@ -320,8 +313,7 @@ class LoungeService {
         `/v1/lounge/clients/${clientId}`,
       )
       return response?.data || response
-    } catch (error) {
-      console.error(`Failed to fetch client ${clientId}:`, error)
+    } catch (_) {
       throw error
     }
   }

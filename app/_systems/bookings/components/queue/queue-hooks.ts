@@ -1,4 +1,4 @@
-﻿"use client"
+"use client"
 
 import { useState, useEffect, useRef } from "react"
 import type { Queue } from "@/app/_types"
@@ -213,8 +213,8 @@ export function useFullscreenHandlers(
 
       // Fallback: pseudo-fullscreen using fixed positioning (for iOS WebView/Safari)
       setIsPseudoFullScreen(true)
-    } catch (error) {
-      console.error("Error entering full screen:", error)
+    } catch (_) {
+      // Handle fullscreen error silently
     }
   }
 
@@ -243,8 +243,8 @@ export function useFullscreenHandlers(
           )
         } catch {}
       }
-    } catch (error) {
-      console.error("Error exiting full screen:", error)
+    } catch (_) {
+      // Handle fullscreen error silently
     }
   }
 

@@ -46,8 +46,7 @@ export async function GET(
         createdAt: agent.createdAt,
         updatedAt: agent.updatedAt,
       }))
-    } catch (error) {
-      console.error("API: Failed to fetch agents from service:", error)
+    } catch (_) {
       // Return empty array if service fails
       loungeAgents = []
     }
@@ -63,8 +62,7 @@ export async function GET(
     }
 
     return NextResponse.json(response)
-  } catch (error) {
-    console.error("Error fetching lounge agents:", error)
+  } catch (_) {
     return NextResponse.json(
       { error: "Failed to fetch lounge agents" },
       { status: 500 },

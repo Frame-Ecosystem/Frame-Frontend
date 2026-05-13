@@ -92,8 +92,7 @@ export function BookingList({
       await bookingService.update(bookingId, { status: newStatus })
       toast.success(t("booking.toast.statusUpdated"))
       loadBookings()
-    } catch (error) {
-      console.error("Failed to update booking status:", error)
+    } catch (_) {
       toast.error(t("booking.toast.statusFailed"))
     }
   }
@@ -103,8 +102,7 @@ export function BookingList({
       await bookingService.cancel(bookingId, note)
       toast.success(t("booking.toast.cancelled"))
       loadBookings()
-    } catch (error) {
-      console.error("Failed to cancel booking:", error)
+    } catch (_) {
       toast.error(t("booking.toast.cancelFailed"))
     }
   }
@@ -114,8 +112,7 @@ export function BookingList({
       await bookingService.delete(bookingId)
       toast.success(t("booking.toast.deleted"))
       loadBookings()
-    } catch (error) {
-      console.error("Failed to delete booking:", error)
+    } catch (_) {
       toast.error(t("booking.toast.deleteFailed"))
     }
   }

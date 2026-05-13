@@ -72,12 +72,8 @@ function BookPageContent() {
         )
 
         setPreSelectedServices(services)
-      } catch (error) {
+      } catch (_) {
         if (isAuthError(error)) return
-        console.error(
-          "Failed to parse services parameter or load services:",
-          error,
-        )
       } finally {
         setIsLoadingServices(false)
       }

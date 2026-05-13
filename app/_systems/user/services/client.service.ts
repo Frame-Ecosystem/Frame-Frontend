@@ -1,4 +1,4 @@
-﻿import { apiClient } from "@/app/_core/api/api"
+import { apiClient } from "@/app/_core/api/api"
 
 interface GetLoungesParams {
   page?: number
@@ -80,8 +80,7 @@ const clientService = {
       const endpoint = `/v1/client/lounges${queryParams.toString() ? `?${queryParams}` : ""}`
       const data = await apiClient.get<GetLoungesResponse>(endpoint)
       return data
-    } catch (error) {
-      console.error("Error fetching lounges:", error)
+    } catch (_) {
       throw error
     }
   },
@@ -103,8 +102,7 @@ const clientService = {
       const endpoint = `/v1/client/services/${serviceId}/lounges${queryParams.toString() ? `?${queryParams}` : ""}`
       const data = await apiClient.get<GetLoungesResponse>(endpoint)
       return data
-    } catch (error) {
-      console.error("Error fetching lounges by service:", error)
+    } catch (_) {
       throw error
     }
   },
@@ -115,8 +113,7 @@ const clientService = {
         `/v1/client/lounges/${loungeId}`,
       )
       return response.data
-    } catch (error) {
-      console.error(`Error fetching lounge ${loungeId}:`, error)
+    } catch (_) {
       throw error
     }
   },
@@ -127,13 +124,12 @@ const clientService = {
         `/v1/client/lounges/${loungeId}/services`,
       )
       return response.data || []
-    } catch (error) {
-      console.error(`Error fetching lounge services ${loungeId}:`, error)
+    } catch (_) {
       throw error
     }
   },
 
-  // ── Client Visitor Profile ──────────────────────────────────────
+  // -- Client Visitor Profile --------------------------------------
 
   async getClientProfile(clientId: string): Promise<{
     profile: import("@/app/_types").ClientProfile

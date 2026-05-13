@@ -92,8 +92,7 @@ export function ImageCropDialog({
       const blob = await getCroppedImg(imageSrc, croppedAreaPixels)
       onCropComplete(blob)
       onOpenChange(false)
-    } catch (err) {
-      console.error("Crop failed:", err)
+    } catch (_) {
     } finally {
       setIsSaving(false)
     }

@@ -16,7 +16,3 @@ export * from "./rating"
 export * from "./like"
 export * from "./follow"
 export * from "./marketplace"
-
-const typesDefault = {}
-
-export default typesDefault

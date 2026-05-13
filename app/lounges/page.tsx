@@ -101,7 +101,7 @@ export default function LoungesPage() {
           })
         },
         (_error) => {
-          console.warn("Geolocation error:", _error?.message || _error)
+          // Geolocation failed, continue without location
         },
         {
           enableHighAccuracy: true,

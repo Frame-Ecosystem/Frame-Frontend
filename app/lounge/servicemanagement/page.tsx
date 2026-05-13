@@ -105,9 +105,8 @@ export default function LoungeServiceManagementPage() {
     try {
       const data = await serviceService.getAll()
       setGlobalServices(Array.isArray(data) ? data : [])
-    } catch (error) {
-      if (isAuthError(error)) return
-      console.error("Failed to load global services:", error)
+    } catch (err) {
+      if (isAuthError(err)) return
       setGlobalServices([])
     }
   }, [])
@@ -117,9 +116,8 @@ export default function LoungeServiceManagementPage() {
     try {
       const data = await loungeService.getAgentsByLoungeId(user._id)
       setLoungeAgents(data.agents ?? [])
-    } catch (error) {
-      if (isAuthError(error)) return
-      console.error("Failed to load lounge agents:", error)
+    } catch (err) {
+      if (isAuthError(err)) return
       setLoungeAgents([])
     }
   }, [user?._id])
@@ -129,9 +127,9 @@ export default function LoungeServiceManagementPage() {
       const data = await loungeService.getAll()
       const svcList = Array.isArray(data) ? data : []
       setServices(svcList)
-    } catch (error) {
-      if (isAuthError(error)) return
-      console.error("Failed to load lounge services:", error)
+    } catch (err) {
+      if (isAuthError(err)) return
+
       setServices([])
     } finally {
       setLoading(false)
@@ -242,7 +240,7 @@ export default function LoungeServiceManagementPage() {
       setDialogOpen(false)
       resetForm()
       loadServices()
-    } catch (error) {
+    } catch (_) {
       if (isAuthError(error)) return
       const msg =
         error instanceof Error ? error.message : "An unexpected error occurred"
@@ -269,7 +267,7 @@ export default function LoungeServiceManagementPage() {
       await loungeService.delete(id)
       loadServices()
       toast.success(t("serviceMgmt.deleteSuccess"))
-    } catch (error) {
+    } catch (_) {
       if (isAuthError(error)) return
       toast.error(
         error instanceof Error ? error.message : "Failed to delete service",
