@@ -377,10 +377,6 @@ class ApiClient {
               message,
               body: error,
             }
-            console.warn(
-              "[apiClient] Non-OK response",
-              (window as any).__lastApiError,
-            )
           } catch {}
         }
 

@@ -36,8 +36,7 @@ class LoungeService {
       })) as LoungeServiceItem[]
 
       return mapped
-    } catch (error) {
-      console.error("Failed to fetch lounge services:", error)
+    } catch {
       return []
     }
   }
@@ -61,8 +60,7 @@ class LoungeService {
         } as Service
       }
       return null
-    } catch (error) {
-      console.error("Failed to fetch lounge service:", error)
+    } catch {
       return null
     }
   }
@@ -222,8 +220,7 @@ class LoungeService {
           pages: pagination.totalPages || pagination.pages || 0,
         },
       }
-    } catch (error) {
-      console.error("Failed to fetch service suggestions:", error)
+    } catch {
       return {
         suggestions: [],
         pagination: { page: 1, limit: 10, total: 0, pages: 0 },
@@ -281,7 +278,6 @@ class LoungeService {
       }
 
       if (!agentsData) {
-        console.warn("Invalid response structure for agents:", response)
         return {
           lounge: { _id: loungeId, loungeTitle: "", email: "" },
           agents: [],
