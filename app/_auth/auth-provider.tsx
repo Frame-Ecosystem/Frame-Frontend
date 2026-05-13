@@ -27,6 +27,7 @@ import { usePathname, useRouter } from "next/navigation"
 import { authService } from "./auth.service"
 import { tokenManager } from "./lib/token-manager"
 import { clearSessionCsrfToken, setSessionCsrfToken } from "./lib/csrf"
+import { setActiveSession, type StoredSession } from "./lib/sessions-manager"
 import type { User } from "../_types"
 import { apiClient } from "../_services/api"
 import { getSocket, disconnectSocket } from "../_services/socket"
@@ -76,6 +77,7 @@ interface AuthContextType {
   clearAuth(): void
   refreshUser(): Promise<void>
   ensureSession(): Promise<boolean>
+  loadStoredSession(session: StoredSession): Promise<boolean>
   isLoading: boolean
 }
 
@@ -233,6 +235,74 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     disconnectSocket()
   }, [])
 
+  /**
+   * Load a stored session into the auth context.
+   * This switches the current authenticated user to a previously stored session.
+   *
+   * Industry best practice:
+   * 1. Clear current auth (logout)
+   * 2. Mark the stored session as active in localStorage
+   * 3. Attempt to restore session via backend refresh (will use latest refresh token)
+   * 4. Fallback: User must re-authenticate if session is expired
+   */
+  const loadStoredSession = useCallback(
+    async (session: StoredSession): Promise<boolean> => {
+      try {
+        // If already on this user, just mark active and keep current auth state.
+        if (user?._id === session.user._id && !!tokenManager.token) {
+          setActiveSession(session.id)
+          return true
+        }
+
+        // Resolve server-side sessionId for the selected local user.
+        const sessions = await authService.listSessions()
+        const candidates = sessions.filter((s) => s.userId === session.user._id)
+        if (candidates.length === 0) {
+          return false
+        }
+
+        // Prefer non-current candidate, then most recently used.
+        const target = [...candidates].sort((a, b) => {
+          if (a.isCurrent !== b.isCurrent) return a.isCurrent ? 1 : -1
+          return (
+            new Date(b.lastUsedAt || b.createdAt).getTime() -
+            new Date(a.lastUsedAt || a.createdAt).getTime()
+          )
+        })[0]
+
+        const switched = await authService.switchSession(target.sessionId)
+        if (!switched?.token || !switched.data) {
+          return false
+        }
+
+        // Hard guard: backend must return selected identity.
+        if (switched.data._id !== session.user._id) {
+          return false
+        }
+
+        // Reset runtime auth artifacts and attach the switched identity/token.
+        disconnectSocket()
+        clearSessionCsrfToken()
+        tokenManager.clearManualLogout()
+        if (switched.csrfToken) {
+          setSessionCsrfToken(switched.csrfToken)
+        }
+
+        setAuth(
+          switched.data,
+          switched.token,
+          switched.expiresIn || DEFAULT_EXPIRES_IN,
+        )
+        setActiveSession(session.id)
+
+        return true
+      } catch {
+        return false
+      }
+    },
+    [setAuth, user],
+  )
+
   // Handle authentication failure — clear auth and redirect to root with sign-in dialog
   // When `localStorage.frame:debugAuth` is true, we expose diagnostic info on
   // `window.__lastAuthFailure` and delay the redirect so you can inspect network
@@ -277,7 +347,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         applyUserTheme(userData)
         applyUserLanguage(userData)
       }
-    } catch (_) {
+    } catch (error) {
       // Failed to refresh user data
     }
   }, [applyUserTheme, applyUserLanguage])
@@ -422,6 +492,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         clearAuth,
         refreshUser,
         ensureSession,
+        loadStoredSession,
         isLoading,
       }}
     >

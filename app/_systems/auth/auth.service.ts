@@ -9,6 +9,8 @@ import type {
   SignupResponse,
   RefreshTokenResponse,
   MessageResponse,
+  SessionInfo,
+  SwitchSessionResponse,
 } from "./auth.types"
 
 // ── Device Name Helper ──────────────────────────────────────────
@@ -184,6 +186,42 @@ class AuthService {
       }
 
       return { ok: res.ok, status, data }
+    } catch {
+      return null
+    }
+  }
+
+  /**
+   * GET /v1/auth/sessions
+   * Returns all active sessions available for deterministic account switching.
+   */
+  async listSessions(): Promise<SessionInfo[]> {
+    try {
+      const response = await apiClient.get<
+        { data: SessionInfo[]; message?: string } | SessionInfo[]
+      >("/v1/auth/sessions")
+      if (response && typeof response === "object" && "data" in response) {
+        return Array.isArray(response.data) ? response.data : []
+      }
+      return Array.isArray(response) ? response : []
+    } catch {
+      return []
+    }
+  }
+
+  /**
+   * POST /v1/auth/switch-session
+   * Switches refresh/access context to the requested sessionId.
+   */
+  async switchSession(
+    sessionId: string,
+  ): Promise<SwitchSessionResponse | null> {
+    try {
+      const payload = { sessionId }
+      return await apiClient.post<SwitchSessionResponse>(
+        "/v1/auth/switch-session",
+        payload,
+      )
     } catch {
       return null
     }

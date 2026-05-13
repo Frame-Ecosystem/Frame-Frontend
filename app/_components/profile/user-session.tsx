@@ -9,6 +9,12 @@ import {
   getUserDisplayName,
   getUserInitials,
 } from "@/app/_auth"
+import {
+  saveSession,
+  getAllSessions,
+  type StoredSession,
+} from "@/app/_auth/lib/sessions-manager"
+import { useTranslation } from "@/app/_i18n"
 import { Button } from "../ui/button"
 import { Popover, PopoverTrigger, PopoverContent } from "../ui/popover"
 import { Dialog, DialogContent } from "../ui/dialog"
@@ -26,12 +32,15 @@ const SESSION_CHECK_TIMEOUT = 5000
 
 const UserSession = ({ compact }: { compact?: boolean } = {}) => {
   // ===== STATE =====
-  const { user, isLoading, ensureSession } = useAuth()
+  const { user, isLoading, ensureSession, loadStoredSession } = useAuth()
+  const { t } = useTranslation()
   const [dialogOpen, setDialogOpen] = useState(false)
   const [signupOpen, setSignupOpen] = useState(false)
   const [popoverOpen, setPopoverOpen] = useState(false)
   const [isCheckingSession, setIsCheckingSession] = useState(false)
   const [sessionUser, setSessionUser] = useState<typeof user | null>(null)
+  const [storedSessions, setStoredSessions] = useState<StoredSession[]>([])
+  const [showStoredSessions, setShowStoredSessions] = useState(false)
   const sessionCheckAbortRef = useRef<AbortController | null>(null)
   const sessionCheckTimeoutRef = useRef<NodeJS.Timeout | null>(null)
   const isLoggedIn = !!user
@@ -52,6 +61,7 @@ const UserSession = ({ compact }: { compact?: boolean } = {}) => {
     setDialogOpen(false)
     setIsCheckingSession(false)
     setSessionUser(null)
+    setShowStoredSessions(false)
     sessionCheckAbortRef.current?.abort()
     if (sessionCheckTimeoutRef.current) {
       clearTimeout(sessionCheckTimeoutRef.current)
@@ -61,6 +71,10 @@ const UserSession = ({ compact }: { compact?: boolean } = {}) => {
   const closeSignUp = useCallback(() => setSignupOpen(false), [])
 
   // ===== SESSION CHECK LOGIC =====
+  /**
+   * Check for existing session WITHOUT auto-logging in.
+   * This just detects if a session exists and shows it as an option to continue.
+   */
   const checkSession = useCallback(async () => {
     // Cancel any previous check
     sessionCheckAbortRef.current?.abort()
@@ -83,6 +97,7 @@ const UserSession = ({ compact }: { compact?: boolean } = {}) => {
       // Only update state if not aborted
       if (!sessionCheckAbortRef.current?.signal.aborted) {
         if (restored && user) {
+          // Found a session — show as "continue with" option
           setSessionUser(user)
         }
       }
@@ -102,15 +117,23 @@ const UserSession = ({ compact }: { compact?: boolean } = {}) => {
   // ===== EVENT HANDLERS =====
   const handleAddAccount = useCallback(() => {
     setPopoverOpen(false)
+
+    // Save current session before opening signin
+    if (user) {
+      saveSession(user)
+      // Load all stored sessions to show options
+      setStoredSessions(getAllSessions())
+      setShowStoredSessions(true)
+    }
+
     setDialogOpen(true)
-    // Start session check in background (non-blocking)
-    checkSession()
-  }, [checkSession])
+    // Don't check session when explicitly adding new account
+  }, [user])
 
   const handleOpenSignIn = useCallback(() => {
     if (isLoading) return
     setDialogOpen(true)
-    // Start session check in background (non-blocking)
+    // Check for existing session (will show as "continue with" option if found)
     checkSession()
   }, [isLoading, checkSession])
 
@@ -120,7 +143,29 @@ const UserSession = ({ compact }: { compact?: boolean } = {}) => {
 
   const handleSignInDifferent = useCallback(() => {
     setSessionUser(null)
+    setShowStoredSessions(false)
   }, [])
+
+  const handleSelectStoredSession = useCallback(
+    (session: StoredSession) => {
+      // Load the selected session into auth context and close dialogs
+      closeSignIn()
+      // Trigger session load asynchronously
+      ;(async () => {
+        const success = await loadStoredSession(session)
+        if (success) {
+          // Session loaded successfully — dialogs will close automatically
+          // and auth context will reflect the new user
+        } else {
+          // Session failed to load — show signin dialog again to re-authenticate
+          setDialogOpen(true)
+          setSessionUser(session.user)
+          setShowStoredSessions(true)
+        }
+      })()
+    },
+    [closeSignIn, loadStoredSession],
+  )
 
   // ===== SHARED UI ELEMENTS =====
   const userButton = (
@@ -204,6 +249,49 @@ const UserSession = ({ compact }: { compact?: boolean } = {}) => {
             <X className="h-4 w-4" />
             <span className="sr-only">Close</span>
           </button>
+
+          {/* Show stored sessions browser before signin form */}
+          {showStoredSessions && storedSessions.length > 1 && (
+            <div className="mb-4 space-y-3">
+              <p className="text-muted-foreground text-sm font-medium">
+                {t("auth.signin.savedSessions")}
+              </p>
+              <div className="space-y-2">
+                {storedSessions.map((session) => (
+                  <button
+                    key={session.id}
+                    onClick={() => handleSelectStoredSession(session)}
+                    className="border-border hover:bg-muted/50 flex w-full items-center gap-3 rounded-lg border p-3 transition-colors"
+                  >
+                    <Avatar className="h-8 w-8">
+                      {session.user.profileImage &&
+                        typeof session.user.profileImage === "string" && (
+                          <AvatarImage src={session.user.profileImage} />
+                        )}
+                      <AvatarFallback className="text-xs">
+                        {getUserInitials(session.user)}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="flex-1 text-left">
+                      <p className="text-sm font-medium">
+                        {getUserDisplayName(session.user)}
+                      </p>
+                      <p className="text-muted-foreground text-xs">
+                        {session.user.email || session.user.phoneNumber}
+                      </p>
+                    </div>
+                  </button>
+                ))}
+              </div>
+              <button
+                onClick={() => setShowStoredSessions(false)}
+                className="text-primary text-sm font-medium hover:underline"
+              >
+                {t("auth.signin.signInWithDifferent")}
+              </button>
+            </div>
+          )}
+
           <SignInDialog
             onSuccess={closeSignIn}
             onClose={closeSignIn}
