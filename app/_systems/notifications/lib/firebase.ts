@@ -62,7 +62,7 @@ export function getFirebaseMessaging(): Messaging | null {
 
     try {
       messaging = getMessaging(firebaseApp)
-    } catch (_) {
+    } catch (_error) {
       return null
     }
   }
@@ -144,9 +144,9 @@ async function _doRequestFCMToken(): Promise<string | null> {
         }
         throw innerErr
       }
-    } catch (_) {
+    } catch (_error) {
       // Only retry transient errors — anything else is terminal
-      if (!isTransientPushError(err) || attempt === MAX_RETRIES) {
+      if (!isTransientPushError(error) || attempt === MAX_RETRIES) {
         return null
       }
 
