@@ -18,7 +18,8 @@ import clientService from "../../_services/client.service"
 function hashCode(s: string): number {
   let h = 0
   for (let i = 0; i < s.length; i++) {
-    h = (Math.imul(31, h) + s.charCodeAt(i)) | 0
+    const codePoint = s.codePointAt(i) ?? 0
+    h = Math.trunc(Math.imul(31, h) + codePoint)
   }
   return Math.abs(h)
 }
@@ -35,7 +36,7 @@ function buildFeedSlots(
   hasLounges: boolean,
 ): FeedSlot[] {
   // Defensive: filter out any invalid posts that slipped through
-  const validPosts = posts.filter((p) => p && p._id && p.authorId)
+  const validPosts = posts.filter((p) => p?._id && p.authorId)
 
   if (validPosts.length === 0) return []
 
@@ -89,7 +90,7 @@ export function FeedList({
   fetchNextPage,
   isLoading,
   emptyType = "feed",
-}: FeedListProps) {
+}: Readonly<FeedListProps>) {
   const { ref: sentinelRef, inView } = useInView({ threshold: 0.1 })
 
   // Comment sheet state — shared across all feed items
@@ -130,10 +131,10 @@ export function FeedList({
     if (!post) return
 
     // Clean up URL params immediately (before state updates)
-    const url = new URL(window.location.href)
+    const url = new URL(globalThis.location.href)
     url.searchParams.delete("openComments")
     url.searchParams.delete("commentId")
-    window.history.replaceState({}, "", url.toString())
+    globalThis.history.replaceState({}, "", url.toString())
 
     // Small delay so the post card has rendered and scrolled into view
     const timer = setTimeout(() => {
@@ -199,7 +200,7 @@ export function FeedList({
 
   return (
     <>
-      <div className="mx-auto max-w-[630px] space-y-4">
+      <div className="mx-auto w-full max-w-[680px] space-y-4 lg:space-y-5">
         {slots.map((slot, _idx) => {
           if (slot.kind === "post") {
             return (

@@ -32,7 +32,7 @@ export function PostCard({
   priority,
   onCommentClick,
   onEditClick: _onEditClick,
-}: PostCardProps) {
+}: Readonly<PostCardProps>) {
   const { user } = useAuth()
   const [showReport, setShowReport] = useState(false)
   const [showEdit, setShowEdit] = useState(false)
@@ -63,13 +63,13 @@ export function PostCard({
 
   const handleDelete = useCallback(() => {
     if (!post?._id) return
-    if (window.confirm("Delete this post? This action cannot be undone.")) {
+    if (globalThis.confirm("Delete this post? This action cannot be undone.")) {
       deleteMutation.mutate(post._id)
     }
   }, [deleteMutation, post])
 
   // Defensive: validate post data integrity after all hooks
-  if (!post || !post._id || !post.authorId) {
+  if (!post?._id || !post.authorId) {
     return null
   }
 
@@ -86,7 +86,7 @@ export function PostCard({
   return (
     <article
       id={`post-${post._id}`}
-      className="border-border/50 bg-card relative overflow-hidden rounded-xl border shadow-sm transition-shadow hover:shadow-md"
+      className="border-border/60 bg-card relative overflow-hidden rounded-xl border shadow-sm transition-shadow hover:shadow-md lg:rounded-2xl"
     >
       {/* Hidden indicator for admins */}
       {post.isHidden && isAdmin && (
@@ -104,7 +104,7 @@ export function PostCard({
           isHidden={post.isHidden}
           onEdit={isOwner ? () => setShowEdit(true) : undefined}
           onDelete={isOwner ? handleDelete : undefined}
-          onReport={!isOwner ? () => setShowReport(true) : undefined}
+          onReport={isOwner ? undefined : () => setShowReport(true)}
           onHide={isAdmin ? () => hideMutation.mutate(post._id) : undefined}
           onUnhide={isAdmin ? () => unhideMutation.mutate(post._id) : undefined}
           onAdminDelete={
@@ -149,7 +149,7 @@ export function PostCard({
           <ImageCarousel
             images={post.media}
             alt="Post image"
-            aspectRatio="portrait"
+            aspectRatio={post.media.length > 1 ? "square" : "video"}
             priority={priority}
             onDoubleClick={handleDoubleTap}
           />
@@ -174,7 +174,7 @@ export function PostCard({
           onComment={() => onCommentClick?.()}
           onSave={() => saveMutation.mutate()}
           isLikeDisabled={likeMutation.isRateLimited}
-          className="px-3 py-1"
+          className="px-3 py-1.5"
         />
       </div>
 
@@ -182,10 +182,10 @@ export function PostCard({
       {post.commentCount > 0 && onCommentClick && (
         <button
           onClick={onCommentClick}
-          className="text-muted-foreground hover:text-foreground block px-4 pb-3 text-xs font-medium transition-colors"
+          className="text-muted-foreground hover:text-foreground block px-4 pb-3 text-sm transition-colors"
         >
           View all {post.commentCount} comment
-          {post.commentCount !== 1 ? "s" : ""}
+          {post.commentCount === 1 ? "" : "s"}
         </button>
       )}
 

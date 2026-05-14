@@ -11,23 +11,25 @@ interface ReelSwiperProps {
   reels: Reel[]
 }
 
-export function ReelSwiper({ reels }: ReelSwiperProps) {
+export function ReelSwiper({ reels }: Readonly<ReelSwiperProps>) {
   const { t } = useTranslation()
   const { openReel, prefetchReel } = useOpenReel()
 
   if (reels.length === 0) return null
 
   return (
-    <div className="space-y-2.5 py-2">
+    <section className="bg-card border-border/60 overflow-hidden rounded-2xl border shadow-sm">
       {/* Header */}
-      <div className="flex items-center gap-2 px-1">
+      <div className="border-border/60 flex items-center gap-2 border-b px-4 py-3">
         <Film className="text-primary h-4 w-4" />
-        <h3 className="text-sm font-semibold">{t("content.reelsForYou")}</h3>
+        <h3 className="text-sm font-semibold tracking-tight">
+          {t("content.reelsForYou")}
+        </h3>
       </div>
 
       {/* Horizontal scroll container */}
       <div
-        className="scrollbar-hide flex gap-2.5 overflow-x-auto px-1 pb-1"
+        className="scrollbar-hide flex gap-2.5 overflow-x-auto px-3 py-3"
         style={{
           scrollSnapType: "x mandatory",
           WebkitOverflowScrolling: "touch",
@@ -39,7 +41,7 @@ export function ReelSwiper({ reels }: ReelSwiperProps) {
             onClick={() => openReel(reel)}
             onMouseEnter={() => prefetchReel(reel)}
             onTouchStart={() => prefetchReel(reel)}
-            className="group relative aspect-[9/16] w-[calc(60vw-12px)] min-w-[calc(60vw-12px)] shrink-0 overflow-hidden rounded-xl bg-black"
+            className="group relative aspect-[9/16] w-[calc(58vw-14px)] min-w-[calc(58vw-14px)] shrink-0 overflow-hidden rounded-xl bg-black sm:w-[220px] sm:min-w-[220px] lg:w-[195px] lg:min-w-[195px]"
             style={{ scrollSnapAlign: "start" }}
           >
             {reel.thumbnailUrl ? (
@@ -47,7 +49,7 @@ export function ReelSwiper({ reels }: ReelSwiperProps) {
                 src={reel.thumbnailUrl}
                 alt={reel.caption || "Reel"}
                 fill
-                sizes="60vw"
+                sizes="(max-width: 640px) 58vw, (max-width: 1024px) 220px, 195px"
                 className="object-cover transition-transform duration-200 group-hover:scale-105"
               />
             ) : (
@@ -73,7 +75,7 @@ export function ReelSwiper({ reels }: ReelSwiperProps) {
                   {reel.caption}
                 </p>
               )}
-              <div className="mt-1 flex items-center gap-1.5 text-[10px] text-white/70">
+              <div className="mt-1 flex items-center gap-1.5 text-[10px] text-white/75">
                 {(() => {
                   const src = resolveProfileImage(reel.authorId?.profileImage)
                   return src ? (
@@ -96,6 +98,6 @@ export function ReelSwiper({ reels }: ReelSwiperProps) {
           </button>
         ))}
       </div>
-    </div>
+    </section>
   )
 }

@@ -46,17 +46,17 @@ function getLoungeProfileImage(lounge: LoungeSuggestion): string {
   return "/images/placeholder.svg"
 }
 
-export function LoungeSwiper({ lounges }: LoungeSwiperProps) {
+export function LoungeSwiper({ lounges }: Readonly<LoungeSwiperProps>) {
   const { t } = useTranslation()
   if (lounges.length === 0) return null
 
   return (
-    <div className="space-y-2.5 py-2">
+    <section className="bg-card border-border/60 overflow-hidden rounded-2xl border shadow-sm">
       {/* Header */}
-      <div className="flex items-center justify-between px-1">
+      <div className="border-border/60 flex items-center justify-between border-b px-4 py-3">
         <div className="flex items-center gap-2">
           <Store className="text-primary h-4 w-4" />
-          <h3 className="text-sm font-semibold">
+          <h3 className="text-sm font-semibold tracking-tight">
             {t("content.loungesToExplore")}
           </h3>
         </div>
@@ -70,7 +70,7 @@ export function LoungeSwiper({ lounges }: LoungeSwiperProps) {
 
       {/* Horizontal scroll container */}
       <div
-        className="scrollbar-hide flex gap-2.5 overflow-x-auto px-1 pb-1"
+        className="scrollbar-hide flex gap-3 overflow-x-auto px-3 py-3"
         style={{
           scrollSnapType: "x mandatory",
           WebkitOverflowScrolling: "touch",
@@ -79,17 +79,17 @@ export function LoungeSwiper({ lounges }: LoungeSwiperProps) {
         {lounges.map((lounge) => (
           <div
             key={lounge._id}
-            className="group relative w-[calc(65vw-12px)] min-w-[calc(65vw-12px)] shrink-0 overflow-hidden rounded-xl"
+            className="group relative w-[calc(70vw-16px)] min-w-[calc(70vw-16px)] shrink-0 overflow-hidden rounded-xl sm:w-[240px] sm:min-w-[240px] lg:w-[210px] lg:min-w-[210px]"
             style={{ scrollSnapAlign: "start" }}
           >
             <Link href={`/lounges/${lounge._id}?tab=posts`}>
               {/* Cover image */}
-              <div className="relative aspect-[3/4] w-full overflow-hidden bg-black">
+              <div className="relative aspect-[4/5] w-full overflow-hidden bg-black">
                 <Image
                   src={getLoungeImage(lounge)}
                   alt={lounge.loungeTitle || "Lounge"}
                   fill
-                  sizes="65vw"
+                  sizes="(max-width: 640px) 70vw, (max-width: 1024px) 240px, 210px"
                   className="object-cover transition-transform duration-200 group-hover:scale-105"
                 />
 
@@ -107,7 +107,7 @@ export function LoungeSwiper({ lounges }: LoungeSwiperProps) {
             </Link>
 
             {/* Info + Profile Image + Follow */}
-            <div className="bg-card border-border flex items-center gap-2.5 rounded-b-xl border-x border-b px-2.5 py-2">
+            <div className="bg-card border-border flex items-center gap-2.5 rounded-b-xl border-x border-b px-2.5 py-2.5">
               <Link
                 href={`/lounges/${lounge._id}?tab=posts`}
                 className="shrink-0"
@@ -130,7 +130,7 @@ export function LoungeSwiper({ lounges }: LoungeSwiperProps) {
                   {lounge.loungeTitle || "Lounge"}
                 </p>
                 {lounge.bio && (
-                  <p className="text-muted-foreground mt-0.5 truncate text-[11px]">
+                  <p className="text-muted-foreground mt-0.5 line-clamp-2 text-[11px] leading-snug">
                     {lounge.bio}
                   </p>
                 )}
@@ -140,6 +140,6 @@ export function LoungeSwiper({ lounges }: LoungeSwiperProps) {
           </div>
         ))}
       </div>
-    </div>
+    </section>
   )
 }

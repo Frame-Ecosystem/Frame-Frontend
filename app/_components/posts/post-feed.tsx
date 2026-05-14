@@ -1,6 +1,13 @@
 "use client"
 
-import { useState, useMemo, useRef, useEffect, useCallback } from "react"
+import {
+  useState,
+  useMemo,
+  useRef,
+  useEffect,
+  useCallback,
+  type ReactNode,
+} from "react"
 import { usePathname } from "next/navigation"
 import { createPortal } from "react-dom"
 import {
@@ -9,6 +16,10 @@ import {
   Film,
   Users,
   Compass,
+  Bookmark,
+  Calendar,
+  Sparkles,
+  Store,
   type LucideIcon,
 } from "lucide-react"
 import Link from "next/link"
@@ -102,19 +113,18 @@ export function PostFeed() {
       return
     }
 
-    const frame = window.requestAnimationFrame(() => {
+    const frame = globalThis.requestAnimationFrame(() => {
       resetScrollAndFocusHeader()
     })
 
     return () => {
-      window.cancelAnimationFrame(frame)
+      globalThis.cancelAnimationFrame(frame)
     }
   }, [activeTab, isHomePage])
 
   // Mixed feed: posts + reels together as the backend intended
   const feedItems: FeedItem[] = useMemo(() => {
-    const items =
-      feed.data?.pages.flatMap((page) => page.data as FeedItem[]) ?? []
+    const items = feed.data?.pages.flatMap((page) => page.data) ?? []
     const seen = new Set<string>()
     return items.filter((item) => {
       if (seen.has(item._id)) return false
@@ -149,111 +159,152 @@ export function PostFeed() {
   }
 
   return (
-    <div className="mx-auto max-w-2xl space-y-8 sm:space-y-10">
-      {/* Create content prompt */}
-      {user && (
-        <>
-          <Card className="mt-8 mb-4 w-full shadow-sm">
-            <CardContent className="pt-4">
-              <div className="flex items-center gap-3">
-                <Link href={getProfilePath(user)} className="shrink-0">
-                  <Avatar className="hover:ring-primary/30 h-10 w-10 cursor-pointer ring-2 ring-transparent transition-all">
-                    <AvatarImage src={profileImage} alt={displayName} />
-                    <AvatarFallback className="text-sm font-semibold">
-                      {displayName.charAt(0).toUpperCase()}
-                    </AvatarFallback>
-                  </Avatar>
-                </Link>
-                <button
-                  onClick={() => setShowPostDialog(true)}
-                  className="text-muted-foreground bg-muted/60 hover:bg-muted hover:text-foreground flex-1 rounded-full px-4 py-2.5 text-left text-sm transition-colors"
-                >
-                  {t("postFeed.whatsOnYourMind")}
-                </button>
+    <div className="mx-auto w-full max-w-[1240px]">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-[250px_minmax(0,680px)_250px] lg:items-start lg:gap-5">
+        <aside className="hidden lg:sticky lg:top-28 lg:block">
+          <DesktopRailCard title="Shortcuts">
+            <DesktopRailLink
+              href="/saved"
+              icon={Bookmark}
+              label="Saved posts"
+            />
+            <DesktopRailLink
+              href="/bookings"
+              icon={Calendar}
+              label="Bookings"
+            />
+            <DesktopRailLink
+              href="/lounges"
+              icon={Store}
+              label="Explore lounges"
+            />
+          </DesktopRailCard>
+        </aside>
+
+        <main className="min-w-0 space-y-4 lg:space-y-5">
+          {/* Create content prompt */}
+          {user && (
+            <>
+              <Card className="w-full rounded-2xl border shadow-sm">
+                <CardContent className="pt-4">
+                  <div className="flex items-center gap-3">
+                    <Link href={getProfilePath(user)} className="shrink-0">
+                      <Avatar className="hover:ring-primary/30 h-10 w-10 cursor-pointer ring-2 ring-transparent transition-all">
+                        <AvatarImage src={profileImage} alt={displayName} />
+                        <AvatarFallback className="text-sm font-semibold">
+                          {displayName.charAt(0).toUpperCase()}
+                        </AvatarFallback>
+                      </Avatar>
+                    </Link>
+                    <button
+                      onClick={() => setShowPostDialog(true)}
+                      className="text-muted-foreground bg-muted/60 hover:bg-muted hover:text-foreground flex-1 rounded-full px-4 py-2.5 text-left text-sm transition-colors"
+                    >
+                      {t("postFeed.whatsOnYourMind")}
+                    </button>
+                  </div>
+                  <div className="border-border/50 mt-3 flex items-center gap-1 border-t pt-3">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setShowPostDialog(true)}
+                      className="text-muted-foreground hover:text-foreground flex flex-1 items-center justify-center gap-1.5 rounded-lg"
+                    >
+                      <FileText className="h-4 w-4" />
+                      <span className="text-sm font-medium">
+                        {t("postFeed.post")}
+                      </span>
+                    </Button>
+                    <div className="bg-border h-5 w-px" />
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setShowReelDialog(true)}
+                      className="text-muted-foreground hover:text-foreground flex flex-1 items-center justify-center gap-1.5 rounded-lg"
+                    >
+                      <Film className="h-4 w-4" />
+                      <span className="text-sm font-medium">
+                        {t("postFeed.reel")}
+                      </span>
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+              <CreatePostDialog
+                open={showPostDialog}
+                onOpenChange={setShowPostDialog}
+              />
+              <CreateReelDialog
+                open={showReelDialog}
+                onOpenChange={setShowReelDialog}
+              />
+            </>
+          )}
+
+          {/* Inline tab bar — home page only, scrolls naturally (never fixed/sticky) */}
+          {isHomePage && (
+            <div
+              ref={tabsRef}
+              className="bg-background/95 border-border flex border-b backdrop-blur-sm lg:rounded-2xl lg:border"
+            >
+              <InlineTabButton
+                active={activeTab === "explore"}
+                onClick={() => setActiveTab("explore")}
+                icon={Compass}
+                label={t("postFeed.explore")}
+              />
+              <InlineTabButton
+                active={activeTab === "following"}
+                onClick={() => setActiveTab("following")}
+                icon={Users}
+                label={t("postFeed.following")}
+              />
+            </div>
+          )}
+
+          {/* Mixed feed: posts + reels */}
+          <FeedList
+            items={feedItems}
+            hasNextPage={!!feed.hasNextPage}
+            isFetchingNextPage={feed.isFetchingNextPage}
+            fetchNextPage={feed.fetchNextPage}
+            isLoading={false}
+            emptyType="feed"
+          />
+
+          {/* Floating tab nav — home page only, visible when inline tabs scroll out of view */}
+          {mounted &&
+            isHomePage &&
+            createPortal(
+              <FloatingTabNav
+                visible={tabsHidden}
+                activeTab={activeTab}
+                onTabChange={setActiveTab}
+                exploreLabel={t("postFeed.explore")}
+                followingLabel={t("postFeed.following")}
+              />,
+              document.body,
+            )}
+        </main>
+
+        <aside className="hidden lg:sticky lg:top-28 lg:block">
+          <DesktopRailCard title="Suggestions">
+            <p className="text-muted-foreground text-xs leading-relaxed">
+              Reels and lounge suggestions refresh automatically to keep your
+              feed fresh.
+            </p>
+            <div className="bg-muted/60 mt-3 rounded-xl p-3">
+              <div className="flex items-start gap-2">
+                <Sparkles className="text-primary mt-0.5 h-4 w-4" />
+                <p className="text-xs leading-relaxed">
+                  Use the Explore tab for discovery, and Following for people
+                  you already follow.
+                </p>
               </div>
-              <div className="border-border/50 mt-3 flex items-center gap-1 border-t pt-3">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setShowPostDialog(true)}
-                  className="text-muted-foreground hover:text-foreground flex flex-1 items-center justify-center gap-1.5 rounded-lg"
-                >
-                  <FileText className="h-4 w-4" />
-                  <span className="text-sm font-medium">
-                    {t("postFeed.post")}
-                  </span>
-                </Button>
-                <div className="bg-border h-5 w-px" />
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setShowReelDialog(true)}
-                  className="text-muted-foreground hover:text-foreground flex flex-1 items-center justify-center gap-1.5 rounded-lg"
-                >
-                  <Film className="h-4 w-4" />
-                  <span className="text-sm font-medium">
-                    {t("postFeed.reel")}
-                  </span>
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-          <hr className="border-border" />
-          <CreatePostDialog
-            open={showPostDialog}
-            onOpenChange={setShowPostDialog}
-          />
-          <CreateReelDialog
-            open={showReelDialog}
-            onOpenChange={setShowReelDialog}
-          />
-        </>
-      )}
-
-      {/* Inline tab bar — home page only, scrolls naturally (never fixed/sticky) */}
-      {isHomePage && (
-        <div
-          ref={tabsRef}
-          className="bg-background/95 border-border -mx-5 flex border-b backdrop-blur-sm lg:-mx-8"
-        >
-          <InlineTabButton
-            active={activeTab === "explore"}
-            onClick={() => setActiveTab("explore")}
-            icon={Compass}
-            label={t("postFeed.explore")}
-          />
-          <InlineTabButton
-            active={activeTab === "following"}
-            onClick={() => setActiveTab("following")}
-            icon={Users}
-            label={t("postFeed.following")}
-          />
-        </div>
-      )}
-
-      {/* Mixed feed: posts + reels */}
-      <FeedList
-        items={feedItems}
-        hasNextPage={!!feed.hasNextPage}
-        isFetchingNextPage={feed.isFetchingNextPage}
-        fetchNextPage={feed.fetchNextPage}
-        isLoading={false}
-        emptyType="feed"
-      />
-
-      {/* Floating tab nav — home page only, visible when inline tabs scroll out of view */}
-      {mounted &&
-        isHomePage &&
-        createPortal(
-          <FloatingTabNav
-            visible={tabsHidden}
-            activeTab={activeTab}
-            onTabChange={setActiveTab}
-            exploreLabel={t("postFeed.explore")}
-            followingLabel={t("postFeed.following")}
-          />,
-          document.body,
-        )}
+            </div>
+          </DesktopRailCard>
+        </aside>
+      </div>
     </div>
   )
 }
@@ -272,15 +323,15 @@ function InlineTabButton({
   onClick,
   icon: Icon,
   label,
-}: InlineTabButtonProps) {
+}: Readonly<InlineTabButtonProps>) {
   return (
     <button
       onClick={onClick}
       aria-pressed={active}
       className={`flex flex-1 items-center justify-center gap-2 px-6 py-3.5 text-sm font-medium transition-colors ${
         active
-          ? "border-primary text-foreground border-b-2"
-          : "text-muted-foreground hover:text-foreground"
+          ? "border-primary text-foreground lg:bg-primary/10 border-b-2 lg:rounded-xl lg:border-b-0"
+          : "text-muted-foreground hover:text-foreground lg:hover:bg-muted/70 lg:rounded-xl"
       }`}
     >
       <Icon className="h-4 w-4" />
@@ -303,7 +354,7 @@ function FloatingTabNav({
   onTabChange,
   exploreLabel,
   followingLabel,
-}: FloatingTabNavProps) {
+}: Readonly<FloatingTabNavProps>) {
   return (
     <div
       aria-hidden={!visible}
@@ -342,7 +393,7 @@ function FloatingTabButton({
   onClick,
   icon: Icon,
   label,
-}: FloatingTabButtonProps) {
+}: Readonly<FloatingTabButtonProps>) {
   return (
     <button
       onClick={onClick}
@@ -360,5 +411,42 @@ function FloatingTabButton({
         {label}
       </span>
     </button>
+  )
+}
+
+function DesktopRailCard({
+  title,
+  children,
+}: Readonly<{
+  title: string
+  children: ReactNode
+}>) {
+  return (
+    <Card className="rounded-2xl border shadow-sm">
+      <CardContent className="space-y-2 p-3">
+        <h3 className="text-sm font-semibold">{title}</h3>
+        {children}
+      </CardContent>
+    </Card>
+  )
+}
+
+function DesktopRailLink({
+  href,
+  icon: Icon,
+  label,
+}: Readonly<{
+  href: string
+  icon: LucideIcon
+  label: string
+}>) {
+  return (
+    <Link
+      href={href}
+      className="hover:bg-muted/70 flex items-center gap-2 rounded-xl px-2 py-2 text-sm transition-colors"
+    >
+      <Icon className="text-muted-foreground h-4 w-4" />
+      <span>{label}</span>
+    </Link>
   )
 }
