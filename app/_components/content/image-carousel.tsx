@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useCallback, useEffect } from "react"
+import { useState, useCallback, useEffect, useRef } from "react"
 import Image from "next/image"
 import { ChevronLeft, ChevronRight, X } from "lucide-react"
 import { cn } from "@/app/_lib/utils"
@@ -19,9 +19,15 @@ export function ImageCarousel({
   aspectRatio = "square",
   priority = false,
   onDoubleClick,
-}: ImageCarouselProps) {
+}: Readonly<ImageCarouselProps>) {
   const [current, setCurrent] = useState(0)
   const [lightboxOpen, setLightboxOpen] = useState(false)
+  const [isDragging, setIsDragging] = useState(false)
+  const [dragOffset, setDragOffset] = useState(0)
+  const [transitionEnabled, setTransitionEnabled] = useState(true)
+  const startXRef = useRef<number | null>(null)
+  const activePointerIdRef = useRef<number | null>(null)
+  const movedRef = useRef(false)
 
   // Lock body scroll when lightbox is open
   useEffect(() => {
@@ -41,38 +47,149 @@ export function ImageCarousel({
     [images.length],
   )
 
+  const beginDrag = useCallback(
+    (e: React.PointerEvent<HTMLElement>) => {
+      if (images.length <= 1) return
+      startXRef.current = e.clientX
+      activePointerIdRef.current = e.pointerId
+      movedRef.current = false
+      setIsDragging(true)
+      setTransitionEnabled(false)
+      setDragOffset(0)
+      e.currentTarget.setPointerCapture(e.pointerId)
+    },
+    [images.length],
+  )
+
+  const moveDrag = useCallback(
+    (e: React.PointerEvent<HTMLElement>) => {
+      if (!isDragging || startXRef.current === null) return
+      if (activePointerIdRef.current !== e.pointerId) return
+
+      const deltaX = e.clientX - startXRef.current
+      if (Math.abs(deltaX) > 3) movedRef.current = true
+      setDragOffset(deltaX)
+    },
+    [isDragging],
+  )
+
+  const endDrag = useCallback(() => {
+    if (!isDragging) return
+
+    const threshold = 56
+    const shouldPrev = dragOffset > threshold && current > 0
+    const shouldNext = dragOffset < -threshold && current < images.length - 1
+
+    setTransitionEnabled(true)
+    if (shouldPrev) {
+      prev()
+    } else if (shouldNext) {
+      next()
+    }
+
+    setDragOffset(0)
+    setIsDragging(false)
+    startXRef.current = null
+    activePointerIdRef.current = null
+  }, [current, dragOffset, images.length, isDragging, next, prev])
+
+  const cancelDrag = useCallback(() => {
+    setTransitionEnabled(true)
+    setDragOffset(0)
+    setIsDragging(false)
+    startXRef.current = null
+    activePointerIdRef.current = null
+  }, [])
+
+  const handleOpenLightbox = useCallback(() => {
+    if (!movedRef.current) {
+      setLightboxOpen(true)
+    }
+  }, [])
+
+  const closeLightbox = useCallback(() => {
+    setLightboxOpen(false)
+  }, [])
+
+  const handleInlineKeyDown = useCallback(
+    (e: React.KeyboardEvent<HTMLButtonElement>) => {
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault()
+        handleOpenLightbox()
+      }
+      if (images.length > 1 && e.key === "ArrowLeft") {
+        e.preventDefault()
+        prev()
+      }
+      if (images.length > 1 && e.key === "ArrowRight") {
+        e.preventDefault()
+        next()
+      }
+    },
+    [handleOpenLightbox, images.length, next, prev],
+  )
+
   if (images.length === 0) return null
 
-  const aspectClass =
-    aspectRatio === "square"
-      ? "aspect-square"
-      : aspectRatio === "video"
-        ? "aspect-video"
-        : aspectRatio === "portrait"
-          ? "aspect-[4/5]"
-          : "aspect-auto min-h-[300px]"
+  let aspectClass = "aspect-auto min-h-[300px]"
+  if (aspectRatio === "square") {
+    aspectClass = "aspect-square"
+  } else if (aspectRatio === "video") {
+    aspectClass = "aspect-video"
+  } else if (aspectRatio === "portrait") {
+    aspectClass = "aspect-[4/5]"
+  }
 
   return (
     <>
-      <div className="relative select-none" onDoubleClick={onDoubleClick}>
+      <div className="relative select-none">
         {/* Main image */}
-        <div
+        <button
+          type="button"
           className={cn(
             "relative w-full cursor-pointer overflow-hidden bg-black",
             aspectClass,
           )}
-          onClick={() => setLightboxOpen(true)}
+          onClick={handleOpenLightbox}
+          onKeyDown={handleInlineKeyDown}
+          onPointerDown={beginDrag}
+          onPointerMove={moveDrag}
+          onPointerUp={endDrag}
+          onPointerCancel={cancelDrag}
+          onDoubleClick={onDoubleClick}
+          aria-label="Open image in full screen"
         >
-          <Image
-            src={images[current].url}
-            alt={`${alt} ${current + 1} of ${images.length}`}
-            fill
-            sizes="(max-width: 768px) 100vw, 470px"
-            className="object-cover"
-            priority={priority && current === 0}
-            loading={priority && current === 0 ? "eager" : "lazy"}
-          />
-        </div>
+          <div
+            className="flex h-full"
+            style={{
+              transform: `translateX(calc(${-current * 100}% + ${dragOffset}px))`,
+              transition: transitionEnabled
+                ? "transform 240ms cubic-bezier(0.22, 0.61, 0.36, 1)"
+                : "none",
+            }}
+          >
+            {images.map((img, index) => (
+              <div
+                key={img.publicId || `${img.url}-${index}`}
+                className="relative h-full w-full shrink-0"
+              >
+                <Image
+                  src={img.url}
+                  alt={`${alt} ${index + 1} of ${images.length}`}
+                  fill
+                  sizes="(max-width: 768px) 100vw, 470px"
+                  className={cn(
+                    "object-cover",
+                    isDragging && "pointer-events-none",
+                  )}
+                  priority={priority && index === 0}
+                  loading={priority && index === 0 ? "eager" : "lazy"}
+                  draggable={false}
+                />
+              </div>
+            ))}
+          </div>
+        </button>
 
         {/* Navigation arrows */}
         {images.length > 1 && (
@@ -103,7 +220,7 @@ export function ImageCarousel({
           <div className="absolute bottom-3 left-1/2 flex -translate-x-1/2 gap-1.5">
             {images.map((_, i) => (
               <button
-                key={i}
+                key={`dot-${images[i]?.publicId || images[i]?.url || i}`}
                 onClick={() => setCurrent(i)}
                 aria-label={`Go to image ${i + 1}`}
                 className={cn(
@@ -120,41 +237,83 @@ export function ImageCarousel({
 
       {/* Lightbox */}
       {lightboxOpen && (
-        <div
-          className="fixed inset-0 z-[100] flex items-center justify-center bg-black/90 backdrop-blur-sm"
-          onClick={() => setLightboxOpen(false)}
+        <dialog
+          open
+          className="fixed inset-0 z-[2147483647] m-0 h-screen w-screen max-w-none border-none bg-transparent p-0"
+          aria-label="Image viewer"
+          onCancel={closeLightbox}
         >
           <button
-            onClick={() => setLightboxOpen(false)}
-            className="absolute top-4 right-4 z-[101] rounded-full bg-black/50 p-2 text-white transition-colors hover:bg-black/70"
+            type="button"
+            className="absolute inset-0 bg-black/90 backdrop-blur-sm"
+            onClick={closeLightbox}
+            aria-label="Close image viewer"
+          />
+
+          <button
+            type="button"
+            onClick={closeLightbox}
+            className="fixed z-[2147483647] rounded-full border border-black/15 bg-white/80 p-2 text-black shadow-lg backdrop-blur-sm transition-colors hover:bg-white dark:border-white/30 dark:bg-black/70 dark:text-white dark:hover:bg-black/85"
+            style={{
+              top: "max(12px, env(safe-area-inset-top))",
+              right: "max(12px, env(safe-area-inset-right))",
+            }}
             aria-label="Close"
           >
             <X className="h-6 w-6" />
           </button>
-          <div
-            className="relative h-full w-full"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <Image
-              src={images[current].url}
-              alt={`${alt} ${current + 1} of ${images.length}`}
-              fill
-              sizes="100vw"
-              quality={90}
-              className="object-contain"
-              priority
-            />
+
+          <div className="absolute inset-0 z-[110]">
+            <div
+              className="relative h-full w-full overflow-hidden"
+              onPointerDown={beginDrag}
+              onPointerMove={moveDrag}
+              onPointerUp={endDrag}
+              onPointerCancel={cancelDrag}
+            >
+              <div
+                className="flex h-full"
+                style={{
+                  transform: `translateX(calc(${-current * 100}% + ${dragOffset}px))`,
+                  transition: transitionEnabled
+                    ? "transform 240ms cubic-bezier(0.22, 0.61, 0.36, 1)"
+                    : "none",
+                }}
+              >
+                {images.map((img, index) => (
+                  <div
+                    key={`lightbox-${img.publicId || img.url || index}`}
+                    className="relative h-full w-full shrink-0"
+                  >
+                    <Image
+                      src={img.url}
+                      alt={`${alt} ${index + 1} of ${images.length}`}
+                      fill
+                      sizes="100vw"
+                      quality={90}
+                      className={cn(
+                        "object-contain",
+                        isDragging && "pointer-events-none",
+                      )}
+                      priority={index === current || index === 0}
+                      draggable={false}
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
           {/* Lightbox nav arrows */}
           {images.length > 1 && (
             <>
               {current > 0 && (
                 <button
+                  type="button"
                   onClick={(e) => {
                     e.stopPropagation()
                     prev()
                   }}
-                  className="absolute top-1/2 left-3 -translate-y-1/2 rounded-full bg-black/60 p-2 text-white backdrop-blur-sm transition hover:bg-black/80"
+                  className="fixed top-1/2 left-3 z-[125] -translate-y-1/2 rounded-full bg-black/65 p-2 text-white backdrop-blur-sm transition hover:bg-black/85 sm:left-4"
                   aria-label="Previous image"
                 >
                   <ChevronLeft className="h-6 w-6" />
@@ -162,11 +321,12 @@ export function ImageCarousel({
               )}
               {current < images.length - 1 && (
                 <button
+                  type="button"
                   onClick={(e) => {
                     e.stopPropagation()
                     next()
                   }}
-                  className="absolute top-1/2 right-3 -translate-y-1/2 rounded-full bg-black/60 p-2 text-white backdrop-blur-sm transition hover:bg-black/80"
+                  className="fixed top-1/2 right-3 z-[125] -translate-y-1/2 rounded-full bg-black/65 p-2 text-white backdrop-blur-sm transition hover:bg-black/85 sm:right-4"
                   aria-label="Next image"
                 >
                   <ChevronRight className="h-6 w-6" />
@@ -174,7 +334,7 @@ export function ImageCarousel({
               )}
             </>
           )}
-        </div>
+        </dialog>
       )}
     </>
   )
