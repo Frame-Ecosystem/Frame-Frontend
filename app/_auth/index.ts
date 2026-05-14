@@ -48,6 +48,18 @@ export {
   handleGoogleAuthResult,
 } from "./lib/google-popup"
 export { validateSignupPassword } from "./lib/signup-validators"
+export {
+  saveSession,
+  getAllSessions,
+  getActiveSession,
+  getSessionByUserId,
+  setActiveSession,
+  removeSession,
+  clearAllSessions,
+  hasStoredSessions,
+  getSessionCount,
+  type StoredSession,
+} from "./lib/sessions-manager"
 export { tokenManager } from "./lib/token-manager"
 
 // Constants & policy

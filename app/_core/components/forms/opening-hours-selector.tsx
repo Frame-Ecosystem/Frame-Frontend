@@ -108,7 +108,7 @@ export function OpeningHoursSelector() {
 
       toast.success(t("openingHours.updated"))
       setOpen(false)
-    } catch (_) {
+    } catch (error) {
       if (isAuthError(error)) return
       if (error instanceof Error) {
         toast.error(error.message)

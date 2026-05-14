@@ -59,21 +59,21 @@ export default function SignUpForm({
         .object({
           phoneNumber: z
             .string()
-            .min(1, "Phone number is required")
-            .regex(/^\d{8}$/, "Phone number must be exactly 8 digits"),
+            .min(1, t("auth.signup.validationPhoneRequired"))
+            .regex(/^\d{8}$/, t("auth.signup.validationPhoneInvalid")),
           email: z
             .string()
-            .min(1, "Email is required")
-            .email("Please enter a valid email address"),
+            .min(1, t("auth.signup.validationEmailRequired"))
+            .email(t("auth.signup.validationEmailInvalid")),
           password: z
             .string()
-            .min(1, "Password is required")
-            .min(8, "Password must be at least 8 characters")
-            .max(128, "Password must not exceed 128 characters"),
+            .min(1, t("auth.signup.validationPasswordRequired"))
+            .min(8, t("auth.signup.validationPasswordMin"))
+            .max(128, t("auth.signup.validationPasswordMax")),
           confirmPassword: z
             .string()
-            .min(1, "Confirm password is required")
-            .min(8, "Password must be at least 8 characters"),
+            .min(1, t("auth.signup.validationConfirmRequired"))
+            .min(8, t("auth.signup.validationPasswordMin")),
         })
         .superRefine(({ password, confirmPassword }, ctx) => {
           if (!password || !confirmPassword) return
@@ -99,7 +99,7 @@ export default function SignUpForm({
             message: validationError,
           })
         }),
-    [],
+    [t],
   )
 
   type SignUpValues = z.infer<typeof signUpSchema>
@@ -134,7 +134,7 @@ export default function SignUpForm({
 
     try {
       if (!selectedType) {
-        setFormError("Please select account type (Client or Lounge)")
+        setFormError(t("auth.signup.accountTypeRequired"))
         return
       }
 
@@ -156,14 +156,13 @@ export default function SignUpForm({
         }, 1000)
       } else {
         const backendMessage =
-          response?.message ||
-          "Unable to send verification email. Please try again."
+          response?.message || t("auth.signup.emailSendFailed")
         setFormError(backendMessage)
         recordFailure()
         setEmailSending(false)
       }
-    } catch (_) {
-      const mapped = mapAuthError(err, "signup")
+    } catch (error) {
+      const mapped = mapAuthError(error, "signup")
       recordFailure(mapped.retryAfter)
       setFormError(mapped.formError)
 
@@ -191,7 +190,7 @@ export default function SignUpForm({
     setLoading(true)
 
     if (!selectedType) {
-      setFormError("Please select account type (Client or Lounge)")
+      setFormError(t("auth.signup.accountTypeRequired"))
       setLoading(false)
       return
     }
@@ -207,8 +206,8 @@ export default function SignUpForm({
         redirect: (path) => router.push(path),
         getRedirectPath: getLoginRedirectPath,
       })
-    } catch (_) {
-      setFormError(err instanceof Error ? err.message : String(err))
+    } catch (error) {
+      setFormError(error instanceof Error ? error.message : String(error))
     } finally {
       setLoading(false)
     }
@@ -235,7 +234,7 @@ export default function SignUpForm({
               <Input
                 id="phoneNumber"
                 type="tel"
-                placeholder="50123456"
+                placeholder={t("auth.signup.phonePlaceholder")}
                 value={field.value}
                 onChange={(e) => {
                   const numericValue = e.target.value.replace(/\D/g, "")

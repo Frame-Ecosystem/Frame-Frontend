@@ -7,7 +7,7 @@ import { useTranslation } from "@/app/_i18n"
 function GoogleAuthErrorContent() {
   const { t } = useTranslation()
   const searchParams = useSearchParams()
-  const message = searchParams.get("message") || "Authentication failed"
+  const message = searchParams.get("message") || t("auth.google.authFailed")
 
   const isUserExists = message.includes("already exists")
 

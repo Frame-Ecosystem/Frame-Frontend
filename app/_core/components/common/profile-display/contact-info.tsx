@@ -54,7 +54,7 @@ export default function ContactInfo({ phones = [], email }: ContactInfoProps) {
       } else {
         throw new Error("Copy command failed")
       }
-    } catch (_) {
+    } catch (error) {
       toast.error(t("contact.emailCopyFailed", { email }))
     }
   }

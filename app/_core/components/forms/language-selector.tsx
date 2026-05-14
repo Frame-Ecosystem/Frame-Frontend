@@ -34,8 +34,7 @@ export function LanguageSelector() {
         await authService.updateLanguage(code)
       }
       setTimeout(() => toast.success(t("toast.languageUpdated")), 0)
-    } catch (_) {
-      if (isAuthError(error)) return
+    } catch (error: any) { if (isAuthError(error)) return
       // Revert on failure
       setLocale(previousLocale)
       toast.error(t("toast.error"))
@@ -124,3 +123,4 @@ export function LanguageSelector() {
     </div>
   )
 }
+
