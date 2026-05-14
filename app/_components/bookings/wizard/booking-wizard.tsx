@@ -135,7 +135,7 @@ export function BookingWizard({
       try {
         const availabilityData = await bookingService.getAvailability(agentIds)
         setAvailability(availabilityData)
-      } catch (_) {
+      } catch (error) {
         if (isAuthError(error)) return
         setAvailability({
           unavailableSlots: [],
