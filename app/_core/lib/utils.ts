@@ -15,7 +15,7 @@ export function formatMemberSinceDate(dateString?: string): string {
       year: "numeric",
       month: "short",
     })
-  } catch (_) {
+  } catch (error) {
     return "Unknown"
   }
 }

@@ -62,7 +62,7 @@ class ServiceCategoryService {
       }
 
       return null
-    } catch (_) {
+    } catch (error) {
       return null
     }
   }
@@ -96,7 +96,7 @@ class ServiceCategoryService {
       }
 
       throw new Error("Invalid response format from create service category")
-    } catch (_) {
+    } catch (error) {
       throw error
     }
   }
@@ -131,7 +131,7 @@ class ServiceCategoryService {
       }
 
       throw new Error("Invalid response format from update service category")
-    } catch (_) {
+    } catch (error) {
       throw error
     }
   }

@@ -295,7 +295,7 @@ export async function PATCH(
         { status: 400 },
       )
     }
-  } catch (_) {
+  } catch (error) {
     return NextResponse.json(
       { error: "Failed to update suggestion status" },
       { status: 500 },

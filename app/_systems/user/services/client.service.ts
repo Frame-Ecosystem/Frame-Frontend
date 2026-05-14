@@ -80,7 +80,7 @@ const clientService = {
       const endpoint = `/v1/client/lounges${queryParams.toString() ? `?${queryParams}` : ""}`
       const data = await apiClient.get<GetLoungesResponse>(endpoint)
       return data
-    } catch (_) {
+    } catch (error) {
       throw error
     }
   },
@@ -102,7 +102,7 @@ const clientService = {
       const endpoint = `/v1/client/services/${serviceId}/lounges${queryParams.toString() ? `?${queryParams}` : ""}`
       const data = await apiClient.get<GetLoungesResponse>(endpoint)
       return data
-    } catch (_) {
+    } catch (error) {
       throw error
     }
   },
@@ -113,7 +113,7 @@ const clientService = {
         `/v1/client/lounges/${loungeId}`,
       )
       return response.data
-    } catch (_) {
+    } catch (error) {
       throw error
     }
   },
@@ -124,7 +124,7 @@ const clientService = {
         `/v1/client/lounges/${loungeId}/services`,
       )
       return response.data || []
-    } catch (_) {
+    } catch (error) {
       throw error
     }
   },

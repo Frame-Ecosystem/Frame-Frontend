@@ -110,16 +110,16 @@ const SignInDialog = ({
       z.object({
         emailOrPhone: z
           .string()
-          .min(1, "Email or phone number is required")
+          .min(1, t("auth.signin.validationEmailOrPhoneRequired"))
           .refine(isValidEmailOrPhone, {
-            message: "Enter a valid email or an 8-digit phone number",
+            message: t("auth.signin.validationEmailOrPhoneInvalid"),
           }),
         password: z
           .string()
-          .min(1, "Password is required")
-          .min(8, "Password must be at least 8 characters"),
+          .min(1, t("auth.signin.validationPasswordRequired"))
+          .min(8, t("auth.signin.validationPasswordMin")),
       }),
-    [],
+    [t],
   )
 
   type SignInValues = z.infer<typeof signInSchema>
@@ -228,7 +228,7 @@ const SignInDialog = ({
         {!isCheckingSession && sessionUser && (
           <div className="border-border/50 bg-muted/30 space-y-3 rounded-lg border p-4">
             <p className="text-muted-foreground text-xs">
-              Existing session found
+              {t("auth.signin.existingSessionFound")}
             </p>
             <Button
               onClick={handleContinueSession}
@@ -249,7 +249,9 @@ const SignInDialog = ({
                 </AvatarFallback>
               </Avatar>
               <span className="truncate">
-                Continue as {getUserDisplayName(sessionUser)}
+                {t("auth.signin.continueAs", {
+                  name: getUserDisplayName(sessionUser),
+                })}
               </span>
             </Button>
             <Button
@@ -260,7 +262,7 @@ const SignInDialog = ({
               size="sm"
             >
               <LogOut className="mr-2 h-4 w-4" />
-              Sign in with different account
+              {t("auth.signin.signInDifferent")}
             </Button>
           </div>
         )}

@@ -213,7 +213,7 @@ export function useFullscreenHandlers(
 
       // Fallback: pseudo-fullscreen using fixed positioning (for iOS WebView/Safari)
       setIsPseudoFullScreen(true)
-    } catch (_) {
+    } catch (_error) {
       // Handle fullscreen error silently
     }
   }
@@ -243,7 +243,7 @@ export function useFullscreenHandlers(
           )
         } catch {}
       }
-    } catch (_) {
+    } catch (_error) {
       // Handle fullscreen error silently
     }
   }

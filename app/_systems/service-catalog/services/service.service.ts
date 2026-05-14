@@ -70,7 +70,7 @@ class ServiceService {
       }
 
       return null
-    } catch (_) {
+    } catch (error) {
       return null
     }
   }
@@ -105,7 +105,7 @@ class ServiceService {
       }
 
       throw new Error("Invalid response format from create service")
-    } catch (_) {
+    } catch (error) {
       throw error
     }
   }
@@ -144,7 +144,7 @@ class ServiceService {
       }
 
       throw new Error("Invalid response format from update service")
-    } catch (_) {
+    } catch (error) {
       throw error
     }
   }

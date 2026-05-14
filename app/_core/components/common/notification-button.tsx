@@ -20,8 +20,9 @@ interface NotificationButtonProps {
 
 const NotificationButton = ({ compact: _compact }: NotificationButtonProps) => {
   const { user, isLoading: authLoading } = useAuth()
-  const { unreadCount } = useNotificationContext()
+  const { unreadContentCount, unreadCount } = useNotificationContext()
   const router = useRouter()
+  const badgeCount = unreadContentCount ?? unreadCount
 
   if (authLoading || !user) return null
 
@@ -35,12 +36,12 @@ const NotificationButton = ({ compact: _compact }: NotificationButtonProps) => {
     >
       <div className="border-primary/30 relative flex h-10 w-10 items-center justify-center rounded-full border">
         <Bell className="h-5 w-5" />
-        {unreadCount > 0 && (
+        {badgeCount > 0 && (
           <Badge
             variant="destructive"
             className="absolute -top-1.5 -right-1.5 flex h-4 w-4 items-center justify-center p-0 text-[9px] font-bold"
           >
-            {unreadCount > 99 ? "99+" : unreadCount}
+            {badgeCount > 99 ? "99+" : badgeCount}
           </Badge>
         )}
       </div>

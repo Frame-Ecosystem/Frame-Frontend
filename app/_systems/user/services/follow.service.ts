@@ -33,7 +33,7 @@ class FollowService {
       )
       const payload = (res as any).data ?? res
       return !!(payload.isFollowing ?? payload.following ?? false)
-    } catch (_) {
+    } catch (error) {
       return false
     }
   }
@@ -110,7 +110,7 @@ class FollowService {
         followersCount: payload.followersCount ?? 0,
         followingCount: payload.followingCount ?? 0,
       }
-    } catch (_) {
+    } catch (error) {
       return { followersCount: 0, followingCount: 0 }
     }
   }

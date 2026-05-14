@@ -120,7 +120,7 @@ export default function ResetPasswordPage() {
     setLoading(true)
 
     if (!token) {
-      setError("Invalid reset token")
+      setError(t("auth.reset.invalidToken"))
       setLoading(false)
       return
     }

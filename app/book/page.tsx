@@ -61,7 +61,7 @@ function BookPageContent() {
             return {
               _id: service._id,
               id: service._id,
-              name: globalService?.name || "Service",
+              name: globalService?.name || t("common.unknown"),
               description: service.description || "",
               imageUrl: getValidImageUrl(service.image),
               price: service.price || 0,
@@ -72,7 +72,7 @@ function BookPageContent() {
         )
 
         setPreSelectedServices(services)
-      } catch (_) {
+      } catch (error) {
         if (isAuthError(error)) return
       } finally {
         setIsLoadingServices(false)
@@ -110,11 +110,13 @@ function BookPageContent() {
 }
 
 export default function BookPage() {
+  const { t } = useTranslation()
+
   return (
     <Suspense
       fallback={
         <div className="flex min-h-screen items-center justify-center">
-          Loading...
+          {t("common.loading")}
         </div>
       }
     >

@@ -8,6 +8,7 @@ import Image from "next/image"
 import { Button } from "./_components/ui/button"
 import { ErrorBoundary } from "./_components/common/errorBoundary"
 import { getHomePath } from "./_lib/profile"
+import { isPWAInstalled } from "./_lib/pwa-detector"
 import {
   Scissors,
   Star,
@@ -340,6 +341,15 @@ const LandingPage = () => {
   useEffect(() => {
     if (!isLoading && user) {
       router.push(getHomePath())
+    }
+  }, [user, isLoading, router])
+
+  // PWA redirect logic: Navigate to /home for PWA users (shows signin if not authed)
+  useEffect(() => {
+    if (!isLoading && !user && isPWAInstalled()) {
+      // PWA mode + not authenticated
+      // Redirect to /home which will trigger signin dialog
+      router.push("/home")
     }
   }, [user, isLoading, router])
 

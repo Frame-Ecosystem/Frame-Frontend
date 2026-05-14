@@ -42,8 +42,7 @@ export function GenderSelector() {
       await refreshUser()
       toast.success(t("genderSelector.updated"))
       setIsOpen(false)
-    } catch (_) {
-      if (isAuthError(error)) return
+    } catch (error: any) { if (isAuthError(error)) return
       toast.error(t("genderSelector.updateFailed"))
     }
   }
@@ -113,3 +112,4 @@ export function GenderSelector() {
     </div>
   )
 }
+

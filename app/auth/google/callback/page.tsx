@@ -38,7 +38,7 @@ export default function GoogleCallbackPage() {
       const friendlyMessage =
         GOOGLE_OAUTH_ERROR_MESSAGES[
           errorCode as keyof typeof GOOGLE_OAUTH_ERROR_MESSAGES
-        ] || `Authentication failed: ${errorCode}`
+        ] || t("auth.google.authFailedWithCode", { code: errorCode })
 
       if (isPopup) {
         const messageType =

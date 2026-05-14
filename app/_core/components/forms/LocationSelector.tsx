@@ -191,7 +191,7 @@ export function LocationSelector({
       // Store references for cleanup if needed
       // setMap(mapInstance)
       // setMarker(markerInstance)
-    } catch (_) {
+    } catch (error) {
       // Map initialization failed silently
     }
   }, [])
@@ -277,7 +277,7 @@ export function LocationSelector({
         setSearchQuery("")
         setIsOpen(false) // Close the expanded view after successful update
       }
-    } catch (_) {
+    } catch (error) {
       if (isAuthError(error)) return
     } finally {
       setIsUpdating(false)

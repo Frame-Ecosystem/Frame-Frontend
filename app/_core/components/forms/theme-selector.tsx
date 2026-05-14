@@ -34,7 +34,7 @@ export function ThemeSelector() {
         await authService.updateTheme(newTheme)
         toast.success(t("toast.themeUpdated"))
       }
-    } catch (_) {
+    } catch (error) {
       if (isAuthError(error)) return
       toast.error(t("toast.error"))
       // Revert to previous theme on error
@@ -131,3 +131,4 @@ export function ThemeSelector() {
     </div>
   )
 }
+

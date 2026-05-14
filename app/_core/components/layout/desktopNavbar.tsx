@@ -5,6 +5,7 @@ import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { Card, CardContent } from "@/app/_core/ui/card"
 import { Button } from "@/app/_core/ui/button"
+import { Badge } from "@/app/_core/ui/badge"
 import UserSession from "@/app/_components/profile/user-session"
 import NotificationButton from "../common/notification-button"
 import MessageButton from "../common/message-button"
@@ -15,10 +16,12 @@ import { NAV_LINKS } from "@/app/_constants/navigation"
 import { getProfilePath, getHomePath } from "@/app/_lib/profile"
 import { useScrollDirection } from "@/app/_hooks/useScrollDirection"
 import { useTranslation } from "@/app/_i18n"
+import { useNotificationContext } from "@/app/_providers/notification"
 
 const DesktopNavbar = () => {
   const pathname = usePathname()
   const { user, isLoading } = useAuth()
+  const { unreadBookingCount } = useNotificationContext()
   const scrollDir = useScrollDirection()
   const { t } = useTranslation()
   const hidden = scrollDir === "down"
@@ -69,11 +72,12 @@ const DesktopNavbar = () => {
               }
 
               const Icon = link.icon as any
-              const href = isProfileLink
-                ? getProfilePath(user)
-                : isHomeLink
-                  ? getHomePath()
-                  : link.href
+              let href = link.href
+              if (isProfileLink) {
+                href = getProfilePath(user)
+              } else if (isHomeLink) {
+                href = getHomePath()
+              }
 
               return (
                 <Link
@@ -92,7 +96,20 @@ const DesktopNavbar = () => {
                     </>
                   ) : (
                     <>
-                      <Icon className="h-4 w-4" />
+                      <span className="relative inline-flex">
+                        <Icon className="h-4 w-4" />
+                        {link.href === "/bookings" &&
+                          unreadBookingCount > 0 && (
+                            <Badge
+                              variant="destructive"
+                              className="absolute -top-2 -right-2 flex h-4 w-4 items-center justify-center p-0 text-[9px] font-bold"
+                            >
+                              {unreadBookingCount > 99
+                                ? "99+"
+                                : unreadBookingCount}
+                            </Badge>
+                          )}
+                      </span>
                       {isProfileLink
                         ? t("nav.profile")
                         : t(`nav.${link.label.toLowerCase()}`)}

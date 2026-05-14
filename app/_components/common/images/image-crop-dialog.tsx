@@ -92,7 +92,7 @@ export function ImageCropDialog({
       const blob = await getCroppedImg(imageSrc, croppedAreaPixels)
       onCropComplete(blob)
       onOpenChange(false)
-    } catch (_) {
+    } catch (error) {
     } finally {
       setIsSaving(false)
     }

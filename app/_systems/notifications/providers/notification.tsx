@@ -1,4 +1,4 @@
-﻿"use client"
+"use client"
 
 import React, {
   createContext,
@@ -6,6 +6,7 @@ import React, {
   useMemo,
   useCallback,
   useEffect,
+  useRef,
 } from "react"
 import { useQueryClient } from "@tanstack/react-query"
 import { toast } from "sonner"
@@ -25,14 +26,15 @@ import { NotificationType } from "@/app/_types"
 import { getRedirectPath } from "../lib/notification-routing"
 import { scrollToNotificationTarget } from "../hooks/useNotificationNavigate"
 import {
-  getMessageCountFromByCategory,
-  isMessageNotification,
-} from "../lib/message-notification"
+  getUnreadBucketCounts,
+  incrementUnreadByBucket,
+  resolveBucketFromNotification,
+} from "../lib/notification-buckets"
 
 // Re-export for backward compatibility (consumers import from _providers/notification)
 export { getRedirectPath } from "../lib/notification-routing"
 
-// ── Toast configuration per notification type ────────────────
+// -- Toast configuration per notification type ----------------
 const HIGH_PRIORITY_TYPES: ReadonlySet<string> = new Set([
   NotificationType.QUEUE_IN_SERVICE,
   NotificationType.QUEUE_REMINDER,
@@ -72,12 +74,16 @@ const TOAST_TYPES: ReadonlySet<string> = new Set([
   NotificationType.PRODUCT_CATEGORY_SUGGESTION_REJECTED,
 ])
 
-// ── Context ──────────────────────────────────────────────────
+// -- Context --------------------------------------------------
 interface NotificationContextValue {
-  /** Non-message unread notifications (for bell icon). */
+  /** Content/non-booking/non-message unread notifications (for bell icon). */
   unreadCount: number
   /** Total unread message notifications (for messages icon). */
   unreadMessageCount: number
+  /** Total unread booking notifications (for bookings icon). */
+  unreadBookingCount: number
+  /** Total unread content notifications (for bell icon). */
+  unreadContentCount: number
   /** Total unread notifications across all categories. */
   unreadTotalCount: number
   unreadByCategory: Record<string, number>
@@ -86,6 +92,8 @@ interface NotificationContextValue {
 const EMPTY_CTX: NotificationContextValue = {
   unreadCount: 0,
   unreadMessageCount: 0,
+  unreadBookingCount: 0,
+  unreadContentCount: 0,
   unreadTotalCount: 0,
   unreadByCategory: {},
 }
@@ -93,7 +101,7 @@ const NotificationContext = createContext<NotificationContextValue>(EMPTY_CTX)
 
 export const useNotificationContext = () => useContext(NotificationContext)
 
-// ── Provider ─────────────────────────────────────────────────
+// -- Provider -------------------------------------------------
 export function NotificationProvider({
   children,
 }: {
@@ -113,7 +121,7 @@ export function NotificationProvider({
   return <AuthenticatedNotifications>{children}</AuthenticatedNotifications>
 }
 
-// ── Inner provider (only rendered when authenticated) ────────
+// -- Inner provider (only rendered when authenticated) --------
 function AuthenticatedNotifications({
   children,
 }: {
@@ -123,24 +131,26 @@ function AuthenticatedNotifications({
   const queryClient = useQueryClient()
   const router = useRouter()
   const { data: unreadData } = useUnreadNotificationCount()
+  const syncTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const unreadTotalCount = unreadData?.total ?? 0
   const unreadByCategory = useMemo(
     () => unreadData?.byCategory ?? {},
     [unreadData?.byCategory],
   )
-  const unreadMessageCount = useMemo(
-    () => getMessageCountFromByCategory(unreadByCategory),
-    [unreadByCategory],
-  )
-  const unreadCount = Math.max(unreadTotalCount - unreadMessageCount, 0)
+  const { unreadMessageCount, unreadBookingCount, unreadContentCount } =
+    useMemo(
+      () => getUnreadBucketCounts(unreadByCategory, unreadTotalCount),
+      [unreadByCategory, unreadTotalCount],
+    )
+  const unreadCount = unreadContentCount
 
   // Sync total unread to favicon + PWA home-screen icon.
   useBadge(unreadTotalCount)
 
   // Socket room
   const rooms = useMemo(
-    () => (user?._id ? `notifications:${user._id}` : []),
+    () => (user?._id ? [`notifications:${user._id}`] : []),
     [user],
   )
 
@@ -155,21 +165,14 @@ function AuthenticatedNotifications({
       const notification = notificationCandidate
 
       const { type, title, body } = notification
-      const isMessage = isMessageNotification(notification)
+      const bucket = resolveBucketFromNotification(notification)
 
       // Optimistically bump unread count
       queryClient.setQueryData<UnreadCountData>(
         notificationKeys.unreadCount(),
         (old) => {
           const oldByCategory = old?.byCategory as Record<string, number>
-          let byCategory = { ...oldByCategory }
-
-          if (isMessage) {
-            byCategory.messages = (oldByCategory?.messages ?? 0) + 1
-          } else if (notification.category) {
-            byCategory[notification.category] =
-              (oldByCategory?.[notification.category] ?? 0) + 1
-          }
+          const byCategory = incrementUnreadByBucket(oldByCategory, bucket)
 
           return {
             total: (old?.total ?? 0) + 1,
@@ -224,17 +227,32 @@ function AuthenticatedNotifications({
       queryClient.invalidateQueries({ queryKey: notificationKeys.all })
     }
 
+    const scheduleSync = () => {
+      if (syncTimerRef.current !== null) {
+        clearTimeout(syncTimerRef.current)
+      }
+
+      syncTimerRef.current = setTimeout(() => {
+        syncUnread()
+        syncTimerRef.current = null
+      }, 200)
+    }
+
     const onAnyNotificationEvent = (event: string) => {
       if (!event.startsWith("notification:")) return
       if (event === "notification:new") return
-      syncUnread()
+      scheduleSync()
     }
 
-    socket.on("connect", syncUnread)
+    socket.on("connect", scheduleSync)
     socket.onAny(onAnyNotificationEvent)
 
     return () => {
-      socket.off("connect", syncUnread)
+      if (syncTimerRef.current !== null) {
+        clearTimeout(syncTimerRef.current)
+        syncTimerRef.current = null
+      }
+      socket.off("connect", scheduleSync)
       socket.offAny(onAnyNotificationEvent)
     }
   }, [queryClient])
@@ -243,10 +261,19 @@ function AuthenticatedNotifications({
     () => ({
       unreadCount,
       unreadMessageCount,
+      unreadBookingCount,
+      unreadContentCount,
       unreadTotalCount,
       unreadByCategory,
     }),
-    [unreadCount, unreadMessageCount, unreadTotalCount, unreadByCategory],
+    [
+      unreadCount,
+      unreadMessageCount,
+      unreadBookingCount,
+      unreadContentCount,
+      unreadTotalCount,
+      unreadByCategory,
+    ],
   )
 
   return (

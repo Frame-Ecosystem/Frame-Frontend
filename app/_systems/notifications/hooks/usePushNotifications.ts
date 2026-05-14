@@ -28,11 +28,15 @@ import { resolveRouteFromFCM } from "../lib/notification-routing"
 import { scrollToNotificationTargetFromFCM } from "./useNotificationNavigate"
 import { notificationKeys } from "./useNotifications"
 import type { UnreadCountData } from "@/app/_types"
+import {
+  incrementUnreadByBucket,
+  resolveBucketFromTypeAndCategory,
+} from "../lib/notification-buckets"
 
 // ── Helpers ──────────────────────────────────────────────────
 
 const DEVICE_ID_KEY = "frame_push_device_id"
-const isBrowser = typeof window !== "undefined"
+const isBrowser = globalThis.window !== undefined
 
 function getDeviceId(): string {
   if (!isBrowser) return ""
@@ -63,7 +67,7 @@ export function usePushNotifications(): PushNotificationControls {
 
   const requestPermission =
     useCallback(async (): Promise<NotificationPermission> => {
-      if (!isBrowser || !("Notification" in window)) return "denied"
+      if (!isBrowser || !("Notification" in globalThis)) return "denied"
       if (Notification.permission !== "default") return Notification.permission
       return Notification.requestPermission()
     }, [])
@@ -74,7 +78,9 @@ export function usePushNotifications(): PushNotificationControls {
     try {
       if (!isBrowser) return
       if (registered.current) return
-      if (!("Notification" in window) || !("serviceWorker" in navigator)) return
+      if (!("Notification" in globalThis) || !("serviceWorker" in navigator)) {
+        return
+      }
 
       const permission = await requestPermission()
       if (permission !== "granted") return
@@ -116,22 +122,15 @@ export function usePushNotifications(): PushNotificationControls {
     if (!user || !accessToken) return
     if (
       !isBrowser ||
-      !("Notification" in window) ||
+      !("Notification" in globalThis) ||
       Notification.permission !== "granted"
     )
       return
-
-    let cancelled = false
 
     // Fire-and-forget but respect cleanup
     subscribe().catch(() => {
       /* swallowed — subscribe() already handles everything */
     })
-
-    return () => {
-      cancelled = true
-      void cancelled // suppress lint
-    }
   }, [user, accessToken, subscribe])
 
   // ── Foreground message listener ────────────────────────────
@@ -147,20 +146,16 @@ export function usePushNotifications(): PushNotificationControls {
       // Optimistically bump unread count and refetch list
       queryClient.setQueryData<UnreadCountData>(
         notificationKeys.unreadCount(),
-        (prev) => ({
-          total: (prev?.total ?? 0) + 1,
-          byCategory: {
-            ...prev?.byCategory,
-            ...(data.category
-              ? {
-                  [data.category]:
-                    ((prev?.byCategory as Record<string, number>)?.[
-                      data.category
-                    ] ?? 0) + 1,
-                }
-              : {}),
-          },
-        }),
+        (prev) => {
+          const previousByCategory = prev?.byCategory
+          const bucket = resolveBucketFromTypeAndCategory(type, data.category)
+          const byCategory = incrementUnreadByBucket(previousByCategory, bucket)
+
+          return {
+            total: (prev?.total ?? 0) + 1,
+            byCategory,
+          }
+        },
       )
       queryClient.invalidateQueries({
         queryKey: notificationKeys.all,

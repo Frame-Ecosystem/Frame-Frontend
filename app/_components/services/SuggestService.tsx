@@ -50,8 +50,7 @@ export default function SuggestService() {
       const suggestions =
         await serviceSuggestionsService.getMySuggestions(loungeId)
       setUserSuggestions(suggestions)
-    } catch (_) {
-      if (isAuthError(error)) return
+    } catch (error: any) { if (isAuthError(error)) return
       toast.error(t("services.suggest.loadFailed"))
       setUserSuggestions([])
     } finally {
@@ -105,8 +104,7 @@ export default function SuggestService() {
         estimatedDuration: "",
         targetGender: "unisex",
       })
-    } catch (_) {
-      if (isAuthError(err)) return
+    } catch (err: any) { if (isAuthError(err)) return
 
       // Handle specific backend error messages
       if (err instanceof Error) {
@@ -359,3 +357,5 @@ export default function SuggestService() {
     </Dialog>
   )
 }
+
+
