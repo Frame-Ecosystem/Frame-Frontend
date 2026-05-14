@@ -153,7 +153,7 @@ export default function LoungeServiceManagementPage() {
         const global = globalServices.find(
           (g) => (g as any)._id === serviceId || g.id === serviceId,
         )
-        names[serviceId] = global?.name || "Unknown Service"
+        names[serviceId] = global?.name || t("common.unknown")
       }
     }
     setServiceNames(names)
@@ -240,10 +240,9 @@ export default function LoungeServiceManagementPage() {
       setDialogOpen(false)
       resetForm()
       loadServices()
-    } catch (_) {
+    } catch (error) {
       if (isAuthError(error)) return
-      const msg =
-        error instanceof Error ? error.message : "An unexpected error occurred"
+      const msg = error instanceof Error ? error.message : t("common.error")
       setError(msg)
       toast.error(msg)
     }
@@ -267,10 +266,10 @@ export default function LoungeServiceManagementPage() {
       await loungeService.delete(id)
       loadServices()
       toast.success(t("serviceMgmt.deleteSuccess"))
-    } catch (_) {
+    } catch (error) {
       if (isAuthError(error)) return
       toast.error(
-        error instanceof Error ? error.message : "Failed to delete service",
+        error instanceof Error ? error.message : t("serviceMgmt.deleteFailed"),
       )
     }
   }

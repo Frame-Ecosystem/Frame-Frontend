@@ -86,7 +86,7 @@ class LoungeService {
         } as Service
       }
       throw new Error("Invalid response format from create lounge service")
-    } catch (_) {
+    } catch (error) {
       throw error
     }
   }
@@ -126,7 +126,7 @@ class LoungeService {
       }
 
       throw new Error("Invalid response from create lounge service")
-    } catch (_) {
+    } catch (error) {
       throw error
     }
   }
@@ -156,7 +156,7 @@ class LoungeService {
         } as Service
       }
       throw new Error("Invalid response format from update lounge service")
-    } catch (_) {
+    } catch (error) {
       throw error
     }
   }
@@ -230,7 +230,7 @@ class LoungeService {
         `/v1/lounge-services/lounge/${loungeId}/opening-hours`,
       )
       return response.openingHours || response.data || response
-    } catch (_) {
+    } catch (error) {
       // 404 is expected if opening hours haven't been set yet
       const isNotFound =
         (error as any)?.message?.includes("Not Found") ||
@@ -248,7 +248,7 @@ class LoungeService {
         `/v1/lounge-services/lounge/${loungeId}/opening-hours`,
         openingHours,
       )
-    } catch (_) {
+    } catch (error) {
       throw error
     }
   }
@@ -301,7 +301,7 @@ class LoungeService {
         ...agentsData,
         agents: normalizedAgents,
       }
-    } catch (_) {
+    } catch (error) {
       throw error
     }
   }
@@ -313,7 +313,7 @@ class LoungeService {
         `/v1/lounge/clients/${clientId}`,
       )
       return response?.data || response
-    } catch (_) {
+    } catch (error) {
       throw error
     }
   }

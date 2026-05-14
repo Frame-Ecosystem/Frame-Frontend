@@ -160,7 +160,7 @@ export async function POST(request: NextRequest) {
     await saveSuggestions()
 
     return NextResponse.json(suggestion, { status: 201 })
-  } catch (_) {
+  } catch (error) {
     return NextResponse.json(
       { error: "Failed to create suggestion" },
       { status: 500 },
@@ -221,7 +221,7 @@ export async function GET(request: NextRequest) {
         pages,
       },
     })
-  } catch (_) {
+  } catch (error) {
     return NextResponse.json(
       { error: "Failed to fetch suggestions" },
       { status: 500 },

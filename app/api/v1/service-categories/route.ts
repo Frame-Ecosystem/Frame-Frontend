@@ -8,7 +8,7 @@ let mockCategories: ServiceCategory[] = []
 export async function GET() {
   try {
     return NextResponse.json(mockCategories)
-  } catch (_) {
+  } catch (error) {
     return NextResponse.json(
       { error: "Failed to fetch service categories" },
       { status: 500 },
@@ -69,7 +69,7 @@ export async function POST(request: NextRequest) {
     mockCategories.push(newCategory)
 
     return NextResponse.json(newCategory, { status: 201 })
-  } catch (_) {
+  } catch (error) {
     return NextResponse.json(
       { error: "Failed to create service category" },
       { status: 500 },

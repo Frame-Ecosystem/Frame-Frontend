@@ -211,7 +211,7 @@ export async function PATCH(
     }
 
     return NextResponse.json(response, { status: 200 })
-  } catch (_) {
+  } catch (error) {
     return NextResponse.json(
       { error: "Failed to approve service suggestion" },
       { status: 500 },
