@@ -12,6 +12,8 @@ import {
   Key,
   Download,
   Trash2,
+  Copy,
+  Check,
 } from "lucide-react"
 import { useTranslation } from "@/app/_i18n"
 import {
@@ -67,10 +69,26 @@ export default function SystemPage() {
   const [toolUserId, setToolUserId] = useState("")
   const [toolPw, setToolPw] = useState("")
   const [pwDialogOpen, setPwDialogOpen] = useState(false)
+  const [copiedId, setCopiedId] = useState<string | null>(null)
 
   const sysStats = stats?.data
   const sysHealth = health?.data
   const logs = logData?.data ?? []
+
+  const copyUserId = async (userId: string) => {
+    setToolUserId(userId)
+
+    try {
+      await navigator.clipboard.writeText(userId)
+      setCopiedId(userId)
+      window.setTimeout(
+        () => setCopiedId((prev) => (prev === userId ? null : prev)),
+        1200,
+      )
+    } catch {
+      setCopiedId(null)
+    }
+  }
 
   return (
     <>
@@ -304,6 +322,28 @@ export default function SystemPage() {
                           {log.sessionTrack.isOnline ? "Online" : "Offline"}
                         </span>
                       )}
+                    </div>
+                    <div className="mt-1 flex items-center gap-2">
+                      <code className="bg-muted rounded px-1.5 py-0.5 font-mono text-[11px]">
+                        {log._id}
+                      </code>
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="ghost"
+                        className="h-6 px-2 text-xs"
+                        onClick={() => copyUserId(log._id)}
+                      >
+                        {copiedId === log._id ? (
+                          <>
+                            <Check className="mr-1 h-3.5 w-3.5" /> Copied
+                          </>
+                        ) : (
+                          <>
+                            <Copy className="mr-1 h-3.5 w-3.5" /> Copy ID
+                          </>
+                        )}
+                      </Button>
                     </div>
                   </div>
                   <span className="text-muted-foreground shrink-0 text-xs">
