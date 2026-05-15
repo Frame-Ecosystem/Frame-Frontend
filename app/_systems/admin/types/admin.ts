@@ -126,10 +126,14 @@ export interface DashboardStats {
 
 export interface ActivityLogEntry {
   _id: string
-  userId?: string
-  action: string
-  details?: Record<string, unknown>
+  email?: string
+  type?: string
+  sessionTrack?: {
+    isOnline: boolean
+    devices?: unknown[]
+  }
   createdAt: string
+  updatedAt?: string
 }
 
 export interface AuditLogInput {

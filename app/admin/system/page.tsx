@@ -278,13 +278,33 @@ export default function SystemPage() {
                   key={log._id}
                   className="border-border flex items-start justify-between rounded-md border px-3 py-2"
                 >
-                  <div>
-                    <p className="text-sm font-medium">{log.action}</p>
-                    {log.details && (
-                      <p className="text-muted-foreground max-w-lg truncate text-xs">
-                        {JSON.stringify(log.details)}
-                      </p>
-                    )}
+                  <div className="space-y-0.5">
+                    <p className="text-sm font-medium">{log.email ?? "—"}</p>
+                    <div className="flex items-center gap-2">
+                      {log.type && (
+                        <span className="text-muted-foreground text-xs capitalize">
+                          {log.type}
+                        </span>
+                      )}
+                      {log.sessionTrack?.isOnline !== undefined && (
+                        <span
+                          className={`inline-flex items-center gap-1 text-xs ${
+                            log.sessionTrack.isOnline
+                              ? "text-green-600 dark:text-green-400"
+                              : "text-muted-foreground"
+                          }`}
+                        >
+                          <span
+                            className={`h-1.5 w-1.5 rounded-full ${
+                              log.sessionTrack.isOnline
+                                ? "bg-green-500"
+                                : "bg-gray-400"
+                            }`}
+                          />
+                          {log.sessionTrack.isOnline ? "Online" : "Offline"}
+                        </span>
+                      )}
+                    </div>
                   </div>
                   <span className="text-muted-foreground shrink-0 text-xs">
                     {new Date(log.createdAt).toLocaleString()}
