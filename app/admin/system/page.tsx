@@ -44,6 +44,7 @@ import {
   useResetPassword,
   useExportUserData,
 } from "../../_hooks/queries/useAdmin"
+import type { UserExport } from "../../_types/admin"
 
 function formatBytes(bytes: number) {
   const mb = bytes / (1024 * 1024)
@@ -70,6 +71,9 @@ export default function SystemPage() {
   const [toolPw, setToolPw] = useState("")
   const [pwDialogOpen, setPwDialogOpen] = useState(false)
   const [copiedId, setCopiedId] = useState<string | null>(null)
+  const [exportDialogOpen, setExportDialogOpen] = useState(false)
+  const [exportPayload, setExportPayload] = useState<UserExport | null>(null)
+  const [copiedExport, setCopiedExport] = useState(false)
 
   const sysStats = stats?.data
   const sysHealth = health?.data
@@ -81,13 +85,54 @@ export default function SystemPage() {
     try {
       await navigator.clipboard.writeText(userId)
       setCopiedId(userId)
-      window.setTimeout(
+      globalThis.setTimeout(
         () => setCopiedId((prev) => (prev === userId ? null : prev)),
         1200,
       )
     } catch {
       setCopiedId(null)
     }
+  }
+
+  const handleExportPreview = async () => {
+    try {
+      const response = await exportData.mutateAsync(toolUserId)
+      setExportPayload(response.data)
+      setCopiedExport(false)
+      setExportDialogOpen(true)
+    } catch {
+      // Error toasts are handled centrally by the API layer.
+    }
+  }
+
+  const copyExportJson = async () => {
+    if (!exportPayload) return
+
+    try {
+      await navigator.clipboard.writeText(
+        JSON.stringify(exportPayload, null, 2),
+      )
+      setCopiedExport(true)
+      globalThis.setTimeout(() => setCopiedExport(false), 1200)
+    } catch {
+      setCopiedExport(false)
+    }
+  }
+
+  const downloadExportJson = () => {
+    if (!exportPayload) return
+
+    const json = JSON.stringify(exportPayload, null, 2)
+    const blob = new Blob([json], { type: "application/json" })
+    const url = URL.createObjectURL(blob)
+    const link = document.createElement("a")
+    const safeUserId = exportPayload.user?._id ?? toolUserId
+    const timestamp = new Date().toISOString().replace(/[:.]/g, "-")
+
+    link.href = url
+    link.download = `user-export-${safeUserId}-${timestamp}.json`
+    link.click()
+    URL.revokeObjectURL(url)
   }
 
   return (
@@ -218,7 +263,7 @@ export default function SystemPage() {
                 variant="outline"
                 size="sm"
                 disabled={!toolUserId || exportData.isPending}
-                onClick={() => exportData.mutate(toolUserId)}
+                onClick={handleExportPreview}
               >
                 <Download className="mr-1.5 h-3.5 w-3.5" />{" "}
                 {t("admin.system.exportData")}
@@ -268,6 +313,90 @@ export default function SystemPage() {
               }
             >
               {t("common.reset")}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Export preview dialog */}
+      <Dialog open={exportDialogOpen} onOpenChange={setExportDialogOpen}>
+        <DialogContent className="max-w-3xl">
+          <DialogHeader>
+            <DialogTitle>Export Preview</DialogTitle>
+            <DialogDescription>
+              Review the exported user payload before copying or downloading.
+            </DialogDescription>
+          </DialogHeader>
+
+          {exportPayload ? (
+            <div className="space-y-4 py-2">
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                <div className="bg-muted/40 rounded-md p-3">
+                  <p className="text-muted-foreground text-xs">User ID</p>
+                  <p className="font-mono text-sm">
+                    {exportPayload.user?._id ?? "—"}
+                  </p>
+                </div>
+                <div className="bg-muted/40 rounded-md p-3">
+                  <p className="text-muted-foreground text-xs">Email</p>
+                  <p className="font-mono text-sm">
+                    {exportPayload.user?.email ?? "—"}
+                  </p>
+                </div>
+                <div className="bg-muted/40 rounded-md p-3">
+                  <p className="text-muted-foreground text-xs">Exported At</p>
+                  <p className="font-mono text-sm">
+                    {exportPayload.exportedAt
+                      ? new Date(exportPayload.exportedAt).toLocaleString()
+                      : "—"}
+                  </p>
+                </div>
+                <div className="bg-muted/40 rounded-md p-3">
+                  <p className="text-muted-foreground text-xs">
+                    Session Metadata
+                  </p>
+                  <p className="font-mono text-sm">
+                    {exportPayload.metadata.hasActiveSession
+                      ? "Active"
+                      : "Inactive"}{" "}
+                    • {exportPayload.metadata.refreshTokenCount} refresh tokens
+                  </p>
+                </div>
+              </div>
+
+              <div>
+                <Label className="mb-2 block">Raw JSON</Label>
+                <pre className="bg-muted/30 max-h-72 overflow-auto rounded-md border p-3 text-xs leading-relaxed">
+                  {JSON.stringify(exportPayload, null, 2)}
+                </pre>
+              </div>
+            </div>
+          ) : null}
+
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setExportDialogOpen(false)}
+            >
+              {t("common.close")}
+            </Button>
+            <Button
+              variant="outline"
+              onClick={copyExportJson}
+              disabled={!exportPayload}
+            >
+              {copiedExport ? (
+                <>
+                  <Check className="mr-1.5 h-4 w-4" /> Copied
+                </>
+              ) : (
+                <>
+                  <Copy className="mr-1.5 h-4 w-4" /> Copy JSON
+                </>
+              )}
+            </Button>
+            <Button onClick={downloadExportJson} disabled={!exportPayload}>
+              <Download className="mr-1.5 h-4 w-4" /> Download JSON
             </Button>
           </DialogFooter>
         </DialogContent>

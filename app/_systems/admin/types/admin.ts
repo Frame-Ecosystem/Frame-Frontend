@@ -143,10 +143,11 @@ export interface AuditLogInput {
 
 export interface UserExport {
   user: AdminUser
-  bookings: unknown[]
-  posts: unknown[]
-  reels: unknown[]
-  [key: string]: unknown
+  exportedAt: string
+  metadata: {
+    hasActiveSession: boolean
+    refreshTokenCount: number
+  }
 }
 
 /* ═══════════════════════════════════════════════
