@@ -144,7 +144,7 @@ async function _doRequestFCMToken(): Promise<string | null> {
         }
         throw innerErr
       }
-    } catch (_error) {
+    } catch (error) {
       // Only retry transient errors — anything else is terminal
       if (!isTransientPushError(error) || attempt === MAX_RETRIES) {
         return null
