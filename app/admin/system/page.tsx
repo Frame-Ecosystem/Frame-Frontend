@@ -93,17 +93,17 @@ export default function SystemPage() {
             />
             <StatCard
               title={t("admin.system.clients")}
-              value={sysStats?.clients ?? 0}
+              value={sysStats?.usersByType?.client ?? 0}
               icon={Activity}
             />
             <StatCard
               title={t("admin.system.lounges")}
-              value={sysStats?.lounges ?? 0}
+              value={sysStats?.usersByType?.lounge ?? 0}
               icon={HardDrive}
             />
             <StatCard
               title={t("admin.system.agents")}
-              value={sysStats?.agents ?? 0}
+              value={sysStats?.usersByType?.agent ?? 0}
               icon={Cpu}
             />
           </>
@@ -126,12 +126,12 @@ export default function SystemPage() {
                 </p>
                 <Badge
                   variant={
-                    sysHealth.database === "connected"
+                    sysHealth.database?.status === "connected"
                       ? "default"
                       : "destructive"
                   }
                 >
-                  {sysHealth.database}
+                  {sysHealth.database?.status}
                 </Badge>
               </div>
               <div className="space-y-1">
@@ -139,8 +139,8 @@ export default function SystemPage() {
                   {t("admin.system.memoryHeap")}
                 </p>
                 <p className="font-mono text-sm font-medium">
-                  {sysHealth.memoryUsage
-                    ? `${formatBytes(sysHealth.memoryUsage.heapUsed)} / ${formatBytes(sysHealth.memoryUsage.heapTotal)}`
+                  {sysHealth.process?.memory
+                    ? `${formatBytes(sysHealth.process.memory.heapUsed)} / ${formatBytes(sysHealth.process.memory.heapTotal)}`
                     : "N/A"}
                 </p>
               </div>
@@ -150,7 +150,7 @@ export default function SystemPage() {
                 </p>
                 <p className="flex items-center gap-1 font-mono text-sm font-medium">
                   <Clock className="h-3.5 w-3.5" />
-                  {formatUptime(sysHealth.uptime)}
+                  {formatUptime(sysHealth.process?.uptimeSeconds ?? 0)}
                 </p>
               </div>
             </div>
