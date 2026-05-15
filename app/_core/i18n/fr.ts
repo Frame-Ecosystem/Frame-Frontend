@@ -244,7 +244,7 @@ const fr: Record<string, string> = {
     "Aperçu de la plateforme et actions rapides",
   "admin.dashboard.totalUsers": "Utilisateurs totaux",
   "admin.dashboard.totalLounges": "Salons totaux",
-  "admin.dashboard.totalBookings": "Réservations totales",
+  "admin.dashboard.onlineUsers": "Utilisateurs en ligne",
   "admin.dashboard.newThisMonth": "Nouveaux ce mois",
   "admin.dashboard.systemHealth": "Santé du système",
   "admin.users": "Utilisateurs",

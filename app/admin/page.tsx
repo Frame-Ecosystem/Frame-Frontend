@@ -61,12 +61,12 @@ export default function AdminDashboard() {
             />
             <StatCard
               title={t("admin.dashboard.totalLounges")}
-              value={stats?.totalLounges ?? 0}
+              value={stats?.usersByType?.lounge ?? 0}
               icon={Store}
             />
             <StatCard
-              title={t("admin.dashboard.totalBookings")}
-              value={stats?.totalBookings ?? 0}
+              title={t("admin.dashboard.onlineUsers")}
+              value={stats?.onlineUsers ?? 0}
               icon={Package}
             />
             <StatCard

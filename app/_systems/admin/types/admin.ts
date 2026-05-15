@@ -77,22 +77,51 @@ export interface LoungeName {
 
 export interface SystemStats {
   totalUsers: number
-  clients: number
-  lounges: number
-  agents: number
+  onlineUsers: number
+  blockedUsers: number
+  usersByType: {
+    admin: number
+    client: number
+    lounge: number
+    agent: number
+    user: number
+  }
+  timestamp: string
 }
 
 export interface SystemHealth {
-  database: string
-  memoryUsage: { rss: number; heapTotal: number; heapUsed: number }
-  uptime: number
+  status: "healthy" | "degraded"
+  timestamp: string
+  database: {
+    status: "disconnected" | "connected" | "connecting" | "disconnecting"
+    readyState: number
+  }
+  process: {
+    uptimeSeconds: number
+    nodeVersion: string
+    memory: {
+      rss: number
+      heapTotal: number
+      heapUsed: number
+      external: number
+      arrayBuffers: number
+    }
+  }
 }
 
 export interface DashboardStats {
   totalUsers: number
-  totalLounges: number
-  totalBookings: number
   newUsersThisMonth: number
+  onlineUsers: number
+  blockedUsers: number
+  usersByType: {
+    admin: number
+    client: number
+    lounge: number
+    agent: number
+    user: number
+  }
+  timestamp: string
 }
 
 export interface ActivityLogEntry {

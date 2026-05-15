@@ -235,7 +235,7 @@ const en: Record<string, string> = {
   "admin.dashboard.platformOverview": "Platform overview and quick actions",
   "admin.dashboard.totalUsers": "Total Users",
   "admin.dashboard.totalLounges": "Total Lounges",
-  "admin.dashboard.totalBookings": "Total Bookings",
+  "admin.dashboard.onlineUsers": "Online Users",
   "admin.dashboard.newThisMonth": "New This Month",
   "admin.dashboard.systemHealth": "System Health",
   "admin.users": "Users",
