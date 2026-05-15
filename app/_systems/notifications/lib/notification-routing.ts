@@ -214,7 +214,7 @@ export function getRedirectPath(notification: AppNotification): string | null {
 
   // ── Product category suggestions ──
   if (type === NotificationType.PRODUCT_CATEGORY_SUGGESTION_CREATED) {
-    return normalizedAction ?? "/admin/marketplace/category-suggestions"
+    return normalizedAction ?? "/admin"
   }
   if (
     type === NotificationType.PRODUCT_CATEGORY_SUGGESTION_APPROVED ||
