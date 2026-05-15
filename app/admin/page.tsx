@@ -5,6 +5,8 @@ import {
   Users,
   Package,
   Store,
+  Layers,
+  Lightbulb,
   Activity,
   LayoutDashboard,
   Heart,
@@ -44,7 +46,12 @@ export default function AdminDashboard() {
       {/* Stats grid */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {isLoading ? (
-          Array.from({ length: 4 }).map((_, i) => <StatCardSkeleton key={i} />)
+          [
+            "dashboard-users",
+            "dashboard-lounges",
+            "dashboard-bookings",
+            "dashboard-new-users",
+          ].map((key) => <StatCardSkeleton key={key} />)
         ) : (
           <>
             <StatCard
@@ -154,6 +161,20 @@ const QUICK_LINKS = [
     icon: Package,
     color: "bg-purple-500",
     descKey: "admin.nav.servicesDesc",
+  },
+  {
+    labelKey: "admin.categories.title",
+    href: "/admin/categories",
+    icon: Layers,
+    color: "bg-sky-500",
+    descKey: "admin.categories.desc",
+  },
+  {
+    labelKey: "admin.suggestions.title",
+    href: "/admin/suggestions",
+    icon: Lightbulb,
+    color: "bg-amber-500",
+    descKey: "admin.suggestions.desc",
   },
   {
     labelKey: "admin.nav.loungeServices",

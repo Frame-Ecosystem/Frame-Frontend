@@ -7,11 +7,7 @@ import {
   Layers,
   Lightbulb,
   Store,
-  Bot,
   ListOrdered,
-  ShoppingBag,
-  Tags,
-  MessageSquarePlus,
 } from "lucide-react"
 
 export const ADMIN_NAV = [
@@ -58,35 +54,10 @@ export const ADMIN_NAV = [
         href: "/admin/lounge-services",
         icon: Store,
       },
-    ],
-  },
-  {
-    label: "Agents",
-    href: "/admin/agents",
-    icon: Bot,
-  },
-  {
-    label: "Queue",
-    href: "/admin/queue",
-    icon: ListOrdered,
-  },
-  {
-    group: "Marketplace",
-    items: [
       {
-        label: "Overview",
-        href: "/admin/marketplace",
-        icon: ShoppingBag,
-      },
-      {
-        label: "Categories",
-        href: "/admin/marketplace/categories",
-        icon: Tags,
-      },
-      {
-        label: "Suggestions",
-        href: "/admin/marketplace/category-suggestions",
-        icon: MessageSquarePlus,
+        label: "Queue",
+        href: "/admin/queue",
+        icon: ListOrdered,
       },
     ],
   },
