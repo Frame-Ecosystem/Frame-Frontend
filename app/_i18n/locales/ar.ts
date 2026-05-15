@@ -238,7 +238,7 @@ const ar: Record<string, string> = {
   "admin.dashboard.platformOverview": "نظرة عامة على المنصة وإجراءات سريعة",
   "admin.dashboard.totalUsers": "إجمالي المستخدمين",
   "admin.dashboard.totalLounges": "إجمالي الصالونات",
-  "admin.dashboard.totalBookings": "إجمالي الحجوزات",
+  "admin.dashboard.onlineUsers": "المستخدمون النشطون",
   "admin.dashboard.newThisMonth": "الجدد هذا الشهر",
   "admin.dashboard.systemHealth": "صحة النظام",
   "admin.users": "المستخدمون",

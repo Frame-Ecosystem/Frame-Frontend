@@ -12,6 +12,8 @@ import {
   Key,
   Download,
   Trash2,
+  Copy,
+  Check,
 } from "lucide-react"
 import { useTranslation } from "@/app/_i18n"
 import {
@@ -42,6 +44,7 @@ import {
   useResetPassword,
   useExportUserData,
 } from "../../_hooks/queries/useAdmin"
+import type { UserExport } from "../../_types/admin"
 
 function formatBytes(bytes: number) {
   const mb = bytes / (1024 * 1024)
@@ -67,10 +70,70 @@ export default function SystemPage() {
   const [toolUserId, setToolUserId] = useState("")
   const [toolPw, setToolPw] = useState("")
   const [pwDialogOpen, setPwDialogOpen] = useState(false)
+  const [copiedId, setCopiedId] = useState<string | null>(null)
+  const [exportDialogOpen, setExportDialogOpen] = useState(false)
+  const [exportPayload, setExportPayload] = useState<UserExport | null>(null)
+  const [copiedExport, setCopiedExport] = useState(false)
 
   const sysStats = stats?.data
   const sysHealth = health?.data
   const logs = logData?.data ?? []
+
+  const copyUserId = async (userId: string) => {
+    setToolUserId(userId)
+
+    try {
+      await navigator.clipboard.writeText(userId)
+      setCopiedId(userId)
+      globalThis.setTimeout(
+        () => setCopiedId((prev) => (prev === userId ? null : prev)),
+        1200,
+      )
+    } catch {
+      setCopiedId(null)
+    }
+  }
+
+  const handleExportPreview = async () => {
+    try {
+      const response = await exportData.mutateAsync(toolUserId)
+      setExportPayload(response.data)
+      setCopiedExport(false)
+      setExportDialogOpen(true)
+    } catch {
+      // Error toasts are handled centrally by the API layer.
+    }
+  }
+
+  const copyExportJson = async () => {
+    if (!exportPayload) return
+
+    try {
+      await navigator.clipboard.writeText(
+        JSON.stringify(exportPayload, null, 2),
+      )
+      setCopiedExport(true)
+      globalThis.setTimeout(() => setCopiedExport(false), 1200)
+    } catch {
+      setCopiedExport(false)
+    }
+  }
+
+  const downloadExportJson = () => {
+    if (!exportPayload) return
+
+    const json = JSON.stringify(exportPayload, null, 2)
+    const blob = new Blob([json], { type: "application/json" })
+    const url = URL.createObjectURL(blob)
+    const link = document.createElement("a")
+    const safeUserId = exportPayload.user?._id ?? toolUserId
+    const timestamp = new Date().toISOString().replace(/[:.]/g, "-")
+
+    link.href = url
+    link.download = `user-export-${safeUserId}-${timestamp}.json`
+    link.click()
+    URL.revokeObjectURL(url)
+  }
 
   return (
     <>
@@ -93,17 +156,17 @@ export default function SystemPage() {
             />
             <StatCard
               title={t("admin.system.clients")}
-              value={sysStats?.clients ?? 0}
+              value={sysStats?.usersByType?.client ?? 0}
               icon={Activity}
             />
             <StatCard
               title={t("admin.system.lounges")}
-              value={sysStats?.lounges ?? 0}
+              value={sysStats?.usersByType?.lounge ?? 0}
               icon={HardDrive}
             />
             <StatCard
               title={t("admin.system.agents")}
-              value={sysStats?.agents ?? 0}
+              value={sysStats?.usersByType?.agent ?? 0}
               icon={Cpu}
             />
           </>
@@ -126,12 +189,12 @@ export default function SystemPage() {
                 </p>
                 <Badge
                   variant={
-                    sysHealth.database === "connected"
+                    sysHealth.database?.status === "connected"
                       ? "default"
                       : "destructive"
                   }
                 >
-                  {sysHealth.database}
+                  {sysHealth.database?.status}
                 </Badge>
               </div>
               <div className="space-y-1">
@@ -139,8 +202,8 @@ export default function SystemPage() {
                   {t("admin.system.memoryHeap")}
                 </p>
                 <p className="font-mono text-sm font-medium">
-                  {sysHealth.memoryUsage
-                    ? `${formatBytes(sysHealth.memoryUsage.heapUsed)} / ${formatBytes(sysHealth.memoryUsage.heapTotal)}`
+                  {sysHealth.process?.memory
+                    ? `${formatBytes(sysHealth.process.memory.heapUsed)} / ${formatBytes(sysHealth.process.memory.heapTotal)}`
                     : "N/A"}
                 </p>
               </div>
@@ -150,7 +213,7 @@ export default function SystemPage() {
                 </p>
                 <p className="flex items-center gap-1 font-mono text-sm font-medium">
                   <Clock className="h-3.5 w-3.5" />
-                  {formatUptime(sysHealth.uptime)}
+                  {formatUptime(sysHealth.process?.uptimeSeconds ?? 0)}
                 </p>
               </div>
             </div>
@@ -200,7 +263,7 @@ export default function SystemPage() {
                 variant="outline"
                 size="sm"
                 disabled={!toolUserId || exportData.isPending}
-                onClick={() => exportData.mutate(toolUserId)}
+                onClick={handleExportPreview}
               >
                 <Download className="mr-1.5 h-3.5 w-3.5" />{" "}
                 {t("admin.system.exportData")}
@@ -255,6 +318,90 @@ export default function SystemPage() {
         </DialogContent>
       </Dialog>
 
+      {/* Export preview dialog */}
+      <Dialog open={exportDialogOpen} onOpenChange={setExportDialogOpen}>
+        <DialogContent className="max-w-3xl">
+          <DialogHeader>
+            <DialogTitle>Export Preview</DialogTitle>
+            <DialogDescription>
+              Review the exported user payload before copying or downloading.
+            </DialogDescription>
+          </DialogHeader>
+
+          {exportPayload ? (
+            <div className="space-y-4 py-2">
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                <div className="bg-muted/40 rounded-md p-3">
+                  <p className="text-muted-foreground text-xs">User ID</p>
+                  <p className="font-mono text-sm">
+                    {exportPayload.user?._id ?? "—"}
+                  </p>
+                </div>
+                <div className="bg-muted/40 rounded-md p-3">
+                  <p className="text-muted-foreground text-xs">Email</p>
+                  <p className="font-mono text-sm">
+                    {exportPayload.user?.email ?? "—"}
+                  </p>
+                </div>
+                <div className="bg-muted/40 rounded-md p-3">
+                  <p className="text-muted-foreground text-xs">Exported At</p>
+                  <p className="font-mono text-sm">
+                    {exportPayload.exportedAt
+                      ? new Date(exportPayload.exportedAt).toLocaleString()
+                      : "—"}
+                  </p>
+                </div>
+                <div className="bg-muted/40 rounded-md p-3">
+                  <p className="text-muted-foreground text-xs">
+                    Session Metadata
+                  </p>
+                  <p className="font-mono text-sm">
+                    {exportPayload.metadata.hasActiveSession
+                      ? "Active"
+                      : "Inactive"}{" "}
+                    • {exportPayload.metadata.refreshTokenCount} refresh tokens
+                  </p>
+                </div>
+              </div>
+
+              <div>
+                <Label className="mb-2 block">Raw JSON</Label>
+                <pre className="bg-muted/30 max-h-72 overflow-auto rounded-md border p-3 text-xs leading-relaxed">
+                  {JSON.stringify(exportPayload, null, 2)}
+                </pre>
+              </div>
+            </div>
+          ) : null}
+
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setExportDialogOpen(false)}
+            >
+              {t("common.close")}
+            </Button>
+            <Button
+              variant="outline"
+              onClick={copyExportJson}
+              disabled={!exportPayload}
+            >
+              {copiedExport ? (
+                <>
+                  <Check className="mr-1.5 h-4 w-4" /> Copied
+                </>
+              ) : (
+                <>
+                  <Copy className="mr-1.5 h-4 w-4" /> Copy JSON
+                </>
+              )}
+            </Button>
+            <Button onClick={downloadExportJson} disabled={!exportPayload}>
+              <Download className="mr-1.5 h-4 w-4" /> Download JSON
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
       {/* Activity log */}
       <Card>
         <CardHeader className="pb-3">
@@ -278,13 +425,55 @@ export default function SystemPage() {
                   key={log._id}
                   className="border-border flex items-start justify-between rounded-md border px-3 py-2"
                 >
-                  <div>
-                    <p className="text-sm font-medium">{log.action}</p>
-                    {log.details && (
-                      <p className="text-muted-foreground max-w-lg truncate text-xs">
-                        {JSON.stringify(log.details)}
-                      </p>
-                    )}
+                  <div className="space-y-0.5">
+                    <p className="text-sm font-medium">{log.email ?? "—"}</p>
+                    <div className="flex items-center gap-2">
+                      {log.type && (
+                        <span className="text-muted-foreground text-xs capitalize">
+                          {log.type}
+                        </span>
+                      )}
+                      {log.sessionTrack?.isOnline !== undefined && (
+                        <span
+                          className={`inline-flex items-center gap-1 text-xs ${
+                            log.sessionTrack.isOnline
+                              ? "text-green-600 dark:text-green-400"
+                              : "text-muted-foreground"
+                          }`}
+                        >
+                          <span
+                            className={`h-1.5 w-1.5 rounded-full ${
+                              log.sessionTrack.isOnline
+                                ? "bg-green-500"
+                                : "bg-gray-400"
+                            }`}
+                          />
+                          {log.sessionTrack.isOnline ? "Online" : "Offline"}
+                        </span>
+                      )}
+                    </div>
+                    <div className="mt-1 flex items-center gap-2">
+                      <code className="bg-muted rounded px-1.5 py-0.5 font-mono text-[11px]">
+                        {log._id}
+                      </code>
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="ghost"
+                        className="h-6 px-2 text-xs"
+                        onClick={() => copyUserId(log._id)}
+                      >
+                        {copiedId === log._id ? (
+                          <>
+                            <Check className="mr-1 h-3.5 w-3.5" /> Copied
+                          </>
+                        ) : (
+                          <>
+                            <Copy className="mr-1 h-3.5 w-3.5" /> Copy ID
+                          </>
+                        )}
+                      </Button>
+                    </div>
                   </div>
                   <span className="text-muted-foreground shrink-0 text-xs">
                     {new Date(log.createdAt).toLocaleString()}

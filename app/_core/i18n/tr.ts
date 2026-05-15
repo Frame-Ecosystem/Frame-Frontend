@@ -238,7 +238,7 @@ const tr: Record<string, string> = {
   "admin.dashboard.platformOverview": "Platform genel bakışı ve hızlı işlemler",
   "admin.dashboard.totalUsers": "Toplam Kullanıcılar",
   "admin.dashboard.totalLounges": "Toplam Salonlar",
-  "admin.dashboard.totalBookings": "Toplam Randevular",
+  "admin.dashboard.onlineUsers": "Çevrimiçi Kullanıcılar",
   "admin.dashboard.newThisMonth": "Bu Ay Yeni",
   "admin.dashboard.systemHealth": "Sistem Sağlığı",
   "admin.users": "Kullanıcılar",

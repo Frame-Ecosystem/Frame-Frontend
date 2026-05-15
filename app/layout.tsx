@@ -253,8 +253,8 @@ export default function RootLayout({
         {/* Toast notification container from Sonner library */}
         <Toaster />
 
-        {/* Vercel Speed Insights for performance monitoring */}
-        <SpeedInsights />
+        {/* Vercel Speed Insights in production only */}
+        {process.env.NODE_ENV === "production" ? <SpeedInsights /> : null}
       </body>
     </html>
   )

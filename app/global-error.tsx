@@ -1,7 +1,7 @@
 "use client"
 
-import NextError from "next/error"
 import { reportError } from "@/app/_lib/report-error"
+import { ThemedFallbackPage } from "@/app/_components/common/themed-fallback-page"
 
 export default function GlobalError({
   error,
@@ -12,12 +12,17 @@ export default function GlobalError({
 
   return (
     <html lang="en">
-      <body>
-        {/* `NextError` is the default Next.js error page component. Its type
-        definition requires a `statusCode` prop. However, since the App Router
-        does not expose status codes for errors, we simply pass 0 to render a
-        generic error message. */}
-        <NextError statusCode={0} />
+      <body className="bg-background text-foreground">
+        <ThemedFallbackPage
+          code="500"
+          title="Application Error"
+          description="A critical error occurred. We logged it automatically so the team can investigate."
+          supportHint={
+            error.digest
+              ? `Reference ID: ${error.digest}`
+              : "Please refresh the page or return to the home screen."
+          }
+        />
       </body>
     </html>
   )
