@@ -15,7 +15,7 @@ interface ImageCarouselProps {
 
 const SWIPE_VELOCITY_THRESHOLD = 0.5 // px/ms
 const SWIPE_DISTANCE_THRESHOLD = 40 // px
-const SPRING_TENSION = 0.6 // Spring-like easing intensity
+const _SPRING_TENSION = 0.6 // Spring-like easing intensity
 
 export function ImageCarousel({
   images,
@@ -35,12 +35,18 @@ export function ImageCarousel({
   const startTimeRef = useRef<number>(0)
   const velocityRef = useRef(0)
 
-  // Lock body scroll when lightbox is open
+  // Lock body scroll when lightbox is open; broadcast to sibling components
   useEffect(() => {
     if (lightboxOpen) {
       document.body.style.overflow = "hidden"
+      window.dispatchEvent(
+        new CustomEvent("frame:lightbox-change", { detail: { open: true } }),
+      )
     } else {
       document.body.style.overflow = ""
+      window.dispatchEvent(
+        new CustomEvent("frame:lightbox-change", { detail: { open: false } }),
+      )
     }
     return () => {
       document.body.style.overflow = ""
@@ -76,12 +82,12 @@ export function ImageCarousel({
 
       const deltaX = e.clientX - startXRef.current
       const timeDelta = Date.now() - startTimeRef.current || 1
-      
+
       if (Math.abs(deltaX) > 3) movedRef.current = true
-      
+
       // Calculate velocity for momentum-based swipe
       velocityRef.current = deltaX / timeDelta
-      
+
       setDragOffset(deltaX)
     },
     [isDragging],
@@ -92,13 +98,17 @@ export function ImageCarousel({
 
     const distanceThreshold = SWIPE_DISTANCE_THRESHOLD
     const velocityThreshold = SWIPE_VELOCITY_THRESHOLD
-    
+
     // Combined distance + velocity logic for natural swipe feeling
-    const swipedLeft = dragOffset < -distanceThreshold || (dragOffset < -20 && velocityRef.current < -velocityThreshold)
-    const swipedRight = dragOffset > distanceThreshold || (dragOffset > 20 && velocityRef.current > velocityThreshold)
+    const swipedLeft =
+      dragOffset < -distanceThreshold ||
+      (dragOffset < -20 && velocityRef.current < -velocityThreshold)
+    const swipedRight =
+      dragOffset > distanceThreshold ||
+      (dragOffset > 20 && velocityRef.current > velocityThreshold)
 
     setTransitionEnabled(true)
-    
+
     if (swipedRight && current > 0) {
       setCurrent(current - 1)
     } else if (swipedLeft && current < images.length - 1) {
@@ -161,12 +171,12 @@ export function ImageCarousel({
 
   return (
     <>
-      <div className="relative select-none touch-manipulation">
+      <div className="relative touch-manipulation select-none">
         {/* Main image */}
         <button
           type="button"
           className={cn(
-            "relative w-full cursor-grab active:cursor-grabbing overflow-hidden bg-gradient-to-br from-black/80 to-black",
+            "relative w-full cursor-grab overflow-hidden bg-gradient-to-br from-black/80 to-black active:cursor-grabbing",
             aspectClass,
           )}
           onClick={handleOpenLightbox}
@@ -222,7 +232,7 @@ export function ImageCarousel({
             {current > 0 && (
               <button
                 onClick={prev}
-                className="absolute top-1/2 left-3 -translate-y-1/2 rounded-full bg-white/20 p-2 text-white backdrop-blur-md transition-all duration-200 hover:bg-white/35 active:scale-95 group"
+                className="group absolute top-1/2 left-3 -translate-y-1/2 rounded-full bg-white/20 p-2 text-white backdrop-blur-md transition-all duration-200 hover:bg-white/35 active:scale-95"
                 aria-label={`Previous image (${current} of ${images.length})`}
               >
                 <ChevronLeft className="h-5 w-5 transition-transform group-hover:-translate-x-0.5" />
@@ -231,7 +241,7 @@ export function ImageCarousel({
             {current < images.length - 1 && (
               <button
                 onClick={next}
-                className="absolute top-1/2 right-3 -translate-y-1/2 rounded-full bg-white/20 p-2 text-white backdrop-blur-md transition-all duration-200 hover:bg-white/35 active:scale-95 group"
+                className="group absolute top-1/2 right-3 -translate-y-1/2 rounded-full bg-white/20 p-2 text-white backdrop-blur-md transition-all duration-200 hover:bg-white/35 active:scale-95"
                 aria-label={`Next image (${current + 2} of ${images.length})`}
               >
                 <ChevronRight className="h-5 w-5 transition-transform group-hover:translate-x-0.5" />
@@ -260,7 +270,7 @@ export function ImageCarousel({
                 aria-label={`Go to image ${i + 1}`}
                 aria-current={i === current ? "page" : undefined}
                 className={cn(
-                  "h-2 rounded-full transition-all duration-300 transform origin-center",
+                  "h-2 origin-center transform rounded-full transition-all duration-300",
                   i === current
                     ? "w-6 bg-white shadow-lg"
                     : "w-2 bg-white/50 hover:bg-white/70 active:scale-90",
@@ -302,7 +312,7 @@ export function ImageCarousel({
 
           <div className="absolute inset-0 z-[110]">
             <div
-              className="relative h-full w-full overflow-hidden touch-manipulation"
+              className="relative h-full w-full touch-manipulation overflow-hidden"
               onPointerDown={beginDrag}
               onPointerMove={moveDrag}
               onPointerUp={endDrag}
@@ -357,7 +367,7 @@ export function ImageCarousel({
                     e.stopPropagation()
                     prev()
                   }}
-                  className="fixed top-1/2 left-4 z-[125] -translate-y-1/2 rounded-full bg-white/20 p-3 text-white backdrop-blur-md transition-all duration-200 hover:bg-white/35 active:scale-95 group sm:left-6"
+                  className="group fixed top-1/2 left-4 z-[125] -translate-y-1/2 rounded-full bg-white/20 p-3 text-white backdrop-blur-md transition-all duration-200 hover:bg-white/35 active:scale-95 sm:left-6"
                   aria-label={`Previous image (${current} of ${images.length})`}
                 >
                   <ChevronLeft className="h-6 w-6 transition-transform group-hover:-translate-x-1" />
@@ -370,7 +380,7 @@ export function ImageCarousel({
                     e.stopPropagation()
                     next()
                   }}
-                  className="fixed top-1/2 right-4 z-[125] -translate-y-1/2 rounded-full bg-white/20 p-3 text-white backdrop-blur-md transition-all duration-200 hover:bg-white/35 active:scale-95 group sm:right-6"
+                  className="group fixed top-1/2 right-4 z-[125] -translate-y-1/2 rounded-full bg-white/20 p-3 text-white backdrop-blur-md transition-all duration-200 hover:bg-white/35 active:scale-95 sm:right-6"
                   aria-label={`Next image (${current + 2} of ${images.length})`}
                 >
                   <ChevronRight className="h-6 w-6 transition-transform group-hover:translate-x-1" />
@@ -380,9 +390,11 @@ export function ImageCarousel({
           )}
 
           {/* Lightbox image counter and dots */}
-          <div className="fixed bottom-0 left-0 right-0 z-[120] flex items-center justify-between bg-gradient-to-t from-black/80 to-transparent px-4 py-6">
-            <div className="text-sm text-white/70">{current + 1} / {images.length}</div>
-            
+          <div className="fixed right-0 bottom-0 left-0 z-[120] flex items-center justify-between bg-gradient-to-t from-black/80 to-transparent px-4 py-6">
+            <div className="text-sm text-white/70">
+              {current + 1} / {images.length}
+            </div>
+
             {images.length > 1 && (
               <div className="flex gap-2">
                 {images.map((_, i) => (

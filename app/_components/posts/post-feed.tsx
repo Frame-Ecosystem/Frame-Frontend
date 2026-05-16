@@ -54,6 +54,10 @@ export function PostFeed() {
   const [showPostDialog, setShowPostDialog] = useState(false)
   const [showReelDialog, setShowReelDialog] = useState(false)
   const [activeTab, setActiveTab] = useState<FeedTab>(DEFAULT_TAB)
+  // Track overlay states — hide floating tab nav while a lightbox or comment
+  // sheet is covering the screen so they don't visually conflict.
+  const [isLightboxOpen, setIsLightboxOpen] = useState(false)
+  const [isCommentsOpen, setIsCommentsOpen] = useState(false)
 
   const profileImage =
     typeof user?.profileImage === "string"
@@ -77,6 +81,15 @@ export function PostFeed() {
   const hasMountedTabStateRef = useRef(false)
 
   useEffect(() => setMounted(true), []) // eslint-disable-line react-hooks/set-state-in-effect -- one-time mount flag
+
+  // Listen for lightbox-open/close broadcasts from ImageCarousel
+  useEffect(() => {
+    const handler = (e: Event) => {
+      setIsLightboxOpen((e as CustomEvent<{ open: boolean }>).detail.open)
+    }
+    window.addEventListener("frame:lightbox-change", handler)
+    return () => window.removeEventListener("frame:lightbox-change", handler)
+  }, [])
 
   const tabsRef = useCallback((node: HTMLDivElement | null) => {
     // Tear down any previous observer
@@ -270,6 +283,7 @@ export function PostFeed() {
             fetchNextPage={feed.fetchNextPage}
             isLoading={false}
             emptyType="feed"
+            onCommentOpenChange={setIsCommentsOpen}
           />
 
           {/* Floating tab nav — home page only, visible when inline tabs scroll out of view */}
@@ -277,7 +291,7 @@ export function PostFeed() {
             isHomePage &&
             createPortal(
               <FloatingTabNav
-                visible={tabsHidden}
+                visible={tabsHidden && !isLightboxOpen && !isCommentsOpen}
                 activeTab={activeTab}
                 onTabChange={setActiveTab}
                 exploreLabel={t("postFeed.explore")}

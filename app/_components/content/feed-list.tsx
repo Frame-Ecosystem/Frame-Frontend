@@ -81,6 +81,8 @@ interface FeedListProps {
   fetchNextPage: () => void
   isLoading?: boolean
   emptyType?: "feed" | "explore" | "saved" | "hashtag"
+  /** Called with `true` when the comment sheet opens, `false` when it closes */
+  onCommentOpenChange?: (open: boolean) => void
 }
 
 export function FeedList({
@@ -90,6 +92,7 @@ export function FeedList({
   fetchNextPage,
   isLoading,
   emptyType = "feed",
+  onCommentOpenChange,
 }: Readonly<FeedListProps>) {
   const { ref: sentinelRef, inView } = useInView({ threshold: 0.1 })
 
@@ -110,13 +113,15 @@ export function FeedList({
   const openComments = useCallback(
     (type: "post" | "reel", id: string, count: number) => {
       setCommentTarget({ type, id, count })
+      onCommentOpenChange?.(true)
     },
-    [],
+    [onCommentOpenChange],
   )
   const closeComments = useCallback(() => {
     setCommentTarget(null)
     setHighlightCommentId(null)
-  }, [])
+    onCommentOpenChange?.(false)
+  }, [onCommentOpenChange])
 
   const openCommentsParam = searchParams.get("openComments")
   const commentIdParam = searchParams.get("commentId")

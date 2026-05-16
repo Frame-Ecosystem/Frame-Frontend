@@ -1,17 +1,19 @@
 "use client"
 
+import { useState, useRef, useEffect } from "react"
 import {
   Heart,
   MessageCircle,
-  Bookmark,
-  Flag,
-  Share2,
   Volume2,
   VolumeX,
-  Trash2,
+  MoreVertical,
+  Bookmark,
+  Share2,
+  Flag,
   Pencil,
-  EyeOff,
+  Trash2,
   Eye,
+  EyeOff,
   ShieldAlert,
 } from "lucide-react"
 import { cn } from "@/app/_lib/utils"
@@ -40,7 +42,8 @@ interface ReelActionsProps {
 }
 
 /**
- * Right-side action buttons for a reel (like, comment, save, mute, share, report).
+ * Right-side action buttons for a reel.
+ * Order: Like → Comment → Sound → ··· (overflow menu for the rest)
  */
 export function ReelActions({
   isLiked,
@@ -64,17 +67,34 @@ export function ReelActions({
   onAdminDelete,
   isDeleting,
 }: ReelActionsProps) {
+  const [showMore, setShowMore] = useState(false)
+  const moreRef = useRef<HTMLDivElement>(null)
+
+  // Close dropdown when tapping/clicking outside
+  useEffect(() => {
+    if (!showMore) return
+    const onPointerDown = (e: PointerEvent) => {
+      if (moreRef.current && !moreRef.current.contains(e.target as Node)) {
+        setShowMore(false)
+      }
+    }
+    document.addEventListener("pointerdown", onPointerDown)
+    return () => document.removeEventListener("pointerdown", onPointerDown)
+  }, [showMore])
+
   return (
-    <div className="absolute right-3 bottom-24 z-30 flex flex-col items-center gap-4">
-      {/* Like */}
+    // bottom-36 gives the follow-button + author overlay a clean breathing room
+    <div className="absolute right-3 bottom-36 z-30 flex flex-col items-center gap-5">
+      {/* 1 ── Like */}
       <button
         onClick={onLike}
+        aria-label="Like"
         className="flex flex-col items-center gap-1 transition-transform active:scale-90"
       >
         <div
           className={cn(
-            "rounded-full p-2 transition-colors",
-            isLiked ? "bg-red-500/20" : "bg-black/20 backdrop-blur-sm",
+            "rounded-full p-2.5 transition-colors",
+            isLiked ? "bg-red-500/20" : "bg-black/30 backdrop-blur-sm",
           )}
         >
           <Heart
@@ -86,60 +106,40 @@ export function ReelActions({
             )}
           />
         </div>
-        <span className="text-xs font-semibold text-white drop-shadow">
-          {likeCount > 0
-            ? likeCount >= 1000
+        {likeCount > 0 && (
+          <span className="text-xs font-semibold text-white drop-shadow">
+            {likeCount >= 1000
               ? `${(likeCount / 1000).toFixed(1)}K`
-              : likeCount
-            : ""}
-        </span>
+              : likeCount}
+          </span>
+        )}
       </button>
 
-      {/* Comment */}
+      {/* 2 ── Comment */}
       <button
         onClick={onComment}
+        aria-label="Comment"
         className="flex flex-col items-center gap-1 transition-transform active:scale-90"
       >
-        <div className="rounded-full bg-black/20 p-2 backdrop-blur-sm">
+        <div className="rounded-full bg-black/30 p-2.5 backdrop-blur-sm">
           <MessageCircle className="h-6 w-6 text-white drop-shadow-lg" />
         </div>
-        <span className="text-xs font-semibold text-white drop-shadow">
-          {commentCount > 0
-            ? commentCount >= 1000
+        {commentCount > 0 && (
+          <span className="text-xs font-semibold text-white drop-shadow">
+            {commentCount >= 1000
               ? `${(commentCount / 1000).toFixed(1)}K`
-              : commentCount
-            : ""}
-        </span>
+              : commentCount}
+          </span>
+        )}
       </button>
 
-      {/* Save */}
-      <button
-        onClick={onSave}
-        className="flex flex-col items-center gap-1 transition-transform active:scale-90"
-      >
-        <div
-          className={cn(
-            "rounded-full p-2 transition-colors",
-            isSaved ? "bg-white/20" : "bg-black/20 backdrop-blur-sm",
-          )}
-        >
-          <Bookmark
-            className={cn(
-              "h-6 w-6 drop-shadow-lg transition-all",
-              isSaved
-                ? "scale-110 fill-white text-white"
-                : "scale-100 text-white",
-            )}
-          />
-        </div>
-      </button>
-
-      {/* Mute / Unmute */}
+      {/* 3 ── Sound */}
       <button
         onClick={onMuteToggle}
+        aria-label={isMuted ? "Unmute" : "Mute"}
         className="flex flex-col items-center gap-1 transition-transform active:scale-90"
       >
-        <div className="rounded-full bg-black/20 p-2 backdrop-blur-sm">
+        <div className="rounded-full bg-black/30 p-2.5 backdrop-blur-sm">
           {isMuted ? (
             <VolumeX className="h-5 w-5 text-white drop-shadow-lg" />
           ) : (
@@ -148,85 +148,151 @@ export function ReelActions({
         </div>
       </button>
 
-      {/* Share */}
-      <button
-        onClick={onShare}
-        className="flex flex-col items-center gap-1 transition-transform active:scale-90"
-      >
-        <div className="rounded-full bg-black/20 p-2 backdrop-blur-sm">
-          <Share2 className="h-5 w-5 text-white drop-shadow-lg" />
-        </div>
-      </button>
-
-      {/* Report (non-owner only) */}
-      {!isOwner && (
+      {/* 4 ── More (three-dots) with overflow dropdown */}
+      <div ref={moreRef} className="relative">
         <button
-          onClick={onReport}
+          onClick={() => setShowMore((v) => !v)}
+          aria-label="More options"
+          aria-expanded={showMore}
           className="flex flex-col items-center gap-1 transition-transform active:scale-90"
         >
-          <div className="rounded-full bg-black/20 p-2 backdrop-blur-sm">
-            <Flag className="h-5 w-5 text-white drop-shadow-lg" />
+          <div
+            className={cn(
+              "rounded-full p-2.5 backdrop-blur-sm transition-colors",
+              showMore ? "bg-white/20" : "bg-black/30",
+            )}
+          >
+            <MoreVertical className="h-5 w-5 text-white drop-shadow-lg" />
           </div>
         </button>
-      )}
 
-      {/* Edit (owner only) */}
-      {isOwner && onEdit && (
-        <button
-          onClick={onEdit}
-          className="flex flex-col items-center gap-1 transition-transform active:scale-90"
-        >
-          <div className="rounded-full bg-black/20 p-2 backdrop-blur-sm">
-            <Pencil className="h-5 w-5 text-white drop-shadow-lg" />
-          </div>
-        </button>
-      )}
-
-      {/* Delete (owner only) */}
-      {isOwner && onDelete && (
-        <button
-          onClick={onDelete}
-          disabled={isDeleting}
-          className="flex flex-col items-center gap-1 transition-transform active:scale-90"
-        >
-          <div className="rounded-full bg-black/20 p-2 backdrop-blur-sm">
-            <Trash2
-              className={cn(
-                "h-5 w-5 drop-shadow-lg transition",
-                isDeleting ? "animate-pulse text-red-300" : "text-white",
-              )}
+        {/* Dropdown panel — anchors right of the button, opens upward */}
+        {showMore && (
+          <div className="absolute right-14 bottom-0 z-50 min-w-[168px] overflow-hidden rounded-2xl border border-white/10 bg-black/80 shadow-2xl backdrop-blur-xl">
+            <MoreMenuItem
+              icon={Bookmark}
+              label={isSaved ? "Unsave" : "Save"}
+              active={isSaved}
+              onClick={() => {
+                onSave()
+                setShowMore(false)
+              }}
             />
-          </div>
-        </button>
-      )}
+            <MoreMenuItem
+              icon={Share2}
+              label="Share"
+              onClick={() => {
+                onShare()
+                setShowMore(false)
+              }}
+            />
 
-      {/* Admin: Hide / Unhide */}
-      {isAdmin && !isOwner && (
-        <button
-          onClick={isHidden ? onUnhide : onHide}
-          className="flex flex-col items-center gap-1 transition-transform active:scale-90"
-        >
-          <div className="rounded-full bg-black/20 p-2 backdrop-blur-sm">
-            {isHidden ? (
-              <Eye className="h-5 w-5 text-amber-300 drop-shadow-lg" />
-            ) : (
-              <EyeOff className="h-5 w-5 text-white drop-shadow-lg" />
+            <div className="mx-3 my-1 h-px bg-white/10" />
+
+            {!isOwner && (
+              <MoreMenuItem
+                icon={Flag}
+                label="Report"
+                danger
+                onClick={() => {
+                  onReport()
+                  setShowMore(false)
+                }}
+              />
+            )}
+            {isOwner && onEdit && (
+              <MoreMenuItem
+                icon={Pencil}
+                label="Edit"
+                onClick={() => {
+                  onEdit()
+                  setShowMore(false)
+                }}
+              />
+            )}
+            {isOwner && onDelete && (
+              <MoreMenuItem
+                icon={Trash2}
+                label={isDeleting ? "Deleting…" : "Delete"}
+                danger
+                disabled={isDeleting}
+                onClick={() => {
+                  onDelete()
+                  setShowMore(false)
+                }}
+              />
+            )}
+
+            {isAdmin && !isOwner && (
+              <>
+                <div className="mx-3 my-1 h-px bg-white/10" />
+                <MoreMenuItem
+                  icon={isHidden ? Eye : EyeOff}
+                  label={isHidden ? "Unhide" : "Hide"}
+                  onClick={() => {
+                    ;(isHidden ? onUnhide : onHide)?.()
+                    setShowMore(false)
+                  }}
+                />
+                {onAdminDelete && (
+                  <MoreMenuItem
+                    icon={ShieldAlert}
+                    label="Force Delete"
+                    danger
+                    onClick={() => {
+                      onAdminDelete()
+                      setShowMore(false)
+                    }}
+                  />
+                )}
+              </>
             )}
           </div>
-        </button>
-      )}
-
-      {/* Admin: Force delete */}
-      {isAdmin && !isOwner && onAdminDelete && (
-        <button
-          onClick={onAdminDelete}
-          className="flex flex-col items-center gap-1 transition-transform active:scale-90"
-        >
-          <div className="rounded-full bg-red-500/20 p-2 backdrop-blur-sm">
-            <ShieldAlert className="h-5 w-5 text-red-400 drop-shadow-lg" />
-          </div>
-        </button>
-      )}
+        )}
+      </div>
     </div>
+  )
+}
+
+// ── Dropdown menu item ─────────────────────────────────────────
+
+interface MoreMenuItemProps {
+  icon: React.ComponentType<{ className?: string }>
+  label: string
+  active?: boolean
+  danger?: boolean
+  disabled?: boolean
+  onClick: () => void
+}
+
+function MoreMenuItem({
+  icon: Icon,
+  label,
+  active,
+  danger,
+  disabled,
+  onClick,
+}: Readonly<MoreMenuItemProps>) {
+  return (
+    <button
+      onClick={onClick}
+      disabled={disabled}
+      className={cn(
+        "flex w-full items-center gap-3 px-4 py-2.5 text-sm font-medium transition-colors",
+        danger
+          ? "text-red-400 hover:bg-red-500/10"
+          : "text-white/80 hover:bg-white/10",
+        active && "text-white",
+        disabled && "cursor-not-allowed opacity-50",
+      )}
+    >
+      <Icon
+        className={cn(
+          "h-4 w-4 shrink-0",
+          danger ? "text-red-400" : active ? "text-white" : "text-white/60",
+        )}
+      />
+      {label}
+    </button>
   )
 }
