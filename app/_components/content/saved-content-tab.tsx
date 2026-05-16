@@ -8,6 +8,7 @@ import { useOpenReel } from "./hooks/use-open-reel"
 import { cn } from "@/app/_lib/utils"
 import type { FeedItem, Post, Reel } from "../../_types/content"
 import { useTranslation } from "@/app/_i18n"
+import { getFeedRateLimitMessage } from "@/app/_systems/feed/lib/feed-rate-limit"
 
 /**
  * Renders the user's saved/bookmarked content split into Posts and Reels sub-tabs.
@@ -19,6 +20,9 @@ export function SavedContentTab() {
   const { openReel } = useOpenReel()
   const savedQuery = useSavedFeed()
   const [subTab, setSubTab] = useState<"posts" | "reels">("posts")
+  const rateLimitBanner = savedQuery.feedRateLimit.showBanner
+    ? getFeedRateLimitMessage(savedQuery.feedRateLimit.remainingSeconds)
+    : null
 
   const feedItems: FeedItem[] = useMemo(() => {
     return (
@@ -78,6 +82,8 @@ export function SavedContentTab() {
           fetchNextPage={savedQuery.fetchNextPage}
           isLoading={savedQuery.isLoading}
           emptyType="saved"
+          rateLimitBanner={rateLimitBanner}
+          disableLoadMore={savedQuery.feedRateLimit.isLocked}
         />
       ) : (
         <ContentGrid
@@ -88,6 +94,8 @@ export function SavedContentTab() {
           fetchNextPage={savedQuery.fetchNextPage}
           isLoading={savedQuery.isLoading}
           emptyType="saved"
+          rateLimitBanner={rateLimitBanner}
+          disableLoadMore={savedQuery.feedRateLimit.isLocked}
           onReelClick={openReel}
         />
       )}

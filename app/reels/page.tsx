@@ -11,6 +11,7 @@ import { useReelMutePreference } from "../_components/content/hooks/use-reel-mut
 import { useExploreFeed } from "../_hooks/queries/useContent"
 import type { Reel } from "../_types/content"
 import { useScrollToTarget } from "../_hooks/useScrollToTarget"
+import { getFeedRateLimitMessage } from "@/app/_systems/feed/lib/feed-rate-limit"
 
 export default function ReelsPage() {
   useScrollToTarget()
@@ -53,6 +54,9 @@ export default function ReelsPage() {
 
   // Fetch explore feed and filter for reels
   const exploreQuery = useExploreFeed()
+  const rateLimitBanner = exploreQuery.feedRateLimit.showBanner
+    ? getFeedRateLimitMessage(exploreQuery.feedRateLimit.remainingSeconds)
+    : null
   const reels = useMemo(() => {
     const items =
       exploreQuery.data?.pages.flatMap((page) => page.data ?? []) ?? []
@@ -103,7 +107,12 @@ export default function ReelsPage() {
   // Load more when approaching the end
   const { hasNextPage, isFetchingNextPage, fetchNextPage } = exploreQuery
   useEffect(() => {
-    if (activeIndex >= reels.length - 2 && hasNextPage && !isFetchingNextPage) {
+    if (
+      activeIndex >= reels.length - 2 &&
+      hasNextPage &&
+      !isFetchingNextPage &&
+      !exploreQuery.feedRateLimit.isLocked
+    ) {
       fetchNextPage()
     }
   }, [
@@ -112,6 +121,7 @@ export default function ReelsPage() {
     hasNextPage,
     isFetchingNextPage,
     fetchNextPage,
+    exploreQuery.feedRateLimit.isLocked,
   ])
 
   // Debounced navigation — one reel per gesture
@@ -179,7 +189,7 @@ export default function ReelsPage() {
     )
   }
 
-  if (reels.length === 0) {
+  if (reels.length === 0 && !rateLimitBanner) {
     return (
       <div className="fixed inset-x-0 top-[73px] bottom-0 z-10 flex items-center justify-center lg:top-[96px]">
         <EmptyState type="reels" />
@@ -191,6 +201,12 @@ export default function ReelsPage() {
     <ErrorBoundary>
       {/* Fixed layer that fills exactly between top bar & bottom of viewport */}
       <div className="bg-background fixed inset-x-0 top-[73px] bottom-0 z-10 flex justify-center lg:top-[96px]">
+        {rateLimitBanner && (
+          <div className="pointer-events-none absolute top-4 right-4 left-4 z-20 mx-auto max-w-md rounded-2xl border border-amber-500/20 bg-amber-500/10 px-4 py-3 text-sm text-amber-950 shadow-sm backdrop-blur-sm dark:text-amber-100">
+            {rateLimitBanner}
+          </div>
+        )}
+
         <div
           ref={containerRef}
           className="relative h-full w-full overflow-hidden lg:max-w-[420px]"

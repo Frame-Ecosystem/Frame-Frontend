@@ -622,8 +622,10 @@ const tr: Record<string, string> = {
   "content.reel.durationError": "Süre 1 ile 300 saniye arasında olmalıdır.",
   "content.reel.thumbnailOptional": "Özel Küçük Resim (isteğe bağlı)",
   "content.post.mediaLimitError": "En fazla 20 görsel yükleyebilirsiniz.",
-  "content.post.imageSizeError": "Bir veya daha fazla dosya boyut sınırını aşıyor.",
-  "content.error.uploadFileTooLarge": "Bir veya daha fazla dosya boyut sınırını aşıyor.",
+  "content.post.imageSizeError":
+    "Bir veya daha fazla dosya boyut sınırını aşıyor.",
+  "content.error.uploadFileTooLarge":
+    "Bir veya daha fazla dosya boyut sınırını aşıyor.",
   "content.error.uploadTooManyFiles": "Çok fazla dosya yüklendi.",
   "content.error.uploadUnexpectedField": "Geçersiz yükleme içeriği.",
   "content.error.invalidHashtags": "Hashtag biçimi geçersiz.",

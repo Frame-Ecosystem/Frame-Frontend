@@ -113,6 +113,7 @@ export const GOOGLE_AUTH_BASE_URL = getGoogleAuthBaseUrl()
 type ApiRequestOptions = {
   suppressAuthFailure?: boolean
   timeoutMs?: number
+  onResponse?: (response: Response) => void
 }
 
 class ApiClient {
@@ -333,6 +334,8 @@ class ApiClient {
           this.authFailureCallback?.({ url, status: response.status })
         throw new Error("AUTH_FAILURE")
       }
+
+      apiOptions?.onResponse?.(response)
 
       if (!response.ok) {
         let error = await response.json().catch(() => ({}))

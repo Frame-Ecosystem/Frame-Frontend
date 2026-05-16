@@ -5,17 +5,14 @@ import { useRouter, useSearchParams } from "next/navigation"
 import { Button } from "../../_components/ui/button"
 import {
   Pencil,
-  StarIcon,
   Settings,
   Grid3X3,
   Film,
-  Heart,
   MessageSquare,
   Bookmark,
 } from "lucide-react"
 import { ErrorBoundary } from "../../_components/common/errorBoundary"
-import { useAuth } from "@/app/_auth"
-import { authService } from "@/app/_auth"
+import { authService ,useAuth} from "@/app/_auth"
 import { ProfileCover } from "../../_components/common/profile-display/profile-cover"
 import { AccountSettings } from "../../_components/profile/account-settings"
 import { AccountInformation } from "../../_components/profile/account-information"

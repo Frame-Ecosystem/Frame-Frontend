@@ -81,11 +81,9 @@ export function ReplyPreview({
       </p>
       {/* Allow up to 2 lines before clamping — fixes long-message reply wrapping bug */}
       <div className="mt-0.5 flex min-w-0 items-start gap-1">
-        {icon && (
-          <span className="mt-0.5 shrink-0">{icon}</span>
-        )}
+        {icon && <span className="mt-0.5 shrink-0">{icon}</span>}
         <p
-          className={`min-w-0 break-words text-xs ${
+          className={`min-w-0 text-xs break-words ${
             isSent ? "text-primary-foreground/60" : "text-muted-foreground"
           } line-clamp-2`}
         >

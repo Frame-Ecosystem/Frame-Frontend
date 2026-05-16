@@ -3,9 +3,10 @@
 import Link from "next/link"
 import React from "react"
 import UserSession from "../profile/user-session"
+import MessageButton from "../common/message-button"
 import NotificationButton from "../common/notification-button"
 import { Button } from "../ui/button"
-import { MessageCircle, Search } from "lucide-react"
+import { Search } from "lucide-react"
 import { NavBrandLogo } from "../common/brand-logo"
 import { useRouter } from "next/navigation"
 import { useAuth } from "@/app/_auth"
@@ -68,27 +69,17 @@ const TopBar: React.FC<TopBarProps> = ({
             <Button
               variant="ghost"
               size="icon"
-              className="hover:bg-primary/10 relative flex items-center justify-center rounded-full"
+              className="hover:bg-primary/10 relative flex h-10 w-10 items-center justify-center rounded-full p-0"
               onClick={() => router.push("/lounges")}
             >
-              <div className="flex h-10 w-10 items-center justify-center rounded-full border">
+              <div className="border-primary/30 flex h-10 w-10 items-center justify-center rounded-full border">
                 <Search className="h-5 w-5" />
               </div>
             </Button>
 
             <NotificationButton compact />
 
-            <Button
-              variant="ghost"
-              size="icon"
-              className="hover:bg-primary/10 relative flex items-center justify-center rounded-full"
-              onClick={() => router.push("/messages")}
-              aria-label={t("nav.chat")}
-            >
-              <div className="flex h-10 w-10 items-center justify-center rounded-full border">
-                <MessageCircle className="h-5 w-5" />
-              </div>
-            </Button>
+            <MessageButton compact />
 
             <UserSession compact />
           </div>
@@ -102,27 +93,17 @@ const TopBar: React.FC<TopBarProps> = ({
             <Button
               variant="ghost"
               size="icon"
-              className="hover:bg-primary/10 relative flex items-center justify-center rounded-full"
+              className="hover:bg-primary/10 relative flex h-10 w-10 items-center justify-center rounded-full p-0"
               onClick={() => router.push("/lounges")}
             >
-              <div className="flex h-10 w-10 items-center justify-center rounded-full border">
+              <div className="border-primary/30 flex h-10 w-10 items-center justify-center rounded-full border">
                 <Search className="h-5 w-5" />
               </div>
             </Button>
 
             <NotificationButton compact />
 
-            <Button
-              variant="ghost"
-              size="icon"
-              className="hover:bg-primary/10 relative flex items-center justify-center rounded-full"
-              onClick={() => router.push("/messages")}
-              aria-label={t("nav.chat")}
-            >
-              <div className="flex h-10 w-10 items-center justify-center rounded-full border">
-                <MessageCircle className="h-5 w-5" />
-              </div>
-            </Button>
+            <MessageButton compact />
 
             <UserSession compact />
           </div>
