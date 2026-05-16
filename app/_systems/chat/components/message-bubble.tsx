@@ -27,7 +27,7 @@ export interface MessageBubbleProps {
   getParticipantName: (id: any) => string
   onReply: (message: Message) => void
   onEdit: (message: Message) => void
-  onDelete: (message: Message) => void
+  onDelete: (message: Message, recallForAll: boolean) => void
   onReact: (message: Message, emoji: string) => void
 }
 
@@ -312,7 +312,9 @@ export function MessageBubble({
               show={true}
               onReply={() => onReply(message)}
               onEdit={() => onEdit(message)}
-              onDelete={(recallForAll) => onDelete(message, recallForAll)}
+              onDelete={(recallForAll: boolean) =>
+                onDelete(message, recallForAll)
+              }
               onTogglePicker={() => setShowPicker((v) => !v)}
             />
           </div>
