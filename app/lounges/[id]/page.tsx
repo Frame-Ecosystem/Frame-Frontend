@@ -48,6 +48,8 @@ import { useParams, useRouter, useSearchParams } from "next/navigation"
 import { getProfilePath } from "@/app/_systems/user/lib/profile"
 import { isLoungeCurrentlyOpen } from "@/app/_components/bookings/booking-utils"
 import { clientService } from "@/app/_services"
+import { LoungeStatsDisplay } from "@/app/_components/lounges/_components/lounge-stats-display"
+import { OpeningHoursDisplay } from "@/app/_core/components/forms/opening-hours-display"
 import { toast } from "sonner"
 
 type Tab = "info" | "posts" | "reels" | "services" | "queue" | "reviews"
@@ -327,12 +329,6 @@ export default function LoungePage() {
 
   const openingHours = formatOpeningHours(center.openingHours)
 
-  const formatCount = (n: number): string => {
-    if (n >= 1_000_000)
-      return `${(n / 1_000_000).toFixed(1).replace(/\.0$/, "")}M`
-    if (n >= 1_000) return `${(n / 1_000).toFixed(1).replace(/\.0$/, "")}k`
-    return String(n)
-  }
 
   const getInitials = (name: string) => {
     return name
@@ -471,45 +467,25 @@ export default function LoungePage() {
               </div>
             )}
 
-          {/* Stats row: rates · likes · followers · following */}
-          <div className="mt-3 flex items-center justify-center gap-6">
-            <button
-              onClick={() => handleTabChange("reviews")}
-              className="hover:text-primary flex flex-col items-center text-center leading-tight transition-colors"
-            >
-              <span className="text-foreground text-sm font-semibold tabular-nums">
-                {center.ratingCount ?? 0}
-              </span>
-              <span className="text-muted-foreground text-xs">Ratings</span>
-            </button>
+          {/* Enhanced stats display with icons */}
+          <LoungeStatsDisplay
+            averageRating={center.averageRating ?? 0}
+            ratingCount={center.ratingCount ?? 0}
+            likeCount={center.likeCount ?? 0}
+            followerCount={followCounts?.followersCount ?? 0}
+            onRatingClick={() => handleTabChange("reviews")}
+            onFollowersClick={() => setFollowDialogMode("followers")}
+          />
 
-            <div className="flex flex-col items-center text-center leading-tight">
-              <span className="text-foreground text-sm font-semibold tabular-nums">
-                {formatCount(center.likeCount ?? 0)}
-              </span>
-              <span className="text-muted-foreground text-xs">Likes</span>
+          {/* Opening hours display under stats */}
+          {center.openingHours && (
+            <div className="mt-4 flex justify-center">
+              <OpeningHoursDisplay
+                openingHours={center.openingHours}
+                compact
+              />
             </div>
-
-            <button
-              onClick={() => setFollowDialogMode("followers")}
-              className="hover:text-primary flex flex-col items-center text-center leading-tight transition-colors"
-            >
-              <span className="text-foreground text-sm font-semibold tabular-nums">
-                {formatCount(followCounts?.followersCount ?? 0)}
-              </span>
-              <span className="text-muted-foreground text-xs">Followers</span>
-            </button>
-
-            <button
-              onClick={() => setFollowDialogMode("following")}
-              className="hover:text-primary flex flex-col items-center text-center leading-tight transition-colors"
-            >
-              <span className="text-foreground text-sm font-semibold tabular-nums">
-                {formatCount(followCounts?.followingCount ?? 0)}
-              </span>
-              <span className="text-muted-foreground text-xs">Following</span>
-            </button>
-          </div>
+          )}
 
           {followDialogMode && (
             <FollowListDialog

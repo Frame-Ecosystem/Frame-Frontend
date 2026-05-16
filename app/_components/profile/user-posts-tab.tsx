@@ -1,8 +1,9 @@
 "use client"
 
-import { useMemo, memo } from "react"
+import { useMemo, memo, useState } from "react"
 import { useUserPosts } from "../../_hooks/queries/useContent"
 import { ContentGrid } from "../content/content-grid"
+import { PostDetailModal } from "../content/post-detail-modal"
 import type { Post } from "../../_types/content"
 
 interface UserPostsTabProps {
@@ -11,12 +12,13 @@ interface UserPostsTabProps {
 
 /**
  * Displays a user's posts in an infinite-scroll 3-column grid.
- * Clicking a post shows a preview or navigates to the post detail.
+ * Clicking a post opens a modal with the full post details.
  */
 export const UserPostsTab = memo(function UserPostsTab({
   userId,
 }: UserPostsTabProps) {
   const postsQuery = useUserPosts(userId)
+  const [selectedPost, setSelectedPost] = useState<Post | null>(null)
 
   const posts: Post[] = useMemo(
     () => postsQuery.data?.pages.flatMap((p) => p.data) ?? [],
@@ -40,17 +42,26 @@ export const UserPostsTab = memo(function UserPostsTab({
     )
   }
 
-  // For now, posts in grid view don't have click handlers
-  // They just display as thumbnails
   return (
-    <ContentGrid
-      items={posts}
-      type="posts"
-      hasNextPage={!!postsQuery.hasNextPage}
-      isFetchingNextPage={postsQuery.isFetchingNextPage}
-      fetchNextPage={postsQuery.fetchNextPage}
-      isLoading={postsQuery.isLoading}
-      emptyType="posts"
-    />
+    <>
+      <ContentGrid
+        items={posts}
+        type="posts"
+        hasNextPage={!!postsQuery.hasNextPage}
+        isFetchingNextPage={postsQuery.isFetchingNextPage}
+        fetchNextPage={postsQuery.fetchNextPage}
+        isLoading={postsQuery.isLoading}
+        emptyType="posts"
+        onPostClick={setSelectedPost}
+      />
+      
+      <PostDetailModal
+        post={selectedPost}
+        open={!!selectedPost}
+        onOpenChange={(open) => {
+          if (!open) setSelectedPost(null)
+        }}
+      />
+    </>
   )
 })

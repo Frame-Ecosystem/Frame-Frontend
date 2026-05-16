@@ -4,8 +4,6 @@ import { useState, useRef, useEffect } from "react"
 import {
   Heart,
   MessageCircle,
-  Volume2,
-  VolumeX,
   MoreVertical,
   Bookmark,
   Share2,
@@ -21,7 +19,6 @@ import { cn } from "@/app/_lib/utils"
 interface ReelActionsProps {
   isLiked: boolean
   isSaved: boolean
-  isMuted: boolean
   isOwner: boolean
   isAdmin?: boolean
   isHidden?: boolean
@@ -30,7 +27,6 @@ interface ReelActionsProps {
   onLike: () => void
   onComment?: () => void
   onSave: () => void
-  onMuteToggle: () => void
   onShare: () => void
   onReport: () => void
   onEdit?: () => void
@@ -42,13 +38,12 @@ interface ReelActionsProps {
 }
 
 /**
- * Right-side action buttons for a reel.
- * Order: Like → Comment → Sound → ··· (overflow menu for the rest)
+ * Right-side action buttons for a reel (Like, Comment, Save, Share, More menu).
+ * Sound toggle is handled separately in PlaybackControls for clean separation.
  */
 export function ReelActions({
   isLiked,
   isSaved,
-  isMuted,
   isOwner,
   isAdmin,
   isHidden,
@@ -57,7 +52,6 @@ export function ReelActions({
   onLike,
   onComment,
   onSave,
-  onMuteToggle,
   onShare,
   onReport,
   onEdit,
@@ -134,21 +128,8 @@ export function ReelActions({
       </button>
 
       {/* 3 ── Sound */}
-      <button
-        onClick={onMuteToggle}
-        aria-label={isMuted ? "Unmute" : "Mute"}
-        className="flex flex-col items-center gap-1 transition-transform active:scale-90"
-      >
-        <div className="rounded-full bg-black/30 p-2.5 backdrop-blur-sm">
-          {isMuted ? (
-            <VolumeX className="h-5 w-5 text-white drop-shadow-lg" />
-          ) : (
-            <Volume2 className="h-5 w-5 text-white drop-shadow-lg" />
-          )}
-        </div>
-      </button>
 
-      {/* 4 ── More (three-dots) with overflow dropdown */}
+      {/* 3 ── More (three-dots) with overflow dropdown */}
       <div ref={moreRef} className="relative">
         <button
           onClick={() => setShowMore((v) => !v)}

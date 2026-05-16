@@ -1,4 +1,4 @@
-﻿"use client"
+"use client"
 
 import { useState, useRef, useCallback } from "react"
 import { Heart, Play, EyeOff } from "lucide-react"
@@ -23,7 +23,7 @@ interface ReelPlayerProps {
   reel: Reel
   autoPlay?: boolean
   /**
-   * @deprecated No longer used — video is only mounted when `autoPlay` is
+   * @deprecated No longer used � video is only mounted when `autoPlay` is
    * true (iOS 16 decoder fix). Kept for API compat; will be removed later.
    */
   isVisible?: boolean
@@ -35,11 +35,11 @@ interface ReelPlayerProps {
 /**
  * Fullscreen-ish reel player with overlays (Instagram Reels style for web).
  *
- * MOBILE PLAYBACK — The <video> element is rendered directly (no wrapper
+ * MOBILE PLAYBACK � The <video> element is rendered directly (no wrapper
  * component) so that video.play() is called with zero indirection from a
  * native touchend listener.
  *
- * iOS 16 — Only the active reel (autoPlay=true) mounts a <video> element.
+ * iOS 16 � Only the active reel (autoPlay=true) mounts a <video> element.
  * This limits the page to a single hardware decoder, staying within
  * iOS 16's strict concurrency limit.
  */
@@ -73,7 +73,7 @@ export function ReelPlayer({
   const isOwner = user?._id === reel.authorId?._id
   const isAdmin = user?.type === "admin"
 
-  // ── Playback hook ──
+  // -- Playback hook --
   const {
     setVideoEl,
     isPlaying,
@@ -90,7 +90,7 @@ export function ReelPlayer({
     onMuteChange: onMuteChangeProp,
   })
 
-  // ── Type-tap / double-tap hook ──
+  // -- Type-tap / double-tap hook --
   const handleDoubleTap = useCallback(() => {
     if (!isLiked) likeMutation.mutate()
     setShowDoubleTapHeart(true)
@@ -125,7 +125,7 @@ export function ReelPlayer({
         </div>
       )}
 
-      {/* ── Video element ──
+      {/* -- Video element --
        * iOS 16 fix: Only mount <video> for the ACTIVE reel (autoPlay=true).
        * This limits the page to 1 hardware decoder, staying well within
        * iOS 16's ~4-decoder limit. Adjacent reels show the poster image.
@@ -195,7 +195,6 @@ export function ReelPlayer({
       <ReelActions
         isLiked={isLiked}
         isSaved={isSaved}
-        isMuted={isMuted}
         isOwner={isOwner}
         isAdmin={isAdmin}
         isHidden={reel.isHidden}
@@ -204,7 +203,6 @@ export function ReelPlayer({
         onLike={() => likeMutation.mutate()}
         onComment={onCommentClick}
         onSave={() => saveMutation.mutate()}
-        onMuteToggle={toggleMute}
         onShare={() => navigator.clipboard.writeText(window.location.href)}
         onReport={() => setShowReport(true)}
         onEdit={isOwner ? () => setShowEdit(true) : undefined}

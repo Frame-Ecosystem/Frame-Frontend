@@ -20,13 +20,13 @@ import { ProfileCover } from "../../_components/common/profile-display/profile-c
 import { AccountSettings } from "../../_components/profile/account-settings"
 import { AccountInformation } from "../../_components/profile/account-information"
 import { OpeningHoursDisplay } from "@/app/_core/components/forms/opening-hours-display"
+import { LoungeStatsDisplay } from "../../_components/lounges/_components/lounge-stats-display"
 import { UserReelsTab } from "../../_components/profile/user-reels-tab"
 import { UserPostsTab } from "../../_components/profile/user-posts-tab"
 import { SavedContentTab } from "../../_components/content/saved-content-tab"
 import { RatingSummaryBadge } from "../../_components/common/star-rating"
 import ReviewsList from "../../_components/common/reviews-list"
 import { LoungeProfileSkeleton } from "./_components/lounge-profile-skeleton"
-import { FollowStats } from "../../_components/common/follow-stats"
 import { useTranslation } from "@/app/_i18n"
 
 type TabKey = "account" | "posts" | "reels" | "reviews" | "saved"
@@ -273,35 +273,14 @@ export default function LoungeProfilePage() {
             )}
           </div>
 
-          {/* Stats row: rating · likes · followers */}
-          <div className="mt-3 flex flex-wrap items-center gap-x-5 gap-y-2 text-sm">
-            <button
-              onClick={() => handleTabChange("reviews")}
-              className="hover:text-primary flex items-center gap-1.5 transition-colors"
-            >
-              <StarIcon className="h-3.5 w-3.5 fill-yellow-500 text-yellow-500" />
-              <span className="text-foreground/80 font-medium">
-                {(user?.ratingCount ?? 0) > 0
-                  ? (user?.averageRating ?? 0).toFixed(1)
-                  : "—"}
-              </span>
-              {(user?.ratingCount ?? 0) > 0 && (
-                <span className="text-muted-foreground text-xs">
-                  ({t("profile.ratingCount", { count: user?.ratingCount ?? 0 })}
-                  )
-                </span>
-              )}
-            </button>
-
-            <span className="flex items-center gap-1.5">
-              <Heart className="h-3.5 w-3.5 fill-red-500 text-red-500" />
-              <span className="text-foreground/80 font-medium">
-                {user?.likeCount ?? 0}
-              </span>
-            </span>
-
-            {user?._id && <FollowStats userId={user._id} />}
-          </div>
+          {/* Enhanced stats display */}
+          <LoungeStatsDisplay
+            averageRating={user?.averageRating ?? 0}
+            ratingCount={user?.ratingCount ?? 0}
+            likeCount={user?.likeCount ?? 0}
+            followerCount={user?.followersCount ?? 0}
+            onRatingClick={() => handleTabChange("reviews")}
+          />
 
           {/* Opening hours */}
           {(user as any)?.openingHours && (
