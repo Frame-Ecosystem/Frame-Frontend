@@ -19,19 +19,32 @@ export function NotificationRow({
   onDelete,
   onClick,
   t,
-}: NotificationRowProps) {
+}: Readonly<NotificationRowProps>) {
+  // Defensive: do not render message/chat notifications
+  const isMessageNotification =
+    notification.type?.toLowerCase().includes("message") ||
+    notification.type?.toLowerCase().includes("chat") ||
+    notification.category === "message" ||
+    notification.category === "messages" ||
+    notification.category === "chat" ||
+    notification.category === "conversation" ||
+    notification.actionUrl?.toLowerCase().includes("/messages") ||
+    notification.actionUrl?.toLowerCase().includes("/chat") ||
+    notification.metadata?.conversationId ||
+    notification.metadata?.chatId ||
+    notification.metadata?.threadId
+  if (isMessageNotification) return null
+
   const { Icon, color } = getNotificationMeta(notification)
 
   return (
-    <div
-      role="button"
-      tabIndex={0}
+    <button
+      type="button"
       onClick={onClick}
-      onKeyDown={(e) => e.key === "Enter" && onClick()}
-      className={`group hover:bg-muted/60 flex cursor-pointer items-start gap-3 rounded-xl border p-4 transition-all ${
-        !notification.isRead
-          ? "bg-primary/5 border-primary/20 shadow-sm"
-          : "bg-background border-border hover:shadow-sm"
+      className={`group hover:bg-muted/60 flex w-full items-start gap-3 rounded-xl border p-4 text-left transition-all ${
+        notification.isRead
+          ? "bg-background border-border hover:shadow-sm"
+          : "bg-primary/5 border-primary/20 shadow-sm"
       }`}
     >
       {/* Actor avatar or type icon */}
@@ -53,11 +66,11 @@ export function NotificationRow({
       <div className="min-w-0 flex-1">
         <div className="flex items-center gap-2">
           <p
-            className={`text-sm ${!notification.isRead ? "font-semibold" : "font-medium"}`}
+            className={`text-sm ${notification.isRead ? "font-medium" : "font-semibold"}`}
           >
             {notification.title}
           </p>
-          {!notification.isRead && (
+          {notification.isRead ? null : (
             <span className="bg-primary h-2 w-2 shrink-0 rounded-full" />
           )}
         </div>
@@ -88,6 +101,6 @@ export function NotificationRow({
       >
         <Trash2 className="text-muted-foreground h-4 w-4" />
       </Button>
-    </div>
+    </button>
   )
 }

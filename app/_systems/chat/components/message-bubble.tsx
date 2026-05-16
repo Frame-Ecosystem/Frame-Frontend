@@ -1,20 +1,21 @@
 ﻿"use client"
 
-import { useState, useRef, useEffect } from "react"
-import { Pencil, Reply, Trash2, MoreHorizontal, Smile } from "lucide-react"
+import { useState, useEffect } from "react"
+// import { Pencil, Reply, Trash2, MoreHorizontal, Smile } from "lucide-react"
 import { formatDistanceToNow } from "date-fns"
 import { cn } from "@/app/_lib/utils"
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/app/_components/ui/dropdown-menu"
+// import {
+//   DropdownMenu,
+//   DropdownMenuContent,
+//   DropdownMenuItem,
+//   DropdownMenuSeparator,
+//   DropdownMenuTrigger,
+// } from "@/app/_components/ui/dropdown-menu"
+import { BubbleActions } from "./bubble-actions"
 import { ChatAvatar, MessageStatusIcon } from "./ui/chat-atoms"
 import { AttachmentRenderer } from "./attachment-renderer"
 import { ReplyPreview } from "./reply-preview"
-import type { Message } from "../types"
+// import type { Message } from "../types"
 
 const REACTIONS = ["❤️", "👍", "😂", "😮", "😢", "🔥"]
 
@@ -24,11 +25,11 @@ function EmojiPicker({
   isSent,
   onReact,
   onClose,
-}: {
+}: Readonly<{
   isSent: boolean
   onReact: (emoji: string) => void
   onClose: () => void
-}) {
+}>) {
   return (
     <div
       className={cn(
@@ -52,103 +53,113 @@ function EmojiPicker({
   )
 }
 
-// ── Internal: Hover action buttons (absolutely positioned — do not steal bubble width) ────
-
-function BubbleActions({
-  message: _message,
+function BubbleMainContent({
+  message,
   isSent,
-  isEditable,
-  show,
-  onReply,
-  onEdit,
-  onDelete,
-  onTogglePicker,
-}: {
-  message: Message
-  isSent: boolean
-  isEditable: boolean
-  show: boolean
-  onReply: () => void
-  onEdit: () => void
-  onDelete: (recallForAll: boolean) => void
-  onTogglePicker: () => void
-}) {
-  const btnCls =
-    "bg-background/90 border-border/60 hover:bg-muted flex h-7 w-7 items-center justify-center rounded-full border shadow-sm backdrop-blur-sm transition-colors"
-
+  getParticipantName,
+  bubbleRadius,
+  isPending,
+  isFailed,
+  timeLabel,
+}: any) {
   return (
     <div
       className={cn(
-        // Floats outside the bubble — sent actions sit to the left, received to the right
-        "absolute bottom-0 z-20 flex items-center gap-0.5 transition-all duration-150",
+        "flex flex-1 flex-col justify-center px-3 py-2 shadow-sm",
+        bubbleRadius,
         isSent
-          ? "right-[calc(100%+6px)] flex-row"
-          : "left-[calc(100%+6px)] flex-row",
-        show
-          ? "pointer-events-auto translate-y-0 opacity-100"
-          : "pointer-events-none translate-y-1 opacity-0",
+          ? "bg-primary text-primary-foreground"
+          : "bg-muted text-foreground",
+        isPending && "opacity-60",
+        isFailed && "ring-destructive ring-2",
       )}
     >
-      <button
-        onClick={onTogglePicker}
-        className={btnCls}
-        aria-label="Add reaction"
+      {/* Reply preview (horizontal wrap) */}
+      {message.replyTo && (
+        <div className="mb-1 flex flex-row flex-wrap items-center gap-2">
+          <ReplyPreview
+            replyTo={message.replyTo}
+            senderName={getParticipantName(message.replyTo.senderId)}
+            isSent={isSent}
+          />
+        </div>
+      )}
+
+      {message.attachment && (
+        <div className="mb-1">
+          <AttachmentRenderer
+            attachment={message.attachment}
+            contentType={message.contentType}
+            isSent={isSent}
+          />
+        </div>
+      )}
+
+      {message.text && (
+        <p className="text-sm leading-relaxed break-words whitespace-pre-wrap">
+          {message.text}
+        </p>
+      )}
+
+      {/* Timestamp + status row */}
+      <div
+        className={cn(
+          "mt-1 flex items-center gap-1",
+          isSent ? "justify-end" : "justify-start",
+        )}
       >
-        <Smile className="text-muted-foreground h-3.5 w-3.5" />
-      </button>
-      <button onClick={onReply} className={btnCls} aria-label="Reply">
-        <Reply className="text-muted-foreground h-3.5 w-3.5" />
-      </button>
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <button className={btnCls} aria-label="More options">
-            <MoreHorizontal className="text-muted-foreground h-3.5 w-3.5" />
-          </button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align={isSent ? "end" : "start"} className="w-44">
-          <DropdownMenuItem onClick={onReply}>
-            <Reply className="mr-2 h-4 w-4" /> Reply
-          </DropdownMenuItem>
-          {isEditable && (
-            <DropdownMenuItem onClick={onEdit}>
-              <Pencil className="mr-2 h-4 w-4" /> Edit
-            </DropdownMenuItem>
+        <span
+          className={cn(
+            "text-[10px] leading-none",
+            isSent ? "text-primary-foreground/55" : "text-muted-foreground",
           )}
-          <DropdownMenuSeparator />
-          {isSent && (
-            <DropdownMenuItem
-              onClick={() => onDelete(true)}
-              className="text-destructive focus:text-destructive"
-            >
-              <Trash2 className="mr-2 h-4 w-4" /> Recall for all
-            </DropdownMenuItem>
-          )}
-          <DropdownMenuItem
-            onClick={() => onDelete(false)}
-            className="text-destructive focus:text-destructive"
+        >
+          {timeLabel}
+        </span>
+        {message.editedAt && (
+          <span
+            className={cn(
+              "text-[10px] leading-none",
+              isSent ? "text-primary-foreground/55" : "text-muted-foreground",
+            )}
           >
-            <Trash2 className="mr-2 h-4 w-4" /> Delete for me
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
+            · edited
+          </span>
+        )}
+        {isSent && (
+          <MessageStatusIcon
+            isPending={isPending}
+            isFailed={isFailed}
+            isRead={message.readBy.length > 1}
+            className={isFailed ? undefined : "text-primary-foreground/75"}
+          />
+        )}
+      </div>
     </div>
   )
 }
 
-// ── Public: MessageBubble ─────────────────────────────────────
-
-export interface MessageBubbleProps {
-  message: Message
-  isSent: boolean
-  currentUserId: string
-  showAvatar: boolean
-  /** True when the previous message was sent by the same user (tighter grouping). */
-  isConsecutive?: boolean
-  getParticipantName: (userId: string) => string
-  onReply: (message: Message) => void
-  onEdit: (message: Message) => void
-  onDelete: (message: Message, recallForAll: boolean) => void
-  onReact: (message: Message, emoji: string) => void
+function ReactionsRow({
+  reactionGroups,
+}: {
+  reactionGroups: Record<string, { count: number; includesMe: boolean }>
+}) {
+  if (Object.keys(reactionGroups).length === 0) return null
+  return (
+    <div className="flex flex-row gap-1 pt-1">
+      {Object.entries(reactionGroups).map(([emoji, { count, includesMe }]) => (
+        <span
+          key={emoji}
+          className={cn(
+            "bg-background flex items-center gap-1 rounded-full border px-2 py-0.5 text-xs shadow-sm",
+            includesMe && "border-primary bg-primary/10 text-primary",
+          )}
+        >
+          {emoji} {count > 1 && <span>{count}</span>}
+        </span>
+      ))}
+    </div>
+  )
 }
 
 export function MessageBubble({
@@ -162,10 +173,8 @@ export function MessageBubble({
   onEdit,
   onDelete,
   onReact,
-}: MessageBubbleProps) {
+}: Readonly<MessageBubbleProps>) {
   const [showPicker, setShowPicker] = useState(false)
-  const [showActions, setShowActions] = useState(false)
-  const longPressRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const isPending = message._pending
   const isFailed = message._failed
@@ -205,18 +214,6 @@ export function MessageBubble({
     return acc
   }, {})
 
-  const handleTouchStart = () => {
-    longPressRef.current = setTimeout(() => setShowPicker(true), 500)
-  }
-  const handleTouchEnd = () => {
-    if (longPressRef.current) {
-      clearTimeout(longPressRef.current)
-      longPressRef.current = null
-    }
-  }
-
-  // ── Bubble corner radius: Messenger-style grouped corners ────────────
-  // Computed as a helper to avoid nested ternary lint warnings.
   function calcBubbleRadius(): string {
     if (isSent) {
       if (showAvatar && isConsecutive) return "rounded-2xl rounded-r-md"
@@ -250,18 +247,10 @@ export function MessageBubble({
   return (
     <div
       className={cn(
-        "group flex w-full items-end px-3",
+        "flex w-full items-end px-3",
         isSent ? "justify-end" : "justify-start",
-        // Tighter vertical gap inside a message group, wider at group boundaries
         isConsecutive ? "pt-0.5 pb-0.5" : "pt-2 pb-0.5",
       )}
-      onMouseEnter={() => setShowActions(true)}
-      onMouseLeave={() => {
-        setShowActions(false)
-        setShowPicker(false)
-      }}
-      onTouchStart={handleTouchStart}
-      onTouchEnd={handleTouchEnd}
     >
       {/* Avatar slot — received messages only */}
       {!isSent && (
@@ -269,7 +258,6 @@ export function MessageBubble({
           {showAvatar ? (
             <ChatAvatar src={avatarSrc} name={senderName} size="sm" />
           ) : (
-            // Invisible spacer keeps grouped messages left-aligned under the avatar
             <span className="block h-7 w-7" />
           )}
         </div>
@@ -290,126 +278,35 @@ export function MessageBubble({
           />
         )}
 
-        {/* Bubble — actions float outside via absolute positioning */}
-        <div className="relative">
-          <BubbleActions
+        {/* Bubble and actions in a row */}
+        <div className="relative flex w-full flex-row items-stretch gap-2">
+          <BubbleMainContent
             message={message}
             isSent={isSent}
-            isEditable={isEditable}
-            show={showActions}
-            onReply={() => onReply(message)}
-            onEdit={() => onEdit(message)}
-            onDelete={(recallForAll) => onDelete(message, recallForAll)}
-            onTogglePicker={() => setShowPicker((v) => !v)}
+            getParticipantName={getParticipantName}
+            bubbleRadius={bubbleRadius}
+            isPending={isPending}
+            isFailed={isFailed}
+            timeLabel={timeLabel}
           />
-
-          <div
-            className={cn(
-              "px-3 py-2 shadow-sm",
-              bubbleRadius,
-              isSent
-                ? "bg-primary text-primary-foreground"
-                : "bg-muted text-foreground",
-              isPending && "opacity-60",
-              isFailed && "ring-destructive ring-2",
-            )}
-          >
-            {message.replyTo && (
-              <ReplyPreview
-                replyTo={message.replyTo}
-                senderName={getParticipantName(message.replyTo.senderId)}
-                isSent={isSent}
-              />
-            )}
-
-            {message.attachment && (
-              <div className="mb-1">
-                <AttachmentRenderer
-                  attachment={message.attachment}
-                  contentType={message.contentType}
-                  isSent={isSent}
-                />
-              </div>
-            )}
-
-            {message.text && (
-              <p className="text-sm leading-relaxed break-words whitespace-pre-wrap">
-                {message.text}
-              </p>
-            )}
-
-            {/* Timestamp + status row */}
-            <div
-              className={cn(
-                "mt-1 flex items-center gap-1",
-                isSent ? "justify-end" : "justify-start",
-              )}
-            >
-              <span
-                className={cn(
-                  "text-[10px] leading-none",
-                  isSent
-                    ? "text-primary-foreground/55"
-                    : "text-muted-foreground",
-                )}
-              >
-                {timeLabel}
-              </span>
-              {message.editedAt && (
-                <span
-                  className={cn(
-                    "text-[10px] leading-none",
-                    isSent
-                      ? "text-primary-foreground/55"
-                      : "text-muted-foreground",
-                  )}
-                >
-                  · edited
-                </span>
-              )}
-              {isSent && (
-                <MessageStatusIcon
-                  isPending={isPending}
-                  isFailed={isFailed}
-                  isRead={message.readBy.length > 1}
-                  className={
-                    isFailed ? undefined : "text-primary-foreground/75"
-                  }
-                />
-              )}
-            </div>
+          {/* Actions: emoji, reply, 3-dots, always visible in row */}
+          <div className="flex min-w-[36px] flex-col items-center justify-center gap-1">
+            <BubbleActions
+              message={message}
+              isSent={isSent}
+              isEditable={isEditable}
+              show={true}
+              onReply={() => onReply(message)}
+              onEdit={() => onEdit(message)}
+              onDelete={(recallForAll) => onDelete(message, recallForAll)}
+              onTogglePicker={() => setShowPicker((v) => !v)}
+            />
           </div>
         </div>
-
-        {Object.keys(reactionGroups).length > 0 && (
-          <div
-            className={cn(
-              "-mt-1 flex flex-wrap gap-1",
-              isSent ? "justify-end pr-1" : "justify-start pl-1",
-            )}
-          >
-            {Object.entries(reactionGroups).map(
-              ([emoji, { count, includesMe }]) => (
-                <button
-                  key={emoji}
-                  onClick={() => onReact(message, emoji)}
-                  className={cn(
-                    "border-border hover:bg-muted flex items-center gap-0.5 rounded-full border px-1.5 py-0.5 text-xs shadow-sm transition-colors",
-                    includesMe
-                      ? "bg-primary/10 border-primary/30"
-                      : "bg-background",
-                  )}
-                >
-                  <span>{emoji}</span>
-                  {count > 1 && (
-                    <span className="text-muted-foreground">{count}</span>
-                  )}
-                </button>
-              ),
-            )}
-          </div>
-        )}
+        {/* Reactions row */}
+        <ReactionsRow reactionGroups={reactionGroups} />
       </div>
     </div>
   )
 }
+// (removed duplicate code block)
