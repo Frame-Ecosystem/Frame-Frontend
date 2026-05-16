@@ -88,8 +88,25 @@ export default function NotificationsPage() {
     return option ? t(option.labelKey) : t("notifications.catAll")
   }, [activeCategory, t])
 
+  // Filter out message notifications so they do not appear in the notification list
   const notifications = useMemo(
-    () => data?.pages.flatMap((p) => p.data) ?? [],
+    () =>
+      (data?.pages.flatMap((p) => p.data) ?? []).filter(
+        (n) =>
+          !(
+            n.type?.toLowerCase().includes("message") ||
+            n.type?.toLowerCase().includes("chat") ||
+            n.category === "message" ||
+            n.category === "messages" ||
+            n.category === "chat" ||
+            n.category === "conversation" ||
+            n.actionUrl?.toLowerCase().includes("/messages") ||
+            n.actionUrl?.toLowerCase().includes("/chat") ||
+            n.metadata?.conversationId ||
+            n.metadata?.chatId ||
+            n.metadata?.threadId
+          ),
+      ),
     [data],
   )
 
@@ -212,39 +229,50 @@ export default function NotificationsPage() {
           className="mx-auto flex w-full max-w-2xl flex-1 flex-col overflow-y-auto px-4 py-4 lg:px-8 lg:py-6"
         >
           <div className="space-y-2 pr-1 pb-8">
-            {listLoading ? (
-              <div className="space-y-2">
-                {Array.from({ length: 5 }).map((_, i) => (
-                  <NotificationRowSkeleton key={i} />
-                ))}
-              </div>
-            ) : notifications.length === 0 ? (
-              <NotificationEmptyState activeCategory={activeCategory} t={t} />
-            ) : (
-              <>
-                {notifications.map((n) => (
-                  <NotificationRow
-                    key={n._id}
-                    notification={n}
-                    onDelete={() => deleteOne.mutate(n._id)}
-                    onClick={() => handleNotificationClick(n)}
-                    t={t}
-                  />
-                ))}
-                {isFetchingNextPage && (
-                  <div className="space-y-2 py-2">
-                    {Array.from({ length: 2 }).map((_, i) => (
-                      <NotificationRowSkeleton key={i} />
+            {(() => {
+              if (listLoading) {
+                return (
+                  <div className="space-y-2">
+                    {Array.from({ length: 5 }).map(() => (
+                      <NotificationRowSkeleton key="skeleton" />
                     ))}
                   </div>
-                )}
-                {!hasNextPage && notifications.length > 0 && (
-                  <p className="text-muted-foreground/50 py-6 text-center text-xs">
-                    {t("notifications.allCaughtUp")}
-                  </p>
-                )}
-              </>
-            )}
+                )
+              }
+              if (notifications.length === 0) {
+                return (
+                  <NotificationEmptyState
+                    activeCategory={activeCategory}
+                    t={t}
+                  />
+                )
+              }
+              return (
+                <>
+                  {notifications.map((n) => (
+                    <NotificationRow
+                      key={n._id}
+                      notification={n}
+                      onDelete={() => deleteOne.mutate(n._id)}
+                      onClick={() => handleNotificationClick(n)}
+                      t={t}
+                    />
+                  ))}
+                  {isFetchingNextPage && (
+                    <div className="space-y-2 py-2">
+                      {Array.from({ length: 2 }).map(() => (
+                        <NotificationRowSkeleton key="skeleton-next" />
+                      ))}
+                    </div>
+                  )}
+                  {!hasNextPage && notifications.length > 0 && (
+                    <p className="text-muted-foreground/50 py-6 text-center text-xs">
+                      {t("notifications.allCaughtUp")}
+                    </p>
+                  )}
+                </>
+              )
+            })()}
           </div>
         </div>
       </div>
