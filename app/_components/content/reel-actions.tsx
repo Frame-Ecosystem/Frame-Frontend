@@ -83,8 +83,8 @@ export function ReelActions({
   }, [showMore])
 
   return (
-    // bottom-36 gives the follow-button + author overlay a clean breathing room
-    <div className="absolute right-3 bottom-36 z-30 flex flex-col items-center gap-5">
+    // Center vertically on right side with proper spacing
+    <div className="absolute top-1/2 right-3 z-30 flex -translate-y-1/2 flex-col items-center gap-5 sm:right-4 lg:right-6">
       {/* 1 ── Like */}
       <button
         onClick={onLike}
