@@ -15,7 +15,21 @@ import { BubbleActions } from "./bubble-actions"
 import { ChatAvatar, MessageStatusIcon } from "./ui/chat-atoms"
 import { AttachmentRenderer } from "./attachment-renderer"
 import { ReplyPreview } from "./reply-preview"
-// import type { Message } from "../types"
+
+import type { Message } from "../types"
+
+export interface MessageBubbleProps {
+  message: Message
+  isSent: boolean
+  currentUserId: string
+  showAvatar: boolean
+  isConsecutive?: boolean
+  getParticipantName: (id: any) => string
+  onReply: (message: Message) => void
+  onEdit: (message: Message) => void
+  onDelete: (message: Message) => void
+  onReact: (message: Message, emoji: string) => void
+}
 
 const REACTIONS = ["❤️", "👍", "😂", "😮", "😢", "🔥"]
 
