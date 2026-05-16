@@ -344,14 +344,13 @@ const LandingPage = () => {
     }
   }, [user, isLoading, router])
 
-  // PWA redirect logic: Navigate to /home for PWA users (shows signin if not authed)
+  // PWA unauth flow: open sign-in on landing instead of redirecting to /home.
+  // Redirecting to a protected route can cause a loop with AuthGuard in installed apps.
   useEffect(() => {
     if (!isLoading && !user && isPWAInstalled()) {
-      // PWA mode + not authenticated
-      // Redirect to /home which will trigger signin dialog
-      router.push("/home")
+      setSigninOpen(true)
     }
-  }, [user, isLoading, router])
+  }, [user, isLoading])
 
   /* ── SEO structured data (JSON-LD) ── */
   const jsonLd = useMemo(
