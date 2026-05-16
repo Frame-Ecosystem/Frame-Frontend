@@ -77,7 +77,7 @@ export function MessageList({
     bottomRef.current?.scrollIntoView({ behavior: "smooth" })
   }
 
-  // Determine whether to show avatar (group consecutive from same sender)
+  // Determine whether to show avatar (group consecutive messages from same sender)
   const shouldShowAvatar = (index: number) => {
     if (index === messages.length - 1) return true
     const curr = messages[index]
@@ -87,6 +87,18 @@ export function MessageList({
     const nextId =
       typeof next.senderId === "string" ? next.senderId : next.senderId._id
     return currId !== nextId
+  }
+
+  // True when the previous message was from the same sender (tighter spacing + corner radius)
+  const isPrevSameSender = (index: number) => {
+    if (index === 0) return false
+    const curr = messages[index]
+    const prev = messages[index - 1]
+    const currId =
+      typeof curr.senderId === "string" ? curr.senderId : curr.senderId._id
+    const prevId =
+      typeof prev.senderId === "string" ? prev.senderId : prev.senderId._id
+    return currId === prevId
   }
 
   return (
@@ -120,6 +132,7 @@ export function MessageList({
               isSent={isSent}
               currentUserId={currentUserId}
               showAvatar={shouldShowAvatar(idx)}
+              isConsecutive={isPrevSameSender(idx)}
               getParticipantName={getParticipantName}
               onReply={onReply}
               onEdit={onEdit}

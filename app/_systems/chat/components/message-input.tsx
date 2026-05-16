@@ -8,7 +8,7 @@ import {
   type KeyboardEvent,
   type ChangeEvent,
 } from "react"
-import { Send, Paperclip, X } from "lucide-react"
+import { Send, Paperclip, X, Smile } from "lucide-react"
 import { cn } from "@/app/_lib/utils"
 import { Button } from "@/app/_components/ui/button"
 import { ReplyPreview } from "./reply-preview"
@@ -261,7 +261,7 @@ export function MessageInput({
 
       {/* Input row */}
       <div className="flex items-end gap-2 py-2">
-        {/* File button */}
+        {/* Attach button */}
         <button
           onClick={() => fileInputRef.current?.click()}
           disabled={disabled}
@@ -282,8 +282,8 @@ export function MessageInput({
           aria-hidden
         />
 
-        {/* Textarea */}
-        <div className="bg-muted min-h-[40px] flex-1 rounded-2xl px-4 py-2">
+        {/* Textarea + inline emoji button */}
+        <div className="bg-muted flex min-h-[40px] flex-1 items-end rounded-2xl px-3 py-2">
           <textarea
             ref={textareaRef}
             value={text}
@@ -297,6 +297,16 @@ export function MessageInput({
               "max-h-40 overflow-y-auto",
             )}
           />
+          {/* Emoji trigger — shows the correct smiley icon */}
+          <button
+            type="button"
+            disabled={disabled}
+            className="text-muted-foreground hover:text-foreground mb-0.5 ml-1 shrink-0 transition-colors"
+            aria-label="Emoji"
+            tabIndex={-1}
+          >
+            <Smile className="h-5 w-5" />
+          </button>
         </div>
 
         {/* Send button */}

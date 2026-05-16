@@ -1,7 +1,7 @@
 ﻿"use client"
 
 import { useState, useRef, useEffect } from "react"
-import { Pencil, Reply, Trash2, MoreHorizontal } from "lucide-react"
+import { Pencil, Reply, Trash2, MoreHorizontal, Smile } from "lucide-react"
 import { formatDistanceToNow } from "date-fns"
 import { cn } from "@/app/_lib/utils"
 import {
@@ -32,7 +32,7 @@ function EmojiPicker({
   return (
     <div
       className={cn(
-        "animate-in fade-in zoom-in-95 bg-card mb-1 flex items-center gap-0.5 rounded-full border px-1.5 py-1 shadow-lg",
+        "animate-in fade-in zoom-in-95 bg-popover mb-1 flex items-center gap-0.5 rounded-full border px-1.5 py-1 shadow-xl",
         isSent ? "self-end" : "self-start",
       )}
     >
@@ -43,7 +43,7 @@ function EmojiPicker({
             onReact(emoji)
             onClose()
           }}
-          className="rounded-full p-1 text-lg transition-transform hover:scale-125"
+          className="rounded-full p-1 text-xl transition-transform hover:scale-130 active:scale-110"
         >
           {emoji}
         </button>
@@ -52,7 +52,7 @@ function EmojiPicker({
   )
 }
 
-// ── Internal: Hover action buttons ───────────────────────────
+// ── Internal: Hover action buttons (absolutely positioned — do not steal bubble width) ────
 
 function BubbleActions({
   message: _message,
@@ -73,39 +73,35 @@ function BubbleActions({
   onDelete: (recallForAll: boolean) => void
   onTogglePicker: () => void
 }) {
+  const btnCls =
+    "bg-background/90 border-border/60 hover:bg-muted flex h-7 w-7 items-center justify-center rounded-full border shadow-sm backdrop-blur-sm transition-colors"
+
   return (
     <div
       className={cn(
-        "mb-1 flex shrink-0 items-center gap-0.5 transition-opacity duration-150",
-        show ? "opacity-100" : "opacity-0",
-        isSent ? "flex-row-reverse" : "flex-row",
+        // Floats outside the bubble — sent actions sit to the left, received to the right
+        "absolute bottom-0 z-20 flex items-center gap-0.5 transition-all duration-150",
+        isSent
+          ? "right-[calc(100%+6px)] flex-row"
+          : "left-[calc(100%+6px)] flex-row",
+        show
+          ? "pointer-events-auto translate-y-0 opacity-100"
+          : "pointer-events-none translate-y-1 opacity-0",
       )}
     >
-      <button
-        onClick={onTogglePicker}
-        className="hover:bg-muted flex h-6 w-6 items-center justify-center rounded-full text-xs"
-        aria-label="React"
-      >
-        ðŸ˜Š
+      <button onClick={onTogglePicker} className={btnCls} aria-label="Add reaction">
+        <Smile className="text-muted-foreground h-3.5 w-3.5" />
       </button>
-      <button
-        onClick={onReply}
-        className="hover:bg-muted flex h-6 w-6 items-center justify-center rounded-full"
-        aria-label="Reply"
-      >
-        <Reply className="h-3.5 w-3.5" />
+      <button onClick={onReply} className={btnCls} aria-label="Reply">
+        <Reply className="text-muted-foreground h-3.5 w-3.5" />
       </button>
-
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <button
-            className="hover:bg-muted flex h-6 w-6 items-center justify-center rounded-full"
-            aria-label="More options"
-          >
-            <MoreHorizontal className="h-3.5 w-3.5" />
+          <button className={btnCls} aria-label="More options">
+            <MoreHorizontal className="text-muted-foreground h-3.5 w-3.5" />
           </button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent align={isSent ? "end" : "start"} className="w-40">
+        <DropdownMenuContent align={isSent ? "end" : "start"} className="w-44">
           <DropdownMenuItem onClick={onReply}>
             <Reply className="mr-2 h-4 w-4" /> Reply
           </DropdownMenuItem>
@@ -142,6 +138,8 @@ export interface MessageBubbleProps {
   isSent: boolean
   currentUserId: string
   showAvatar: boolean
+  /** True when the previous message was sent by the same user (tighter grouping). */
+  isConsecutive?: boolean
   getParticipantName: (userId: string) => string
   onReply: (message: Message) => void
   onEdit: (message: Message) => void
@@ -154,6 +152,7 @@ export function MessageBubble({
   isSent,
   currentUserId,
   showAvatar,
+  isConsecutive = false,
   getParticipantName,
   onReply,
   onEdit,
@@ -212,16 +211,32 @@ export function MessageBubble({
     }
   }
 
+  // ── Bubble corner radius: Messenger-style grouped corners ────────────
+  // Computed as a helper to avoid nested ternary lint warnings.
+  function calcBubbleRadius(): string {
+    if (isSent) {
+      if (showAvatar && isConsecutive) return "rounded-2xl rounded-r-md"
+      if (showAvatar) return "rounded-2xl rounded-br-sm"
+      if (isConsecutive) return "rounded-2xl rounded-r-md"
+      return "rounded-2xl rounded-tr-sm"
+    }
+    if (showAvatar && isConsecutive) return "rounded-2xl rounded-l-md"
+    if (showAvatar) return "rounded-2xl rounded-bl-sm"
+    if (isConsecutive) return "rounded-2xl rounded-l-md"
+    return "rounded-2xl rounded-tl-sm"
+  }
+  const bubbleRadius = calcBubbleRadius()
+
   if (message.isDeleted) {
     return (
       <div
         className={cn(
-          "flex w-full items-end px-4 py-0.5",
+          "flex w-full items-end px-3 py-0.5",
           isSent ? "justify-end" : "justify-start",
         )}
       >
-        {!isSent && <div className="mr-2 h-8 w-8 shrink-0" />}
-        <p className="text-muted-foreground rounded-2xl border border-dashed px-4 py-2 text-sm italic">
+        {!isSent && <div className="mr-2 h-7 w-7 shrink-0" />}
+        <p className="text-muted-foreground rounded-2xl border border-dashed px-4 py-1.5 text-sm italic">
           This message was recalled
         </p>
       </div>
@@ -231,8 +246,10 @@ export function MessageBubble({
   return (
     <div
       className={cn(
-        "group flex w-full items-end px-4 py-0.5",
+        "group flex w-full items-end px-3",
         isSent ? "justify-end" : "justify-start",
+        // Tighter vertical gap inside a message group, wider at group boundaries
+        isConsecutive ? "pb-0.5 pt-0.5" : "pb-0.5 pt-2",
       )}
       onMouseEnter={() => setShowActions(true)}
       onMouseLeave={() => {
@@ -242,17 +259,23 @@ export function MessageBubble({
       onTouchStart={handleTouchStart}
       onTouchEnd={handleTouchEnd}
     >
-      {/* Avatar slot */}
-      <div className={cn("h-8 w-8 shrink-0", isSent ? "hidden" : "mr-2")}>
-        {!isSent && showAvatar && (
-          <ChatAvatar src={avatarSrc} name={senderName} size="sm" />
-        )}
-      </div>
+      {/* Avatar slot — received messages only */}
+      {!isSent && (
+        <div className="mr-1.5 h-7 w-7 shrink-0">
+          {showAvatar ? (
+            <ChatAvatar src={avatarSrc} name={senderName} size="sm" />
+          ) : (
+            // Invisible spacer keeps grouped messages left-aligned under the avatar
+            <span className="block h-7 w-7" />
+          )}
+        </div>
+      )}
 
+      {/* Message column — fills up to 85% on mobile, 78% on wider screens */}
       <div
         className={cn(
-          "flex max-w-[75%] flex-col gap-0.5",
-          isSent ? "ml-auto items-end" : "mr-auto items-start",
+          "flex max-w-[85%] flex-col gap-0.5 sm:max-w-[78%]",
+          isSent ? "items-end" : "items-start",
         )}
       >
         {showPicker && (
@@ -263,9 +286,8 @@ export function MessageBubble({
           />
         )}
 
-        <div
-          className={cn("flex items-end gap-1", isSent && "flex-row-reverse")}
-        >
+        {/* Bubble — actions float outside via absolute positioning */}
+        <div className="relative">
           <BubbleActions
             message={message}
             isSent={isSent}
@@ -277,15 +299,15 @@ export function MessageBubble({
             onTogglePicker={() => setShowPicker((v) => !v)}
           />
 
-          {/* Bubble body */}
           <div
             className={cn(
-              "relative rounded-2xl px-3 py-2 shadow-sm",
+              "px-3 py-2 shadow-sm",
+              bubbleRadius,
               isSent
-                ? "bg-primary text-primary-foreground rounded-br-sm"
-                : "bg-card text-card-foreground border-border/60 rounded-bl-sm border",
-              isPending && "opacity-70",
-              isFailed && "border-destructive border-2",
+                ? "bg-primary text-primary-foreground"
+                : "bg-muted text-foreground",
+              isPending && "opacity-60",
+              isFailed && "ring-destructive ring-2",
             )}
           >
             {message.replyTo && (
@@ -307,22 +329,23 @@ export function MessageBubble({
             )}
 
             {message.text && (
-              <p className="text-sm leading-relaxed break-words whitespace-pre-wrap">
+              <p className="break-words whitespace-pre-wrap text-sm leading-relaxed">
                 {message.text}
               </p>
             )}
 
+            {/* Timestamp + status row */}
             <div
               className={cn(
-                "mt-0.5 flex items-center gap-1",
+                "mt-1 flex items-center gap-1",
                 isSent ? "justify-end" : "justify-start",
               )}
             >
               <span
                 className={cn(
-                  "text-[10px]",
+                  "text-[10px] leading-none",
                   isSent
-                    ? "text-primary-foreground/60"
+                    ? "text-primary-foreground/55"
                     : "text-muted-foreground",
                 )}
               >
@@ -331,9 +354,9 @@ export function MessageBubble({
               {message.editedAt && (
                 <span
                   className={cn(
-                    "text-[10px]",
+                    "text-[10px] leading-none",
                     isSent
-                      ? "text-primary-foreground/60"
+                      ? "text-primary-foreground/55"
                       : "text-muted-foreground",
                   )}
                 >
@@ -346,7 +369,7 @@ export function MessageBubble({
                   isFailed={isFailed}
                   isRead={message.readBy.length > 1}
                   className={
-                    isFailed ? undefined : "text-primary-foreground/80"
+                    isFailed ? undefined : "text-primary-foreground/75"
                   }
                 />
               )}
@@ -368,7 +391,9 @@ export function MessageBubble({
                   onClick={() => onReact(message, emoji)}
                   className={cn(
                     "border-border hover:bg-muted flex items-center gap-0.5 rounded-full border px-1.5 py-0.5 text-xs shadow-sm transition-colors",
-                    includesMe ? "bg-primary/10" : "bg-card",
+                    includesMe
+                      ? "bg-primary/10 border-primary/30"
+                      : "bg-background",
                   )}
                 >
                   <span>{emoji}</span>
