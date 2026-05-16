@@ -3,23 +3,23 @@
 
 // Accept all props for type safety, prefix with _ to satisfy lint rules
 export function BubbleActions({
-  _message,
-  _isSent,
-  _isEditable,
-  _show,
-  _onReply,
-  _onEdit,
-  _onDelete,
-  _onTogglePicker,
+  message: _message,
+  isSent: _isSent,
+  isEditable: _isEditable,
+  show: _show,
+  onReply: _onReply,
+  onEdit: _onEdit,
+  onDelete: _onDelete,
+  onTogglePicker: _onTogglePicker,
 }: {
-  _message: any
-  _isSent: boolean
-  _isEditable: boolean
-  _show: boolean
-  _onReply: () => void
-  _onEdit: () => void
-  _onDelete: (recallForAll: boolean) => void
-  _onTogglePicker: () => void
+  message: any
+  isSent: boolean
+  isEditable: boolean
+  show: boolean
+  onReply: () => void
+  onEdit: () => void
+  onDelete: (recallForAll: boolean) => void
+  onTogglePicker: () => void
 }) {
   return null
 }
