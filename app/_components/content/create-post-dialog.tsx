@@ -19,7 +19,8 @@ interface CreatePostDialogProps {
   onOpenChange: (_open: boolean) => void
 }
 
-const MAX_IMAGES = 10
+const MAX_IMAGES = 20
+const MAX_IMAGE_SIZE = 10 * 1024 * 1024 // 10 MB per file
 const MAX_TEXT = 2200
 
 export function CreatePostDialog({
@@ -30,6 +31,8 @@ export function CreatePostDialog({
   const [text, setText] = useState("")
   const [selectedImages, setSelectedImages] = useState<File[]>([])
   const [imagePreviews, setImagePreviews] = useState<string[]>([])
+  const [mediaError, setMediaError] = useState<string | null>(null)
+  const [serverError, setServerError] = useState<string | null>(null)
   const {
     hashtagInput,
     setHashtagInput,
@@ -51,16 +54,33 @@ export function CreatePostDialog({
   const handleImageSelect = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
       const files = Array.from(e.target.files || [])
+      e.target.value = ""
+
+      // Client-side: reject if any file exceeds size limit
+      if (files.some((f) => f.size > MAX_IMAGE_SIZE)) {
+        setMediaError(t("content.error.uploadFileTooLarge"))
+        return
+      }
+
+      // Client-side: cap at MAX_IMAGES total
       const remaining = MAX_IMAGES - selectedImages.length
+      if (remaining <= 0) {
+        setMediaError(t("content.post.mediaLimitError"))
+        return
+      }
+
       const toAdd = files.slice(0, remaining)
+      if (selectedImages.length + files.length > MAX_IMAGES) {
+        setMediaError(t("content.post.mediaLimitError"))
+      } else {
+        setMediaError(null)
+      }
 
       setSelectedImages((prev) => [...prev, ...toAdd])
       const newPreviews = toAdd.map((f) => URL.createObjectURL(f))
       setImagePreviews((prev) => [...prev, ...newPreviews])
-      // Reset input so same file can be selected again
-      e.target.value = ""
     },
-    [selectedImages.length],
+    [selectedImages.length, t],
   )
 
   const removeImage = useCallback(
@@ -77,6 +97,8 @@ export function CreatePostDialog({
     imagePreviews.forEach((url) => URL.revokeObjectURL(url))
     setSelectedImages([])
     setImagePreviews([])
+    setMediaError(null)
+    setServerError(null)
     resetHashtags([])
   }, [imagePreviews, resetHashtags])
 
@@ -96,6 +118,23 @@ export function CreatePostDialog({
           onOpenChange(false)
           resetForm()
         },
+        onError: (error: unknown) => {
+          const code = (error as any)?.code as string | undefined
+          setServerError(null)
+          if (code === "POST_MEDIA_LIMIT_EXCEEDED") {
+            setMediaError(t("content.post.mediaLimitError"))
+          } else if (code === "UPLOAD_FILE_TOO_LARGE") {
+            setServerError(t("content.error.uploadFileTooLarge"))
+          } else if (code === "UPLOAD_TOO_MANY_FILES") {
+            setServerError(t("content.error.uploadTooManyFiles"))
+          } else if (code === "UPLOAD_UNEXPECTED_FIELD") {
+            setServerError(t("content.error.uploadUnexpectedField"))
+          } else if (code === "INVALID_HASHTAGS") {
+            setServerError(t("content.error.invalidHashtags"))
+          } else {
+            setServerError((error as Error)?.message ?? null)
+          }
+        },
       },
     )
   }, [
@@ -105,10 +144,13 @@ export function CreatePostDialog({
     onOpenChange,
     resetForm,
     mergeWithInlineHashtags,
+    t,
   ])
 
   const canSubmit =
-    (text.trim() || selectedImages.length > 0) && !createPost.isPending
+    (!!text.trim() || selectedImages.length > 0) &&
+    !mediaError &&
+    !createPost.isPending
 
   if (!user) return null
 
@@ -216,6 +258,13 @@ export function CreatePostDialog({
               </Button>
             )}
           </div>
+
+          {/* Media / server error messages */}
+          {(mediaError || serverError) && (
+            <p className="bg-destructive/10 text-destructive rounded-md px-3 py-2 text-sm">
+              {mediaError ?? serverError}
+            </p>
+          )}
 
           {/* Actions */}
           <div className="flex items-center justify-between border-t pt-3">

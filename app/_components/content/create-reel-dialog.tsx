@@ -18,7 +18,8 @@ interface CreateReelDialogProps {
   onOpenChange: (_open: boolean) => void
 }
 
-const MAX_DURATION = 60 // seconds
+const MAX_DURATION = 300 // seconds
+const MIN_DURATION = 1
 const MAX_CAPTION = 2200
 
 export function CreateReelDialog({
@@ -42,6 +43,7 @@ export function CreateReelDialog({
     mergeWithInlineHashtags,
   } = useHashtagComposer({ maxHashtags: 10 })
   const [durationError, setDurationError] = useState(false)
+  const [serverError, setServerError] = useState<string | null>(null)
   const videoInputRef = useRef<HTMLInputElement>(null)
   const thumbInputRef = useRef<HTMLInputElement>(null)
   const createReel = useCreateReel()
@@ -64,7 +66,7 @@ export function CreateReelDialog({
       video.onloadedmetadata = () => {
         URL.revokeObjectURL(video.src) // only revoke the temp one
         const dur = video.duration
-        if (dur > MAX_DURATION) {
+        if (dur < MIN_DURATION || dur > MAX_DURATION) {
           setDurationError(true)
           setVideoFile(null)
           setVideoPreview(null)
@@ -120,6 +122,7 @@ export function CreateReelDialog({
     setCaption("")
     resetHashtags([])
     setDurationError(false)
+    setServerError(null)
   }, [videoPreview, thumbnailPreview, resetHashtags])
 
   const handleSubmit = useCallback(() => {
@@ -140,6 +143,23 @@ export function CreateReelDialog({
           onOpenChange(false)
           resetForm()
         },
+        onError: (error: unknown) => {
+          const code = (error as any)?.code as string | undefined
+          setServerError(null)
+          if (code === "INVALID_DURATION") {
+            setDurationError(true)
+          } else if (code === "UPLOAD_FILE_TOO_LARGE") {
+            setServerError(t("content.error.uploadFileTooLarge"))
+          } else if (code === "UPLOAD_TOO_MANY_FILES") {
+            setServerError(t("content.error.uploadTooManyFiles"))
+          } else if (code === "UPLOAD_UNEXPECTED_FIELD") {
+            setServerError(t("content.error.uploadUnexpectedField"))
+          } else if (code === "INVALID_HASHTAGS") {
+            setServerError(t("content.error.invalidHashtags"))
+          } else {
+            setServerError((error as Error)?.message ?? null)
+          }
+        },
       },
     )
   }, [
@@ -151,9 +171,10 @@ export function CreateReelDialog({
     onOpenChange,
     resetForm,
     mergeWithInlineHashtags,
+    t,
   ])
 
-  const canSubmit = !!videoFile && !createReel.isPending
+  const canSubmit = !!videoFile && !durationError && !createReel.isPending
 
   if (!user) return null
 
@@ -230,9 +251,7 @@ export function CreateReelDialog({
 
           {durationError && (
             <p className="text-destructive text-sm">
-              {t("content.reel.durationError", {
-                seconds: String(MAX_DURATION),
-              })}
+              {t("content.reel.durationError")}
             </p>
           )}
 
@@ -331,6 +350,13 @@ export function CreateReelDialog({
               </Button>
             )}
           </div>
+
+          {/* Server-side error alert */}
+          {serverError && (
+            <p className="bg-destructive/10 text-destructive rounded-md px-3 py-2 text-sm">
+              {serverError}
+            </p>
+          )}
 
           {/* Submit */}
           <div className="flex justify-end border-t pt-3">
