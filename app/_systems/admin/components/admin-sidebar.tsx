@@ -16,10 +16,10 @@ import { Button } from "@/app/_components/ui/button"
 function NavLink({
   item,
   collapsed,
-}: {
+}: Readonly<{
   item: AdminNavItem
   collapsed: boolean
-}) {
+}>) {
   const pathname = usePathname()
   const active = pathname === item.href
 
@@ -42,30 +42,58 @@ function NavLink({
 }
 
 export function AdminSidebar() {
-  const [collapsed, setCollapsed] = useState(false)
+  // Sidebar is closed (collapsed) by default
+  const [collapsed, setCollapsed] = useState(true)
 
   return (
     <aside
       className={cn(
-        "bg-card border-border sticky top-0 flex h-screen flex-col border-r transition-all duration-200",
-        collapsed ? "w-16" : "w-60",
+        "from-background via-card to-muted/60 border-border sticky top-0 flex h-screen flex-col border-r bg-gradient-to-b shadow-xl transition-all duration-300",
+        collapsed ? "w-16" : "w-64",
+        "z-30",
       )}
+      style={{ minWidth: collapsed ? 64 : 256 }}
     >
-      {/* Header */}
+      {/* Header with toggle */}
       <div
         className={cn(
-          "border-border flex items-center border-b p-4",
-          collapsed ? "justify-center" : "gap-3",
+          "border-border flex items-center gap-2 border-b px-4 py-3",
+          collapsed ? "justify-center" : "justify-between",
         )}
+        style={{ minHeight: 56 }}
       >
-        <Shield className="text-primary h-6 w-6 shrink-0" />
-        {!collapsed && (
-          <span className="text-lg font-bold tracking-tight">Admin</span>
-        )}
+        <div
+          className={cn(
+            "flex items-center gap-2",
+            collapsed && "w-full justify-center",
+          )}
+        >
+          <Shield className="text-primary h-7 w-7 shrink-0 drop-shadow" />
+          {!collapsed && (
+            <span className="text-foreground/90 font-serif text-xl font-extrabold tracking-tight select-none">
+              Admin
+            </span>
+          )}
+        </div>
+        <Button
+          variant="ghost"
+          size="icon"
+          aria-label={collapsed ? "Open sidebar" : "Close sidebar"}
+          className={cn(
+            "border-border hover:bg-primary/10 ml-auto rounded-full border shadow-sm transition-colors",
+          )}
+          onClick={() => setCollapsed((v) => !v)}
+        >
+          {collapsed ? (
+            <PanelLeftClose className="text-muted-foreground h-5 w-5" />
+          ) : (
+            <PanelLeft className="text-muted-foreground h-5 w-5" />
+          )}
+        </Button>
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 space-y-1 overflow-y-auto p-3">
+      <nav className="scrollbar-thin scrollbar-thumb-muted/30 scrollbar-track-transparent flex-1 space-y-1 overflow-y-auto px-2 py-4">
         {(ADMIN_NAV as readonly AdminNavEntry[]).map((entry, _i) => {
           if (isNavGroup(entry)) {
             return (
@@ -76,7 +104,7 @@ export function AdminSidebar() {
                   </p>
                 )}
                 {collapsed && (
-                  <div className="border-border mx-auto my-2 w-8 border-t" />
+                  <div className="border-border mx-auto my-2 w-8 border-t opacity-40" />
                 )}
                 <div className="space-y-1">
                   {entry.items.map((item) => (
@@ -94,20 +122,15 @@ export function AdminSidebar() {
         })}
       </nav>
 
-      {/* Collapse toggle */}
-      <div className="border-border border-t p-3">
-        <Button
-          variant="ghost"
-          size="sm"
-          className="w-full justify-center"
-          onClick={() => setCollapsed(!collapsed)}
-        >
-          {collapsed ? (
-            <PanelLeft className="h-4 w-4" />
-          ) : (
-            <PanelLeftClose className="h-4 w-4" />
-          )}
-        </Button>
+      {/* Modern footer (optional: add user/avatar, settings, etc.) */}
+      <div
+        className={cn(
+          "border-border bg-card/80 flex items-center justify-center gap-2 border-t px-4 py-3 backdrop-blur-md",
+        )}
+      >
+        <span className="text-muted-foreground text-xs font-medium tracking-wide select-none">
+          Frame Beauty Admin
+        </span>
       </div>
     </aside>
   )
