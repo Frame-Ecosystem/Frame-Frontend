@@ -23,7 +23,7 @@ interface ReelPlayerProps {
   reel: Reel
   autoPlay?: boolean
   /**
-   * @deprecated No longer used — video is only mounted when `autoPlay` is
+   * @deprecated No longer used - video is only mounted when `autoPlay` is
    * true (iOS 16 decoder fix). Kept for API compat; will be removed later.
    */
   isVisible?: boolean
@@ -35,11 +35,11 @@ interface ReelPlayerProps {
 /**
  * Fullscreen-ish reel player with overlays (Instagram Reels style for web).
  *
- * MOBILE PLAYBACK — The <video> element is rendered directly (no wrapper
+ * MOBILE PLAYBACK - The <video> element is rendered directly (no wrapper
  * component) so that video.play() is called with zero indirection from a
  * native touchend listener.
  *
- * iOS 16 — Only the active reel (autoPlay=true) mounts a <video> element.
+ * iOS 16 - Only the active reel (autoPlay=true) mounts a <video> element.
  * This limits the page to a single hardware decoder, staying within
  * iOS 16's strict concurrency limit.
  */
