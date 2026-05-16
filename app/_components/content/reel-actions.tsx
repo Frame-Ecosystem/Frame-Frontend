@@ -13,12 +13,15 @@ import {
   Eye,
   EyeOff,
   ShieldAlert,
+  Volume2,
+  VolumeX,
 } from "lucide-react"
 import { cn } from "@/app/_lib/utils"
 
 interface ReelActionsProps {
   isLiked: boolean
   isSaved: boolean
+  isMuted: boolean
   isOwner: boolean
   isAdmin?: boolean
   isHidden?: boolean
@@ -27,6 +30,7 @@ interface ReelActionsProps {
   onLike: () => void
   onComment?: () => void
   onSave: () => void
+  onMuteToggle: () => void
   onShare: () => void
   onReport: () => void
   onEdit?: () => void
@@ -44,6 +48,7 @@ interface ReelActionsProps {
 export function ReelActions({
   isLiked,
   isSaved,
+  isMuted,
   isOwner,
   isAdmin,
   isHidden,
@@ -52,6 +57,7 @@ export function ReelActions({
   onLike,
   onComment,
   onSave,
+  onMuteToggle,
   onShare,
   onReport,
   onEdit,
@@ -127,9 +133,25 @@ export function ReelActions({
         )}
       </button>
 
-      {/* 3 ── Sound */}
+      {/* 3 -- Sound toggle */}
+      <button
+        onClick={(e) => {
+          e.stopPropagation()
+          onMuteToggle()
+        }}
+        aria-label={isMuted ? "Unmute" : "Mute"}
+        className="flex flex-col items-center gap-1 transition-transform active:scale-90"
+      >
+        <div className="rounded-full bg-black/30 p-2.5 backdrop-blur-sm transition-colors">
+          {isMuted ? (
+            <VolumeX className="h-6 w-6 text-white drop-shadow-lg" />
+          ) : (
+            <Volume2 className="h-6 w-6 text-white drop-shadow-lg" />
+          )}
+        </div>
+      </button>
 
-      {/* 3 ── More (three-dots) with overflow dropdown */}
+      {/* 4 -- More (three-dots) with overflow dropdown */}
       <div ref={moreRef} className="relative">
         <button
           onClick={() => setShowMore((v) => !v)}

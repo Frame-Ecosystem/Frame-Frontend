@@ -477,9 +477,22 @@ export default function LoungePage() {
             onFollowersClick={() => setFollowDialogMode("followers")}
           />
 
-          {/* Opening hours display under stats */}
+          {/* Opening hours + open/closed status */}
           {center.openingHours && (
-            <div className="mt-4 flex justify-center">
+            <div className="mt-4 flex flex-col items-center gap-2">
+              {/* Open / Closed badge */}
+              <span
+                className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold ${
+                  isOpen
+                    ? "bg-green-500/15 text-green-600 dark:text-green-400"
+                    : "bg-red-500/15 text-red-600 dark:text-red-400"
+                }`}
+              >
+                <span
+                  className={`h-1.5 w-1.5 rounded-full ${isOpen ? "bg-green-500" : "bg-red-500"}`}
+                />
+                {isOpen ? "Open now" : "Closed now"}
+              </span>
               <OpeningHoursDisplay
                 openingHours={center.openingHours}
                 compact

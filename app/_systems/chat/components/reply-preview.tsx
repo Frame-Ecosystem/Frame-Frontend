@@ -66,10 +66,10 @@ export function ReplyPreview({
 
   return (
     <div
-      className={`mb-1 rounded-lg border-l-2 px-2 py-1.5 ${
+      className={`mb-1.5 max-w-full rounded-lg border-l-2 px-2 py-1.5 ${
         isSent
           ? "border-primary-foreground/50 bg-primary-foreground/10"
-          : "border-primary/60 bg-muted"
+          : "border-primary/60 bg-background/60"
       }`}
     >
       <p
@@ -79,14 +79,19 @@ export function ReplyPreview({
       >
         {senderName}
       </p>
-      <p
-        className={`flex items-center gap-1 truncate text-xs ${
-          isSent ? "text-primary-foreground/60" : "text-muted-foreground"
-        }`}
-      >
-        {icon}
-        {label}
-      </p>
+      {/* Allow up to 2 lines before clamping — fixes long-message reply wrapping bug */}
+      <div className="mt-0.5 flex min-w-0 items-start gap-1">
+        {icon && (
+          <span className="mt-0.5 shrink-0">{icon}</span>
+        )}
+        <p
+          className={`min-w-0 break-words text-xs ${
+            isSent ? "text-primary-foreground/60" : "text-muted-foreground"
+          } line-clamp-2`}
+        >
+          {label}
+        </p>
+      </div>
     </div>
   )
 }

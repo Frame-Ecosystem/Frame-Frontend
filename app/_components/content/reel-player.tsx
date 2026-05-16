@@ -195,6 +195,7 @@ export function ReelPlayer({
       <ReelActions
         isLiked={isLiked}
         isSaved={isSaved}
+        isMuted={isMuted}
         isOwner={isOwner}
         isAdmin={isAdmin}
         isHidden={reel.isHidden}
@@ -203,6 +204,7 @@ export function ReelPlayer({
         onLike={() => likeMutation.mutate()}
         onComment={onCommentClick}
         onSave={() => saveMutation.mutate()}
+        onMuteToggle={toggleMute}
         onShare={() => navigator.clipboard.writeText(window.location.href)}
         onReport={() => setShowReport(true)}
         onEdit={isOwner ? () => setShowEdit(true) : undefined}
