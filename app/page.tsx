@@ -8,7 +8,6 @@ import Image from "next/image"
 import { Button } from "./_components/ui/button"
 import { ErrorBoundary } from "./_components/common/errorBoundary"
 import { getHomePath } from "./_lib/profile"
-import { isPWAInstalled } from "./_lib/pwa-detector"
 import {
   Scissors,
   Star,
@@ -343,14 +342,6 @@ const LandingPage = () => {
       router.push(getHomePath())
     }
   }, [user, isLoading, router])
-
-  // PWA unauth flow: open sign-in on landing instead of redirecting to /home.
-  // Redirecting to a protected route can cause a loop with AuthGuard in installed apps.
-  useEffect(() => {
-    if (!isLoading && !user && isPWAInstalled()) {
-      setSigninOpen(true)
-    }
-  }, [user, isLoading])
 
   /* ── SEO structured data (JSON-LD) ── */
   const jsonLd = useMemo(
