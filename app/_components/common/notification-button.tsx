@@ -20,9 +20,9 @@ interface NotificationButtonProps {
 
 const NotificationButton = ({ compact: _compact }: NotificationButtonProps) => {
   const { user, isLoading: authLoading } = useAuth()
-  const { unreadContentCount, unreadCount } = useNotificationContext()
+  const { unreadContentCount } = useNotificationContext()
   const router = useRouter()
-  const badgeCount = unreadContentCount ?? unreadCount
+  const badgeCount = unreadContentCount
 
   if (authLoading || !user) return null
 
@@ -39,7 +39,7 @@ const NotificationButton = ({ compact: _compact }: NotificationButtonProps) => {
         {badgeCount > 0 && (
           <Badge
             variant="destructive"
-            className="absolute -top-1.5 -right-1.5 flex h-4 w-4 items-center justify-center p-0 text-[9px] font-bold"
+            className="absolute -top-1.5 -right-1.5 flex h-4 min-w-4 items-center justify-center rounded-full px-1 text-[9px] font-bold"
           >
             {badgeCount > 99 ? "99+" : badgeCount}
           </Badge>

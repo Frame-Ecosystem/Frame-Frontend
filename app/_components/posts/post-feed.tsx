@@ -39,6 +39,10 @@ import { getProfilePath } from "../../_lib/profile"
 import type { FeedItem } from "../../_types/content"
 import { useTranslation } from "@/app/_i18n"
 import { resetScrollAndFocusHeader } from "@/app/_lib/scroll-reset"
+import {
+  getFeedRateLimitMessage,
+  isFeedRateLimitError,
+} from "@/app/_systems/feed/lib/feed-rate-limit"
 
 // ── Types & Constants ──────────────────────────────────────────
 
@@ -70,6 +74,9 @@ export function PostFeed() {
   const explore = useExploreFeed()
 
   const feed = activeTab === "following" ? following : explore
+  const rateLimitBanner = feed.feedRateLimit.showBanner
+    ? getFeedRateLimitMessage(feed.feedRateLimit.remainingSeconds)
+    : null
 
   // ── Floating nav visibility ─────────────────────────────────
   // Track when the inline tabs scroll out of view → show floating icons.
@@ -150,7 +157,7 @@ export function PostFeed() {
     return <PostFeedSkeleton showCreatePost={!!user} />
   }
 
-  if (feed.isError) {
+  if (feed.isError && !isFeedRateLimitError(feed.error)) {
     return (
       <div className="flex min-h-[400px] items-center justify-center">
         <div className="max-w-md text-center">
@@ -283,6 +290,8 @@ export function PostFeed() {
             fetchNextPage={feed.fetchNextPage}
             isLoading={false}
             emptyType="feed"
+            rateLimitBanner={rateLimitBanner}
+            disableLoadMore={feed.feedRateLimit.isLocked}
             onCommentOpenChange={setIsCommentsOpen}
           />
 

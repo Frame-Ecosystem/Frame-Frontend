@@ -1,18 +1,12 @@
 "use client"
 
-import {
-  Calendar,
-  Globe,
-  ListOrdered,
-  Search,
-  UserCircle2,
-  MessageCircle,
-} from "lucide-react"
+import { Calendar, Globe, ListOrdered, Search, UserCircle2 } from "lucide-react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { Card, CardContent } from "../ui/card"
 import { Button } from "../ui/button"
 import UserSession from "../profile/user-session"
+import MessageButton from "../common/message-button"
 import NotificationButton from "../common/notification-button"
 import { NavBrandLogo } from "../common/brand-logo"
 import { useAuth } from "@/app/_auth"
@@ -109,9 +103,9 @@ const DesktopNavbar = () => {
             <Button
               variant="ghost"
               size="icon"
-              className="hover:bg-primary/10 relative flex items-center justify-center rounded-full"
+              className="hover:bg-primary/10 relative flex h-10 w-10 items-center justify-center rounded-full p-0"
             >
-              <div className="flex h-9 w-9 items-center justify-center rounded-full border">
+              <div className="border-primary/30 flex h-10 w-10 items-center justify-center rounded-full border">
                 <Search className="h-5 w-5" />
               </div>
             </Button>
@@ -119,17 +113,7 @@ const DesktopNavbar = () => {
 
           <NotificationButton />
 
-          <Link href="/messages" aria-label={t("nav.chat")}>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="hover:bg-primary/10 relative flex items-center justify-center rounded-full"
-            >
-              <div className="flex h-9 w-9 items-center justify-center rounded-full border">
-                <MessageCircle className="h-5 w-5" />
-              </div>
-            </Button>
-          </Link>
+          <MessageButton />
 
           <UserSession />
         </div>

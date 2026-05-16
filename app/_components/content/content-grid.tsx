@@ -2,7 +2,6 @@
 
 import { useEffect } from "react"
 import { useInView } from "react-intersection-observer"
-import { useRouter as _useRouter } from "next/navigation"
 import { Loader2 } from "lucide-react"
 import Image from "next/image"
 import type { Post, Reel } from "../../_types/content"
@@ -17,6 +16,8 @@ interface ContentGridProps {
   fetchNextPage?: () => void
   isLoading?: boolean
   emptyType?: "posts" | "reels" | "saved"
+  rateLimitBanner?: string | null
+  disableLoadMore?: boolean
   onReelClick?: (_reel: Reel) => void
   onPostClick?: (_post: Post) => void
 }
@@ -29,24 +30,33 @@ export function ContentGrid({
   fetchNextPage,
   isLoading,
   emptyType,
+  rateLimitBanner,
+  disableLoadMore = false,
   onReelClick,
   onPostClick,
 }: ContentGridProps) {
   const { ref: sentinelRef, inView } = useInView({ threshold: 0.1 })
 
   useEffect(() => {
+    if (disableLoadMore) return
     if (inView && hasNextPage && !isFetchingNextPage && fetchNextPage) {
       fetchNextPage()
     }
-  }, [inView, hasNextPage, isFetchingNextPage, fetchNextPage])
+  }, [inView, hasNextPage, isFetchingNextPage, fetchNextPage, disableLoadMore])
 
-  if (!isLoading && items.length === 0) {
+  if (!isLoading && items.length === 0 && !rateLimitBanner) {
     return <EmptyState type={emptyType || type} />
   }
 
   if (type === "reels") {
     return (
       <div>
+        {rateLimitBanner && (
+          <div className="mb-3 rounded-2xl border border-amber-500/20 bg-amber-500/10 px-4 py-3 text-sm text-amber-950 shadow-sm dark:text-amber-100">
+            {rateLimitBanner}
+          </div>
+        )}
+
         <div className="grid grid-cols-3 gap-1">
           {(items as Reel[]).map((reel, index) => (
             <ReelCard
@@ -71,6 +81,12 @@ export function ContentGrid({
   // Posts grid (3-column square thumbnails) — similar to Instagram profile grid
   return (
     <div>
+      {rateLimitBanner && (
+        <div className="mb-3 rounded-2xl border border-amber-500/20 bg-amber-500/10 px-4 py-3 text-sm text-amber-950 shadow-sm dark:text-amber-100">
+          {rateLimitBanner}
+        </div>
+      )}
+
       <div className="grid grid-cols-3 gap-1">
         {(items as Post[]).map((post, index) => (
           <PostGridItem

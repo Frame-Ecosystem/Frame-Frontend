@@ -612,7 +612,8 @@ const ar: Record<string, string> = {
   "content.reel.thumbnailOptional": "صورة مصغرة مخصصة (اختياري)",
   "content.post.mediaLimitError": "يمكنك رفع ما يصل إلى 20 صورة.",
   "content.post.imageSizeError": "يتجاوز أحد الملفات أو أكثر حد الحجم المسموح.",
-  "content.error.uploadFileTooLarge": "يتجاوز أحد الملفات أو أكثر حد الحجم المسموح.",
+  "content.error.uploadFileTooLarge":
+    "يتجاوز أحد الملفات أو أكثر حد الحجم المسموح.",
   "content.error.uploadTooManyFiles": "تم رفع عدد كبير جداً من الملفات.",
   "content.error.uploadUnexpectedField": "محتوى الرفع غير صالح.",
   "content.error.invalidHashtags": "صيغة الوسوم غير صحيحة.",

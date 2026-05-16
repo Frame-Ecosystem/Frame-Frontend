@@ -254,7 +254,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           return true
         }
 
-        // Resolve server-side sessionId for the selected local user.
+        // Attempt server-side session switch.
+        // NOTE: GET /v1/auth/sessions returns 404 on the current backend (v1.1.7).
+        // listSessions() catches that error and returns []. When this happens,
+        // candidates will be empty → this function returns false → the caller
+        // (handleSelectStoredSession) will show the login form for re-auth.
+        // If the backend adds the endpoint in future, this path will work automatically.
         const sessions = await authService.listSessions()
         const candidates = sessions.filter((s) => s.userId === session.user._id)
         if (candidates.length === 0) {

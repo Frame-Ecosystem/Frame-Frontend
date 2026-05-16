@@ -89,7 +89,11 @@ function BubbleActions({
           : "pointer-events-none translate-y-1 opacity-0",
       )}
     >
-      <button onClick={onTogglePicker} className={btnCls} aria-label="Add reaction">
+      <button
+        onClick={onTogglePicker}
+        className={btnCls}
+        aria-label="Add reaction"
+      >
         <Smile className="text-muted-foreground h-3.5 w-3.5" />
       </button>
       <button onClick={onReply} className={btnCls} aria-label="Reply">
@@ -249,7 +253,7 @@ export function MessageBubble({
         "group flex w-full items-end px-3",
         isSent ? "justify-end" : "justify-start",
         // Tighter vertical gap inside a message group, wider at group boundaries
-        isConsecutive ? "pb-0.5 pt-0.5" : "pb-0.5 pt-2",
+        isConsecutive ? "pt-0.5 pb-0.5" : "pt-2 pb-0.5",
       )}
       onMouseEnter={() => setShowActions(true)}
       onMouseLeave={() => {
@@ -329,7 +333,7 @@ export function MessageBubble({
             )}
 
             {message.text && (
-              <p className="break-words whitespace-pre-wrap text-sm leading-relaxed">
+              <p className="text-sm leading-relaxed break-words whitespace-pre-wrap">
                 {message.text}
               </p>
             )}

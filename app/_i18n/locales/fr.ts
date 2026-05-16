@@ -640,8 +640,6 @@ const fr: Record<string, string> = {
   "content.error.uploadTooManyFiles": "Trop de fichiers téléversés.",
   "content.error.uploadUnexpectedField": "Contenu de téléversement invalide.",
   "content.error.invalidHashtags": "Le format des hashtags est invalide.",
-    "La vidéo doit durer {seconds} secondes ou moins.",
-  "content.reel.thumbnailOptional": "Miniature personnalisée (optionnel)",
   "content.saving": "Enregistrement...",
   "content.saveChanges": "Enregistrer les modifications",
   "content.report.other": "Autre",

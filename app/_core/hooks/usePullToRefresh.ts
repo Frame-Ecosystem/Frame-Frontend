@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useCallback, useState } from "react"
 import { usePathname } from "next/navigation"
+import { useFeedRateLimitState } from "@/app/_systems/feed/lib/feed-rate-limit"
 
 // ── Constants ────────────────────────────────────────────────
 const TOUCH_START_TOP_ZONE = 96 // touch must begin near the top edge
@@ -111,6 +112,7 @@ const GLOBAL_STYLES = `
 // ── Hook ─────────────────────────────────────────────────────
 export function usePullToRefresh() {
   const pathname = usePathname()
+  const feedRateLimit = useFeedRateLimitState()
   const startY = useRef(0)
   const startX = useRef(0)
   const pulling = useRef(false)
@@ -171,6 +173,7 @@ export function usePullToRefresh() {
   const handleTouchStart = useCallback(
     (e: TouchEvent) => {
       if (disabledRoute || !enabled) return
+      if (feedRateLimit.isLocked) return
       // Only start if already at the top of the page
       if (window.scrollY > 0 || refreshing.current) return
 
@@ -183,12 +186,13 @@ export function usePullToRefresh() {
       isVerticalGesture.current = null
       distance.current = 0
     },
-    [disabledRoute, enabled],
+    [disabledRoute, enabled, feedRateLimit.isLocked],
   )
 
   const handleTouchMove = useCallback(
     (e: TouchEvent) => {
       if (disabledRoute || !enabled) return
+      if (feedRateLimit.isLocked) return
       if (!pulling.current || refreshing.current) return
 
       const currentY = e.touches[0].clientY
@@ -216,11 +220,12 @@ export function usePullToRefresh() {
       const el = indicatorRef.current
       if (el) updateIndicator(el, distance.current, PULL_THRESHOLD)
     },
-    [disabledRoute, enabled, resetPullState],
+    [disabledRoute, enabled, feedRateLimit.isLocked, resetPullState],
   )
 
   const handleTouchEnd = useCallback(() => {
     if (disabledRoute || !enabled) return
+    if (feedRateLimit.isLocked) return
     if (!pulling.current || refreshing.current) return
 
     const el = indicatorRef.current
@@ -233,7 +238,7 @@ export function usePullToRefresh() {
     } else {
       resetPullState()
     }
-  }, [disabledRoute, enabled, resetPullState])
+  }, [disabledRoute, enabled, feedRateLimit.isLocked, resetPullState])
 
   // Register / tear-down touch listeners
   useEffect(() => {

@@ -81,6 +81,8 @@ interface FeedListProps {
   fetchNextPage: () => void
   isLoading?: boolean
   emptyType?: "feed" | "explore" | "saved" | "hashtag"
+  rateLimitBanner?: string | null
+  disableLoadMore?: boolean
   /** Called with `true` when the comment sheet opens, `false` when it closes */
   onCommentOpenChange?: (open: boolean) => void
 }
@@ -92,6 +94,8 @@ export function FeedList({
   fetchNextPage,
   isLoading,
   emptyType = "feed",
+  rateLimitBanner,
+  disableLoadMore = false,
   onCommentOpenChange,
 }: Readonly<FeedListProps>) {
   const { ref: sentinelRef, inView } = useInView({ threshold: 0.1 })
@@ -156,10 +160,11 @@ export function FeedList({
   }, [openCommentsParam, commentIdParam, items, autoOpened])
 
   useEffect(() => {
+    if (disableLoadMore) return
     if (inView && hasNextPage && !isFetchingNextPage) {
       fetchNextPage()
     }
-  }, [inView, hasNextPage, isFetchingNextPage, fetchNextPage])
+  }, [inView, hasNextPage, isFetchingNextPage, fetchNextPage, disableLoadMore])
 
   // ── Separate posts and reels (deduplicate across pages, filter invalid) ─────
   const posts = useMemo(() => {
@@ -199,13 +204,19 @@ export function FeedList({
     [posts, reels, lounges],
   )
 
-  if (!isLoading && items.length === 0) {
+  if (!isLoading && items.length === 0 && !rateLimitBanner) {
     return <EmptyState type={emptyType} />
   }
 
   return (
     <>
       <div className="mx-auto w-full max-w-[680px] space-y-4 lg:space-y-5">
+        {rateLimitBanner && (
+          <div className="rounded-2xl border border-amber-500/20 bg-amber-500/10 px-4 py-3 text-sm text-amber-950 shadow-sm dark:text-amber-100">
+            {rateLimitBanner}
+          </div>
+        )}
+
         {slots.map((slot, _idx) => {
           if (slot.kind === "post") {
             return (

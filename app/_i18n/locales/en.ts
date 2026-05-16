@@ -653,7 +653,8 @@ const en: Record<string, string> = {
   "content.reel.thumbnailOptional": "Custom Thumbnail (optional)",
   "content.post.mediaLimitError": "You can upload up to 20 images.",
   "content.post.imageSizeError": "One or more files exceed the size limit.",
-  "content.error.uploadFileTooLarge": "One or more files exceed the size limit.",
+  "content.error.uploadFileTooLarge":
+    "One or more files exceed the size limit.",
   "content.error.uploadTooManyFiles": "Too many files uploaded.",
   "content.error.uploadUnexpectedField": "Invalid upload payload.",
   "content.error.invalidHashtags": "Hashtags format is invalid.",

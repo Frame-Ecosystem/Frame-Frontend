@@ -8,6 +8,7 @@ import { FeedList } from "../../_components/content/feed-list"
 import { useHashtagFeed } from "../../_hooks/queries/useContent"
 import type { FeedItem } from "../../_types/content"
 import { useTranslation } from "@/app/_i18n"
+import { getFeedRateLimitMessage } from "@/app/_systems/feed/lib/feed-rate-limit"
 
 export default function HashtagPage() {
   const { tag } = useParams<{ tag: string }>()
@@ -15,6 +16,9 @@ export default function HashtagPage() {
   const { dir } = useTranslation()
 
   const hashtagQuery = useHashtagFeed(decodedTag)
+  const rateLimitBanner = hashtagQuery.feedRateLimit.showBanner
+    ? getFeedRateLimitMessage(hashtagQuery.feedRateLimit.remainingSeconds)
+    : null
 
   const feedItems: FeedItem[] = useMemo(() => {
     return (
@@ -42,6 +46,8 @@ export default function HashtagPage() {
             fetchNextPage={hashtagQuery.fetchNextPage}
             isLoading={hashtagQuery.isLoading}
             emptyType="hashtag"
+            rateLimitBanner={rateLimitBanner}
+            disableLoadMore={hashtagQuery.feedRateLimit.isLocked}
           />
         </div>
       </div>

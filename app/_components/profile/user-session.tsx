@@ -20,6 +20,7 @@ import { Popover, PopoverTrigger, PopoverContent } from "../ui/popover"
 import { Dialog, DialogContent } from "../ui/dialog"
 import UserInfo from "./user-info"
 import { Avatar, AvatarImage, AvatarFallback } from "../ui/avatar"
+import { toast } from "sonner"
 
 /** Prevent Radix events from closing dialogs. */
 const prevent = (e: Event) => e.preventDefault()
@@ -148,19 +149,24 @@ const UserSession = ({ compact }: { compact?: boolean } = {}) => {
 
   const handleSelectStoredSession = useCallback(
     (session: StoredSession) => {
-      // Load the selected session into auth context and close dialogs
+      // Close the current dialog while we attempt to restore the session
       closeSignIn()
-      // Trigger session load asynchronously
       ;(async () => {
         const success = await loadStoredSession(session)
         if (success) {
-          // Session loaded successfully — dialogs will close automatically
-          // and auth context will reflect the new user
+          // Session restored — auth context updated, dialogs stay closed
         } else {
-          // Session failed to load — show signin dialog again to re-authenticate
+          // Backend session switching is not supported (GET /v1/auth/sessions → 404)
+          // or the stored session has expired. Show the login form so the user
+          // can re-authenticate — do NOT re-open the session picker (infinite loop).
+          toast.info(
+            `Session expired — please sign in as ${getUserDisplayName(session.user)}.`,
+          )
           setDialogOpen(true)
-          setSessionUser(session.user)
-          setShowStoredSessions(true)
+          // sessionUser=null forces the full login form to render,
+          // not the "Continue as X" shortcut (which would be wrong here).
+          setSessionUser(null)
+          setShowStoredSessions(false)
         }
       })()
     },

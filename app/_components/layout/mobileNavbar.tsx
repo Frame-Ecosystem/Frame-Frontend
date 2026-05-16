@@ -82,7 +82,7 @@ const MobileNavbar = () => {
                         : "translateY(0) scale(1) rotate(0deg)",
                     }}
                   >
-                    <Icon className={item.isActive ? "h-4 w-4" : "h-5 w-5"} />
+                    <Icon className="h-5 w-5" />
                   </span>
                   <span
                     className={`flex h-[20px] items-center justify-center text-[13px] font-semibold transition-all duration-300 ${

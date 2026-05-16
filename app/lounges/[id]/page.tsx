@@ -329,7 +329,6 @@ export default function LoungePage() {
 
   const openingHours = formatOpeningHours(center.openingHours)
 
-
   const getInitials = (name: string) => {
     return name
       .split(" ")
@@ -493,10 +492,7 @@ export default function LoungePage() {
                 />
                 {isOpen ? "Open now" : "Closed now"}
               </span>
-              <OpeningHoursDisplay
-                openingHours={center.openingHours}
-                compact
-              />
+              <OpeningHoursDisplay openingHours={center.openingHours} compact />
             </div>
           )}
 

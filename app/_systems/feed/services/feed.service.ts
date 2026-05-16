@@ -1,11 +1,20 @@
 ﻿import { apiClient } from "@/app/_core/api/api"
 import type { FeedItem, Hashtag, PaginatedContentResponse } from "@/app/_types"
 
+function parseRateLimitRemaining(response: Response): number | undefined {
+  const raw = response.headers.get("RateLimit-Remaining")
+  if (!raw) return undefined
+
+  const parsed = Number.parseInt(raw, 10)
+  return Number.isFinite(parsed) ? parsed : undefined
+}
+
 class FeedServiceClass {
   /** Following-based feed (content from followed users) */
   async getFollowingFeed(
     page = 1,
     limit = 10,
+    onResponseMeta?: (_meta: { rateLimitRemaining?: number }) => void,
   ): Promise<PaginatedContentResponse<FeedItem>> {
     const params = new URLSearchParams({
       page: String(page),
@@ -13,6 +22,13 @@ class FeedServiceClass {
     })
     return apiClient.get<PaginatedContentResponse<FeedItem>>(
       `/v1/feed?${params}`,
+      {
+        onResponse: (response) => {
+          onResponseMeta?.({
+            rateLimitRemaining: parseRateLimitRemaining(response),
+          })
+        },
+      },
     )
   }
 
@@ -20,6 +36,7 @@ class FeedServiceClass {
   async getExploreFeed(
     page = 1,
     limit = 10,
+    onResponseMeta?: (_meta: { rateLimitRemaining?: number }) => void,
   ): Promise<PaginatedContentResponse<FeedItem>> {
     const params = new URLSearchParams({
       page: String(page),
@@ -27,6 +44,13 @@ class FeedServiceClass {
     })
     return apiClient.get<PaginatedContentResponse<FeedItem>>(
       `/v1/feed/explore?${params}`,
+      {
+        onResponse: (response) => {
+          onResponseMeta?.({
+            rateLimitRemaining: parseRateLimitRemaining(response),
+          })
+        },
+      },
     )
   }
 
@@ -34,6 +58,7 @@ class FeedServiceClass {
   async getSavedFeed(
     page = 1,
     limit = 10,
+    onResponseMeta?: (_meta: { rateLimitRemaining?: number }) => void,
   ): Promise<PaginatedContentResponse<FeedItem>> {
     const params = new URLSearchParams({
       page: String(page),
@@ -41,6 +66,13 @@ class FeedServiceClass {
     })
     return apiClient.get<PaginatedContentResponse<FeedItem>>(
       `/v1/feed/saved?${params}`,
+      {
+        onResponse: (response) => {
+          onResponseMeta?.({
+            rateLimitRemaining: parseRateLimitRemaining(response),
+          })
+        },
+      },
     )
   }
 
@@ -49,6 +81,7 @@ class FeedServiceClass {
     tag: string,
     page = 1,
     limit = 10,
+    onResponseMeta?: (_meta: { rateLimitRemaining?: number }) => void,
   ): Promise<PaginatedContentResponse<FeedItem>> {
     const params = new URLSearchParams({
       page: String(page),
@@ -56,6 +89,13 @@ class FeedServiceClass {
     })
     return apiClient.get<PaginatedContentResponse<FeedItem>>(
       `/v1/feed/hashtag/${encodeURIComponent(tag)}?${params}`,
+      {
+        onResponse: (response) => {
+          onResponseMeta?.({
+            rateLimitRemaining: parseRateLimitRemaining(response),
+          })
+        },
+      },
     )
   }
 
