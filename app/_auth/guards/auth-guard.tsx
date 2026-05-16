@@ -37,11 +37,25 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
   // Public routes must render immediately to avoid intermittent white screens.
   if (isLoading && publicRoute) return <>{children}</>
 
-  // While loading protected routes, keep a blank guard until auth resolves.
-  if (isLoading) return null
+  // While loading protected routes, show a deterministic shell instead of a blank screen.
+  if (isLoading) {
+    return (
+      <div className="bg-background text-foreground flex min-h-screen items-center justify-center">
+        <p className="text-muted-foreground text-sm">Loading session...</p>
+      </div>
+    )
+  }
 
-  // On protected routes without auth, render nothing (redirect is in progress)
-  if (!user && !publicRoute) return null
+  // On protected routes without auth, keep a visible shell while redirect is in progress.
+  if (!user && !publicRoute) {
+    return (
+      <div className="bg-background text-foreground flex min-h-screen items-center justify-center">
+        <p className="text-muted-foreground text-sm">
+          Redirecting to sign in...
+        </p>
+      </div>
+    )
+  }
 
   return <>{children}</>
 }

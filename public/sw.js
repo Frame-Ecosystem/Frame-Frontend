@@ -1,46 +1,39 @@
-const CACHE_NAME = "frame-v7"
-const urlsToCache = [
-  "/",
-  "/images/logos/fb-logo.png",
-  "/manifest.json",
-  // Add other critical resources
-]
+/*
+ * Legacy caching service worker kill switch.
+ *
+ * We intentionally do NOT cache app shell/chunks anymore because stale caches
+ * can break installed PWA sessions after deployments (blank/black screens).
+ */
 
-// Install event - cache resources
-self.addEventListener("install", (event) => {
-  event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll(urlsToCache)
-    }),
-  )
+const CACHE_PREFIXES_TO_CLEAR = ["frame-", "next-", "workbox"]
+
+self.addEventListener("install", () => {
+  // Activate immediately so old clients can recover on next launch.
+  self.skipWaiting()
 })
 
-// Fetch event - serve from cache when offline, but skip API requests
-self.addEventListener("fetch", (event) => {
-  // Skip caching for API requests
-  if (event.request.url.includes("/v1/")) {
-    return // Let the request go through normally
-  }
-
-  event.respondWith(
-    caches.match(event.request).then((response) => {
-      // Return cached version or fetch from network
-      return response || fetch(event.request)
-    }),
-  )
-})
-
-// Activate event - clean up old caches
 self.addEventListener("activate", (event) => {
   event.waitUntil(
-    caches.keys().then((cacheNames) => {
-      return Promise.all(
-        cacheNames.map((cacheName) => {
-          if (cacheName !== CACHE_NAME) {
-            return caches.delete(cacheName)
-          }
-        }),
+    (async () => {
+      const cacheNames = await caches.keys()
+      await Promise.all(
+        cacheNames
+          .filter((name) =>
+            CACHE_PREFIXES_TO_CLEAR.some((prefix) => name.startsWith(prefix)),
+          )
+          .map((name) => caches.delete(name)),
       )
-    }),
+
+      // Stop controlling pages with this legacy worker.
+      await self.registration.unregister()
+
+      const clients = await self.clients.matchAll({
+        type: "window",
+        includeUncontrolled: true,
+      })
+
+      // Ask open tabs/PWA windows to reload without stale worker control.
+      await Promise.all(clients.map((client) => client.navigate(client.url)))
+    })(),
   )
 })
