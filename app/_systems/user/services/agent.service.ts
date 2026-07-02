@@ -6,6 +6,7 @@
  * canonical `parentLounge` / `services` so existing components keep working.
  */
 import { apiClient } from "@/app/_core/api/api"
+import { dataURLToBlob } from "@/app/_core/lib/image-utils"
 import type {
   Agent,
   AgentFilters,
@@ -100,6 +101,8 @@ function toFormData(dto: CreateAgentDto): FormData {
   }
   if (dto.image instanceof File) {
     fd.append("image", dto.image)
+  } else if (dto.profileImage?.startsWith("data:image/")) {
+    fd.append("image", dataURLToBlob(dto.profileImage), "profile.jpg")
   }
   return fd
 }
@@ -189,18 +192,26 @@ class AgentService {
     // Translate legacy `idLoungeService` → `services` for the wire payload.
     const {
       idLoungeService,
-      profileImage: _legacyImage,
       loungeId: _legacyLounge,
+      profileImage,
       ...rest
     } = dto
     const payload: Record<string, unknown> = { ...rest }
     if (idLoungeService && !rest.services) {
       payload.services = idLoungeService
     }
+
     const res = await apiClient.put<SingleAgentResponse>(
       `${AGENT_BASE}/${agentId}`,
       payload,
     )
+
+    if (profileImage?.startsWith("data:image/")) {
+      const blob = dataURLToBlob(profileImage)
+      const file = new File([blob], "profile.jpg", { type: "image/jpeg" })
+      return await this.uploadAgentImage(agentId, file)
+    }
+
     return normalize(res?.data)
   }
 

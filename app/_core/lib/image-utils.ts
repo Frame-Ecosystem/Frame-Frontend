@@ -24,6 +24,16 @@ export function resolveProfileImage(
   return undefined
 }
 
+/** Convert a base64 data-URL to a Blob suitable for FormData appends */
+export function dataURLToBlob(dataURL: string): Blob {
+  const [meta, base64] = dataURL.split(",")
+  const mime = meta.match(/:(.*?);/)?.[1] ?? "image/jpeg"
+  const binary = atob(base64)
+  const array = new Uint8Array(binary.length)
+  for (let i = 0; i < binary.length; i++) array[i] = binary.charCodeAt(i)
+  return new Blob([array], { type: mime })
+}
+
 /** Compress an image to a max 800 px JPEG data-URL (80 % quality) */
 export function compressImage(file: File): Promise<string> {
   return new Promise((resolve, reject) => {

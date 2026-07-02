@@ -83,6 +83,7 @@ export interface Service {
   baseDuration?: number
   status?: string
   description?: string
+  image?: string | { url: string; publicId: string }
   createdAt?: string
   updatedAt?: string
 }

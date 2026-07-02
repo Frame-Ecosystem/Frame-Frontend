@@ -45,6 +45,7 @@ interface ServiceFormDialogProps {
   onSubmit: (e: React.FormEvent) => void
   onOpenCreate: () => void
   onImageFileChange: (e: React.ChangeEvent<HTMLInputElement>) => void
+  submitting?: boolean
 }
 
 export function ServiceFormDialog({
@@ -59,6 +60,7 @@ export function ServiceFormDialog({
   onSubmit,
   onOpenCreate,
   onImageFileChange,
+  submitting = false,
 }: ServiceFormDialogProps) {
   const { t } = useTranslation()
   return (
@@ -314,10 +316,12 @@ export function ServiceFormDialog({
             >
               {t("common.cancel")}
             </Button>
-            <Button type="submit" variant="success">
-              {editingService
-                ? t("serviceMgmt.update")
-                : t("serviceMgmt.create")}
+            <Button type="submit" variant="success" disabled={submitting}>
+              {submitting
+                ? t("common.loading")
+                : editingService
+                  ? t("serviceMgmt.update")
+                  : t("serviceMgmt.create")}
             </Button>
           </div>
         </form>

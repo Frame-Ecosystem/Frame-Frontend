@@ -93,7 +93,7 @@ class LoungeService {
 
   // Create a lounge-specific service based on an existing global service
   async createLoungeService(
-    payload: CreateLoungeServicePayload,
+    payload: CreateLoungeServicePayload | FormData,
   ): Promise<LoungeServiceItem> {
     try {
       const response = await apiClient.post<any>(`/v1/lounge-services`, payload)

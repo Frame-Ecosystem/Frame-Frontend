@@ -38,6 +38,8 @@ export default function LoungeServiceManagementPage() {
   const [editingService, setEditingService] =
     useState<LoungeServiceItem | null>(null)
   const [error, setError] = useState<string | null>(null)
+  const [isCompressing, setIsCompressing] = useState(false)
+  const [submitting, setSubmitting] = useState(false)
   const [formData, setFormData] = useState<ServiceFormData>({
     selectedServiceId: "",
     price: "",
@@ -177,16 +179,19 @@ export default function LoungeServiceManagementPage() {
       return
     }
 
-    setFormData((prev) => ({ ...prev, imageFile: file, image: "" }))
+    setIsCompressing(true)
+    setFormData((prev) => ({ ...prev, imageFile: file }))
 
     compressImage(file)
       .then((dataUrl) => setFormData((prev) => ({ ...prev, image: dataUrl })))
       .catch(() => toast.error(t("serviceMgmt.processFailed")))
+      .finally(() => setIsCompressing(false))
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError(null)
+    if (submitting || isCompressing) return
 
     const validationError = validateAndToast(formData, !!editingService)
     if (validationError) {
@@ -195,6 +200,8 @@ export default function LoungeServiceManagementPage() {
     }
 
     const trimmedDescription = formData.description.trim()
+
+    setSubmitting(true)
 
     try {
       if (editingService) {
@@ -230,10 +237,10 @@ export default function LoungeServiceManagementPage() {
           cancelledBy: formData.cancelledBy || undefined,
           agentIds: formData.agentIds,
         }
+        const created = await loungeService.createLoungeService(payload)
         if (formData.image?.startsWith("data:image/")) {
-          payload.image = formData.image
+          await loungeService.update(created._id, { image: formData.image })
         }
-        await loungeService.createLoungeService(payload)
         toast.success(t("serviceMgmt.added"))
       }
 
@@ -245,6 +252,8 @@ export default function LoungeServiceManagementPage() {
       const msg = error instanceof Error ? error.message : t("common.error")
       setError(msg)
       toast.error(msg)
+    } finally {
+      setSubmitting(false)
     }
   }
 
@@ -336,6 +345,7 @@ export default function LoungeServiceManagementPage() {
               onSubmit={handleSubmit}
               onOpenCreate={openCreateDialog}
               onImageFileChange={handleImageFileChange}
+              submitting={submitting || isCompressing}
             />
           </CardHeader>
           <CardContent>
