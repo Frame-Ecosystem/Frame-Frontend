@@ -52,6 +52,16 @@ function getCleanHours(
   return allClosed ? null : h
 }
 
+const DAY_KEYS_ORDERED: ReadonlyArray<string> = [
+  "sunday",
+  "monday",
+  "tuesday",
+  "wednesday",
+  "thursday",
+  "friday",
+  "saturday",
+]
+
 function getDayStatus(
   hours: Record<string, TimeSlot>,
   dayKey: string,
@@ -63,8 +73,78 @@ function getDayStatus(
   return { closed: false, from: slot.from, to: slot.to }
 }
 
+function isWithinTodayHours(from: string, to: string): boolean {
+  const now = new Date()
+  const currentMinutes = now.getHours() * 60 + now.getMinutes()
+  const [fromH, fromM] = from.split(":").map(Number)
+  const [toH, toM] = to.split(":").map(Number)
+  const fromMinutes = fromH * 60 + fromM
+  const toMinutes = toH * 60 + toM
+  return currentMinutes >= fromMinutes && currentMinutes < toMinutes
+}
+
 function getTodayStatus(hours: Record<string, TimeSlot>) {
-  return getDayStatus(hours, getTodayKey())
+  const { closed, from, to } = getDayStatus(hours, getTodayKey())
+  if (closed) return { closed: true, from: "", to: "" }
+  return {
+    closed: !isWithinTodayHours(from, to),
+    from,
+    to,
+  }
+}
+
+function formatRemaining(from: string): string {
+  const now = new Date()
+  const currentMinutes = now.getHours() * 60 + now.getMinutes()
+  const [fromH, fromM] = from.split(":").map(Number)
+  const fromMinutes = fromH * 60 + fromM
+  const diff = fromMinutes - currentMinutes
+  if (diff <= 0) return ""
+  const hours = Math.floor(diff / 60)
+  const mins = diff % 60
+  if (hours > 0 && mins > 0) return `${hours}h ${mins}m`
+  if (hours > 0) return `${hours}h`
+  return `${mins}m`
+}
+
+interface NextOpening {
+  label: string
+  time: string
+}
+
+function getNextOpening(
+  hours: Record<string, TimeSlot>,
+  todayKey: string,
+): NextOpening | null {
+  const now = new Date()
+  const currentMinutes = now.getHours() * 60 + now.getMinutes()
+
+  // Check if today has hours and we're before opening time
+  const todaySlot = hours[todayKey]
+  if (todaySlot && todaySlot.from !== "00:00" && todaySlot.to !== "00:00") {
+    const [fromH, fromM] = todaySlot.from.split(":").map(Number)
+    const fromMinutes = fromH * 60 + fromM
+    if (currentMinutes < fromMinutes) {
+      return { label: "", time: formatTime(todaySlot.from) }
+    }
+  }
+
+  // Today is closed or past closing — scan forward through days
+  const todayIndex = now.getDay()
+  for (let offset = 1; offset <= 7; offset++) {
+    const dayIndex = (todayIndex + offset) % 7
+    const dayKey = DAY_KEYS_ORDERED[dayIndex]
+    const slot = hours[dayKey]
+    if (slot && slot.from !== "00:00" && slot.to !== "00:00") {
+      const dayLabel =
+        offset === 1
+          ? "tomorrow"
+          : (DAYS_DISPLAY.find((d) => d.key === dayKey)?.labelKey ?? dayKey)
+      return { label: dayLabel, time: formatTime(slot.from) }
+    }
+  }
+
+  return null
 }
 
 export function OpeningHoursDisplay({
@@ -79,18 +159,20 @@ export function OpeningHoursDisplay({
 
   if (compact) {
     const { closed, from, to } = getTodayStatus(hours)
+    const isOpen = !closed
+    const nextOpening = closed ? getNextOpening(hours, getTodayKey()) : null
 
     return (
       <div
         className={`relative w-full overflow-hidden rounded-xl border transition-all duration-300 ${
-          closed
-            ? "border-red-200/60 bg-red-50/40 dark:border-red-900/20 dark:bg-red-950/10"
-            : "border-green-200/60 bg-green-50/40 dark:border-green-900/20 dark:bg-green-950/10"
+          isOpen
+            ? "border-green-200/60 bg-green-50/40 dark:border-green-900/20 dark:bg-green-950/10"
+            : "border-red-200/60 bg-red-50/40 dark:border-red-900/20 dark:bg-red-950/10"
         }`}
       >
         <div
           className={`absolute top-0 left-0 h-full w-[3px] rounded-l-xl ${
-            closed ? "bg-red-400" : "bg-green-400"
+            isOpen ? "bg-green-400" : "bg-red-400"
           }`}
         />
         <div className="flex items-center justify-between gap-3 px-4 py-2.5 pl-5">
@@ -98,28 +180,46 @@ export function OpeningHoursDisplay({
             <div className="relative flex items-center justify-center">
               <div
                 className={`h-2.5 w-2.5 rounded-full ${
-                  closed ? "bg-red-500" : "bg-green-500"
+                  isOpen ? "bg-green-500" : "bg-red-500"
                 }`}
               />
-              {!closed && (
+              {isOpen && (
                 <div className="absolute h-2.5 w-2.5 animate-ping rounded-full bg-green-500 opacity-75" />
               )}
             </div>
             <div>
               <span
                 className={`text-xs font-semibold tracking-wider uppercase ${
-                  closed
-                    ? "text-red-600 dark:text-red-400"
-                    : "text-green-600 dark:text-green-400"
+                  isOpen
+                    ? "text-green-600 dark:text-green-400"
+                    : "text-red-600 dark:text-red-400"
                 }`}
               >
-                {closed ? t("hours.closedToday") : t("hours.openNow")}
+                {isOpen ? t("hours.openNow") : t("hours.closed")}
               </span>
-              {!closed && (
+              {isOpen && (
                 <div className="text-foreground flex items-baseline gap-1.5 text-sm">
                   <span className="font-medium">{formatTime(from)}</span>
                   <span className="text-muted-foreground text-xs">—</span>
                   <span className="font-medium">{formatTime(to)}</span>
+                </div>
+              )}
+              {!isOpen && nextOpening && (
+                <div className="flex flex-col text-sm">
+                  {nextOpening.label ? (
+                    <span className="text-muted-foreground/80 text-xs font-medium">
+                      Open {nextOpening.label} at {nextOpening.time}
+                    </span>
+                  ) : (
+                    <>
+                      <span className="text-muted-foreground/80 text-xs font-medium">
+                        Open at {nextOpening.time}
+                      </span>
+                      <span className="text-muted-foreground/60 text-[10px]">
+                        in {formatRemaining(from)}
+                      </span>
+                    </>
+                  )}
                 </div>
               )}
             </div>
