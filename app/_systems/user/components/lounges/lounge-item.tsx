@@ -1,7 +1,7 @@
 ﻿"use client"
 
+import { useCallback } from "react"
 import Image from "next/image"
-import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { PhoneIcon, StarIcon, Heart } from "lucide-react"
 import { useAuth } from "@/app/_auth"
@@ -18,15 +18,22 @@ const LoungeItem = ({ lounge }: { lounge: Lounge }) => {
   const { data: liked } = useCheckLiked(isClient ? lounge.id : undefined)
   const toggleLike = useToggleLike(lounge.id)
 
-  const handleBookNowClick = (e: React.MouseEvent) => {
-    e.preventDefault()
-    e.stopPropagation()
+  const navigateToLounge = useCallback(() => {
     if (user) {
       const tab = lounge.isOpen ? "queue" : "services"
       router.push(`/lounges/${lounge.id}?tab=${tab}`)
     } else {
       router.push("/")
     }
+  }, [user, lounge.isOpen, lounge.id, router])
+
+  const handleCardClick = () => {
+    navigateToLounge()
+  }
+
+  const handleBookNowClick = (e: React.MouseEvent) => {
+    e.stopPropagation()
+    navigateToLounge()
   }
 
   const handleLikeClick = (e: React.MouseEvent) => {
@@ -39,7 +46,18 @@ const LoungeItem = ({ lounge }: { lounge: Lounge }) => {
   const phone = lounge.phones?.[0]
 
   return (
-    <Link href={`/lounges/${lounge.id}?tab=posts`}>
+    <div
+      role="button"
+      tabIndex={0}
+      onClick={handleCardClick}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault()
+          handleCardClick()
+        }
+      }}
+      className="focus-visible:ring-primary/50 rounded-2xl focus-visible:ring-2 focus-visible:outline-none"
+    >
       <Card className="w-[168px] max-w-[168px] min-w-[168px] cursor-pointer rounded-2xl transition-shadow hover:shadow-lg">
         <CardContent className="p-0 px-1 pt-1">
           {/* Cover image */}
@@ -135,7 +153,7 @@ const LoungeItem = ({ lounge }: { lounge: Lounge }) => {
           </div>
         </CardContent>
       </Card>
-    </Link>
+    </div>
   )
 }
 
