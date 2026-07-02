@@ -233,8 +233,8 @@ export default function NotificationsPage() {
               if (listLoading) {
                 return (
                   <div className="space-y-2">
-                    {Array.from({ length: 5 }).map(() => (
-                      <NotificationRowSkeleton key="skeleton" />
+                    {Array.from({ length: 5 }).map((_, i) => (
+                      <NotificationRowSkeleton key={"skeleton-" + i} />
                     ))}
                   </div>
                 )
@@ -260,8 +260,8 @@ export default function NotificationsPage() {
                   ))}
                   {isFetchingNextPage && (
                     <div className="space-y-2 py-2">
-                      {Array.from({ length: 2 }).map(() => (
-                        <NotificationRowSkeleton key="skeleton-next" />
+                      {Array.from({ length: 2 }).map((_, i) => (
+                        <NotificationRowSkeleton key={"skeleton-next-" + i} />
                       ))}
                     </div>
                   )}

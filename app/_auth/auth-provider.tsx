@@ -31,6 +31,7 @@ import { setActiveSession, type StoredSession } from "./lib/sessions-manager"
 import type { User } from "../_types"
 import { apiClient } from "../_services/api"
 import { getSocket, disconnectSocket } from "../_services/socket"
+import { pushNotificationService } from "../_services/push-notification.service"
 import { useTheme } from "next-themes"
 import { useTranslation } from "../_i18n"
 import type { Locale } from "../_i18n"
@@ -215,7 +216,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         apiClient.setAccessTokenGetter(() => token)
         setAccessToken(token)
         // Establish Socket.IO connection now that we have a token
-        getSocket()
+        const sock = getSocket()
+        if (!sock.connected && !sock.active) {
+          sock.connect()
+        }
       } else {
         tokenManager.clear()
         setAccessToken(null)
@@ -226,6 +230,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   // Clear authentication state
   const clearAuth = useCallback(() => {
+    // Unregister FCM device token so the old user stops receiving pushes
+    const deviceId =
+      typeof window !== "undefined"
+        ? localStorage.getItem("frame_push_device_id")
+        : null
+    if (deviceId) {
+      pushNotificationService.unregister(deviceId).catch(() => {})
+    }
+
     setUser(null)
     setAccessToken(null)
     tokenManager.clear()
@@ -352,7 +365,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         applyUserTheme(userData)
         applyUserLanguage(userData)
       }
-    } catch (error) {
+    } catch {
       // Failed to refresh user data
     }
   }, [applyUserTheme, applyUserLanguage])

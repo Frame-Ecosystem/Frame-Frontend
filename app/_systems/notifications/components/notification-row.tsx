@@ -38,10 +38,17 @@ export function NotificationRow({
   const { Icon, color } = getNotificationMeta(notification)
 
   return (
-    <button
-      type="button"
+    <div
+      role="button"
+      tabIndex={0}
       onClick={onClick}
-      className={`group hover:bg-muted/60 flex w-full items-start gap-3 rounded-xl border p-4 text-left transition-all ${
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault()
+          onClick()
+        }
+      }}
+      className={`group hover:bg-muted/60 focus-visible:ring-primary/50 flex w-full items-start gap-3 rounded-xl border p-4 text-left transition-all focus-visible:ring-2 focus-visible:outline-none ${
         notification.isRead
           ? "bg-background border-border hover:shadow-sm"
           : "bg-primary/5 border-primary/20 shadow-sm"
@@ -101,6 +108,6 @@ export function NotificationRow({
       >
         <Trash2 className="text-muted-foreground h-4 w-4" />
       </Button>
-    </button>
+    </div>
   )
 }
