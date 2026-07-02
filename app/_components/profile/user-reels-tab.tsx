@@ -4,6 +4,7 @@ import { ContentGrid } from "../content/content-grid"
 import { CreateReelDialog } from "../content/create-reel-dialog"
 import { useOpenReel } from "../content/hooks/use-open-reel"
 import { LoungeReelsViewer } from "../content/lounge-reels-viewer"
+import { useAuth } from "@/app/_auth"
 import type { Reel } from "../../_types/content"
 
 interface UserReelsTabProps {
@@ -17,6 +18,8 @@ interface UserReelsTabProps {
  * For users: clicking a reel navigates to the explore feed at that reel.
  */
 export function UserReelsTab({ userId, isLounge = false }: UserReelsTabProps) {
+  const { user } = useAuth()
+  const isOwner = user?._id === userId
   const { openReel } = useOpenReel()
   const [selectedReelId, setSelectedReelId] = useState<string | null>(null)
   const [showCreateReel, setShowCreateReel] = useState(false)
@@ -68,8 +71,8 @@ export function UserReelsTab({ userId, isLounge = false }: UserReelsTabProps) {
         isLoading={reelsQuery.isLoading}
         emptyType="reels"
         onReelClick={handleReelClick}
-        showCreateCard
-        onCreateClick={() => setShowCreateReel(true)}
+        showCreateCard={isOwner}
+        onCreateClick={isOwner ? () => setShowCreateReel(true) : undefined}
       />
 
       <CreateReelDialog

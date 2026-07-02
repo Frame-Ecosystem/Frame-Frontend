@@ -5,6 +5,7 @@ import { useUserPosts } from "../../_hooks/queries/useContent"
 import { ContentGrid } from "../content/content-grid"
 import { PostDetailModal } from "../content/post-detail-modal"
 import { CreatePostDialog } from "../content/create-post-dialog"
+import { useAuth } from "@/app/_auth"
 import type { Post } from "../../_types/content"
 
 interface UserPostsTabProps {
@@ -18,6 +19,8 @@ interface UserPostsTabProps {
 export const UserPostsTab = memo(function UserPostsTab({
   userId,
 }: UserPostsTabProps) {
+  const { user } = useAuth()
+  const isOwner = user?._id === userId
   const postsQuery = useUserPosts(userId)
   const [selectedPost, setSelectedPost] = useState<Post | null>(null)
   const [showCreatePost, setShowCreatePost] = useState(false)
@@ -55,8 +58,8 @@ export const UserPostsTab = memo(function UserPostsTab({
         isLoading={postsQuery.isLoading}
         emptyType="posts"
         onPostClick={setSelectedPost}
-        showCreateCard
-        onCreateClick={() => setShowCreatePost(true)}
+        showCreateCard={isOwner}
+        onCreateClick={isOwner ? () => setShowCreatePost(true) : undefined}
       />
 
       <CreatePostDialog
