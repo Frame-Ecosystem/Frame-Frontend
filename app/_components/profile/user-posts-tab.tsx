@@ -4,6 +4,7 @@ import { useMemo, memo, useState } from "react"
 import { useUserPosts } from "../../_hooks/queries/useContent"
 import { ContentGrid } from "../content/content-grid"
 import { PostDetailModal } from "../content/post-detail-modal"
+import { CreatePostDialog } from "../content/create-post-dialog"
 import type { Post } from "../../_types/content"
 
 interface UserPostsTabProps {
@@ -19,6 +20,7 @@ export const UserPostsTab = memo(function UserPostsTab({
 }: UserPostsTabProps) {
   const postsQuery = useUserPosts(userId)
   const [selectedPost, setSelectedPost] = useState<Post | null>(null)
+  const [showCreatePost, setShowCreatePost] = useState(false)
 
   const posts: Post[] = useMemo(
     () => postsQuery.data?.pages.flatMap((p) => p.data) ?? [],
@@ -53,8 +55,15 @@ export const UserPostsTab = memo(function UserPostsTab({
         isLoading={postsQuery.isLoading}
         emptyType="posts"
         onPostClick={setSelectedPost}
+        showCreateCard
+        onCreateClick={() => setShowCreatePost(true)}
       />
-      
+
+      <CreatePostDialog
+        open={showCreatePost}
+        onOpenChange={setShowCreatePost}
+      />
+
       <PostDetailModal
         post={selectedPost}
         open={!!selectedPost}

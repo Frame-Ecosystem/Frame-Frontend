@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react"
 import { useUserReels } from "../../_hooks/queries/useContent"
 import { ContentGrid } from "../content/content-grid"
+import { CreateReelDialog } from "../content/create-reel-dialog"
 import { useOpenReel } from "../content/hooks/use-open-reel"
 import { LoungeReelsViewer } from "../content/lounge-reels-viewer"
 import type { Reel } from "../../_types/content"
@@ -18,6 +19,7 @@ interface UserReelsTabProps {
 export function UserReelsTab({ userId, isLounge = false }: UserReelsTabProps) {
   const { openReel } = useOpenReel()
   const [selectedReelId, setSelectedReelId] = useState<string | null>(null)
+  const [showCreateReel, setShowCreateReel] = useState(false)
 
   const reelsQuery = useUserReels(userId)
 
@@ -66,6 +68,13 @@ export function UserReelsTab({ userId, isLounge = false }: UserReelsTabProps) {
         isLoading={reelsQuery.isLoading}
         emptyType="reels"
         onReelClick={handleReelClick}
+        showCreateCard
+        onCreateClick={() => setShowCreateReel(true)}
+      />
+
+      <CreateReelDialog
+        open={showCreateReel}
+        onOpenChange={setShowCreateReel}
       />
 
       {/* Lounge reels fullscreen viewer modal */}

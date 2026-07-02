@@ -2,7 +2,7 @@
 
 import { useEffect } from "react"
 import { useInView } from "react-intersection-observer"
-import { Loader2 } from "lucide-react"
+import { Loader2, Plus, Play } from "lucide-react"
 import Image from "next/image"
 import type { Post, Reel } from "../../_types/content"
 import { ReelCard } from "./reel-card"
@@ -20,6 +20,8 @@ interface ContentGridProps {
   disableLoadMore?: boolean
   onReelClick?: (_reel: Reel) => void
   onPostClick?: (_post: Post) => void
+  showCreateCard?: boolean
+  onCreateClick?: () => void
 }
 
 export function ContentGrid({
@@ -34,6 +36,8 @@ export function ContentGrid({
   disableLoadMore = false,
   onReelClick,
   onPostClick,
+  showCreateCard,
+  onCreateClick,
 }: ContentGridProps) {
   const { ref: sentinelRef, inView } = useInView({ threshold: 0.1 })
 
@@ -58,6 +62,7 @@ export function ContentGrid({
         )}
 
         <div className="grid grid-cols-3 gap-1">
+          {showCreateCard && <CreateReelCard onClick={onCreateClick} />}
           {(items as Reel[]).map((reel, index) => (
             <ReelCard
               key={`${reel._id}-${index}`}
@@ -78,6 +83,44 @@ export function ContentGrid({
     )
   }
 
+  function CreatePostCard({ onClick }: { onClick?: () => void }) {
+    return (
+      <div
+        onClick={onClick}
+        className="group border-border/50 from-muted/40 to-muted/80 hover:border-primary/40 hover:from-primary/[0.03] hover:to-primary/[0.07] hover:shadow-primary/5 relative flex aspect-square cursor-pointer items-center justify-center overflow-hidden border-2 border-dashed bg-gradient-to-br transition-all duration-300 hover:shadow-sm"
+      >
+        <div className="group-hover:ring-primary/15 absolute inset-0 rounded-sm ring-1 ring-transparent transition-all duration-300" />
+        <div className="relative z-10 flex flex-col items-center gap-2 transition-all duration-300 group-hover:scale-105">
+          <div className="from-primary/10 to-primary/5 group-hover:from-primary/20 group-hover:to-primary/10 group-hover:shadow-primary/20 flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br transition-all duration-300 group-hover:shadow-lg">
+            <Plus className="text-primary h-6 w-6" strokeWidth={2.5} />
+          </div>
+          <span className="text-muted-foreground group-hover:text-foreground text-xs font-medium transition-colors duration-300">
+            New Post
+          </span>
+        </div>
+      </div>
+    )
+  }
+
+  function CreateReelCard({ onClick }: { onClick?: () => void }) {
+    return (
+      <div
+        onClick={onClick}
+        className="group border-border/50 from-muted/40 to-muted/80 hover:border-primary/40 hover:from-primary/[0.03] hover:to-primary/[0.07] hover:shadow-primary/5 relative flex aspect-[9/16] cursor-pointer items-center justify-center overflow-hidden border-2 border-dashed bg-gradient-to-br transition-all duration-300 hover:shadow-sm"
+      >
+        <div className="group-hover:ring-primary/15 absolute inset-0 rounded-sm ring-1 ring-transparent transition-all duration-300" />
+        <div className="relative z-10 flex flex-col items-center gap-2 transition-all duration-300 group-hover:scale-105">
+          <div className="from-primary/10 to-primary/5 group-hover:from-primary/20 group-hover:to-primary/10 group-hover:shadow-primary/20 flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br shadow-sm transition-all duration-300 group-hover:shadow-lg">
+            <Play className="fill-primary text-primary h-5 w-5" />
+          </div>
+          <span className="text-muted-foreground group-hover:text-foreground text-xs font-medium transition-colors duration-300">
+            New Reel
+          </span>
+        </div>
+      </div>
+    )
+  }
+
   // Posts grid (3-column square thumbnails) — similar to Instagram profile grid
   return (
     <div>
@@ -88,6 +131,7 @@ export function ContentGrid({
       )}
 
       <div className="grid grid-cols-3 gap-1">
+        {showCreateCard && <CreatePostCard onClick={onCreateClick} />}
         {(items as Post[]).map((post, index) => (
           <PostGridItem
             key={`${post._id}-${index}`}
