@@ -1093,6 +1093,7 @@ const fr: Record<string, string> = {
   // ── Opening hours ───────────────────────────────────────────────────────
   "hours.closed": "Fermé",
   "hours.closedToday": "Fermé aujourd'hui",
+  "hours.openNow": "Ouvert maintenant",
   "hours.openToday": "Ouvert aujourd'hui : {from} - {to}",
   "hours.title": "Horaires d'ouverture",
   "hours.mon": "Lun",

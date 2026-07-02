@@ -29,27 +29,26 @@ export function VisitorProfileHeader({
   return (
     <div className="relative w-full">
       {/* Cover Image */}
-      <div className="relative w-full overflow-hidden bg-gradient-to-r from-blue-600/20 via-purple-600/20 to-pink-600/20">
+      <div className="relative h-28 w-full overflow-hidden bg-gradient-to-r from-blue-600/20 via-purple-600/20 to-pink-600/20 sm:h-32 md:h-36">
         {coverUrl ? (
           <button
             type="button"
-            className="relative block w-full cursor-pointer"
+            className="relative h-full w-full cursor-pointer"
             onClick={() => onImageClick(coverUrl, `${displayName} cover`)}
             aria-label="View cover photo"
           >
             <Image
               src={coverUrl}
               alt="Cover"
-              width={1600}
-              height={500}
+              fill
               sizes="(max-width: 1024px) 100vw, 1600px"
               quality={80}
-              className="block h-auto w-full object-contain"
+              className="object-cover"
               priority
             />
           </button>
         ) : (
-          <div className="from-primary/15 via-primary/5 block h-28 w-full bg-gradient-to-br to-transparent sm:h-32 md:h-36" />
+          <div className="from-primary/15 via-primary/5 block h-full w-full bg-gradient-to-br to-transparent" />
         )}
         <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
       </div>

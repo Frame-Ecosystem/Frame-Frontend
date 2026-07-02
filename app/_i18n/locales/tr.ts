@@ -1071,6 +1071,7 @@ const tr: Record<string, string> = {
   // ── Opening hours ───────────────────────────────────────────────────────
   "hours.closed": "Kapalı",
   "hours.closedToday": "Bugün kapalı",
+  "hours.openNow": "Şimdi açık",
   "hours.openToday": "Bugün açık: {from} - {to}",
   "hours.title": "Çalışma Saatleri",
   "hours.mon": "Pzt",

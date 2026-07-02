@@ -105,6 +105,7 @@ export default function LoungePage() {
 
   const [isBioExpanded, setIsBioExpanded] = useState(false)
   const [showRatingPopup, setShowRatingPopup] = useState(false)
+  const [showFullHours, setShowFullHours] = useState(false)
   const { data: liked = false } = useCheckLiked(
     user?.type === "client" ? id : undefined,
   )
@@ -350,11 +351,11 @@ export default function LoungePage() {
       <div className="from-background via-background to-muted/20 min-h-screen bg-linear-to-br">
         {/* ── Hero: Cover + Avatar ────────────────────────── */}
         <div className="relative w-full">
-          <div className="relative w-full overflow-hidden bg-gradient-to-r from-blue-600/20 via-purple-600/20 to-pink-600/20">
+          <div className="relative h-28 w-full overflow-hidden bg-gradient-to-r from-blue-600/20 via-purple-600/20 to-pink-600/20 sm:h-32 md:h-36">
             {center.coverImageUrl ? (
               <button
                 type="button"
-                className="relative block w-full cursor-pointer"
+                className="relative h-full w-full cursor-pointer"
                 onClick={() => {
                   setLightboxSrc(center.coverImageUrl!)
                   setLightboxAlt(`${center.name} cover`)
@@ -364,11 +365,10 @@ export default function LoungePage() {
                 <Image
                   src={center.coverImageUrl}
                   alt={`${center.name} cover`}
-                  width={1600}
-                  height={500}
+                  fill
                   sizes="(max-width: 1024px) 100vw, 1600px"
                   quality={80}
-                  className="block h-auto w-full object-contain"
+                  className="object-cover"
                   priority
                 />
               </button>
@@ -376,7 +376,7 @@ export default function LoungePage() {
               center.imageUrl !== "/images/placeholder.svg" ? (
               <button
                 type="button"
-                className="relative block w-full cursor-pointer"
+                className="relative h-full w-full cursor-pointer"
                 onClick={() => {
                   setLightboxSrc(center.imageUrl!)
                   setLightboxAlt(`${center.name} cover`)
@@ -386,16 +386,15 @@ export default function LoungePage() {
                 <Image
                   src={center.imageUrl}
                   alt={`${center.name} cover`}
-                  width={1600}
-                  height={500}
+                  fill
                   sizes="(max-width: 1024px) 100vw, 1600px"
                   quality={80}
-                  className="block h-auto w-full object-contain"
+                  className="object-cover"
                   priority
                 />
               </button>
             ) : (
-              <div className="from-primary/15 via-primary/5 block h-28 w-full bg-gradient-to-br to-transparent sm:h-32 md:h-36" />
+              <div className="from-primary/15 via-primary/5 block h-full w-full bg-gradient-to-br to-transparent" />
             )}
             <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
           </div>
@@ -476,23 +475,24 @@ export default function LoungePage() {
             onFollowersClick={() => setFollowDialogMode("followers")}
           />
 
-          {/* Opening hours + open/closed status */}
+          {/* Opening hours */}
           {center.openingHours && (
-            <div className="mt-4 flex flex-col items-center gap-2">
-              {/* Open / Closed badge */}
-              <span
-                className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold ${
-                  isOpen
-                    ? "bg-green-500/15 text-green-600 dark:text-green-400"
-                    : "bg-red-500/15 text-red-600 dark:text-red-400"
-                }`}
+            <div className="mt-4 w-full sm:w-auto md:w-1/3">
+              <button
+                onClick={() => setShowFullHours(!showFullHours)}
+                className="w-full rounded-lg text-left transition-colors"
               >
-                <span
-                  className={`h-1.5 w-1.5 rounded-full ${isOpen ? "bg-green-500" : "bg-red-500"}`}
+                <OpeningHoursDisplay
+                  openingHours={center.openingHours}
+                  compact
+                  isExpanded={showFullHours}
                 />
-                {isOpen ? "Open now" : "Closed now"}
-              </span>
-              <OpeningHoursDisplay openingHours={center.openingHours} compact />
+              </button>
+              {showFullHours && (
+                <div className="mt-2">
+                  <OpeningHoursDisplay openingHours={center.openingHours} />
+                </div>
+              )}
             </div>
           )}
 

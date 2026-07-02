@@ -2,7 +2,7 @@
 
 import { useState, Fragment } from "react"
 import Link from "next/link"
-import { Users } from "lucide-react"
+import { Users, UserPlus } from "lucide-react"
 import {
   Dialog,
   DialogContent,
@@ -216,33 +216,45 @@ export function FollowStats({ userId, className }: FollowStatsProps) {
 
   return (
     <>
-      <div
-        className={`flex items-start justify-center gap-5 ${className ?? ""}`}
-      >
+      <div className={`grid grid-cols-2 gap-3 sm:gap-4 ${className ?? ""}`}>
         <button
           onClick={() => setDialogMode("followers")}
-          className="hover:text-primary flex cursor-pointer flex-col items-center text-center leading-tight transition-colors"
+          className="group border-border/50 from-background to-muted/30 relative rounded-xl border bg-gradient-to-br p-3 transition-all duration-300 hover:border-blue-500/30 hover:shadow-md hover:shadow-blue-500/10 sm:p-4"
         >
-          <span className="text-foreground text-sm font-semibold tabular-nums">
-            {formatCount(followersCount)}
-          </span>
-          <span className="text-muted-foreground text-sm">
-            {followersCount !== 1
-              ? t("followStats.followers")
-              : t("followStats.follower")}
-          </span>
+          <div className="flex flex-col items-center gap-2">
+            <div className="rounded-lg bg-blue-500/10 p-2 transition-all duration-300 group-hover:scale-110">
+              <Users className="h-5 w-5 text-blue-500 sm:h-6 sm:w-6" />
+            </div>
+            <div className="text-center">
+              <div className="text-sm leading-none font-bold sm:text-base">
+                {formatCount(followersCount)}
+              </div>
+              <div className="text-muted-foreground text-xs leading-tight">
+                {followersCount !== 1
+                  ? t("followStats.followers")
+                  : t("followStats.follower")}
+              </div>
+            </div>
+          </div>
         </button>
 
         <button
           onClick={() => setDialogMode("following")}
-          className="hover:text-primary flex cursor-pointer flex-col items-center text-center leading-tight transition-colors"
+          className="group border-border/50 from-background to-muted/30 relative rounded-xl border bg-gradient-to-br p-3 transition-all duration-300 hover:border-green-500/30 hover:shadow-md hover:shadow-green-500/10 sm:p-4"
         >
-          <span className="text-foreground text-sm font-semibold tabular-nums">
-            {formatCount(followingCount)}
-          </span>
-          <span className="text-muted-foreground text-sm">
-            {t("followStats.following")}
-          </span>
+          <div className="flex flex-col items-center gap-2">
+            <div className="rounded-lg bg-green-500/10 p-2 transition-all duration-300 group-hover:scale-110">
+              <UserPlus className="h-5 w-5 text-green-500 sm:h-6 sm:w-6" />
+            </div>
+            <div className="text-center">
+              <div className="text-sm leading-none font-bold sm:text-base">
+                {formatCount(followingCount)}
+              </div>
+              <div className="text-muted-foreground text-xs leading-tight">
+                {t("followStats.following")}
+              </div>
+            </div>
+          </div>
         </button>
       </div>
 

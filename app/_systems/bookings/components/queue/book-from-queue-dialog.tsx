@@ -15,6 +15,8 @@ import { Input } from "@/app/_components/ui/input"
 import { Label } from "@/app/_components/ui/label"
 import { Badge } from "@/app/_components/ui/badge"
 import { Skeleton } from "@/app/_components/ui/skeleton"
+import Image from "next/image"
+import { getImageUrl } from "@/app/_core/lib/image-utils"
 import {
   Scissors,
   Clock,
@@ -357,7 +359,17 @@ export default function BookFromQueueDialog({
                     />
                     <div className="flex-1 space-y-1">
                       <div className="flex items-center gap-2">
-                        <Scissors className="text-muted-foreground h-3.5 w-3.5" />
+                        {getImageUrl(service.image) ? (
+                          <Image
+                            src={getImageUrl(service.image)!}
+                            alt={getServiceName(service)}
+                            width={32}
+                            height={32}
+                            className="h-8 w-8 rounded object-cover"
+                          />
+                        ) : (
+                          <Scissors className="text-muted-foreground h-3.5 w-3.5" />
+                        )}
                         <span className="text-sm font-medium">
                           {getServiceName(service)}
                         </span>

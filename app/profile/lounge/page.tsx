@@ -12,7 +12,7 @@ import {
   Bookmark,
 } from "lucide-react"
 import { ErrorBoundary } from "../../_components/common/errorBoundary"
-import { authService ,useAuth} from "@/app/_auth"
+import { authService, useAuth } from "@/app/_auth"
 import { ProfileCover } from "../../_components/common/profile-display/profile-cover"
 import { AccountSettings } from "../../_components/profile/account-settings"
 import { AccountInformation } from "../../_components/profile/account-information"
@@ -284,7 +284,7 @@ export default function LoungeProfilePage() {
             <div className="mt-3 w-full sm:w-auto md:w-1/3">
               <button
                 onClick={() => setShowFullHours(!showFullHours)}
-                className="hover:bg-muted/50 w-full rounded-lg p-2.5 text-left transition-colors"
+                className="w-full rounded-lg text-left"
               >
                 <OpeningHoursDisplay
                   openingHours={(user as any)?.openingHours}

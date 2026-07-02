@@ -1051,6 +1051,7 @@ const ar: Record<string, string> = {
   // ── Opening hours ───────────────────────────────────────────────────────
   "hours.closed": "مغلق",
   "hours.closedToday": "مغلق اليوم",
+  "hours.openNow": "مفتوح الآن",
   "hours.openToday": "مفتوح اليوم: {from} - {to}",
   "hours.title": "ساعات العمل",
   "hours.mon": "إثن",

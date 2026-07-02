@@ -1128,6 +1128,7 @@ const en: Record<string, string> = {
   // ── Opening hours ───────────────────────────────────────────────────────
   "hours.closed": "Closed",
   "hours.closedToday": "Closed today",
+  "hours.openNow": "Open now",
   "hours.openToday": "Open today: {from} - {to}",
   "hours.title": "Opening Hours",
   "hours.mon": "Mon",
