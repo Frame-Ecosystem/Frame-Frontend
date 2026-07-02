@@ -1,7 +1,7 @@
 "use client"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { Calendar, Globe, ListOrdered, UserCircle2 } from "lucide-react"
+import { Calendar, Globe, Home, ListOrdered, UserCircle2 } from "lucide-react"
 import { useAuth } from "@/app/_auth"
 import { getProfilePath } from "../../_lib/profile"
 import { useMobileNavVisibility } from "../../_hooks/useMobileNavVisibility"
@@ -26,6 +26,12 @@ const MobileNavbar = () => {
   const discoveryLabel = "Discover"
 
   const navItems = [
+    {
+      href: "/home",
+      label: "Home",
+      icon: Home,
+      isActive: pathname === "/home",
+    },
     {
       href: "/bookings",
       label: t("nav.bookings"),

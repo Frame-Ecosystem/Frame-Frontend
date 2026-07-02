@@ -1,6 +1,13 @@
 "use client"
 
-import { Calendar, Globe, ListOrdered, Search, UserCircle2 } from "lucide-react"
+import {
+  Calendar,
+  Globe,
+  Home,
+  ListOrdered,
+  Search,
+  UserCircle2,
+} from "lucide-react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { Card, CardContent } from "../ui/card"
@@ -31,6 +38,12 @@ const DesktopNavbar = () => {
 
   const navItems = user
     ? [
+        {
+          href: "/home",
+          label: "Home",
+          icon: Home,
+          isActive: pathname === "/home",
+        },
         {
           href: "/bookings",
           label: t("nav.bookings"),
