@@ -100,6 +100,7 @@ export function useLoungeExtras(params: PaginatedParams = {}) {
     queryKey: extrasKeys.lounge.list(params),
     queryFn: () => loungeExtrasService.list(params),
     placeholderData: keepPreviousData,
+    throwOnError: false,
   })
 }
 
