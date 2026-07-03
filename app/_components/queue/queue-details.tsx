@@ -36,6 +36,8 @@ interface QueueDetailsProps {
   isTogglingBooking?: boolean
   /** Booking ID to scroll-to and highlight on mount */
   highlightBookingId?: string | null
+  /** Whether the current user is allowed to book (clients only) */
+  canBook?: boolean
 }
 
 export default function QueueDetails({
@@ -53,6 +55,7 @@ export default function QueueDetails({
   onToggleAcceptBooking,
   isTogglingBooking = false,
   highlightBookingId,
+  canBook = true,
 }: QueueDetailsProps) {
   const { t } = useTranslation()
   // Filter out completed persons (status or position === 0) from the queue display
@@ -112,8 +115,8 @@ export default function QueueDetails({
             </div>
           )}
 
-          {/* Book from Queue CTA — always enabled for staff, conditional for clients */}
-          {mode === "staff" || acceptQueueBooking ? (
+          {/* Book from Queue CTA — always enabled for staff, conditional for clients (hidden for lounge visitors) */}
+          {canBook && (mode === "staff" || acceptQueueBooking) ? (
             <div className="bg-primary/5 rounded-xl border-2 border-dashed border-green-500 p-4 shadow-lg">
               <div className="flex items-start gap-3">
                 {mode === "staff" ? (
@@ -145,7 +148,7 @@ export default function QueueDetails({
                   : t("queue.bookASpot")}
               </Button>
             </div>
-          ) : (
+          ) : canBook ? (
             <div className="rounded-xl border-2 border-dashed border-gray-300 bg-gray-50 p-4 opacity-70 dark:border-gray-600 dark:bg-gray-800/50">
               <div className="flex items-start gap-3">
                 <Ban className="mt-0.5 h-6 w-6 shrink-0 text-gray-400" />
@@ -159,7 +162,7 @@ export default function QueueDetails({
                 </div>
               </div>
             </div>
-          )}
+          ) : null}
 
           {persons.length === 0 ? (
             <div className="py-12 text-center">

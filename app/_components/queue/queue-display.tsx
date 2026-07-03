@@ -307,7 +307,7 @@ export default function QueueDisplay({
           activeQueueIndex={activeQueueIndex}
           onSelectQueue={setActiveQueueIndex}
           isLoading={isLoading}
-          showAddAgent={user?.type === "lounge"}
+          showAddAgent={isOwner}
         />
 
         {/* Queue Stats */}
@@ -355,6 +355,7 @@ export default function QueueDisplay({
                   : undefined
               }
               isTogglingBooking={toggleQueueBooking.isPending}
+              canBook={user?.type === "client"}
             />
           </div>
         ) : null}
