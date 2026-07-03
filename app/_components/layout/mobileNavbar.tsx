@@ -9,16 +9,19 @@ import {
   MessageCircle,
   UserCircle2,
 } from "lucide-react"
+import { Badge } from "../ui/badge"
 import { useAuth } from "@/app/_auth"
 import { getProfilePath } from "../../_lib/profile"
 import { useMobileNavVisibility } from "../../_hooks/useMobileNavVisibility"
 import { useTranslation } from "../../_i18n"
+import { useNotificationContext } from "../../_providers/notification"
 
 const MobileNavbar = () => {
   const { user, isLoading } = useAuth()
   const pathname = usePathname()
   const visible = useMobileNavVisibility()
   const { t } = useTranslation()
+  const { unreadMessageCount } = useNotificationContext()
 
   if (isLoading || !user) return null
 
@@ -101,7 +104,17 @@ const MobileNavbar = () => {
                         : "translateY(0) scale(1) rotate(0deg)",
                     }}
                   >
-                    <Icon className="h-5 w-5" />
+                    <span className="relative">
+                      <Icon className="h-5 w-5" />
+                      {item.href === "/messages" && unreadMessageCount > 0 && (
+                        <Badge
+                          variant="destructive"
+                          className="absolute -top-2 -right-2 flex h-3.5 min-w-3.5 items-center justify-center rounded-full px-0.5 text-[8px] leading-none font-bold"
+                        >
+                          {unreadMessageCount > 99 ? "99+" : unreadMessageCount}
+                        </Badge>
+                      )}
+                    </span>
                   </span>
                   <span
                     className={`flex h-[20px] items-center justify-center text-[13px] font-semibold transition-all duration-300 ${

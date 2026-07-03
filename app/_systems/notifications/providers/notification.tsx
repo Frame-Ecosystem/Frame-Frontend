@@ -18,6 +18,10 @@ import {
   notificationKeys,
   useUnreadNotificationCount,
 } from "@/app/_hooks/queries/useNotifications"
+import {
+  chatKeys,
+  useTotalUnreadMessages,
+} from "@/app/_systems/chat/hooks/useChatQueries"
 import { useBadge } from "@/app/_hooks/useBadge"
 import { getNotificationEngine } from "@/app/_lib/notification-engine"
 import { getSocket } from "@/app/_services/socket"
@@ -131,6 +135,7 @@ function AuthenticatedNotifications({
   const queryClient = useQueryClient()
   const router = useRouter()
   const { data: unreadData } = useUnreadNotificationCount()
+  const chatUnreadCount = useTotalUnreadMessages()
   const syncTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const unreadTotalCount = unreadData?.total ?? 0
@@ -138,11 +143,15 @@ function AuthenticatedNotifications({
     () => unreadData?.byCategory ?? {},
     [unreadData?.byCategory],
   )
-  const { unreadMessageCount, unreadBookingCount, unreadContentCount } =
-    useMemo(
-      () => getUnreadBucketCounts(unreadByCategory, unreadTotalCount),
-      [unreadByCategory, unreadTotalCount],
-    )
+  const {
+    unreadMessageCount: notifMessageCount,
+    unreadBookingCount,
+    unreadContentCount,
+  } = useMemo(
+    () => getUnreadBucketCounts(unreadByCategory, unreadTotalCount),
+    [unreadByCategory, unreadTotalCount],
+  )
+  const unreadMessageCount = notifMessageCount + chatUnreadCount
   const unreadCount = unreadContentCount
 
   // Sync total unread to favicon + PWA home-screen icon.
@@ -227,6 +236,10 @@ function AuthenticatedNotifications({
       queryClient.invalidateQueries({ queryKey: notificationKeys.all })
     }
 
+    const syncConversations = () => {
+      queryClient.invalidateQueries({ queryKey: chatKeys.conversations() })
+    }
+
     const scheduleSync = () => {
       if (syncTimerRef.current !== null) {
         clearTimeout(syncTimerRef.current)
@@ -245,6 +258,7 @@ function AuthenticatedNotifications({
     }
 
     socket.on("connect", scheduleSync)
+    socket.on("chat:conversation:updated", syncConversations)
     socket.onAny(onAnyNotificationEvent)
 
     return () => {
@@ -253,6 +267,7 @@ function AuthenticatedNotifications({
         syncTimerRef.current = null
       }
       socket.off("connect", scheduleSync)
+      socket.off("chat:conversation:updated", syncConversations)
       socket.offAny(onAnyNotificationEvent)
     }
   }, [queryClient])

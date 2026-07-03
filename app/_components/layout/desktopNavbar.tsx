@@ -15,16 +15,19 @@ import { Card, CardContent } from "../ui/card"
 import { Button } from "../ui/button"
 import UserSession from "../profile/user-session"
 import NotificationButton from "../common/notification-button"
+import { Badge } from "../ui/badge"
 import { NavBrandLogo } from "../common/brand-logo"
 import { useAuth } from "@/app/_auth"
 import { getProfilePath } from "../../_lib/profile"
 import { useTranslation } from "../../_i18n"
+import { useNotificationContext } from "../../_providers/notification"
 import { CreateContentButton } from "@/app/_components/content/create-content-button"
 
 const DesktopNavbar = () => {
   const pathname = usePathname()
   const { user, isLoading } = useAuth()
   const { t } = useTranslation()
+  const { unreadMessageCount } = useNotificationContext()
 
   const isProfileActive =
     pathname.startsWith("/profile") ||
@@ -106,7 +109,21 @@ const DesktopNavbar = () => {
                       : "text-foreground hover:bg-primary/5 hover:text-primary"
                   }`}
                 >
-                  <Icon className="h-4 w-4" />
+                  {item.href === "/messages" ? (
+                    <span className="relative">
+                      <Icon className="h-4 w-4" />
+                      {unreadMessageCount > 0 && (
+                        <Badge
+                          variant="destructive"
+                          className="absolute -top-2.5 -right-2.5 flex h-3.5 min-w-3.5 items-center justify-center rounded-full px-0.5 text-[8px] leading-none font-bold"
+                        >
+                          {unreadMessageCount > 99 ? "99+" : unreadMessageCount}
+                        </Badge>
+                      )}
+                    </span>
+                  ) : (
+                    <Icon className="h-4 w-4" />
+                  )}
                   <span>{item.label}</span>
                 </Link>
               )
