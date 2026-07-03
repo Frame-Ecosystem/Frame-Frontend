@@ -337,7 +337,11 @@ export default function QueueDisplay({
               onReorder={handleReorder}
               onStatusChange={handleStatusChange}
               onRemove={handleRemove}
-              onAddPerson={() => setShowAddDialog(true)}
+              onAddPerson={
+                user?.type === "client"
+                  ? () => setShowAddDialog(true)
+                  : undefined
+              }
               isUpdating={isMutating}
               highlightBookingId={highlightBookingId}
               acceptQueueBooking={activeAgent?.acceptQueueBooking ?? false}

@@ -29,10 +29,6 @@ class LoungeService {
         ...service,
         id: service._id || service.id,
         _id: service._id || service.id,
-        serviceId:
-          typeof service.serviceId === "object"
-            ? service.serviceId._id
-            : service.serviceId,
         agentIds: service.agentIds ?? [],
         image: service.image,
       })) as LoungeServiceItem[]

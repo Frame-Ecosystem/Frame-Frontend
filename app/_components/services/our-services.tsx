@@ -4,6 +4,7 @@ import { Badge } from "../ui/badge"
 import { CalendarIcon } from "lucide-react"
 import ServiceItem from "./service-item"
 import { Lounge, LoungeService } from "@/app/_types"
+import { useAuth } from "@/app/_auth"
 import BookingCTA from "../bookings/booking-cta"
 
 interface OurServicesProps {
@@ -12,6 +13,8 @@ interface OurServicesProps {
 }
 
 export default function OurServices({ services, center }: OurServicesProps) {
+  const { user } = useAuth()
+  const isClient = user?.type === "client"
   const [selectedServices, setSelectedServices] = useState<LoungeService[]>([])
 
   const handleServiceSelect = (service: LoungeService) => {
@@ -41,10 +44,15 @@ export default function OurServices({ services, center }: OurServicesProps) {
         </Badge>
       </div>
 
-      {/* Ready to book section with green dashed border */}
-      <div className="mb-6 pt-6">
-        <BookingCTA loungeId={center.id} selectedServices={selectedServices} />
-      </div>
+      {/* Ready to book section — only for clients */}
+      {isClient && (
+        <div className="mb-6 pt-6">
+          <BookingCTA
+            loungeId={center.id}
+            selectedServices={selectedServices}
+          />
+        </div>
+      )}
 
       <div>
         {services.length > 0 ? (

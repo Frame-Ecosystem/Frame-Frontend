@@ -6,6 +6,7 @@ import { LoungeService } from "../../_types"
 import { useRouter } from "next/navigation"
 import { useTheme } from "next-themes"
 import { useTranslation } from "@/app/_i18n"
+import { useAuth } from "@/app/_auth"
 
 interface BookingCTAProps {
   loungeId?: string
@@ -19,6 +20,10 @@ export default function BookingCTA({
   const router = useRouter()
   const { theme } = useTheme()
   const { t } = useTranslation()
+  const { user } = useAuth()
+
+  // Only clients can book
+  if (user && user.type !== "client") return null
   const hasSelectedServices = selectedServices.length > 0
   const isDark = theme?.includes("dark")
 
