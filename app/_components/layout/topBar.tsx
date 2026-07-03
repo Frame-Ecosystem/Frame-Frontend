@@ -3,7 +3,6 @@
 import Link from "next/link"
 import React from "react"
 import UserSession from "../profile/user-session"
-import MessageButton from "../common/message-button"
 import NotificationButton from "../common/notification-button"
 import { Button } from "../ui/button"
 import { Search } from "lucide-react"
@@ -79,8 +78,6 @@ const TopBar: React.FC<TopBarProps> = ({
 
             <NotificationButton compact />
 
-            <MessageButton compact />
-
             <UserSession compact />
           </div>
         )}
@@ -102,8 +99,6 @@ const TopBar: React.FC<TopBarProps> = ({
             </Button>
 
             <NotificationButton compact />
-
-            <MessageButton compact />
 
             <UserSession compact />
           </div>

@@ -18,6 +18,7 @@ const ar: Record<string, string> = {
   "nav.home": "الرئيسية",
   "nav.reels": "ريلز",
   "nav.lounges": "الصالونات",
+  "nav.messages": "الرسائل",
   "nav.queue": "الانتظار",
   "nav.queues": " قائمة الإنتضار",
   "nav.bookings": "الحجوزات",

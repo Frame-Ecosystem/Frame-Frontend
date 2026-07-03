@@ -15,6 +15,7 @@ const fr: Record<string, string> = {
   "nav.home": "Accueil",
   "nav.reels": "Reels",
   "nav.lounges": "Salons",
+  "nav.messages": "Messages",
   "nav.queue": "File d'attente",
   "nav.queues": "Files d'attente",
   "nav.bookings": "Réservations",

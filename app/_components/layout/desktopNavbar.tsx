@@ -5,6 +5,7 @@ import {
   Globe,
   Home,
   ListOrdered,
+  MessageCircle,
   Search,
   UserCircle2,
 } from "lucide-react"
@@ -13,7 +14,6 @@ import { usePathname } from "next/navigation"
 import { Card, CardContent } from "../ui/card"
 import { Button } from "../ui/button"
 import UserSession from "../profile/user-session"
-import MessageButton from "../common/message-button"
 import NotificationButton from "../common/notification-button"
 import { NavBrandLogo } from "../common/brand-logo"
 import { useAuth } from "@/app/_auth"
@@ -57,6 +57,12 @@ const DesktopNavbar = () => {
           isActive: showQueueInMiddle
             ? pathname.startsWith(queueHref)
             : pathname.startsWith("/lounges"),
+        },
+        {
+          href: "/messages",
+          label: t("nav.messages"),
+          icon: MessageCircle,
+          isActive: pathname.startsWith("/messages"),
         },
         {
           href: getProfilePath(user),
@@ -125,8 +131,6 @@ const DesktopNavbar = () => {
           </Link>
 
           <NotificationButton />
-
-          <MessageButton />
 
           <UserSession />
         </div>

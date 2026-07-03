@@ -1,7 +1,14 @@
 "use client"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { Calendar, Globe, Home, ListOrdered, UserCircle2 } from "lucide-react"
+import {
+  Calendar,
+  Globe,
+  Home,
+  ListOrdered,
+  MessageCircle,
+  UserCircle2,
+} from "lucide-react"
 import { useAuth } from "@/app/_auth"
 import { getProfilePath } from "../../_lib/profile"
 import { useMobileNavVisibility } from "../../_hooks/useMobileNavVisibility"
@@ -45,6 +52,12 @@ const MobileNavbar = () => {
       isActive: showQueueInMiddle
         ? pathname.startsWith(queueHref)
         : pathname.startsWith("/lounges"),
+    },
+    {
+      href: "/messages",
+      label: t("nav.messages"),
+      icon: MessageCircle,
+      isActive: pathname.startsWith("/messages"),
     },
     {
       href: getProfilePath(user),

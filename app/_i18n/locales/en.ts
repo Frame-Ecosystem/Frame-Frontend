@@ -11,6 +11,7 @@ const en: Record<string, string> = {
   "nav.home": "Home",
   "nav.reels": "Reels",
   "nav.lounges": "Lounges",
+  "nav.messages": "Messages",
   "nav.queue": "Queue",
   "nav.queues": "Queues",
   "nav.bookings": "Bookings",

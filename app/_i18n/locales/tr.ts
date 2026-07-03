@@ -16,6 +16,7 @@ const tr: Record<string, string> = {
   "nav.home": "Ana Sayfa",
   "nav.reels": "Reels",
   "nav.lounges": "Salonlar",
+  "nav.messages": "Mesajlar",
   "nav.queue": "Sıra",
   "nav.queues": "Sıralar",
   "nav.bookings": "Randevular",
