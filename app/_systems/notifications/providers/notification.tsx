@@ -32,6 +32,7 @@ import { scrollToNotificationTarget } from "../hooks/useNotificationNavigate"
 import {
   getUnreadBucketCounts,
   incrementUnreadByBucket,
+  NOTIFICATION_BUCKET_KEYS,
   resolveBucketFromNotification,
 } from "../lib/notification-buckets"
 
@@ -175,6 +176,10 @@ function AuthenticatedNotifications({
 
       const { type, title, body } = notification
       const bucket = resolveBucketFromNotification(notification)
+
+      // Chat messages are tracked by the chat system (useTotalUnreadMessages).
+      // Skip here so they don't leak into the notification bell count on API refetch.
+      if (bucket === NOTIFICATION_BUCKET_KEYS.messages) return
 
       // Optimistically bump unread count
       queryClient.setQueryData<UnreadCountData>(
