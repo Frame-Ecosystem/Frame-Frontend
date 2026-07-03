@@ -56,7 +56,7 @@ const fr: Record<string, string> = {
   "settings.openingHours": "Horaires d'ouverture",
   "settings.serviceManagement": "Gestion des services",
   "settings.agentManagement": "Gestion des agents",
-  "settings.extrasManagement": "Extras",
+  "settings.extrasManagement": "Extras Services",
 
   // ── Auth ─────────────────────────────────────────────────────────────────
   "auth.signIn": "Se connecter",

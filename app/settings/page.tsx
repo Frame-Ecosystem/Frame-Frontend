@@ -118,7 +118,7 @@ export default function SettingsPage() {
                 </Link>
 
                 <Link href="/lounge/extras">
-                  <div className="border-border hover:bg-card/50 flex w-full cursor-pointer items-center justify-between rounded-lg border p-4 transition-colors">
+                  <div className="border-border hover:bg-card/50 mt-6 flex w-full cursor-pointer items-center justify-between rounded-lg border p-4 transition-colors">
                     <div className="flex items-center gap-3">
                       <Sparkles className="text-muted-foreground h-5 w-5" />
                       <span className="font-medium">

@@ -1,12 +1,17 @@
 "use client"
 
 import { useState } from "react"
-import { InfoIcon, Film, CalendarIcon, Users } from "lucide-react"
+import { InfoIcon, Film, CalendarIcon, Users, Loader2 } from "lucide-react"
 import { Card, CardContent, CardHeader } from "@/app/_components/ui/card"
 import { Button } from "@/app/_components/ui/button"
 import OurServices from "@/app/_components/services/our-services"
 import QueueDisplay from "@/app/_components/queue/queue-display"
 import { UserReelsTab } from "@/app/_components/profile/user-reels-tab"
+import { OpeningHoursDisplay } from "@/app/_core/components/forms/opening-hours-display"
+import { LocationCard } from "@/app/_core/components/forms/location-card"
+import { ContactCard } from "@/app/_core/components/forms/contact-card"
+import { ExtrasCard } from "@/app/_core/components/forms/extras-card"
+import { useVisitorLoungeExtras } from "@/app/_systems/extras/hooks/useExtras"
 import type { LoungeDetail } from "../_lib/use-lounge-data"
 
 // ── Types & Constants ───────────────────────────────────────────
@@ -51,8 +56,52 @@ function TabNavigation({
   )
 }
 
-function InfoTab() {
-  return null
+function InfoTab({
+  lounge,
+  loungeId,
+}: {
+  lounge: LoungeDetail
+  loungeId: string
+}) {
+  const { data: apiExtras, isLoading } = useVisitorLoungeExtras(loungeId)
+
+  return (
+    <div className="flex flex-col gap-3 sm:flex-row sm:items-start">
+      {lounge.openingHours && (
+        <div className="min-w-0 flex-1">
+          <OpeningHoursDisplay openingHours={lounge.openingHours} compact />
+        </div>
+      )}
+      {(lounge.latitude || lounge.longitude) && (
+        <div className="min-w-0 flex-1">
+          <LocationCard
+            address={lounge.address || ""}
+            latitude={lounge.latitude}
+            longitude={lounge.longitude}
+          />
+        </div>
+      )}
+      {(lounge.phoneNumber || lounge.phones?.length || lounge.email) && (
+        <div className="min-w-0 flex-1">
+          <ContactCard
+            phone={
+              lounge.phoneNumber ||
+              (lounge.phones?.length ? lounge.phones[0] : undefined)
+            }
+            email={lounge.email}
+          />
+        </div>
+      )}
+      <div className="min-w-0 flex-1">
+        {apiExtras && apiExtras.length > 0 && <ExtrasCard extras={apiExtras} />}
+        {isLoading && (
+          <div className="text-muted-foreground flex items-center justify-center rounded-xl border py-4">
+            <Loader2 className="h-4 w-4 animate-spin" />
+          </div>
+        )}
+      </div>
+    </div>
+  )
 }
 
 function TabContent({
@@ -66,7 +115,7 @@ function TabContent({
 }) {
   switch (activeTab) {
     case "info":
-      return <InfoTab />
+      return <InfoTab lounge={lounge} loungeId={loungeId} />
     case "services":
       return <OurServices services={lounge.services} center={lounge} />
     case "reels":

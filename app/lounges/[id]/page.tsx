@@ -34,7 +34,6 @@ import {
 } from "@/app/_hooks/queries"
 import { MessageButton } from "@/app/_components/common/message-button"
 import { FollowListDialog } from "@/app/_components/common/follow-stats"
-import InfoDisplay from "@/app/_components/lounges/info-display"
 import OurServices from "@/app/_components/services/our-services"
 import QueueDisplay from "@/app/_components/queue/queue-display"
 import { UserReelsTab } from "@/app/_components/profile/user-reels-tab"
@@ -185,33 +184,6 @@ export default function LoungePage() {
 
   const BIO_LIMIT = 120
 
-  // Helper function to format opening hours
-  const formatOpeningHours = (openingHours: any) => {
-    if (!openingHours) return {}
-
-    const formatted: Record<string, string> = {}
-    const days = [
-      "monday",
-      "tuesday",
-      "wednesday",
-      "thursday",
-      "friday",
-      "saturday",
-      "sunday",
-    ]
-
-    days.forEach((day) => {
-      const dayHours = openingHours[day]
-      if (dayHours && dayHours.from && dayHours.to) {
-        formatted[day] = `${dayHours.from} - ${dayHours.to}`
-      } else {
-        formatted[day] = "Closed"
-      }
-    })
-
-    return formatted
-  }
-
   // Fetch lounge details
   useEffect(() => {
     const fetchLounge = async () => {
@@ -334,8 +306,6 @@ export default function LoungePage() {
   const isOpen = center?.openingHours
     ? isLoungeCurrentlyOpen(center.openingHours)
     : false
-
-  const openingHours = formatOpeningHours(center.openingHours)
 
   const getInitials = (name: string) => {
     return name
@@ -482,57 +452,6 @@ export default function LoungePage() {
             onFollowersClick={() => setFollowDialogMode("followers")}
           />
 
-          {/* Opening hours + Location + Contact */}
-          <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-start">
-            {center.openingHours && (
-              <div className="min-w-0 flex-1">
-                <button
-                  onClick={() => setShowFullHours(!showFullHours)}
-                  className="w-full rounded-lg text-left transition-colors"
-                >
-                  <OpeningHoursDisplay
-                    openingHours={center.openingHours}
-                    compact
-                    isExpanded={showFullHours}
-                  />
-                </button>
-                {showFullHours && (
-                  <div className="mt-2">
-                    <OpeningHoursDisplay openingHours={center.openingHours} />
-                  </div>
-                )}
-              </div>
-            )}
-            {center.latitude != null && (
-              <div className="min-w-0 flex-1">
-                <LocationCard
-                  address={
-                    center.address !== "No location available"
-                      ? center.address
-                      : undefined
-                  }
-                  latitude={center.latitude}
-                  longitude={center.longitude}
-                />
-              </div>
-            )}
-            {(center.phones?.[0] || center.email) && (
-              <div className="min-w-0 flex-1">
-                <ContactCard phone={center.phones?.[0]} email={center.email} />
-              </div>
-            )}
-            <div className="min-w-0 flex-1">
-              {apiExtras && apiExtras.length > 0 && (
-                <ExtrasCard extras={apiExtras} />
-              )}
-              {extrasLoading && (
-                <div className="text-muted-foreground flex items-center justify-center rounded-xl border py-4">
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                </div>
-              )}
-            </div>
-          </div>
-
           {followDialogMode && (
             <FollowListDialog
               open={!!followDialogMode}
@@ -646,24 +565,6 @@ export default function LoungePage() {
             <Button
               variant="ghost"
               size="sm"
-              className={`shrink-0 rounded-lg border px-3 py-2 text-sm font-medium transition-all duration-300 ${activeTab === "posts" ? "border-primary bg-primary/10 text-primary" : "border-border text-foreground hover:border-primary/50 hover:text-primary hover:bg-primary/5"}`}
-              onClick={() => handleTabChange("posts")}
-            >
-              <Grid3X3 className="h-4 w-4" />
-              Posts
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              className={`shrink-0 rounded-lg border px-3 py-2 text-sm font-medium transition-all duration-300 ${activeTab === "reels" ? "border-primary bg-primary/10 text-primary" : "border-border text-foreground hover:border-primary/50 hover:text-primary hover:bg-primary/5"}`}
-              onClick={() => handleTabChange("reels")}
-            >
-              <Film className="h-4 w-4" />
-              Portfolio
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
               className={`shrink-0 rounded-lg border px-3 py-2 text-sm font-medium transition-all duration-300 ${activeTab === "services" ? "border-primary bg-primary/10 text-primary" : "border-border text-foreground hover:border-primary/50 hover:text-primary hover:bg-primary/5"}`}
               onClick={() => handleTabChange("services")}
             >
@@ -691,6 +592,24 @@ export default function LoungePage() {
             <Button
               variant="ghost"
               size="sm"
+              className={`shrink-0 rounded-lg border px-3 py-2 text-sm font-medium transition-all duration-300 ${activeTab === "reels" ? "border-primary bg-primary/10 text-primary" : "border-border text-foreground hover:border-primary/50 hover:text-primary hover:bg-primary/5"}`}
+              onClick={() => handleTabChange("reels")}
+            >
+              <Film className="h-4 w-4" />
+              Portfolio
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              className={`shrink-0 rounded-lg border px-3 py-2 text-sm font-medium transition-all duration-300 ${activeTab === "posts" ? "border-primary bg-primary/10 text-primary" : "border-border text-foreground hover:border-primary/50 hover:text-primary hover:bg-primary/5"}`}
+              onClick={() => handleTabChange("posts")}
+            >
+              <Grid3X3 className="h-4 w-4" />
+              Posts
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
               className={`shrink-0 rounded-lg border px-3 py-2 text-sm font-medium transition-all duration-300 ${activeTab === "reviews" ? "border-primary bg-primary/10 text-primary" : "border-border text-foreground hover:border-primary/50 hover:text-primary hover:bg-primary/5"}`}
               onClick={() => handleTabChange("reviews")}
             >
@@ -704,14 +623,58 @@ export default function LoungePage() {
         {/* ── Tab Content ─────────────────────────────────── */}
         <div className="mx-auto max-w-5xl px-4 py-6 sm:px-6 lg:px-8">
           {activeTab === "info" && (
-            <InfoDisplay
-              phones={center.phones}
-              email={center.email}
-              address={center.address}
-              latitude={center.latitude}
-              longitude={center.longitude}
-              openingHours={openingHours}
-            />
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-start">
+              {center.openingHours && (
+                <div className="min-w-0 flex-1">
+                  <button
+                    onClick={() => setShowFullHours(!showFullHours)}
+                    className="w-full rounded-lg text-left transition-colors"
+                  >
+                    <OpeningHoursDisplay
+                      openingHours={center.openingHours}
+                      compact
+                      isExpanded={showFullHours}
+                    />
+                  </button>
+                  {showFullHours && (
+                    <div className="mt-2">
+                      <OpeningHoursDisplay openingHours={center.openingHours} />
+                    </div>
+                  )}
+                </div>
+              )}
+              {center.latitude != null && (
+                <div className="min-w-0 flex-1">
+                  <LocationCard
+                    address={
+                      center.address !== "No location available"
+                        ? center.address
+                        : undefined
+                    }
+                    latitude={center.latitude}
+                    longitude={center.longitude}
+                  />
+                </div>
+              )}
+              {(center.phones?.[0] || center.email) && (
+                <div className="min-w-0 flex-1">
+                  <ContactCard
+                    phone={center.phones?.[0]}
+                    email={center.email}
+                  />
+                </div>
+              )}
+              <div className="min-w-0 flex-1">
+                {apiExtras && apiExtras.length > 0 && (
+                  <ExtrasCard extras={apiExtras} />
+                )}
+                {extrasLoading && (
+                  <div className="text-muted-foreground flex items-center justify-center rounded-xl border py-4">
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  </div>
+                )}
+              </div>
+            </div>
           )}
           {activeTab === "posts" && id && <UserPostsTab userId={id} />}
           {activeTab === "reels" && id && <UserReelsTab userId={id} isLounge />}

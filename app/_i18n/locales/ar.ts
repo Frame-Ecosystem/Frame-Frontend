@@ -59,7 +59,7 @@ const ar: Record<string, string> = {
   "settings.openingHours": "ساعات العمل",
   "settings.serviceManagement": "إدارة الخدمات",
   "settings.agentManagement": "إدارة الموظفين",
-  "settings.extrasManagement": "الإضافات",
+  "settings.extrasManagement": "خدمات إضافية",
 
   // ── Auth ─────────────────────────────────────────────────────────────────
   "auth.signIn": "تسجيل الدخول",

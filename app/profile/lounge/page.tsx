@@ -283,86 +283,6 @@ export default function LoungeProfilePage() {
             followerCount={user?.followersCount ?? 0}
             onRatingClick={() => handleTabChange("reviews")}
           />
-
-          {/* Opening hours + Location + Contact */}
-          {((user as any)?.openingHours ||
-            (user as any)?.location ||
-            (user as any)?.phoneNumber ||
-            (user as any)?.email) && (
-            <div className="mt-3 flex flex-col gap-3 sm:flex-row sm:items-start">
-              {(user as any)?.openingHours && (
-                <div className="min-w-0 flex-1">
-                  <button
-                    onClick={() => setShowFullHours(!showFullHours)}
-                    className="w-full rounded-lg text-left"
-                  >
-                    <OpeningHoursDisplay
-                      openingHours={(user as any)?.openingHours}
-                      compact
-                      isExpanded={showFullHours}
-                    />
-                  </button>
-                  {showFullHours && (
-                    <div className="mt-1">
-                      <OpeningHoursDisplay
-                        openingHours={(user as any)?.openingHours}
-                      />
-                    </div>
-                  )}
-                </div>
-              )}
-              {(user as any)?.location && (
-                <div className="min-w-0 flex-1">
-                  <LocationCard
-                    address={
-                      (user as any)?.location?.address ||
-                      (user as any)?.location?.placeName
-                    }
-                    latitude={(user as any)?.location?.latitude}
-                    longitude={(user as any)?.location?.longitude}
-                  />
-                </div>
-              )}
-              {((user as any)?.phoneNumber || (user as any)?.email) && (
-                <div className="min-w-0 flex-1">
-                  <ContactCard
-                    phone={(user as any)?.phoneNumber}
-                    email={(user as any)?.email}
-                  />
-                </div>
-              )}
-              {myExtrasData?.data && myExtrasData.data.length > 0 && (
-                <div className="min-w-0 flex-1">
-                  <ExtrasCard
-                    extras={myExtrasData.data.reduce<
-                      {
-                        _id: string
-                        name: string
-                        description?: string
-                        free: boolean
-                        cost: number
-                      }[]
-                    >((acc, le) => {
-                      const extra =
-                        typeof le.extraId === "object"
-                          ? (le.extraId as any)
-                          : null
-                      if (extra) {
-                        acc.push({
-                          _id: extra._id ?? le._id,
-                          name: extra.name ?? "Extra",
-                          description: le.description ?? extra.description,
-                          free: extra.free ?? true,
-                          cost: le.cost ?? extra.cost ?? 0,
-                        })
-                      }
-                      return acc
-                    }, [])}
-                  />
-                </div>
-              )}
-            </div>
-          )}
         </div>
 
         {/* ── Tab Navigation ──────────────────────────────── */}
@@ -401,6 +321,79 @@ export default function LoungeProfilePage() {
         <div className="mx-auto max-w-5xl px-4 py-6 sm:px-6 lg:px-8">
           {activeTab === "account" && (
             <div className="space-y-6">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-start">
+                {(user as any)?.openingHours && (
+                  <div className="min-w-0 flex-1">
+                    <button
+                      onClick={() => setShowFullHours(!showFullHours)}
+                      className="w-full rounded-lg text-left"
+                    >
+                      <OpeningHoursDisplay
+                        openingHours={(user as any)?.openingHours}
+                        compact
+                        isExpanded={showFullHours}
+                      />
+                    </button>
+                    {showFullHours && (
+                      <div className="mt-1">
+                        <OpeningHoursDisplay
+                          openingHours={(user as any)?.openingHours}
+                        />
+                      </div>
+                    )}
+                  </div>
+                )}
+                {(user as any)?.location && (
+                  <div className="min-w-0 flex-1">
+                    <LocationCard
+                      address={
+                        (user as any)?.location?.address ||
+                        (user as any)?.location?.placeName
+                      }
+                      latitude={(user as any)?.location?.latitude}
+                      longitude={(user as any)?.location?.longitude}
+                    />
+                  </div>
+                )}
+                {((user as any)?.phoneNumber || (user as any)?.email) && (
+                  <div className="min-w-0 flex-1">
+                    <ContactCard
+                      phone={(user as any)?.phoneNumber}
+                      email={(user as any)?.email}
+                    />
+                  </div>
+                )}
+                {myExtrasData?.data && myExtrasData.data.length > 0 && (
+                  <div className="min-w-0 flex-1">
+                    <ExtrasCard
+                      extras={myExtrasData.data.reduce<
+                        {
+                          _id: string
+                          name: string
+                          description?: string
+                          free: boolean
+                          cost: number
+                        }[]
+                      >((acc, le) => {
+                        const extra =
+                          typeof le.extraId === "object"
+                            ? (le.extraId as any)
+                            : null
+                        if (extra) {
+                          acc.push({
+                            _id: extra._id ?? le._id,
+                            name: extra.name ?? "Extra",
+                            description: le.description ?? extra.description,
+                            free: extra.free ?? true,
+                            cost: le.cost ?? extra.cost ?? 0,
+                          })
+                        }
+                        return acc
+                      }, [])}
+                    />
+                  </div>
+                )}
+              </div>
               <AccountInformation
                 user={user}
                 isAccountInfoOpen={isAccountInfoOpen}

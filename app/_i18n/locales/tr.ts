@@ -57,7 +57,7 @@ const tr: Record<string, string> = {
   "settings.openingHours": "Çalışma Saatleri",
   "settings.serviceManagement": "Hizmet Yönetimi",
   "settings.agentManagement": "Ekip Yönetimi",
-  "settings.extrasManagement": "Ekstralar",
+  "settings.extrasManagement": "Ekstra Hizmetler",
 
   // ── Auth ─────────────────────────────────────────────────────────────────
   "auth.signIn": "Giriş Yap",
