@@ -1,6 +1,6 @@
 "use client"
 
-import { ChevronRightIcon, Layers, Users } from "lucide-react"
+import { ChevronRightIcon, Layers, Users, Sparkles } from "lucide-react"
 import Link from "next/link"
 // import Image from "next/image"
 import { Avatar, AvatarImage, AvatarFallback } from "../_components/ui/avatar"
@@ -111,6 +111,18 @@ export default function SettingsPage() {
                       <Users className="text-muted-foreground h-5 w-5" />
                       <span className="font-medium">
                         {t("settings.agentManagement")}
+                      </span>
+                    </div>
+                    <ChevronRightIcon className="text-muted-foreground h-5 w-5" />
+                  </div>
+                </Link>
+
+                <Link href="/lounge/extras">
+                  <div className="border-border hover:bg-card/50 flex w-full cursor-pointer items-center justify-between rounded-lg border p-4 transition-colors">
+                    <div className="flex items-center gap-3">
+                      <Sparkles className="text-muted-foreground h-5 w-5" />
+                      <span className="font-medium">
+                        {t("settings.extrasManagement")}
                       </span>
                     </div>
                     <ChevronRightIcon className="text-muted-foreground h-5 w-5" />

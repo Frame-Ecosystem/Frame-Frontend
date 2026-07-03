@@ -5,12 +5,69 @@ import { ErrorBoundary } from "@/app/_components/common/errorBoundary"
 import { Button } from "@/app/_components/ui/button"
 import { useParams, useRouter } from "next/navigation"
 import { getProfilePath } from "@/app/_systems/user/lib/profile"
-import { AlertTriangle, Lock, SearchX } from "lucide-react"
+import { AlertTriangle, Lock, SearchX, Loader2 } from "lucide-react"
 import { useTranslation } from "@/app/_i18n"
-import { useLoungeData } from "./_lib/use-lounge-data"
+import { useLoungeData, type LoungeDetail } from "./_lib/use-lounge-data"
 import { LoungePageSkeleton } from "./_components/lounge-page-skeleton"
 import { LoungeHero } from "./_components/lounge-hero"
 import { LoungeTabs } from "./_components/lounge-tabs"
+import { useVisitorLoungeExtras } from "@/app/_systems/extras/hooks/useExtras"
+import { ExtrasCard } from "@/app/_core/components/forms/extras-card"
+import { ContactCard } from "@/app/_core/components/forms/contact-card"
+import { LocationCard } from "@/app/_core/components/forms/location-card"
+import { OpeningHoursDisplay } from "@/app/_core/components/forms/opening-hours-display"
+
+function ContentCards({
+  lounge,
+  loungeId,
+}: {
+  lounge: LoungeDetail
+  loungeId: string
+}) {
+  const { data: apiExtras, isLoading } = useVisitorLoungeExtras(loungeId)
+
+  return (
+    <div className="mx-auto max-w-4xl px-5 pt-4 lg:px-8">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-start">
+        {lounge.openingHours && (
+          <div className="min-w-0 flex-1">
+            <OpeningHoursDisplay openingHours={lounge.openingHours} compact />
+          </div>
+        )}
+        {(lounge.latitude || lounge.longitude) && (
+          <div className="min-w-0 flex-1">
+            <LocationCard
+              address={lounge.address || ""}
+              latitude={lounge.latitude}
+              longitude={lounge.longitude}
+            />
+          </div>
+        )}
+        {(lounge.phoneNumber || lounge.phones?.length || lounge.email) && (
+          <div className="min-w-0 flex-1">
+            <ContactCard
+              phone={
+                lounge.phoneNumber ||
+                (lounge.phones?.length ? lounge.phones[0] : undefined)
+              }
+              email={lounge.email}
+            />
+          </div>
+        )}
+        <div className="min-w-0 flex-1">
+          {apiExtras && apiExtras.length > 0 && (
+            <ExtrasCard extras={apiExtras} />
+          )}
+          {isLoading && (
+            <div className="text-muted-foreground flex items-center justify-center rounded-xl border py-4">
+              <Loader2 className="h-4 w-4 animate-spin" />
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  )
+}
 
 // ── Shared status layout for error / auth / not-found states ────
 
@@ -107,6 +164,9 @@ export default function LoungePage() {
       <div className="from-background via-background to-muted/20 min-h-screen bg-linear-to-br">
         <div className="mx-auto max-w-7xl lg:pt-0">
           <LoungeHero lounge={lounge} />
+
+          {/* ── Header Cards Section ────────────────────────────── */}
+          <ContentCards lounge={lounge} loungeId={id} />
 
           <div className="space-y-4 lg:col-span-8">
             <div className="md:grid md:grid-cols-5">

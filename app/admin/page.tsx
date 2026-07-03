@@ -14,6 +14,7 @@ import {
   CheckCircle,
   XCircle,
   Clock,
+  Sparkles,
 } from "lucide-react"
 import {
   Card,
@@ -196,5 +197,12 @@ const QUICK_LINKS = [
     icon: Activity,
     color: "bg-green-500",
     descKey: "admin.nav.systemDesc",
+  },
+  {
+    labelKey: "admin.nav.extras",
+    href: "/admin/extras",
+    icon: Sparkles,
+    color: "bg-pink-500",
+    descKey: "admin.nav.extrasDesc",
   },
 ]

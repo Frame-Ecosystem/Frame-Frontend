@@ -4,10 +4,6 @@ import { useState } from "react"
 import { InfoIcon, Film, CalendarIcon, Users } from "lucide-react"
 import { Card, CardContent, CardHeader } from "@/app/_components/ui/card"
 import { Button } from "@/app/_components/ui/button"
-import OpeningHours from "@/app/_core/components/forms/opening-hours"
-import DisplayLocation from "@/app/_components/lounges/display-location"
-import Extras from "@/app/_components/common/extras"
-import ContactInfo from "@/app/_components/common/profile-display/contact-info"
 import OurServices from "@/app/_components/services/our-services"
 import QueueDisplay from "@/app/_components/queue/queue-display"
 import { UserReelsTab } from "@/app/_components/profile/user-reels-tab"
@@ -55,30 +51,8 @@ function TabNavigation({
   )
 }
 
-function InfoTab({ lounge }: { lounge: LoungeDetail }) {
-  const hasContact = (lounge.phones && lounge.phones.length > 0) || lounge.email
-
-  return (
-    <div className="space-y-4">
-      {hasContact && (
-        <ContactInfo phones={lounge.phones} email={lounge.email} />
-      )}
-
-      {lounge.openingHours && (
-        <OpeningHours openingHours={lounge.openingHours} />
-      )}
-
-      {(lounge.latitude || lounge.longitude) && (
-        <DisplayLocation
-          latitude={lounge.latitude}
-          longitude={lounge.longitude}
-          address={lounge.address || "No address available"}
-        />
-      )}
-
-      <Extras />
-    </div>
-  )
+function InfoTab() {
+  return null
 }
 
 function TabContent({
@@ -92,7 +66,7 @@ function TabContent({
 }) {
   switch (activeTab) {
     case "info":
-      return <InfoTab lounge={lounge} />
+      return <InfoTab />
     case "services":
       return <OurServices services={lounge.services} center={lounge} />
     case "reels":

@@ -8,6 +8,7 @@ import {
   Lightbulb,
   Store,
   ListOrdered,
+  Sparkles,
 } from "lucide-react"
 
 export const ADMIN_NAV = [
@@ -58,6 +59,11 @@ export const ADMIN_NAV = [
         label: "Queue",
         href: "/admin/queue",
         icon: ListOrdered,
+      },
+      {
+        label: "Extras",
+        href: "/admin/extras",
+        icon: Sparkles,
       },
     ],
   },

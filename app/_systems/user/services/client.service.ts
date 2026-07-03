@@ -129,6 +129,56 @@ const clientService = {
     }
   },
 
+  async getLoungeExtrasById(
+    loungeId: string,
+  ): Promise<
+    {
+      _id: string
+      name: string
+      description?: string
+      free: boolean
+      cost: number
+    }[]
+  > {
+    try {
+      const response = await apiClient.get<{ data: any[] }>(
+        `/v1/client/lounges/${loungeId}/extras`,
+      )
+      const raw: any[] = response.data || []
+      return raw.reduce<
+        {
+          _id: string
+          name: string
+          description?: string
+          free: boolean
+          cost: number
+        }[]
+      >((acc, le) => {
+        const extraIdField = le.extraId
+        if (typeof extraIdField === "object" && extraIdField) {
+          acc.push({
+            _id: extraIdField._id ?? le._id,
+            name: extraIdField.name ?? "Extra",
+            description: le.description ?? extraIdField.description,
+            free: extraIdField.free ?? true,
+            cost: le.cost ?? extraIdField.cost ?? 0,
+          })
+        } else if (le._id) {
+          acc.push({
+            _id: le._id,
+            name: le.name ?? "Extra",
+            description: le.description ?? "",
+            free: le.free ?? true,
+            cost: le.cost ?? 0,
+          })
+        }
+        return acc
+      }, [])
+    } catch {
+      return []
+    }
+  },
+
   // -- Client Visitor Profile --------------------------------------
 
   async getClientProfile(clientId: string): Promise<{

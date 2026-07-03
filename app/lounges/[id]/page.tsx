@@ -13,6 +13,7 @@ import {
   UserPlus,
   UserCheck,
   Grid3X3,
+  Loader2,
 } from "lucide-react"
 import {
   Avatar,
@@ -50,6 +51,10 @@ import { isLoungeCurrentlyOpen } from "@/app/_components/bookings/booking-utils"
 import { clientService } from "@/app/_services"
 import { LoungeStatsDisplay } from "@/app/_components/lounges/_components/lounge-stats-display"
 import { OpeningHoursDisplay } from "@/app/_core/components/forms/opening-hours-display"
+import { LocationCard } from "@/app/_core/components/forms/location-card"
+import { ContactCard } from "@/app/_core/components/forms/contact-card"
+import { ExtrasCard } from "@/app/_core/components/forms/extras-card"
+import { useVisitorLoungeExtras } from "@/app/_systems/extras/hooks/useExtras"
 import { toast } from "sonner"
 
 type Tab = "info" | "posts" | "reels" | "services" | "queue" | "reviews"
@@ -117,6 +122,8 @@ export default function LoungePage() {
     user?.type === "client" ? id : undefined,
   )
   const toggleFollow = useToggleFollow(id)
+  const { data: apiExtras, isLoading: extrasLoading } =
+    useVisitorLoungeExtras(id)
   const [followDialogMode, setFollowDialogMode] = useState<
     "followers" | "following" | null
   >(null)
@@ -475,26 +482,56 @@ export default function LoungePage() {
             onFollowersClick={() => setFollowDialogMode("followers")}
           />
 
-          {/* Opening hours */}
-          {center.openingHours && (
-            <div className="mt-4 w-full sm:w-auto md:w-1/3">
-              <button
-                onClick={() => setShowFullHours(!showFullHours)}
-                className="w-full rounded-lg text-left transition-colors"
-              >
-                <OpeningHoursDisplay
-                  openingHours={center.openingHours}
-                  compact
-                  isExpanded={showFullHours}
+          {/* Opening hours + Location + Contact */}
+          <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-start">
+            {center.openingHours && (
+              <div className="min-w-0 flex-1">
+                <button
+                  onClick={() => setShowFullHours(!showFullHours)}
+                  className="w-full rounded-lg text-left transition-colors"
+                >
+                  <OpeningHoursDisplay
+                    openingHours={center.openingHours}
+                    compact
+                    isExpanded={showFullHours}
+                  />
+                </button>
+                {showFullHours && (
+                  <div className="mt-2">
+                    <OpeningHoursDisplay openingHours={center.openingHours} />
+                  </div>
+                )}
+              </div>
+            )}
+            {center.latitude != null && (
+              <div className="min-w-0 flex-1">
+                <LocationCard
+                  address={
+                    center.address !== "No location available"
+                      ? center.address
+                      : undefined
+                  }
+                  latitude={center.latitude}
+                  longitude={center.longitude}
                 />
-              </button>
-              {showFullHours && (
-                <div className="mt-2">
-                  <OpeningHoursDisplay openingHours={center.openingHours} />
+              </div>
+            )}
+            {(center.phones?.[0] || center.email) && (
+              <div className="min-w-0 flex-1">
+                <ContactCard phone={center.phones?.[0]} email={center.email} />
+              </div>
+            )}
+            <div className="min-w-0 flex-1">
+              {apiExtras && apiExtras.length > 0 && (
+                <ExtrasCard extras={apiExtras} />
+              )}
+              {extrasLoading && (
+                <div className="text-muted-foreground flex items-center justify-center rounded-xl border py-4">
+                  <Loader2 className="h-4 w-4 animate-spin" />
                 </div>
               )}
             </div>
-          )}
+          </div>
 
           {followDialogMode && (
             <FollowListDialog
