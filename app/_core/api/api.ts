@@ -411,7 +411,7 @@ class ApiClient {
           const isCsrfError =
             response.status === 403 && /csrf\s*token/i.test(message)
           const isAuthError =
-            (response.status === 403 && !isCsrfError) ||
+            !isCsrfError &&
             /authenticat|unauthori|token.*expired|session.*expired/i.test(
               message,
             )

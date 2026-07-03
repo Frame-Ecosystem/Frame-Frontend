@@ -71,17 +71,39 @@ export default function ReelsPage() {
   }, [exploreQuery.data])
 
   // Jump to a specific reel when navigated via ?id= param
+  const { hasNextPage, isFetchingNextPage, fetchNextPage } = exploreQuery
+  const fetchAttemptedRef = useRef(false)
+
   useEffect(() => {
-    if (!targetReelId || hasJumped.current || reels.length === 0) return
+    if (!targetReelId || hasJumped.current) return
+    if (reels.length === 0) return
+
     const idx = reels.findIndex((r) => r._id === targetReelId)
     if (idx !== -1) {
-      // Use rAF to avoid synchronous setState inside effect body
       requestAnimationFrame(() => {
         setActiveIndexRaw(idx)
       })
       hasJumped.current = true
+      return
     }
-  }, [targetReelId, reels])
+
+    // Target reel not found in loaded data — fetch more pages
+    if (
+      hasNextPage &&
+      !isFetchingNextPage &&
+      !exploreQuery.feedRateLimit.isLocked
+    ) {
+      fetchAttemptedRef.current = true
+      fetchNextPage()
+    }
+  }, [
+    targetReelId,
+    reels,
+    hasNextPage,
+    isFetchingNextPage,
+    fetchNextPage,
+    exploreQuery.feedRateLimit.isLocked,
+  ])
 
   // Auto-open CommentSheet when navigated from a notification with ?openComments=true
   const openCommentsParam = searchParams.get("openComments")
@@ -105,7 +127,6 @@ export default function ReelsPage() {
   }, [openCommentsParam, commentIdParam, reels, targetReelId])
 
   // Load more when approaching the end
-  const { hasNextPage, isFetchingNextPage, fetchNextPage } = exploreQuery
   useEffect(() => {
     if (
       activeIndex >= reels.length - 2 &&

@@ -160,5 +160,6 @@ export function useVisitorLoungeExtras(loungeId: string) {
     queryKey: [...extrasKeys.all, "visitor", loungeId] as const,
     queryFn: () => clientService.getLoungeExtrasById(loungeId),
     enabled: !!loungeId,
+    throwOnError: false,
   })
 }

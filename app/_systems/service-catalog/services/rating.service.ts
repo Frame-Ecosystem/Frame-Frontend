@@ -26,6 +26,7 @@ class RatingService {
   ): Promise<PaginatedRatings> {
     const res = await apiClient.get<PaginatedRatings>(
       `/v1/ratings/lounge/${loungeId}?page=${page}&limit=${limit}`,
+      { suppressAuthFailure: true },
     )
     return res
   }
@@ -34,6 +35,7 @@ class RatingService {
   async getMyRating(loungeId: string): Promise<Rating | null> {
     const res = await apiClient.get<{ data: Rating | null }>(
       `/v1/ratings/me/${loungeId}`,
+      { suppressAuthFailure: true },
     )
     return (res as any).data ?? res ?? null
   }

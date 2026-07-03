@@ -111,6 +111,7 @@ const clientService = {
     try {
       const response = await apiClient.get<{ data: LoungeUser }>(
         `/v1/client/lounges/${loungeId}`,
+        { suppressAuthFailure: true },
       )
       return response.data
     } catch (error) {
@@ -129,9 +130,7 @@ const clientService = {
     }
   },
 
-  async getLoungeExtrasById(
-    loungeId: string,
-  ): Promise<
+  async getLoungeExtrasById(loungeId: string): Promise<
     {
       _id: string
       name: string
@@ -143,6 +142,7 @@ const clientService = {
     try {
       const response = await apiClient.get<{ data: any[] }>(
         `/v1/client/lounges/${loungeId}/extras`,
+        { suppressAuthFailure: true },
       )
       const raw: any[] = response.data || []
       return raw.reduce<

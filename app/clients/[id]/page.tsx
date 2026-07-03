@@ -1,7 +1,7 @@
 "use client"
 
-import { useState, useEffect, useCallback, useRef } from "react"
-import { useParams, useRouter } from "next/navigation"
+import { useState, useEffect, useCallback, useRef, useMemo } from "react"
+import { useParams, useRouter, useSearchParams } from "next/navigation"
 import {
   ArrowLeft,
   User as UserIcon,
@@ -31,6 +31,7 @@ export default function ClientVisitorProfilePage() {
   const params = useParams()
   const clientId = params.id as string
   const router = useRouter()
+  const searchParams = useSearchParams()
   const { user, isLoading: authLoading } = useAuth()
 
   // Redirect to own profile if visiting yourself
@@ -46,7 +47,14 @@ export default function ClientVisitorProfilePage() {
     error: profileError,
   } = useClientProfile(authLoading ? undefined : clientId)
 
-  const [activeTab, setActiveTab] = useState<Tab>("overview")
+  const [tabOverride, setTabOverride] = useState<Tab | null>(null)
+  const activeTab = useMemo(
+    () => tabOverride ?? (searchParams?.get("tab") as Tab) ?? "overview",
+    [tabOverride, searchParams],
+  )
+  const setActiveTab = useCallback((tab: Tab) => {
+    setTabOverride(tab)
+  }, [])
   const { t } = useTranslation()
   const [lightboxSrc, setLightboxSrc] = useState<string | null>(null)
   const [lightboxAlt, setLightboxAlt] = useState("")
@@ -210,7 +218,12 @@ export default function ClientVisitorProfilePage() {
         {/* ── Tab Content ─────────────────────────────────── */}
         <div className="mx-auto max-w-5xl px-4 py-6 sm:px-6 lg:px-8">
           {activeTab === "overview" && <VisitorOverviewTab profile={profile} />}
-          {activeTab === "posts" && <UserPostsTab userId={clientId} />}
+          {activeTab === "posts" && (
+            <UserPostsTab
+              userId={clientId}
+              focusPost={searchParams?.get("focusPost")}
+            />
+          )}
           {activeTab === "reels" && <UserReelsTab userId={clientId} />}
           {activeTab === "bookings" && (
             <VisitorBookingsTab clientId={clientId} />

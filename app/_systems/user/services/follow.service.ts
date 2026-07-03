@@ -30,10 +30,11 @@ class FollowService {
     try {
       const res = await apiClient.get<{ data: FollowCheckResult }>(
         `/v1/follows/check/${targetId}`,
+        { suppressAuthFailure: true },
       )
       const payload = (res as any).data ?? res
       return !!(payload.isFollowing ?? payload.following ?? false)
-    } catch (error) {
+    } catch {
       return false
     }
   }
@@ -52,6 +53,7 @@ class FollowService {
     if (type) params.set("type", type)
     const res = await apiClient.get<any>(
       `/v1/follows/following/${userId}?${params.toString()}`,
+      { suppressAuthFailure: true },
     )
     return this.normalizePaginated(res, page, limit)
   }
@@ -70,6 +72,7 @@ class FollowService {
     if (type) params.set("type", type)
     const res = await apiClient.get<any>(
       `/v1/follows/followers/${userId}?${params.toString()}`,
+      { suppressAuthFailure: true },
     )
     return this.normalizePaginated(res, page, limit)
   }
@@ -104,13 +107,14 @@ class FollowService {
     try {
       const res = await apiClient.get<{ data: FollowCounts }>(
         `/v1/follows/counts/${userId}`,
+        { suppressAuthFailure: true },
       )
       const payload = (res as any).data ?? res
       return {
         followersCount: payload.followersCount ?? 0,
         followingCount: payload.followingCount ?? 0,
       }
-    } catch (error) {
+    } catch {
       return { followersCount: 0, followingCount: 0 }
     }
   }

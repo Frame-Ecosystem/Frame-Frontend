@@ -21,6 +21,7 @@ export function useMyRating(loungeId: string | undefined) {
     queryKey: ratingKeys.my(loungeId ?? ""),
     queryFn: () => ratingService.getMyRating(loungeId!),
     enabled: !!loungeId,
+    throwOnError: false,
   })
 }
 

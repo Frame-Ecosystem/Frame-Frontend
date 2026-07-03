@@ -158,6 +158,7 @@ function PostGridItem({ post, onClick }: { post: Post; onClick?: () => void }) {
 
   return (
     <div
+      id={`post-thumb-${post._id}`}
       onClick={onClick}
       className="bg-muted group relative aspect-square cursor-pointer overflow-hidden"
     >

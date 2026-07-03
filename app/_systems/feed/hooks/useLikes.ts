@@ -22,6 +22,7 @@ export function useCheckLiked(loungeId: string | undefined) {
     queryKey: likeKeys.check(loungeId ?? ""),
     queryFn: () => likeService.checkLiked(loungeId!),
     enabled: !!loungeId,
+    throwOnError: false,
   })
 }
 

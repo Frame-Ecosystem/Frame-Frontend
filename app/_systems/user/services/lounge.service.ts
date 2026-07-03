@@ -8,6 +8,39 @@ import type {
 import { clientDebug } from "@/app/_lib/client-logger"
 
 class LoungeService {
+  async getServicesByLoungeId(loungeId: string): Promise<LoungeServiceItem[]> {
+    try {
+      const response = await apiClient.get<any>(
+        `/v1/lounge-services/lounge/${loungeId}`,
+        { suppressAuthFailure: true },
+      )
+      let services: any[] = []
+      if (Array.isArray(response)) {
+        services = response
+      } else if (response && typeof response === "object") {
+        if (response.data && Array.isArray(response.data))
+          services = response.data
+        else if (response.services && Array.isArray(response.services))
+          services = response.services
+        else if (response.items && Array.isArray(response.items))
+          services = response.items
+      }
+      return services.map((service) => ({
+        ...service,
+        id: service._id || service.id,
+        _id: service._id || service.id,
+        serviceId:
+          typeof service.serviceId === "object"
+            ? service.serviceId._id
+            : service.serviceId,
+        agentIds: service.agentIds ?? [],
+        image: service.image,
+      })) as LoungeServiceItem[]
+    } catch {
+      return []
+    }
+  }
+
   async getAll(): Promise<LoungeServiceItem[]> {
     try {
       const response = await apiClient.get<any>("/v1/lounge-services")

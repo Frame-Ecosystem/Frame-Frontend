@@ -30,6 +30,7 @@ export function useCheckFollowing(targetId: string | undefined) {
     queryKey: followKeys.check(targetId ?? ""),
     queryFn: () => followService.checkFollowing(targetId!),
     enabled: !!targetId,
+    throwOnError: false,
   })
 }
 
@@ -131,6 +132,7 @@ export function useFollowCounts(userId: string | undefined) {
     queryKey: followKeys.counts(userId ?? ""),
     queryFn: () => followService.getCounts(userId!),
     enabled: !!userId,
+    throwOnError: false,
   })
 }
 

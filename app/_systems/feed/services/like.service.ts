@@ -19,6 +19,7 @@ class LikeService {
   async checkLiked(loungeId: string): Promise<boolean> {
     const res = await apiClient.get<{ data: { liked: boolean } }>(
       `/v1/likes/check/${loungeId}`,
+      { suppressAuthFailure: true },
     )
     return ((res as any).data ?? res).liked
   }

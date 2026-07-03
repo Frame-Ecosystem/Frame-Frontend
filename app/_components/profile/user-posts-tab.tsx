@@ -1,6 +1,6 @@
 "use client"
 
-import { useMemo, memo, useState } from "react"
+import { useMemo, memo, useState, useEffect } from "react"
 import { useUserPosts } from "../../_hooks/queries/useContent"
 import { ContentGrid } from "../content/content-grid"
 import { PostDetailModal } from "../content/post-detail-modal"
@@ -10,6 +10,7 @@ import type { Post } from "../../_types/content"
 
 interface UserPostsTabProps {
   userId: string
+  focusPost?: string | null
 }
 
 /**
@@ -18,6 +19,7 @@ interface UserPostsTabProps {
  */
 export const UserPostsTab = memo(function UserPostsTab({
   userId,
+  focusPost,
 }: UserPostsTabProps) {
   const { user } = useAuth()
   const isOwner = user?._id === userId
@@ -29,6 +31,20 @@ export const UserPostsTab = memo(function UserPostsTab({
     () => postsQuery.data?.pages.flatMap((p) => p.data) ?? [],
     [postsQuery.data],
   )
+
+  // ── Focus a post from search (?focusPost=postId) ───────
+  // MUST be placed before early returns (Rules of Hooks)
+  useEffect(() => {
+    if (!focusPost || !posts.length) return
+    const target = document.getElementById(`post-thumb-${focusPost}`)
+    const post = posts.find((p) => p._id === focusPost)
+    if (target) {
+      target.scrollIntoView({ behavior: "smooth", block: "center" })
+    }
+    if (!post) return
+    const modalTimer = setTimeout(() => setSelectedPost(post), 300)
+    return () => clearTimeout(modalTimer)
+  }, [focusPost, posts])
 
   // Handle loading and error states
   if (postsQuery.isLoading) {

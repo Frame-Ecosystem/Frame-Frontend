@@ -738,9 +738,37 @@ const fr: Record<string, string> = {
   "notifications.prompt.notNow": "Pas maintenant",
 
   // ── Search ──────────────────────────────────────────────────────────────
-  "search.placeholder": "Rechercher un centre par nom...",
-  "search.button": "Rechercher",
-  "search.validation": "Entrez quelque chose à rechercher",
+  "search.title": "Recherche",
+  "search.placeholder":
+    "Rechercher des personnes, publications, produits et plus...",
+  "search.clear": "Effacer",
+  "search.cancel": "Annuler",
+  "search.recentTitle": "Récent",
+  "search.clearRecent": "Tout effacer",
+  "search.seeAll": "Voir tout",
+  "search.noResults": 'Aucun résultat pour "{query}"',
+  "search.noResultsHint":
+    "Essayez différents mots-clés ou vérifiez l'orthographe.",
+  "search.error": "Une erreur est survenue. Veuillez réessayer.",
+  "search.emptyQuery":
+    "Rechercher des personnes, publications, produits et plus",
+  "search.filter.all": "Tout",
+  "search.filter.users": "Utilisateurs",
+  "search.filter.lounges": "Salons",
+  "search.filter.posts": "Publications",
+  "search.filter.reels": "Reels",
+  "search.filter.products": "Produits",
+  "search.filter.stores": "Magasins",
+  "search.filter.hashtags": "#Hashtags",
+  "search.filter.services": "Services",
+  "search.section.users": "Utilisateurs",
+  "search.section.lounges": "Salons",
+  "search.section.posts": "Publications",
+  "search.section.reels": "Reels",
+  "search.section.products": "Produits",
+  "search.section.stores": "Magasins",
+  "search.section.hashtags": "Hashtags",
+  "search.section.services": "Services",
 
   // ── Rating ──────────────────────────────────────────────────────────────
   "rating.poor": "Médiocre",

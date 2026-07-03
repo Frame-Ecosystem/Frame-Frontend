@@ -135,7 +135,7 @@ const DesktopNavbar = () => {
         <div className="flex items-center gap-1.5 md:gap-2 lg:gap-3">
           <CreateContentButton compact />
 
-          <Link href="/lounges">
+          <Link href="/search">
             <Button
               variant="ghost"
               size="icon"

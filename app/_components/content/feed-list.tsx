@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useCallback, useEffect, useMemo } from "react"
+import { useState, useCallback, useEffect, useMemo, useRef } from "react"
 import { useSearchParams } from "next/navigation"
 import { useInView } from "react-intersection-observer"
 import { useQuery } from "@tanstack/react-query"
@@ -166,6 +166,54 @@ export function FeedList({
     }
   }, [inView, hasNextPage, isFetchingNextPage, fetchNextPage, disableLoadMore])
 
+  // ── Scroll to a post from search (/?focusPost=postId) ───────
+  const focusPost = searchParams.get("focusPost")
+  const focusPostAttemptedRef = useRef(false)
+
+  useEffect(() => {
+    if (!focusPost || focusPostAttemptedRef.current) return
+
+    const postExists = items.some((i) => i._id === focusPost)
+    if (!postExists) {
+      if (hasNextPage && !isFetchingNextPage && !disableLoadMore) {
+        fetchNextPage()
+      }
+      return
+    }
+
+    focusPostAttemptedRef.current = true
+
+    // Clean up the URL param
+    const url = new URL(globalThis.location.href)
+    url.searchParams.delete("focusPost")
+    globalThis.history.replaceState({}, "", url.toString())
+
+    // Poll for the post element to appear in the DOM
+    const targetId = `post-${focusPost}`
+    let attempts = 0
+    const poll = setInterval(() => {
+      attempts++
+      const el = document.getElementById(targetId)
+      if (el) {
+        clearInterval(poll)
+        el.scrollIntoView({ behavior: "smooth", block: "center" })
+        el.classList.add("notif-highlight")
+        setTimeout(() => el.classList.remove("notif-highlight"), 3500)
+        return
+      }
+      if (attempts > 30) clearInterval(poll) // 15s timeout
+    }, 500)
+
+    return () => clearInterval(poll)
+  }, [
+    focusPost,
+    items,
+    hasNextPage,
+    isFetchingNextPage,
+    fetchNextPage,
+    disableLoadMore,
+  ])
+
   // ── Separate posts and reels (deduplicate across pages, filter invalid) ─────
   const posts = useMemo(() => {
     const seen = new Set<string>()
@@ -192,11 +240,13 @@ export function FeedList({
   // ── Fetch lounges for suggestion swiper ─────────────────────
   const { data: loungesData } = useQuery({
     queryKey: ["feed-lounge-suggestions"],
-    queryFn: () => clientService.getAllLounges({ limit: 10 }),
+    queryFn: (): Promise<any[]> =>
+      clientService.getAllLounges({ limit: 10 }).then((r) => r.data),
     staleTime: 5 * 60 * 1000,
+    throwOnError: false,
   })
 
-  const lounges = useMemo(() => loungesData?.data ?? [], [loungesData?.data])
+  const lounges = useMemo(() => loungesData ?? [], [loungesData])
 
   // ── Build interleaved feed slots (stable across re-renders) ─
   const slots = useMemo(

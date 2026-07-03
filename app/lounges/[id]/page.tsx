@@ -47,7 +47,8 @@ import { useCallback, useEffect, useRef, useState } from "react"
 import { useParams, useRouter, useSearchParams } from "next/navigation"
 import { getProfilePath } from "@/app/_systems/user/lib/profile"
 import { isLoungeCurrentlyOpen } from "@/app/_components/bookings/booking-utils"
-import { clientService } from "@/app/_services"
+import { clientService, loungeService } from "@/app/_services"
+import { useScrollToTarget } from "@/app/_hooks/useScrollToTarget"
 import { LoungeStatsDisplay } from "@/app/_components/lounges/_components/lounge-stats-display"
 import { OpeningHoursDisplay } from "@/app/_core/components/forms/opening-hours-display"
 import { LocationCard } from "@/app/_core/components/forms/location-card"
@@ -65,6 +66,8 @@ export default function LoungePage() {
   const isAuthenticated = !!user
   const router = useRouter()
   const searchParams = useSearchParams()
+
+  useScrollToTarget()
 
   // Redirect to own profile if visiting yourself
   useEffect(() => {
@@ -110,16 +113,12 @@ export default function LoungePage() {
   const [isBioExpanded, setIsBioExpanded] = useState(false)
   const [showRatingPopup, setShowRatingPopup] = useState(false)
   const [showFullHours, setShowFullHours] = useState(false)
-  const { data: liked = false } = useCheckLiked(
-    user?.type === "client" ? id : undefined,
-  )
+  const { data: liked = false } = useCheckLiked(id)
   const toggleLike = useToggleLike(id)
   const { data: myRating } = useMyRating(id)
   const isRated = !!myRating
   const { data: followCounts } = useFollowCounts(id)
-  const { data: isFollowing = false } = useCheckFollowing(
-    user?.type === "client" ? id : undefined,
-  )
+  const { data: isFollowing = false } = useCheckFollowing(id)
   const toggleFollow = useToggleFollow(id)
   const { data: apiExtras, isLoading: extrasLoading } =
     useVisitorLoungeExtras(id)
@@ -193,34 +192,51 @@ export default function LoungePage() {
         setLoading(true)
         setError(null)
 
-        const [loungeData, servicesData] = await Promise.all([
+        const [loungeData, servicesData] = (await Promise.all([
           clientService.getLoungeById(id),
-          clientService.getLoungeServicesById(id),
-        ])
+          loungeService.getServicesByLoungeId(id),
+        ])) as [any, any[]]
+
+        if (!loungeData) {
+          setCenter(null)
+          setError("Lounge not found")
+          return
+        }
+
+        const getValidImageUrl = (
+          image: string | { url?: string } | null | undefined,
+        ): string => {
+          if (!image) return "/images/placeholder.svg"
+          if (typeof image === "string" && image.trim()) return image
+          if (typeof image === "object" && image.url) return image.url
+          return "/images/placeholder.svg"
+        }
 
         const transformedServices: LoungeService[] = servicesData.map(
-          (service: any) => {
-            const getValidImageUrl = (image: any): string => {
-              if (!image) return "/images/placeholder.svg"
-              if (typeof image === "string" && image.trim()) return image
-              if (typeof image === "object" && image.url) return image.url
-              return "/images/placeholder.svg"
+          (service: {
+            _id: string
+            serviceId?: {
+              name?: string
+              description?: string
+              imageUrl?: string
             }
-
-            return {
-              _id: service._id,
-              id: service._id,
-              name: service.serviceId?.name || "Unnamed Service",
-              description: service.serviceId?.description || "",
-              imageUrl:
-                getValidImageUrl(service.image) ||
-                service.serviceId?.imageUrl ||
-                "/images/placeholder.svg",
-              price: service.price || 0,
-              durationMinutes: service.duration || 0,
-              loungeId: service.loungeId,
-            }
-          },
+            image?: string | { url?: string }
+            price?: number
+            duration?: number
+            loungeId?: string
+          }) => ({
+            _id: service._id,
+            id: service._id,
+            name: service.serviceId?.name || "Unnamed Service",
+            description: service.serviceId?.description || "",
+            imageUrl:
+              getValidImageUrl(service.image) ||
+              service.serviceId?.imageUrl ||
+              "/images/placeholder.svg",
+            price: service.price || 0,
+            durationMinutes: service.duration || 0,
+            loungeId: service.loungeId!,
+          }),
         )
 
         const displayEmail = loungeData?.email ?? undefined
@@ -259,9 +275,11 @@ export default function LoungePage() {
         }
 
         setCenter(transformedCenter)
-      } catch (err: any) {
-        if (err?.message === "AUTH_FAILURE") return
-        setError(err?.message || "Failed to load lounge details")
+      } catch (err: unknown) {
+        if (err instanceof Error && err.message === "AUTH_FAILURE") return
+        setError(
+          err instanceof Error ? err.message : "Failed to load lounge details",
+        )
       } finally {
         setLoading(false)
       }
@@ -464,7 +482,7 @@ export default function LoungePage() {
           )}
 
           {/* Action buttons: rate · like · follow · message */}
-          {user?.type === "client" && (
+          {user && (
             <div className="mt-3 flex items-center justify-center gap-3">
               {/* Rate */}
               <button
@@ -623,7 +641,10 @@ export default function LoungePage() {
         {/* ── Tab Content ─────────────────────────────────── */}
         <div className="mx-auto max-w-5xl px-4 py-6 sm:px-6 lg:px-8">
           {activeTab === "info" && (
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-start">
+            <div
+              id="tab-info"
+              className="flex flex-col gap-3 sm:flex-row sm:items-start"
+            >
               {center.openingHours && (
                 <div className="min-w-0 flex-1">
                   <button
@@ -676,28 +697,43 @@ export default function LoungePage() {
               </div>
             </div>
           )}
-          {activeTab === "posts" && id && <UserPostsTab userId={id} />}
-          {activeTab === "reels" && id && <UserReelsTab userId={id} isLounge />}
+          {activeTab === "posts" && id && (
+            <div id="tab-posts">
+              <UserPostsTab
+                userId={id}
+                focusPost={searchParams.get("focusPost")}
+              />
+            </div>
+          )}
+          {activeTab === "reels" && id && (
+            <div id="tab-reels">
+              <UserReelsTab userId={id} isLounge />
+            </div>
+          )}
           {activeTab === "services" && (
-            <OurServices services={center.services} center={center} />
+            <div id="tab-services">
+              <OurServices services={center.services} center={center} />
+            </div>
           )}
           {activeTab === "queue" && id && (
-            <QueueDisplay
-              centerName={center.name}
-              mode="client"
-              loungeId={id}
-              initialAgentId={searchParams.get("agentId")}
-              highlightBookingId={searchParams.get("bookingId")}
-            />
+            <div id="tab-queue">
+              <QueueDisplay
+                centerName={center.name}
+                mode="client"
+                loungeId={id}
+                initialAgentId={searchParams.get("agentId")}
+                highlightBookingId={searchParams.get("bookingId")}
+              />
+            </div>
           )}
           {activeTab === "reviews" && id && (
-            <div className="space-y-5">
+            <div id="tab-reviews" className="space-y-5">
               <div className="flex items-center justify-between">
                 <RatingSummaryBadge
                   averageRating={center.averageRating ?? 0}
                   ratingCount={center.ratingCount ?? 0}
                 />
-                {user?.type === "client" && (
+                {user && (
                   <Button
                     variant="outline"
                     size="sm"
@@ -726,9 +762,9 @@ export default function LoungePage() {
               prev
                 ? {
                     ...prev,
-                    averageRating: loungeData.averageRating ?? 0,
-                    ratingCount: loungeData.ratingCount ?? 0,
-                    likeCount: loungeData.likeCount ?? prev.likeCount ?? 0,
+                    averageRating: loungeData?.averageRating ?? 0,
+                    ratingCount: loungeData?.ratingCount ?? 0,
+                    likeCount: loungeData?.likeCount ?? prev.likeCount ?? 0,
                   }
                 : prev,
             )

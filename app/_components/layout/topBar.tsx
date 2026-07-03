@@ -69,7 +69,7 @@ const TopBar: React.FC<TopBarProps> = ({
               variant="ghost"
               size="icon"
               className="hover:bg-primary/10 relative flex h-10 w-10 items-center justify-center rounded-full p-0"
-              onClick={() => router.push("/lounges")}
+              onClick={() => router.push("/search")}
             >
               <div className="border-primary/30 flex h-10 w-10 items-center justify-center rounded-full border">
                 <Search className="h-5 w-5" />
@@ -91,7 +91,7 @@ const TopBar: React.FC<TopBarProps> = ({
               variant="ghost"
               size="icon"
               className="hover:bg-primary/10 relative flex h-10 w-10 items-center justify-center rounded-full p-0"
-              onClick={() => router.push("/lounges")}
+              onClick={() => router.push("/search")}
             >
               <div className="border-primary/30 flex h-10 w-10 items-center justify-center rounded-full border">
                 <Search className="h-5 w-5" />

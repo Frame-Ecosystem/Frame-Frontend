@@ -1,0 +1,124 @@
+"use client"
+
+import { useState, useEffect, useCallback } from "react"
+import { useParams, useRouter, useSearchParams } from "next/navigation"
+import { ArrowLeft, Film, Grid3X3 } from "lucide-react"
+import { ErrorBoundary } from "@/app/_components/common/errorBoundary"
+import { useAuth } from "@/app/_auth"
+import { Button } from "@/app/_components/ui/button"
+import { ImageLightbox } from "@/app/_components/common/images/image-lightbox"
+import { useAgentVisitorProfile } from "@/app/_hooks/queries/useAgentVisitorProfile"
+import { useTranslation } from "@/app/_i18n"
+
+import { AgentVisitorProfileSkeleton } from "@/app/_components/agents/visitor-profile-skeleton"
+import { AgentVisitorProfileHeader } from "@/app/_components/agents/visitor-profile-header"
+import { UserReelsTab } from "@/app/_components/profile/user-reels-tab"
+import { UserPostsTab } from "@/app/_components/profile/user-posts-tab"
+
+type Tab = "posts" | "reels"
+
+export default function AgentVisitorProfilePage() {
+  const params = useParams()
+  const agentId = params.id as string
+  const router = useRouter()
+  const searchParams = useSearchParams()
+  const { user, isLoading: authLoading } = useAuth()
+
+  useEffect(() => {
+    if (!authLoading && user && user._id === agentId) {
+      router.replace("/profile/agent")
+    }
+  }, [authLoading, user, agentId, router])
+
+  const {
+    data: agent,
+    isLoading: profileLoading,
+    error: profileError,
+  } = useAgentVisitorProfile(authLoading ? undefined : agentId)
+
+  const [activeTab, setActiveTab] = useState<Tab>("posts")
+
+  const { t } = useTranslation()
+  const [lightboxSrc, setLightboxSrc] = useState<string | null>(null)
+  const [lightboxAlt, setLightboxAlt] = useState("")
+
+  const handleImageClick = useCallback((src: string, alt: string) => {
+    setLightboxSrc(src)
+    setLightboxAlt(alt)
+  }, [])
+
+  if (authLoading || profileLoading) {
+    return <AgentVisitorProfileSkeleton />
+  }
+
+  if (profileError || !agent) {
+    return (
+      <ErrorBoundary>
+        <div className="flex min-h-screen flex-col items-center justify-center gap-4">
+          <p className="text-muted-foreground">
+            {(profileError as Error)?.message || t("clients.profileNotFound")}
+          </p>
+          <Button variant="outline" onClick={() => router.back()}>
+            <ArrowLeft className="mr-2 h-4 w-4" /> {t("clients.goBack")}
+          </Button>
+        </div>
+      </ErrorBoundary>
+    )
+  }
+
+  return (
+    <ErrorBoundary>
+      <ImageLightbox
+        src={lightboxSrc ?? ""}
+        alt={lightboxAlt}
+        open={!!lightboxSrc}
+        onClose={() => setLightboxSrc(null)}
+      />
+
+      <div className="from-background via-background to-muted/20 min-h-screen bg-linear-to-br">
+        <AgentVisitorProfileHeader
+          agent={agent}
+          onImageClick={handleImageClick}
+        />
+
+        {/* ── Tab Navigation ──────────────────────────────── */}
+        <div
+          data-nav-tabs
+          className="to-background/95 sticky top-[var(--header-offset)] z-50 mt-2 bg-gradient-to-b from-transparent shadow-sm backdrop-blur-md lg:top-[var(--header-offset-lg)]"
+        >
+          <div className="mx-auto flex w-full max-w-5xl gap-3 overflow-x-auto px-4 py-3 sm:px-6 lg:justify-evenly lg:px-8 [&::-webkit-scrollbar]:hidden">
+            <Button
+              variant="ghost"
+              size="sm"
+              className={`shrink-0 rounded-lg border px-3 py-2 text-sm font-medium transition-all duration-300 ${activeTab === "posts" ? "border-primary bg-primary/10 text-primary" : "border-border text-foreground hover:border-primary/50 hover:text-primary hover:bg-primary/5"}`}
+              onClick={() => setActiveTab("posts")}
+            >
+              <Grid3X3 className="h-4 w-4" />
+              {t("clients.tabs.posts")}
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              className={`shrink-0 rounded-lg border px-3 py-2 text-sm font-medium transition-all duration-300 ${activeTab === "reels" ? "border-primary bg-primary/10 text-primary" : "border-border text-foreground hover:border-primary/50 hover:text-primary hover:bg-primary/5"}`}
+              onClick={() => setActiveTab("reels")}
+            >
+              <Film className="h-4 w-4" />
+              {t("clients.tabs.reels")}
+            </Button>
+          </div>
+        </div>
+
+        {/* ── Tab Content ─────────────────────────────────── */}
+        <div className="mx-auto max-w-5xl px-4 py-6 sm:px-6 lg:px-8">
+          {activeTab === "posts" && (
+            <UserPostsTab
+              userId={agentId}
+              focusPost={searchParams?.get("focusPost")}
+            />
+          )}
+          {activeTab === "reels" && <UserReelsTab userId={agentId} />}
+        </div>
+      </div>
+    </ErrorBoundary>
+  )
+}
