@@ -46,7 +46,10 @@ const Home = () => {
                   {t("home.title")}
                 </h1>
               </div>
-              <p className="text-muted-foreground ml-1 text-sm lg:text-base">
+              <p
+                dir={dir}
+                className="text-muted-foreground ml-1 text-sm lg:text-base"
+              >
                 {t("home.subtitle")}
               </p>
             </div>

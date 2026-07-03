@@ -19,13 +19,15 @@ const ar: Record<string, string> = {
   "nav.reels": "ريلز",
   "nav.lounges": "الصالونات",
   "nav.messages": "الرسائل",
+  "nav.myQueue": "دوري",
   "nav.queue": "الانتظار",
   "nav.queues": " قائمة الإنتضار",
   "nav.bookings": "الحجوزات",
   "nav.chat": "الدردشة",
+  "nav.discover": "اكتشف",
   "nav.store": "المتجر",
   "nav.admin": "الإدارة",
-  "nav.profile": "الملف الشخصي",
+  "nav.profile": "الملف",
   "nav.notifications": "الإشعارات",
 
   // ── Common ──────────────────────────────────────────────────────────────

@@ -32,13 +32,13 @@ const MobileNavbar = () => {
 
   const queueHref = user.type === "agent" ? "/agent/queue" : "/queue"
   const showQueueInMiddle = user.type === "lounge" || user.type === "agent"
-  const queueLabel = user.type === "agent" ? "My Queue" : t("nav.queues")
-  const discoveryLabel = "Discover"
+  const queueLabel = user.type === "agent" ? t("nav.myQueue") : t("nav.queues")
+  const discoveryLabel = t("nav.discover")
 
   const navItems = [
     {
       href: "/home",
-      label: "Home",
+      label: t("nav.home"),
       icon: Home,
       isActive: pathname === "/home",
     },
