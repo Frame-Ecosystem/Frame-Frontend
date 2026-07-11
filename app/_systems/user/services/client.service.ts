@@ -107,6 +107,16 @@ const clientService = {
     }
   },
 
+  async getMostBookedLounges(): Promise<LoungeUser[]> {
+    try {
+      const response = await apiClient.get<any>(`/v1/lounge/most-booked`)
+      const list = response?.data ?? response
+      return Array.isArray(list) ? list : []
+    } catch {
+      return []
+    }
+  },
+
   async getLoungeById(loungeId: string): Promise<LoungeUser> {
     try {
       const response = await apiClient.get<{ data: LoungeUser }>(

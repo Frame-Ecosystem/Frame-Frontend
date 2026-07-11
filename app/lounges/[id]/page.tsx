@@ -48,7 +48,7 @@ import { useParams, useRouter, useSearchParams } from "next/navigation"
 import { getProfilePath } from "@/app/_systems/user/lib/profile"
 import { isLoungeCurrentlyOpen } from "@/app/_components/bookings/booking-utils"
 import { clientService, loungeService } from "@/app/_services"
-import { useScrollToTarget } from "@/app/_hooks/useScrollToTarget"
+
 import { LoungeStatsDisplay } from "@/app/_components/lounges/_components/lounge-stats-display"
 import { OpeningHoursDisplay } from "@/app/_core/components/forms/opening-hours-display"
 import { LocationCard } from "@/app/_core/components/forms/location-card"
@@ -66,8 +66,6 @@ export default function LoungePage() {
   const isAuthenticated = !!user
   const router = useRouter()
   const searchParams = useSearchParams()
-
-  useScrollToTarget()
 
   // Redirect to own profile if visiting yourself
   useEffect(() => {
@@ -109,6 +107,27 @@ export default function LoungePage() {
     url.searchParams.set("tab", tab)
     window.history.replaceState({}, "", url.toString())
   }, [])
+
+  // Scroll to focused service after services load
+  useEffect(() => {
+    const focusServiceId = searchParams.get("focusService")
+    if (!focusServiceId || !center?.services?.length) return
+
+    const timer = setTimeout(() => {
+      const el = document.getElementById(`service-${focusServiceId}`)
+      if (!el) return
+
+      el.scrollIntoView({ behavior: "smooth", block: "center" })
+      el.classList.add("notif-highlight")
+      const cleanup = setTimeout(() => {
+        el.classList.remove("notif-highlight")
+      }, 3500)
+      return () => clearTimeout(cleanup)
+    }, 300)
+
+    return () => clearTimeout(timer)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [center?.services])
 
   const [isBioExpanded, setIsBioExpanded] = useState(false)
   const [showRatingPopup, setShowRatingPopup] = useState(false)

@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation"
 import { Heart } from "lucide-react"
 import { useMyLikes } from "../../_hooks/queries"
 import { useAuth } from "@/app/_auth"
+import { useTranslation } from "../../_i18n"
 import type { LikedLounge } from "../../_types"
 import { cn } from "../../_lib/utils"
 import { FavoriteLoungesSkeleton } from "../skeletons/lounges"
@@ -62,6 +63,7 @@ export default function FavoriteLoungesSection({
 }: FavoriteLoungesSectionProps) {
   const { user } = useAuth()
   const { data, isLoading } = useMyLikes(20)
+  const { t } = useTranslation()
 
   const allLikes = data?.pages.flatMap((p) => p.data) ?? []
 
@@ -77,7 +79,7 @@ export default function FavoriteLoungesSection({
       <div className="my-2 flex items-center gap-3 lg:mb-3">
         <Heart size={20} className="fill-primary text-primary lg:h-6 lg:w-6" />
         <h2 className="text-muted-foreground lg:text-foreground text-xs font-bold uppercase lg:text-lg lg:font-semibold lg:normal-case">
-          Favorites
+          {t("lounges.favorites")}
         </h2>
       </div>
 

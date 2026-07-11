@@ -6,6 +6,7 @@ import { serviceService } from "../../_services"
 import { serviceCategoryService } from "../../_services"
 import { isAuthError } from "../../_services/api"
 import { quickSearchOptions } from "../../_constants/search"
+import { useTranslation } from "../../_i18n"
 import type { Service, ServiceCategory } from "../../_types"
 import { PopularServicesSkeleton } from "../skeletons/lounges"
 
@@ -23,20 +24,19 @@ export default function PopularServicesSection({
   onServiceSelect,
   selectedServiceId,
 }: PopularServicesSectionProps) {
-  const [services, setServices] = useState<Service[]>([])
+  const [allServices, setAllServices] = useState<Service[]>([])
+  const [showAll, setShowAll] = useState(false)
   const [categories, setCategories] = useState<ServiceCategory[]>([])
   const [loadingServices, setLoadingServices] = useState(true)
   const scrollContainerRef = useRef<HTMLDivElement>(null)
+  const { t } = useTranslation()
+
+  const INITIAL_COUNT = 6
 
   // Auto-scroll effect for popular services
   useEffect(() => {
     const container = scrollContainerRef.current
-    if (
-      !container ||
-      loadingServices ||
-      (services.length === 0 && quickSearchOptions.length === 0)
-    )
-      return
+    if (!container || loadingServices || allServices.length === 0) return
 
     let scrollInterval: NodeJS.Timeout
     let isPaused = false
@@ -97,7 +97,7 @@ export default function PopularServicesSection({
       container.removeEventListener("touchstart", handleTouchStart)
       container.removeEventListener("touchend", handleTouchEnd)
     }
-  }, [loadingServices, services.length])
+  }, [loadingServices, allServices.length])
 
   // Fetch categories on mount
   useEffect(() => {
@@ -119,6 +119,7 @@ export default function PopularServicesSection({
     const fetchServices = async () => {
       try {
         setLoadingServices(true)
+        setShowAll(false)
         const data = await serviceService.getAll()
 
         // Filter services by category if selectedCategoryId is provided
@@ -129,10 +130,10 @@ export default function PopularServicesSection({
           )
         }
 
-        setServices(filteredServices.slice(0, 6)) // Limit to 6 services for display
+        setAllServices(filteredServices)
       } catch (error) {
         if (isAuthError(error)) return
-        setServices([])
+        setAllServices([])
       } finally {
         setLoadingServices(false)
       }
@@ -146,8 +147,13 @@ export default function PopularServicesSection({
     (cat) => cat.id === selectedCategoryId,
   )
   const sectionTitle = selectedCategory
-    ? `${selectedCategory.name} Services`
-    : "Popular Services"
+    ? t("lounges.categoryServices", { category: selectedCategory.name })
+    : t("lounges.popularServices")
+
+  const hasMore = allServices.length > INITIAL_COUNT
+  const visibleServices = showAll
+    ? allServices
+    : allServices.slice(0, INITIAL_COUNT)
 
   return (
     <div className={className}>
@@ -164,10 +170,9 @@ export default function PopularServicesSection({
         {loadingServices ? (
           // Loading skeleton
           <PopularServicesSkeleton count={6} />
-        ) : services.length > 0 ? (
+        ) : visibleServices.length > 0 ? (
           <>
-            {/* Original services */}
-            {services.map((service) => (
+            {visibleServices.map((service) => (
               <Button
                 className={`popular-services-btn my-1 shrink-0 border-2 transition-all duration-200 hover:scale-105 lg:h-12 lg:shrink lg:justify-center lg:text-base ${
                   selectedServiceId === service.id
@@ -186,13 +191,24 @@ export default function PopularServicesSection({
                 {service.name}
               </Button>
             ))}
+            {hasMore && !showAll && (
+              <Button
+                className="border-primary/20 bg-background hover:bg-primary/10 hover:text-primary my-1 shrink-0 border-2 transition-all duration-200 hover:scale-105 lg:h-12 lg:shrink lg:justify-center lg:text-base"
+                variant="outline"
+                onClick={() => setShowAll(true)}
+              >
+                {t("common.seeMore")}
+              </Button>
+            )}
           </>
         ) : selectedCategoryId ? (
           <div className="py-8 text-center">
             <p className="text-muted-foreground">
               {selectedCategory
-                ? `${selectedCategory.name} Services Coming Soon`
-                : "Services from this category coming soon"}
+                ? t("lounges.categoryServicesComingSoon", {
+                    category: selectedCategory.name,
+                  })
+                : t("lounges.servicesComingSoon")}
             </p>
           </div>
         ) : (

@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from "react"
 import { Button } from "../ui/button"
 import { serviceCategoryService } from "../../_services"
 import { isAuthError } from "../../_services/api"
+import { useTranslation } from "../../_i18n"
 import type { ServiceCategory } from "../../_types"
 import { ServiceCategoriesSkeleton } from "../skeletons/lounges"
 
@@ -19,6 +20,7 @@ export default function ServiceCategoriesSection({
   onCategorySelect,
   selectedCategoryId,
 }: ServiceCategoriesSectionProps) {
+  const { t } = useTranslation()
   const [serviceCategories, setServiceCategories] = useState<ServiceCategory[]>(
     [],
   )
@@ -114,7 +116,7 @@ export default function ServiceCategoriesSection({
     <div className={className}>
       <div className="mb-3 flex items-center justify-between lg:mb-4">
         <h2 className="text-muted-foreground lg:text-foreground text-xs font-bold uppercase lg:text-lg lg:font-semibold lg:normal-case">
-          Service Categories
+          {t("lounges.serviceCategories")}
         </h2>
       </div>
 
@@ -136,7 +138,7 @@ export default function ServiceCategoriesSection({
               variant="outline"
               onClick={() => onCategorySelect?.(null)}
             >
-              All
+              {t("common.all")}
             </Button>
             {serviceCategories.map((category) => (
               <Button
@@ -160,7 +162,7 @@ export default function ServiceCategoriesSection({
         ) : (
           <div className="py-8 text-center">
             <p className="text-muted-foreground">
-              No service categories available
+              {t("lounges.noServiceCategories")}
             </p>
           </div>
         )}

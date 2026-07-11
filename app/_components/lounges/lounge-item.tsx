@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation"
 import { PhoneIcon, StarIcon, Heart } from "lucide-react"
 import { useAuth } from "@/app/_auth"
 import { useCheckLiked, useToggleLike } from "../../_hooks/queries"
+import { useTranslation } from "../../_i18n"
 import type { Lounge } from "../../_types"
 import { Badge } from "../ui/badge"
 import { Button } from "../ui/button"
@@ -14,6 +15,7 @@ import { Card, CardContent } from "../ui/card"
 const LoungeItem = ({ lounge }: { lounge: Lounge }) => {
   const { user } = useAuth()
   const router = useRouter()
+  const { t } = useTranslation()
   const isClient = user?.type === "client"
   const { data: liked } = useCheckLiked(isClient ? lounge.id : undefined)
   const toggleLike = useToggleLike(lounge.id)
@@ -72,7 +74,7 @@ const LoungeItem = ({ lounge }: { lounge: Lounge }) => {
             />
 
             <Badge
-              className="absolute top-2 left-2 space-x-1"
+              className="absolute start-2 top-2 space-x-1"
               variant="secondary"
             >
               <StarIcon size={12} className="fill-primary text-primary" />
@@ -85,12 +87,14 @@ const LoungeItem = ({ lounge }: { lounge: Lounge }) => {
 
             {lounge.isOpen !== undefined && (
               <Badge
-                className={`absolute top-2 right-2 border-none bg-transparent ${
+                className={`absolute end-2 top-2 border-none bg-transparent ${
                   lounge.isOpen ? "text-green-600" : "text-red-600"
                 }`}
               >
                 <p className="text-xs font-semibold">
-                  {lounge.isOpen ? "● Open" : "● Closed"}
+                  {lounge.isOpen
+                    ? `● ${t("lounges.open")}`
+                    : `● ${t("lounges.closed")}`}
                 </p>
               </Badge>
             )}
@@ -148,7 +152,7 @@ const LoungeItem = ({ lounge }: { lounge: Lounge }) => {
               className="mt-3 w-full"
               onClick={handleBookNowClick}
             >
-              Book Now
+              {t("bookings.bookNow")}
             </Button>
           </div>
         </CardContent>

@@ -1,13 +1,12 @@
 "use client"
 
-import { useState, useEffect, useCallback, useRef } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { useAuth } from "@/app/_auth"
-import { useRouter, useSearchParams } from "next/navigation"
+import { useRouter } from "next/navigation"
 import clientService from "../_services/client.service"
 import { isAuthError } from "../_services/api"
 import { Button } from "../_components/ui/button"
-import { Input } from "../_components/ui/input"
-import { Search as SearchIcon, TrendingUpIcon, Globe, X } from "lucide-react"
+import { Globe, Award, Plus as PlusIcon, Flame } from "lucide-react"
 import Link from "next/link"
 import LoungeItem from "../_components/lounges/lounge-item"
 import ServiceCategoriesSection from "../_components/lounges/service-categories-section"
@@ -17,6 +16,9 @@ import { ErrorBoundary } from "../_components/common/errorBoundary"
 import { isCurrentlyOpen } from "./_lib/opening-hours-utils"
 import { LoungesListSkeleton } from "../_components/skeletons/lounges"
 import { useTranslation } from "@/app/_i18n"
+import type { Lounge } from "../_types"
+
+const PAGE_SIZE = 5
 
 interface LoungeUser {
   _id: string
@@ -37,21 +39,63 @@ interface LoungeUser {
   averageRating?: number
   ratingCount?: number
   likeCount?: number
-  distance?: number // in kilometers, returned when location-based sorting is used
+  distance?: number
+}
+
+function toLounge(l: LoungeUser): Lounge {
+  return {
+    id: l._id,
+    name: l.loungeTitle || `${l.firstName || ""} ${l.lastName || ""}`.trim(),
+    address: l.bio || "",
+    imageUrl: l.profileImage?.url || "/images/placeholder.png",
+    phones: l.phoneNumber ? [l.phoneNumber] : [],
+    isOpen: isCurrentlyOpen(l.openingHours),
+    averageRating: l.averageRating ?? 0,
+    ratingCount: l.ratingCount ?? 0,
+    likeCount: l.likeCount ?? 0,
+  }
+}
+
+function LoungeSliderSkeleton({ count = 5 }: { count?: number }) {
+  return (
+    <div className="flex gap-4 overflow-hidden">
+      {[...Array(count)].map((_, i) => (
+        <div
+          key={i}
+          className="bg-muted-foreground/10 h-64 w-[168px] shrink-0 animate-pulse rounded-2xl"
+        />
+      ))}
+    </div>
+  )
+}
+
+function LoadMoreCard({
+  onClick,
+  label,
+}: {
+  onClick: () => void
+  label: string
+}) {
+  return (
+    <button
+      onClick={onClick}
+      className="border-primary/20 bg-primary/5 hover:bg-primary/10 flex h-[168px] w-[112px] shrink-0 cursor-pointer flex-col items-center justify-center gap-2 self-center rounded-2xl border-2 border-dashed transition-colors"
+    >
+      <PlusIcon className="text-primary h-6 w-6" />
+      <span className="text-primary text-xs font-medium">{label}</span>
+    </button>
+  )
 }
 
 export default function LoungesPage() {
   const { user, isLoading } = useAuth()
   const router = useRouter()
-  const searchParams = useSearchParams()
   const { t, dir } = useTranslation()
 
   const [lounges, setLounges] = useState<LoungeUser[]>([])
   const [loading, setLoading] = useState(true)
-  const [searchTerm, setSearchTerm] = useState(searchParams.get("search") || "")
   const [page, setPage] = useState(1)
   const [totalPages, setTotalPages] = useState(1)
-  const [viewMode] = useState<"grid" | "list">("grid")
   const [error, setError] = useState<string | null>(null)
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(
     null,
@@ -66,32 +110,29 @@ export default function LoungesPage() {
     latitude: number
     longitude: number
   } | null>(null)
+  const [mostBookedLounges, setMostBookedLounges] = useState<LoungeUser[]>([])
+  const [loadingMostBooked, setLoadingMostBooked] = useState(true)
+  const [visibleMostBookedCount, setVisibleMostBookedCount] =
+    useState(PAGE_SIZE)
+  const [visibleAllCount, setVisibleAllCount] = useState(PAGE_SIZE)
 
   useEffect(() => {
-    if (!isLoading && !user) {
-      router.push("/")
-    }
+    if (!isLoading && !user) router.push("/")
   }, [isLoading, user, router])
 
-  // Redirect lounge users away from lounges page
   useEffect(() => {
-    if (!isLoading && user && user.type === "lounge") {
-      router.push("/home")
-    }
+    if (!isLoading && user && user.type === "lounge") router.push("/home")
   }, [isLoading, user, router])
 
-  // Get user location on component mount
   useEffect(() => {
-    // First, check if user has stored location data
     if (user?.location) {
       setUserLocation({
         latitude: user.location.latitude,
         longitude: user.location.longitude,
       })
-      return // Don't fetch browser location if user has stored location
+      return
     }
 
-    // Fallback to browser geolocation if no stored location
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (position) => {
@@ -100,117 +141,80 @@ export default function LoungesPage() {
             longitude: position.coords.longitude,
           })
         },
-        (_error) => {
-          // Geolocation failed, continue without location
-        },
-        {
-          enableHighAccuracy: true,
-          timeout: 10000,
-          maximumAge: 300000, // 5 minutes
-        },
+        () => {},
+        { enableHighAccuracy: true, timeout: 10000, maximumAge: 300000 },
       )
     }
   }, [user])
 
-  const fetchLounges = useCallback(async () => {
-    if (!user?.type) {
-      setError(t("lounges.profileRequired"))
-      setLoading(false)
-      return
-    }
-
-    // Allow both clients and admins to attempt accessing lounges
-    // Backend may restrict admins, but let them try
-
-    try {
-      setLoading(true)
-      setError(null)
-
-      let response
-      if (selectedServiceId) {
-        // Use the service-specific endpoint when a service is selected
-        response = await clientService.getLoungesByService(selectedServiceId, {
-          page,
-          limit: 20,
-          search: searchTerm || undefined,
-          userLatitude: userLocation?.latitude,
-          userLongitude: userLocation?.longitude,
-        })
-      } else {
-        // Use the general lounges endpoint when no service is selected
-        response = await clientService.getAllLounges({
-          page,
-          limit: 20,
-          search: searchTerm || undefined,
-        })
-      }
-
-      setLounges(response.data || [])
-      setTotalPages(response.pagination?.totalPages || 1)
-    } catch (_error: any) {
-      if (isAuthError(_error)) return
-      setLounges([])
-      setTotalPages(1)
-
-      // Handle specific error cases
-      const errorMessage = _error?.message || ""
-      if (
-        errorMessage.includes("Client access required") ||
-        errorMessage.includes("access")
-      ) {
-        setError(t("lounges.clientAccessRequired"))
-      } else {
-        setError(t("lounges.loadError"))
-      }
-    } finally {
-      setLoading(false)
-    }
-  }, [user, selectedServiceId, page, searchTerm, userLocation, t])
-
-  // Debounced search effect
-  const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null)
-  const fetchLoungesRef = useRef(fetchLounges)
-
-  // Keep the ref updated with the latest fetchLounges function
   useEffect(() => {
-    fetchLoungesRef.current = fetchLounges
-  }, [fetchLounges])
-
-  useEffect(() => {
-    if (searchTimeoutRef.current) {
-      clearTimeout(searchTimeoutRef.current)
-    }
-
-    searchTimeoutRef.current = setTimeout(() => {
-      if (user) {
-        setPage(1) // Reset to first page when searching
-        fetchLoungesRef.current()
-      }
-    }, 500) // 500ms debounce
-
-    return () => {
-      if (searchTimeoutRef.current) {
-        clearTimeout(searchTimeoutRef.current)
+    const fetchMostBooked = async () => {
+      try {
+        setLoadingMostBooked(true)
+        const data = await clientService.getMostBookedLounges()
+        setMostBookedLounges(data)
+      } catch {
+        setMostBookedLounges([])
+      } finally {
+        setLoadingMostBooked(false)
       }
     }
-  }, [searchTerm, user])
+    if (user) fetchMostBooked()
+  }, [user])
+
+  const fetchLounges = useCallback(
+    async (options?: { append?: boolean; pageOverride?: number }) => {
+      if (!user?.type) {
+        setError(t("lounges.profileRequired"))
+        setLoading(false)
+        return
+      }
+
+      const targetPage = options?.pageOverride ?? page
+
+      try {
+        setLoading(true)
+        setError(null)
+
+        const response = selectedServiceId
+          ? await clientService.getLoungesByService(selectedServiceId, {
+              page: targetPage,
+              limit: 20,
+              userLatitude: userLocation?.latitude,
+              userLongitude: userLocation?.longitude,
+            })
+          : await clientService.getAllLounges({
+              page: targetPage,
+              limit: 20,
+            })
+
+        const newLounges = response.data || []
+        setLounges((prev) =>
+          options?.append ? [...prev, ...newLounges] : newLounges,
+        )
+        setTotalPages(response.pagination?.totalPages || 1)
+      } catch (_error: any) {
+        if (isAuthError(_error)) return
+        if (!options?.append) setLounges([])
+        setTotalPages(1)
+
+        const msg = _error?.message || ""
+        setError(
+          msg.includes("Client access required") || msg.includes("access")
+            ? t("lounges.clientAccessRequired")
+            : t("lounges.loadError"),
+        )
+      } finally {
+        setLoading(false)
+      }
+    },
+    [user, selectedServiceId, page, userLocation, t],
+  )
 
   useEffect(() => {
-    if (user) {
-      fetchLounges()
-    }
+    if (user) fetchLounges()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user, page, selectedServiceId, userLocation])
-
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault()
-    // Search is now automatic via debounced effect, but this handles form submission
-    if (searchTimeoutRef.current) {
-      clearTimeout(searchTimeoutRef.current)
-    }
-    setPage(1)
-    fetchLoungesRef.current()
-  }
 
   const handleServiceSelect = (
     serviceId: string | null,
@@ -218,7 +222,16 @@ export default function LoungesPage() {
   ) => {
     setSelectedServiceId(serviceId)
     setSelectedServiceName(serviceId ? serviceName || null : null)
-    setPage(1) // Reset to first page when filtering
+    setPage(1)
+    setVisibleAllCount(PAGE_SIZE)
+    setVisibleMostBookedCount(PAGE_SIZE)
+  }
+
+  const handleLoadMoreAll = () => {
+    const nextPage = page + 1
+    setPage(nextPage)
+    setVisibleAllCount((c) => c + PAGE_SIZE)
+    fetchLounges({ append: true, pageOverride: nextPage })
   }
 
   if (isLoading) {
@@ -229,32 +242,37 @@ export default function LoungesPage() {
     )
   }
 
-  if (!user) {
-    return null
-  }
+  if (!user) return null
 
-  const transformedLounges = lounges.map((lounge) => ({
-    id: lounge._id,
-    name:
-      lounge.loungeTitle ||
-      `${lounge.firstName || ""} ${lounge.lastName || ""}`.trim(),
-    address: lounge.bio || "",
-    imageUrl: lounge.profileImage?.url || "/images/placeholder.png",
-    phones: lounge.phoneNumber ? [lounge.phoneNumber] : [],
-    isOpen: isCurrentlyOpen(lounge.openingHours),
-    averageRating: lounge.averageRating ?? 0,
-    ratingCount: lounge.ratingCount ?? 0,
-    likeCount: lounge.likeCount ?? 0,
-  }))
+  const transformedLounges = lounges.map(toLounge)
+
+  const filteredMostBooked = selectedServiceId
+    ? mostBookedLounges.filter(
+        (l) =>
+          (l as any).serviceId === selectedServiceId ||
+          (l as any).services?.includes(selectedServiceId),
+      )
+    : mostBookedLounges
+
+  const transformedMostBooked = filteredMostBooked.map(toLounge)
+
+  const showMoreCard = visibleAllCount < transformedLounges.length
+  const showLoadMoreButton =
+    visibleAllCount >= transformedLounges.length &&
+    page < totalPages &&
+    !loading
 
   return (
     <ErrorBoundary>
-      <div className="from-background via-background to-muted/20 min-h-screen bg-linear-to-br">
+      <div
+        dir={dir}
+        className="from-background via-background to-muted/20 min-h-screen bg-linear-to-br"
+      >
         <div className="mx-auto max-w-7xl lg:pt-0">
           <div className="p-5 lg:px-8 lg:py-12">
             {/* HERO SECTION */}
             <div className="mb-8 lg:mb-12">
-              <div dir={dir} className="mt-6 mb-2 flex items-center gap-3">
+              <div className="mt-6 mb-2 flex items-center gap-3">
                 <div className="bg-primary/10 rounded-xl p-2">
                   <Globe className="text-primary h-6 w-6 lg:h-7 lg:w-7" />
                 </div>
@@ -262,22 +280,19 @@ export default function LoungesPage() {
                   {t("lounges.title")}
                 </h1>
               </div>
-              <p className="text-muted-foreground ml-1 text-sm lg:text-base">
+              <p className="text-muted-foreground ms-1 text-sm lg:text-base">
                 {t("lounges.subtitle")}
               </p>
             </div>
 
-            {/* FAVORITE LOUNGES SECTION */}
             <FavoriteLoungesSection className="mt-0 lg:mt-8" />
 
-            {/* SERVICE CATEGORIES SECTION */}
             <ServiceCategoriesSection
               className="mt-4 lg:mt-8"
               onCategorySelect={setSelectedCategoryId}
               selectedCategoryId={selectedCategoryId}
             />
 
-            {/* POPULAR SERVICES SECTION */}
             <PopularServicesSection
               className="mt-4 lg:mt-8"
               selectedCategoryId={selectedCategoryId}
@@ -285,18 +300,57 @@ export default function LoungesPage() {
               selectedServiceId={selectedServiceId}
             />
 
-            {/* ALL CENTERS SECTION */}
+            {/* MOST BOOKED SALONS */}
+            {(loadingMostBooked || transformedMostBooked.length > 0) && (
+              <div className="mt-6 lg:mt-12">
+                <div className="mb-3 flex items-center gap-3 lg:mb-4">
+                  <div className="bg-primary/10 rounded-lg p-1.5">
+                    <Award className="text-primary h-4 w-4 lg:h-5 lg:w-5" />
+                  </div>
+                  <div className="flex flex-col">
+                    <h2 className="text-muted-foreground lg:text-foreground text-xs font-bold uppercase lg:text-lg lg:font-semibold lg:normal-case">
+                      {t("lounges.mostBooked")}
+                    </h2>
+                    <p className="text-muted-foreground -mb-2 text-xs lg:text-sm">
+                      {t("lounges.mostBookedSubtitle")}
+                    </p>
+                  </div>
+                </div>
+
+                {loadingMostBooked ? (
+                  <LoungeSliderSkeleton />
+                ) : (
+                  <div className="flex gap-4 overflow-x-auto pb-2 [&::-webkit-scrollbar]:hidden">
+                    {transformedMostBooked
+                      .slice(0, visibleMostBookedCount)
+                      .map((lounge) => (
+                        <LoungeItem key={lounge.id} lounge={lounge} />
+                      ))}
+                    {visibleMostBookedCount < transformedMostBooked.length && (
+                      <LoadMoreCard
+                        onClick={() =>
+                          setVisibleMostBookedCount((c) => c + PAGE_SIZE)
+                        }
+                        label={t("common.seeMore")}
+                      />
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* POPULAR SALONS */}
             <div className="mt-6 mb-12 lg:mt-20">
               <div className="mb-6 flex items-center justify-between lg:mb-8">
                 <div className="flex items-center gap-3">
-                  <TrendingUpIcon className="text-primary h-5 w-5 lg:h-6 lg:w-6" />
+                  <Flame className="text-primary h-5 w-5 lg:h-6 lg:w-6" />
                   <div className="flex flex-col">
                     <h2 className="text-muted-foreground lg:text-foreground text-xs font-bold uppercase lg:text-lg lg:font-semibold lg:normal-case">
                       {selectedServiceName
                         ? t("lounges.loungesOffering", {
                             service: selectedServiceName,
                           })
-                        : t("lounges.allLounges")}
+                        : t("lounges.popularSalons")}
                     </h2>
                     {userLocation ? (
                       <p className="text-muted-foreground -mb-2 text-xs lg:text-sm">
@@ -314,45 +368,12 @@ export default function LoungesPage() {
                 </div>
               </div>
 
-              {/* Search */}
-              <form onSubmit={handleSearch} className="mb-4">
-                <div className="relative">
-                  <SearchIcon className="text-muted-foreground absolute top-1/2 left-3 h-5 w-5 -translate-y-1/2" />
-                  <Input
-                    type="text"
-                    placeholder={t("lounges.searchPlaceholder")}
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="pr-10 pl-10"
-                  />
-                  {searchTerm && (
-                    <button
-                      type="button"
-                      onClick={() => setSearchTerm("")}
-                      className="text-muted-foreground hover:text-foreground absolute top-1/2 right-3 h-5 w-5 -translate-y-1/2 transition-colors"
-                    >
-                      <X className="h-4 w-4" />
-                    </button>
-                  )}
-                </div>
-              </form>
-
               {loading ? (
-                <div className="grid grid-cols-1 gap-4 lg:grid-cols-4 lg:gap-6">
-                  {[...Array(8)].map((_, i) => (
-                    <div
-                      key={i}
-                      className="bg-muted-foreground/10 h-48 w-full animate-pulse rounded-lg"
-                    />
-                  ))}
-                </div>
+                <LoungeSliderSkeleton />
               ) : error ? (
                 <div className="py-12 text-center">
                   <p className="text-destructive mb-4">{error}</p>
-                  <Button
-                    onClick={() => fetchLoungesRef.current()}
-                    variant="outline"
-                  >
+                  <Button onClick={() => fetchLounges()} variant="outline">
                     {t("common.retry")}
                   </Button>
                 </div>
@@ -363,54 +384,31 @@ export default function LoungesPage() {
                   </p>
                 </div>
               ) : (
-                <>
-                  <div
-                    className={
-                      viewMode === "grid"
-                        ? "flex gap-4 overflow-auto lg:grid lg:grid-cols-3 lg:gap-6 lg:overflow-visible xl:grid-cols-4 2xl:grid-cols-5 [&::-webkit-scrollbar]:hidden"
-                        : "space-y-4"
-                    }
-                  >
-                    {transformedLounges.map((lounge) => (
+                <div className="flex gap-4 overflow-x-auto pb-2 [&::-webkit-scrollbar]:hidden">
+                  {transformedLounges
+                    .slice(0, visibleAllCount)
+                    .map((lounge) => (
                       <LoungeItem key={lounge.id} lounge={lounge} />
                     ))}
-                  </div>
-
-                  {/* Pagination */}
-                  {totalPages > 1 && (
-                    <div className="mt-8 flex justify-center gap-2">
-                      <Button
-                        variant="outline"
-                        disabled={page === 1}
-                        onClick={() => setPage(page - 1)}
-                      >
-                        {t("common.previous")}
-                      </Button>
-                      <div className="flex items-center gap-2">
-                        {[...Array(Math.min(totalPages, 5))].map((_, i) => {
-                          const pageNum = i + 1
-                          return (
-                            <Button
-                              key={i}
-                              variant={page === pageNum ? "default" : "outline"}
-                              size="icon"
-                              onClick={() => setPage(pageNum)}
-                            >
-                              {pageNum}
-                            </Button>
-                          )
-                        })}
-                      </div>
-                      <Button
-                        variant="outline"
-                        disabled={page === totalPages}
-                        onClick={() => setPage(page + 1)}
-                      >
-                        {t("common.next")}
-                      </Button>
-                    </div>
+                  {showMoreCard && (
+                    <LoadMoreCard
+                      onClick={() => setVisibleAllCount((c) => c + PAGE_SIZE)}
+                      label={t("common.seeMore")}
+                    />
                   )}
-                </>
+                </div>
+              )}
+
+              {showLoadMoreButton && (
+                <div className="mt-6 flex justify-center">
+                  <Button
+                    variant="outline"
+                    className="border-primary/20 bg-primary/5 hover:bg-primary/10 text-primary border-2 border-dashed"
+                    onClick={handleLoadMoreAll}
+                  >
+                    {t("common.seeMore")}
+                  </Button>
+                </div>
               )}
             </div>
           </div>
