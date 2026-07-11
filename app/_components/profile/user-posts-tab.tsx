@@ -15,7 +15,7 @@ interface UserPostsTabProps {
 
 /**
  * Displays a user's posts in an infinite-scroll 3-column grid.
- * Clicking a post opens a modal with the full post details.
+ * Clicking a post opens a scrollable feed focused on the selected post.
  */
 export const UserPostsTab = memo(function UserPostsTab({
   userId,

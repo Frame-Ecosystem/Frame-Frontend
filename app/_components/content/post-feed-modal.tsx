@@ -25,7 +25,6 @@ export function PostFeedModal({
   onOpenChange,
 }: PostFeedModalProps) {
   const { dir } = useTranslation()
-  const scrollRef = useRef<HTMLDivElement>(null)
   const focusedRef = useRef<HTMLDivElement>(null)
 
   // Lock body scroll while open
@@ -87,7 +86,7 @@ export function PostFeedModal({
       </div>
 
       {/* Scrollable feed */}
-      <div ref={scrollRef} className="flex-1 overflow-y-auto">
+      <div className="flex-1 overflow-y-auto">
         <div className="mx-auto w-full max-w-[680px] space-y-4 px-4 pt-8 pb-28 lg:space-y-5 lg:px-0 lg:pb-12">
           {posts.map((post, index) => (
             <div

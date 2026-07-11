@@ -24,15 +24,9 @@ interface PostCardProps {
   post: Post
   priority?: boolean
   onCommentClick?: () => void
-  onEditClick?: () => void
 }
 
-export function PostCard({
-  post,
-  priority,
-  onCommentClick,
-  onEditClick: _onEditClick,
-}: PostCardProps) {
+export function PostCard({ post, priority, onCommentClick }: PostCardProps) {
   const { user } = useAuth()
   const [showReport, setShowReport] = useState(false)
   const [showEdit, setShowEdit] = useState(false)

@@ -25,14 +25,12 @@ interface PostCardProps {
   post: Post
   priority?: boolean
   onCommentClick?: () => void
-  onEditClick?: () => void
 }
 
 export function PostCard({
   post,
   priority,
   onCommentClick,
-  onEditClick: _onEditClick,
 }: Readonly<PostCardProps>) {
   const { user } = useAuth()
   const { t, dir } = useTranslation()
