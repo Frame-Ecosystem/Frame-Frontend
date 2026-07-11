@@ -3,7 +3,7 @@
 import { useMemo, memo, useState, useEffect } from "react"
 import { useUserPosts } from "../../_hooks/queries/useContent"
 import { ContentGrid } from "../content/content-grid"
-import { PostDetailModal } from "../content/post-detail-modal"
+import { PostFeedModal } from "../content/post-feed-modal"
 import { CreatePostDialog } from "../content/create-post-dialog"
 import { useAuth } from "@/app/_auth"
 import type { Post } from "../../_types/content"
@@ -83,8 +83,9 @@ export const UserPostsTab = memo(function UserPostsTab({
         onOpenChange={setShowCreatePost}
       />
 
-      <PostDetailModal
-        post={selectedPost}
+      <PostFeedModal
+        posts={posts}
+        focusedPost={selectedPost}
         open={!!selectedPost}
         onOpenChange={(open) => {
           if (!open) setSelectedPost(null)
