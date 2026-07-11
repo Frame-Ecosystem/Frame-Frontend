@@ -948,7 +948,7 @@ const ar: Record<string, string> = {
   "booking.service": "خدمة",
   "booking.services": "خدمات",
   "booking.dt": "دت",
-  "booking.min": "د",
+  "booking.min": "دقيقة",
   "booking.handledBy": "تمت المعالجة",
   "booking.by": "بواسطة {name}",
   "booking.handledByMultiple": "تمت المعالجة بواسطة:",
