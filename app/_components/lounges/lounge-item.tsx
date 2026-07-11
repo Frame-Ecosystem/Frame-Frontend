@@ -1,6 +1,6 @@
 "use client"
 
-import { useCallback } from "react"
+import { memo, useCallback } from "react"
 import Image from "next/image"
 import { useRouter } from "next/navigation"
 import { PhoneIcon, StarIcon, Heart } from "lucide-react"
@@ -161,4 +161,4 @@ const LoungeItem = ({ lounge }: { lounge: Lounge }) => {
   )
 }
 
-export default LoungeItem
+export default memo(LoungeItem)

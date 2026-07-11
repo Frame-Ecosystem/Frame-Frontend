@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useCallback } from "react"
+import { useState, useEffect, useCallback, useMemo } from "react"
 import { useAuth } from "@/app/_auth"
 import { useRouter } from "next/navigation"
 import clientService from "../_services/client.service"
@@ -234,6 +234,25 @@ export default function LoungesPage() {
     fetchLounges({ append: true, pageOverride: nextPage })
   }
 
+  const transformedLounges = useMemo(() => lounges.map(toLounge), [lounges])
+
+  const filteredMostBooked = useMemo(
+    () =>
+      selectedServiceId
+        ? mostBookedLounges.filter(
+            (l) =>
+              (l as any).serviceId === selectedServiceId ||
+              (l as any).services?.includes(selectedServiceId),
+          )
+        : mostBookedLounges,
+    [mostBookedLounges, selectedServiceId],
+  )
+
+  const transformedMostBooked = useMemo(
+    () => filteredMostBooked.map(toLounge),
+    [filteredMostBooked],
+  )
+
   if (isLoading) {
     return (
       <ErrorBoundary>
@@ -243,18 +262,6 @@ export default function LoungesPage() {
   }
 
   if (!user) return null
-
-  const transformedLounges = lounges.map(toLounge)
-
-  const filteredMostBooked = selectedServiceId
-    ? mostBookedLounges.filter(
-        (l) =>
-          (l as any).serviceId === selectedServiceId ||
-          (l as any).services?.includes(selectedServiceId),
-      )
-    : mostBookedLounges
-
-  const transformedMostBooked = filteredMostBooked.map(toLounge)
 
   const showMoreCard = visibleAllCount < transformedLounges.length
   const showLoadMoreButton =
@@ -320,7 +327,7 @@ export default function LoungesPage() {
                 {loadingMostBooked ? (
                   <LoungeSliderSkeleton />
                 ) : (
-                  <div className="flex gap-4 overflow-x-auto pb-2 [&::-webkit-scrollbar]:hidden">
+                  <div className="flex min-h-[168px] gap-4 overflow-x-auto pb-2 contain-layout [&::-webkit-scrollbar]:hidden">
                     {transformedMostBooked
                       .slice(0, visibleMostBookedCount)
                       .map((lounge) => (
@@ -384,7 +391,7 @@ export default function LoungesPage() {
                   </p>
                 </div>
               ) : (
-                <div className="flex gap-4 overflow-x-auto pb-2 [&::-webkit-scrollbar]:hidden">
+                <div className="flex min-h-[168px] gap-4 overflow-x-auto pb-2 contain-layout [&::-webkit-scrollbar]:hidden">
                   {transformedLounges
                     .slice(0, visibleAllCount)
                     .map((lounge) => (
