@@ -88,7 +88,7 @@ export function PostFeedModal({
 
       {/* Scrollable feed */}
       <div ref={scrollRef} className="flex-1 overflow-y-auto">
-        <div className="mx-auto w-full max-w-[680px] space-y-4 px-4 py-4 lg:space-y-5 lg:px-0">
+        <div className="mx-auto w-full max-w-[680px] space-y-4 px-4 pt-4 pb-28 lg:space-y-5 lg:px-0 lg:pb-12">
           {posts.map((post, index) => (
             <div
               key={post._id}
