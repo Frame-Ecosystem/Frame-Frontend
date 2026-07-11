@@ -154,7 +154,9 @@ export function ContentGrid({
 
 /** Compact grid thumbnail for a post */
 function PostGridItem({ post, onClick }: { post: Post; onClick?: () => void }) {
-  const thumbnail = post.media?.[0]?.url || "/images/placeholder.png"
+  const hasMedia = post.media && post.media.length > 0
+  const thumbnail = post.media?.[0]?.url
+  const text = post.text ?? ""
 
   return (
     <div
@@ -162,13 +164,21 @@ function PostGridItem({ post, onClick }: { post: Post; onClick?: () => void }) {
       onClick={onClick}
       className="bg-muted group relative aspect-square cursor-pointer overflow-hidden"
     >
-      <Image
-        src={thumbnail}
-        alt=""
-        fill
-        className="object-cover transition group-hover:brightness-75"
-        sizes="(max-width: 768px) 33vw, 200px"
-      />
+      {hasMedia ? (
+        <Image
+          src={thumbnail!}
+          alt=""
+          fill
+          className="object-cover transition group-hover:brightness-75"
+          sizes="(max-width: 768px) 33vw, 200px"
+        />
+      ) : (
+        <div className="from-primary/5 to-primary/15 flex h-full w-full items-center justify-center bg-gradient-to-br p-3">
+          <p className="text-foreground line-clamp-5 text-center text-xs leading-snug font-medium sm:text-sm">
+            {text || "\u00A0"}
+          </p>
+        </div>
+      )}
       {/* Multiple images indicator */}
       {post.media && post.media.length > 1 && (
         <div className="absolute top-2 right-2">
