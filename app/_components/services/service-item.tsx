@@ -19,7 +19,8 @@ const ServiceItem = ({
     <>
       {/* ===== SERVICE CARD ===== */}
       <Card
-        className={`cursor-pointer transition-all duration-200 hover:shadow-md ${
+        id={`service-${service.id}`}
+        className={`cursor-pointer scroll-mt-32 transition-all duration-200 hover:shadow-md ${
           isSelected
             ? "ring-primary bg-primary/5 ring-2"
             : "hover:ring-primary/50 hover:ring-1"
