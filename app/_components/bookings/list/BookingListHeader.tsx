@@ -10,21 +10,16 @@ import { useTranslation } from "@/app/_i18n"
 
 interface BookingListHeaderProps {
   statusFilter: BookingStatus | "all"
-
   setStatusFilter: (value: BookingStatus | "all") => void
-  show: boolean
 }
 
 export function BookingListHeader({
   statusFilter,
   setStatusFilter,
-  show,
 }: BookingListHeaderProps) {
   const { t } = useTranslation()
-  if (!show) return null
   return (
-    <div className="flex items-center justify-between">
-      <div />
+    <div className="flex items-center justify-end">
       <Select
         value={statusFilter}
         onValueChange={(value) =>

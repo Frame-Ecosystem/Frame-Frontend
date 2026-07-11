@@ -1,7 +1,7 @@
 ﻿"use client"
 
 import { useTranslation } from "@/app/_i18n"
-import { Card, CardContent } from "@/app/_components/ui/card"
+import { Card, CardContent, CardFooter } from "@/app/_components/ui/card"
 import { BookingAvatar } from "./booking-avatar"
 import { BookingStatusBadge } from "./BookingStatusBadge"
 import { BookingLocationLink } from "./BookingLocationLink"
@@ -39,7 +39,11 @@ export function BookingCard({
 }: BookingCardProps) {
   const { t } = useTranslation()
   const loungeId =
-    typeof booking.lounge === "object" ? booking.lounge?._id : undefined
+    typeof booking.lounge === "object"
+      ? booking.lounge?._id
+      : typeof booking.lounge === "string"
+        ? booking.lounge
+        : booking.loungeServiceIds?.[0]?.loungeId
   const agentId = booking.agents?.[0]?._id || booking.agentId
 
   return (
@@ -98,7 +102,10 @@ export function BookingCard({
           </div>
         </div>
 
-        <BookingServicesList services={booking.loungeServiceIds} />
+        <BookingServicesList
+          services={booking.loungeServiceIds}
+          loungeId={loungeId}
+        />
         <BookingAgentInfo agent={booking.agent} agents={booking.agents} />
 
         {/* Notes */}
@@ -127,19 +134,22 @@ export function BookingCard({
           </div>
         )}
 
-        <BookingTotalSummary
-          status={booking.status}
-          serviceCount={booking.loungeServiceIds?.length || 0}
-          totalPrice={booking.totalPrice}
-          totalDuration={booking.totalDuration}
-        />
-
         <BookingQueueBanner
           bookingStatus={booking.status || "pending"}
           userType={userType}
           loungeId={loungeId}
           agentId={agentId}
           bookingId={booking._id}
+        />
+      </CardContent>
+
+      {/* Footer: Total Summary + Actions */}
+      <CardFooter className="flex-col gap-2 border-t px-3 pt-3 pb-3">
+        <BookingTotalSummary
+          status={booking.status}
+          serviceCount={booking.loungeServiceIds?.length || 0}
+          totalPrice={booking.totalPrice}
+          totalDuration={booking.totalDuration}
         />
 
         {showActions && (
@@ -154,7 +164,7 @@ export function BookingCard({
             onDelete={onDelete}
           />
         )}
-      </CardContent>
+      </CardFooter>
     </Card>
   )
 }

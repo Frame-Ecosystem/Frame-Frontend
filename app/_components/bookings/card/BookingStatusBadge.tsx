@@ -50,13 +50,13 @@ export function BookingStatusBadge({
             {statusLabels[status || "pending"] || status || "pending"}
             {isCancelled &&
               (isExpanded ? (
-                <ChevronUp className="ml-2 h-4 w-4 text-red-500 transition-all" />
+                <ChevronUp className="ms-2 h-4 w-4 text-red-500 transition-all" />
               ) : (
-                <ChevronDown className="ml-2 h-4 w-4 animate-bounce text-red-500 transition-all" />
+                <ChevronDown className="ms-2 h-4 w-4 animate-bounce text-red-500 transition-all" />
               ))}
           </span>
           {isCancelled && isExpanded && (
-            <span className="mt-1 mr-3 text-[12px] font-normal opacity-90">
+            <span className="me-3 mt-1 text-[12px] font-normal opacity-90">
               {t("booking.cancelledBy", { name: cancelledBy?.cancelledByName })}
             </span>
           )}

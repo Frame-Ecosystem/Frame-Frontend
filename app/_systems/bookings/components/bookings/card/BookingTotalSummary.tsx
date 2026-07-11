@@ -19,22 +19,23 @@ export function BookingTotalSummary({
   if (status === "cancelled") return null
 
   return (
-    <div className="mb-2 flex items-center justify-between border-t pt-2">
-      <div className="text-sm font-medium">{t("booking.total")}</div>
-      <div className="text-right">
-        <div className="font-semibold">
+    <div className="border-border/50 bg-muted/20 mt-1 rounded-lg border px-3 py-2.5">
+      <div className="flex items-center justify-between">
+        <span className="text-sm font-medium">{t("booking.total")}</span>
+        <span className="text-muted-foreground text-sm">
           {serviceCount}{" "}
           {serviceCount !== 1 ? t("booking.services") : t("booking.service")}
-        </div>
-        <div className="text-muted-foreground text-sm">
-          {totalPrice} {t("booking.dt")}
-        </div>
-        {totalDuration != null && totalDuration > 0 && (
-          <div className="text-muted-foreground text-sm">
-            {totalDuration}
-            {t("booking.min")}
-          </div>
-        )}
+          {totalDuration != null && totalDuration > 0 && (
+            <>
+              , {totalDuration} {t("booking.min")}
+            </>
+          )}
+          {totalPrice != null && (
+            <>
+              , {totalPrice} {t("booking.dt")}
+            </>
+          )}
+        </span>
       </div>
     </div>
   )

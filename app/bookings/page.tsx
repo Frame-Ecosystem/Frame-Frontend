@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { CalendarIcon, History } from "lucide-react"
+import { CalendarIcon, Clock, ArrowLeft } from "lucide-react"
 import { useTranslation } from "@/app/_i18n"
 import { useScrollToTarget } from "@/app/_hooks/useScrollToTarget"
 import { Button } from "../_components/ui/button"
@@ -82,7 +82,7 @@ export default function BookingsPage() {
                       asChild
                     >
                       <Link href="/lounges">
-                        <CalendarIcon className="mr-2 h-5 w-5" />
+                        <CalendarIcon className="me-2 h-5 w-5" />
                         {t("bookings.exploreLounges")}
                       </Link>
                     </Button>
@@ -106,8 +106,11 @@ export default function BookingsPage() {
         <div className="mx-auto max-w-7xl p-5 lg:px-8 lg:py-12">
           {/* Page Header */}
           <div className="mb-8 lg:mb-12">
-            <div className="mt-6 mb-4 flex items-center justify-between">
-              <div dir={dir} className="flex items-center gap-3">
+            <div
+              dir={dir}
+              className="mt-6 mb-4 flex items-center justify-between"
+            >
+              <div className="flex items-center gap-3">
                 <div className="bg-primary/10 rounded-xl p-2">
                   <CalendarIcon className="text-primary h-6 w-6 lg:h-7 lg:w-7" />
                 </div>
@@ -121,17 +124,28 @@ export default function BookingsPage() {
                         : t("bookings.myBookings")}
                 </h1>
               </div>
-              <Button
-                variant={showHistory ? "default" : "outline"}
-                size="sm"
+              <button
+                type="button"
                 onClick={toggleHistory}
-                className="gap-2"
+                className="bg-primary/10 text-primary hover:bg-primary/20 flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition-colors"
               >
-                <History className="h-4 w-4" />
-                {showHistory ? t("common.back") : t("bookings.history")}
-              </Button>
+                {showHistory ? (
+                  <>
+                    <ArrowLeft className="h-4 w-4" />
+                    {t("common.back")}
+                  </>
+                ) : (
+                  <>
+                    <Clock className="h-4 w-4" />
+                    {t("bookings.history")}
+                  </>
+                )}
+              </button>
             </div>
-            <p className="text-muted-foreground ml-1 text-sm lg:text-base">
+            <p
+              dir={dir}
+              className="text-muted-foreground ms-1 text-sm lg:text-base"
+            >
               {showHistory
                 ? t("bookings.viewCompleted")
                 : user.type === "lounge"

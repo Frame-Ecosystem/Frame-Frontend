@@ -5,13 +5,14 @@ import { BookingHistory } from "./BookingHistory"
 import { BookingCard } from "../card/BookingCard"
 import { BookingSkeleton } from "../card/BookingSkeleton"
 import { BookingListHeader } from "./BookingListHeader"
+import { BookingStatsCards } from "./BookingStatsCards"
+import { EmptyBookingsState } from "./EmptyBookingsState"
 import { toast } from "sonner"
 
 import { useAuth } from "@/app/_auth"
 import type { Booking, BookingStatus } from "../../../_types"
 import { bookingService } from "@/app/_services"
 import { useSocketRoom } from "../../../_hooks/useSocketRoom"
-import { useTranslation } from "@/app/_i18n"
 
 interface BookingListProps {
   showActions?: boolean
@@ -27,7 +28,6 @@ export function BookingList({
   mode = "active",
 }: BookingListProps) {
   const { user } = useAuth()
-  const { t } = useTranslation()
   const [bookings, setBookings] = useState<Booking[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [statusFilter, setStatusFilter] = useState<BookingStatus | "all">("all")
@@ -35,19 +35,14 @@ export function BookingList({
     new Set(),
   )
 
-  // bookingService is already an instance, not a class
-  const getBookingService = bookingService
-
   const loadBookings = useCallback(
     async (showLoading = true) => {
       if (showLoading) setIsLoading(true)
       try {
-        let data: Booking[] = []
-        if (mode === "history") {
-          data = await getBookingService.getHistory()
-        } else {
-          data = await getBookingService.getAll()
-        }
+        const data =
+          mode === "history"
+            ? await bookingService.getHistory()
+            : await bookingService.getAll()
         setBookings(Array.isArray(data) ? data : [])
       } catch {
         setBookings([])
@@ -55,16 +50,14 @@ export function BookingList({
         setIsLoading(false)
       }
     },
-    [getBookingService, mode],
+    [mode],
   )
 
   useEffect(() => {
     loadBookings()
   }, [loadBookings])
 
-  // ── Real-time socket updates ───────────────────────────────
-  // Subscribe to a booking room scoped to the current user so the
-  // list refreshes automatically when the backend emits changes.
+  // Real-time socket updates
   const rooms = useMemo(() => {
     if (!user?._id) return []
     if (user.type === "lounge") return `bookings:lounge:${user._id}`
@@ -90,42 +83,40 @@ export function BookingList({
   ) => {
     try {
       await bookingService.update(bookingId, { status: newStatus })
-      toast.success(t("booking.toast.statusUpdated"))
+      toast.success("Booking status updated")
       loadBookings()
-    } catch (_error) {
-      toast.error(t("booking.toast.statusFailed"))
+    } catch {
+      toast.error("Failed to update booking status")
     }
   }
 
   const handleCancel = async (bookingId: string, note?: string) => {
     try {
       await bookingService.cancel(bookingId, note)
-      toast.success(t("booking.toast.cancelled"))
+      toast.success("Booking cancelled")
       loadBookings()
-    } catch (_error) {
-      toast.error(t("booking.toast.cancelFailed"))
+    } catch {
+      toast.error("Failed to cancel booking")
     }
   }
 
   const handleDelete = async (bookingId: string) => {
     try {
       await bookingService.delete(bookingId)
-      toast.success(t("booking.toast.deleted"))
+      toast.success("Booking deleted")
       loadBookings()
-    } catch (_error) {
-      toast.error(t("booking.toast.deleteFailed"))
+    } catch {
+      toast.error("Failed to delete booking")
     }
   }
 
   if (!user) return null
-  if (isLoading) {
-    return <BookingSkeleton />
-  }
+  if (isLoading) return <BookingSkeleton />
+
   const filteredBookings = bookings
     .filter((booking) => {
       if (statusFilter !== "all" && booking.status !== statusFilter)
         return false
-      // For active mode, exclude statuses that belong in history only
       if (mode === "active") {
         if (
           booking.status === "completed" ||
@@ -137,44 +128,49 @@ export function BookingList({
       return true
     })
     .sort((a, b) => {
-      // Sort by booking date descending (nearest upcoming first)
       const dateA = a.bookingDate ? new Date(a.bookingDate).getTime() : 0
       const dateB = b.bookingDate ? new Date(b.bookingDate).getTime() : 0
       return dateB - dateA
     })
+
   if (mode === "history") {
     return (
       <BookingHistory
         bookings={filteredBookings}
-        userType={user?.type || ""}
+        userType={user.type || ""}
         onDelete={handleDelete}
       />
     )
   }
+
   return (
     <div className="space-y-4">
       <BookingListHeader
         statusFilter={statusFilter}
         setStatusFilter={setStatusFilter}
-        show={mode === "active"}
       />
-      <div className="space-y-4">
-        {filteredBookings.map((booking) => (
-          <BookingCard
-            key={booking._id}
-            booking={booking}
-            userType={user?.type || ""}
-            showActions={showActions}
-            allowStatusUpdate={allowStatusUpdate}
-            allowCancel={allowCancel}
-            expandedCancelled={expandedCancelled}
-            setExpandedCancelled={setExpandedCancelled}
-            onStatusUpdate={handleStatusUpdate}
-            onCancel={handleCancel}
-            onDelete={handleDelete}
-          />
-        ))}
-      </div>
+      <BookingStatsCards bookings={bookings} mode="active" />
+      {filteredBookings.length === 0 ? (
+        <EmptyBookingsState mode="active" />
+      ) : (
+        <div className="space-y-4">
+          {filteredBookings.map((booking) => (
+            <BookingCard
+              key={booking._id}
+              booking={booking}
+              userType={user.type || ""}
+              showActions={showActions}
+              allowStatusUpdate={allowStatusUpdate}
+              allowCancel={allowCancel}
+              expandedCancelled={expandedCancelled}
+              setExpandedCancelled={setExpandedCancelled}
+              onStatusUpdate={handleStatusUpdate}
+              onCancel={handleCancel}
+              onDelete={handleDelete}
+            />
+          ))}
+        </div>
+      )}
     </div>
   )
 }

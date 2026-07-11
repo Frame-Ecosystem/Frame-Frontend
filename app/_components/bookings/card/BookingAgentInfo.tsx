@@ -1,5 +1,6 @@
 "use client"
 
+import { useRouter } from "next/navigation"
 import { useTranslation } from "@/app/_i18n"
 import { resolveImageUrl } from "../booking-utils"
 import type { Agent } from "../../../_types"
@@ -11,10 +12,19 @@ interface BookingAgentInfoProps {
 
 function AgentRow({ agent }: { agent: Agent }) {
   const { t } = useTranslation()
+  const router = useRouter()
   const imgUrl = resolveImageUrl(agent.profileImage)
 
+  const navigateToProfile = () => {
+    if (agent._id) router.push(`/agents/${agent._id}`)
+  }
+
   return (
-    <div className="flex items-center gap-3">
+    <button
+      type="button"
+      onClick={navigateToProfile}
+      className="flex items-center gap-3 text-start transition-opacity hover:opacity-80"
+    >
       <div className="bg-muted relative h-10 w-10 shrink-0 overflow-hidden rounded-full">
         {imgUrl ? (
           /* eslint-disable-next-line @next/next/no-img-element */
@@ -33,7 +43,7 @@ function AgentRow({ agent }: { agent: Agent }) {
           {t("booking.by", { name: agent.agentName })}
         </p>
       </div>
-    </div>
+    </button>
   )
 }
 

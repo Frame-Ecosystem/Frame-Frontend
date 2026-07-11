@@ -19,7 +19,7 @@ export default function BookingCTA({
 }: BookingCTAProps) {
   const router = useRouter()
   const { theme } = useTheme()
-  const { t } = useTranslation()
+  const { t, dir } = useTranslation()
   const { user } = useAuth()
 
   // Only clients can book
@@ -39,6 +39,7 @@ export default function BookingCTA({
 
   return (
     <div
+      dir={dir}
       className={`rounded-xl border-2 border-dashed shadow-sm transition-all ${
         hasSelectedServices
           ? `cursor-pointer border-green-500 hover:border-green-600 hover:shadow-md ${isDark ? "bg-black hover:border-green-400" : "bg-white"}`
@@ -79,7 +80,7 @@ export default function BookingCTA({
           {hasSelectedServices
             ? t("booking.cta.bookNow")
             : t("booking.cta.selectFirst")}
-          <Plus className="h-4 w-4" />
+          <Plus className={`h-4 w-4 ${dir === "rtl" ? "rotate-180" : ""}`} />
         </Button>
       </div>
     </div>

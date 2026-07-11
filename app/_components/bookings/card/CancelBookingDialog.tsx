@@ -67,7 +67,7 @@ export function CancelBookingDialog({
             rows={3}
             className="mt-2 resize-none"
           />
-          <p className="text-muted-foreground text-right text-xs">
+          <p className="text-muted-foreground text-end text-xs">
             {charCount}/{MAX_NOTE_LENGTH}
           </p>
         </div>

@@ -18,7 +18,7 @@ export function BookingQueueBanner({
   agentId,
   bookingId,
 }: BookingQueueBannerProps) {
-  const { t } = useTranslation()
+  const { t, dir } = useTranslation()
   const router = useRouter()
   if (bookingStatus !== "inQueue" || !loungeId) return null
 
@@ -39,6 +39,7 @@ export function BookingQueueBanner({
 
   return (
     <button
+      dir={dir}
       className="mb-2 flex w-full items-center justify-between rounded-lg bg-gradient-to-r from-blue-500 via-blue-400 to-blue-600 px-4 py-2 text-sm font-semibold text-white transition-opacity hover:opacity-90"
       onClick={() => {
         router.push(url)
@@ -46,7 +47,7 @@ export function BookingQueueBanner({
     >
       <span>{t("booking.goToQueue")}</span>
       <svg
-        className="h-4 w-4"
+        className={`h-4 w-4 ${dir === "rtl" ? "rotate-180" : ""}`}
         fill="none"
         stroke="currentColor"
         strokeWidth="2"
