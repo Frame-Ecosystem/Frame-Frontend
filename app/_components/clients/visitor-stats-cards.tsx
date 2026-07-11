@@ -47,7 +47,7 @@ export function VisitorStatsCards({ stats }: VisitorStatsCardsProps) {
   const { t } = useTranslation()
 
   return (
-    <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+    <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
       {STAT_ITEMS.map((stat) => {
         const Icon = stat.icon
         return (
