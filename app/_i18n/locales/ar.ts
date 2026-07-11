@@ -1723,6 +1723,7 @@ const ar: Record<string, string> = {
   "clients.confirmed": "مؤكد",
   "clients.cancelled": "ملغي",
   "clients.absent": "غائب",
+  "clients.total": "الإجمالي",
 
   // ── Post Feed ───────────────────────────────────────────────────────────
   "postFeed.whatsOnYourMind": "بماذا تفكر؟",

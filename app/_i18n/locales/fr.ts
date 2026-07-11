@@ -1791,6 +1791,7 @@ const fr: Record<string, string> = {
   "clients.confirmed": "Confirmé",
   "clients.cancelled": "Annulé",
   "clients.absent": "Absent",
+  "clients.total": "Total",
 
   // ── Post Feed ───────────────────────────────────────────────────────────
   "postFeed.whatsOnYourMind": "Quoi de neuf ?",

@@ -1758,6 +1758,7 @@ const tr: Record<string, string> = {
   "clients.confirmed": "Onaylı",
   "clients.cancelled": "İptal",
   "clients.absent": "Gelmedi",
+  "clients.total": "Toplam",
 
   // ── Post Feed ───────────────────────────────────────────────────────────
   "postFeed.whatsOnYourMind": "Aklınızda ne var?",

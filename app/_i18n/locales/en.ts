@@ -1814,6 +1814,7 @@ const en: Record<string, string> = {
   "clients.confirmed": "Confirmed",
   "clients.cancelled": "Cancelled",
   "clients.absent": "Absent",
+  "clients.total": "Total",
 
   // ── Post Feed ───────────────────────────────────────────────────────────
   "postFeed.whatsOnYourMind": "What's on your mind?",

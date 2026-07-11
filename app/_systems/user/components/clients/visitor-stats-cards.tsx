@@ -1,6 +1,6 @@
 "use client"
 
-import { CheckCircle2, XCircle, UserX } from "lucide-react"
+import { CalendarCheck, CheckCircle2, XCircle, UserX } from "lucide-react"
 import type { ClientStats } from "@/app/_types"
 import { useTranslation } from "@/app/_i18n"
 import { Card, CardContent } from "../../ui/card"
@@ -17,6 +17,12 @@ interface StatItem {
 }
 
 const STAT_ITEMS: StatItem[] = [
+  {
+    key: "totalBookings",
+    labelKey: "clients.total",
+    icon: CalendarCheck,
+    accent: "text-primary bg-primary/10",
+  },
   {
     key: "completedBookings",
     labelKey: "clients.confirmed",
@@ -41,7 +47,7 @@ export function VisitorStatsCards({ stats }: VisitorStatsCardsProps) {
   const { t } = useTranslation()
 
   return (
-    <div className="grid grid-cols-3 gap-3">
+    <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
       {STAT_ITEMS.map((stat) => {
         const Icon = stat.icon
         return (
