@@ -94,6 +94,7 @@ export default function LoungesPage() {
 
   const [lounges, setLounges] = useState<LoungeUser[]>([])
   const [loading, setLoading] = useState(true)
+  const [isLoadingMore, setIsLoadingMore] = useState(false)
   const [page, setPage] = useState(1)
   const [totalPages, setTotalPages] = useState(1)
   const [error, setError] = useState<string | null>(null)
@@ -173,7 +174,11 @@ export default function LoungesPage() {
       const targetPage = options?.pageOverride ?? page
 
       try {
-        setLoading(true)
+        if (options?.append) {
+          setIsLoadingMore(true)
+        } else {
+          setLoading(true)
+        }
         setError(null)
 
         const response = selectedServiceId
@@ -205,7 +210,11 @@ export default function LoungesPage() {
             : t("lounges.loadError"),
         )
       } finally {
-        setLoading(false)
+        if (options?.append) {
+          setIsLoadingMore(false)
+        } else {
+          setLoading(false)
+        }
       }
     },
     [user, selectedServiceId, page, userLocation, t],
@@ -214,7 +223,7 @@ export default function LoungesPage() {
   useEffect(() => {
     if (user) fetchLounges()
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user, page, selectedServiceId, userLocation])
+  }, [user, selectedServiceId, userLocation])
 
   const handleServiceSelect = (
     serviceId: string | null,
@@ -227,11 +236,11 @@ export default function LoungesPage() {
     setVisibleMostBookedCount(PAGE_SIZE)
   }
 
-  const handleLoadMoreAll = () => {
+  const handleLoadMoreAll = async () => {
     const nextPage = page + 1
-    setPage(nextPage)
     setVisibleAllCount((c) => c + PAGE_SIZE)
-    fetchLounges({ append: true, pageOverride: nextPage })
+    await fetchLounges({ append: true, pageOverride: nextPage })
+    setPage(nextPage)
   }
 
   const transformedLounges = useMemo(() => lounges.map(toLounge), [lounges])
@@ -267,7 +276,8 @@ export default function LoungesPage() {
   const showLoadMoreButton =
     visibleAllCount >= transformedLounges.length &&
     page < totalPages &&
-    !loading
+    !loading &&
+    !isLoadingMore
 
   return (
     <ErrorBoundary>
@@ -327,7 +337,7 @@ export default function LoungesPage() {
                 {loadingMostBooked ? (
                   <LoungeSliderSkeleton />
                 ) : (
-                  <div className="flex min-h-[168px] gap-4 overflow-x-auto pb-2 contain-layout [&::-webkit-scrollbar]:hidden">
+                  <div className="flex gap-4 overflow-x-auto pb-2 [&::-webkit-scrollbar]:hidden">
                     {transformedMostBooked
                       .slice(0, visibleMostBookedCount)
                       .map((lounge) => (
@@ -391,7 +401,7 @@ export default function LoungesPage() {
                   </p>
                 </div>
               ) : (
-                <div className="flex min-h-[168px] gap-4 overflow-x-auto pb-2 contain-layout [&::-webkit-scrollbar]:hidden">
+                <div className="flex gap-4 overflow-x-auto pb-2 [&::-webkit-scrollbar]:hidden">
                   {transformedLounges
                     .slice(0, visibleAllCount)
                     .map((lounge) => (
@@ -403,6 +413,11 @@ export default function LoungesPage() {
                       label={t("common.seeMore")}
                     />
                   )}
+                  {isLoadingMore && (
+                    <div className="flex h-[168px] w-[112px] shrink-0 items-center justify-center">
+                      <div className="border-primary h-5 w-5 animate-spin rounded-full border-2 border-t-transparent" />
+                    </div>
+                  )}
                 </div>
               )}
 
@@ -412,8 +427,16 @@ export default function LoungesPage() {
                     variant="outline"
                     className="border-primary/20 bg-primary/5 hover:bg-primary/10 text-primary border-2 border-dashed"
                     onClick={handleLoadMoreAll}
+                    disabled={isLoadingMore}
                   >
-                    {t("common.seeMore")}
+                    {isLoadingMore ? (
+                      <span className="flex items-center gap-2">
+                        <span className="border-primary h-3 w-3 animate-spin rounded-full border-2 border-t-transparent" />
+                        {t("common.loading")}
+                      </span>
+                    ) : (
+                      t("common.seeMore")
+                    )}
                   </Button>
                 </div>
               )}
