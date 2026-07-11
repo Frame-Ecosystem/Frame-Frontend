@@ -117,7 +117,14 @@ export default function ClientVisitorProfilePage() {
   }, [])
 
   const profile = profileData?.profile ?? null
-  const stats = profileData?.stats ?? null
+  const stats = profileData?.stats ?? {
+    totalBookings: 0,
+    completedBookings: 0,
+    cancelledBookings: 0,
+    absentBookings: 0,
+    likedLounges: 0,
+    ratingsGiven: 0,
+  }
 
   // Loading
   if (authLoading || profileLoading) {

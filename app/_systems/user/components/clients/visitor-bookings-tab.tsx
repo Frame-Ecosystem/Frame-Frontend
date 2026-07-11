@@ -20,7 +20,7 @@ import type { ClientStats } from "@/app/_types"
 
 interface VisitorBookingsTabProps {
   clientId: string
-  stats?: ClientStats | null
+  stats?: ClientStats
 }
 
 function BookingRow({ booking }: { booking: ClientBookingItem }) {
