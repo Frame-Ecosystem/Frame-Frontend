@@ -80,9 +80,12 @@ export function VisitorBookingsTab({
 
   if (!data?.bookings?.length) {
     return (
-      <div className="border-border/60 rounded-xl border py-12 text-center">
-        <BookOpen className="text-muted-foreground mx-auto mb-3 h-10 w-10" />
-        <p className="text-muted-foreground">{t("clients.noBookings")}</p>
+      <div className="space-y-4">
+        {stats && <VisitorStatsCards stats={stats} />}
+        <div className="border-border/60 rounded-xl border py-12 text-center">
+          <BookOpen className="text-muted-foreground mx-auto mb-3 h-10 w-10" />
+          <p className="text-muted-foreground">{t("clients.noBookings")}</p>
+        </div>
       </div>
     )
   }
