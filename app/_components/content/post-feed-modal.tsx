@@ -65,7 +65,7 @@ export function PostFeedModal({
   return (
     <div
       dir={dir}
-      className="bg-background fixed inset-0 z-[1000] flex flex-col"
+      className="bg-background fixed inset-0 z-[10000] flex flex-col"
     >
       {/* Top bar */}
       <div className="bg-background/95 supports-backdrop-filter:bg-background/80 border-border/60 flex shrink-0 items-center gap-3 border-b px-4 py-3 backdrop-blur-md">
