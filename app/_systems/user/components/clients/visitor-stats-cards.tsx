@@ -3,7 +3,7 @@
 import { CalendarCheck, CheckCircle2, XCircle, UserX } from "lucide-react"
 import type { ClientStats } from "@/app/_types"
 import { useTranslation } from "@/app/_i18n"
-import { Card, CardContent } from "../../ui/card"
+import { Card, CardContent } from "@/app/_components/ui/card"
 
 interface VisitorStatsCardsProps {
   stats: ClientStats
