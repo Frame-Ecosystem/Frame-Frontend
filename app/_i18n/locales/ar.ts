@@ -111,6 +111,7 @@ const ar: Record<string, string> = {
   "lounges.viewProfile": "عرض الملف",
   "lounges.subtitle": "تصفّح واكتشف صالونات مميزة.",
   "lounges.allLounges": "جميع الصالونات",
+  "lounges.popularSalons": "الصالونات الرائجة",
   "lounges.loungesOffering": "صالونات تقدّم {service}",
   "lounges.sortedByDistance": "مرتّبة حسب المسافة من موقعك",
   "lounges.updateLocation": "حدّث موقعك للحصول على نتائج أفضل",
@@ -119,6 +120,14 @@ const ar: Record<string, string> = {
   "lounges.clientAccessRequired":
     "يجب أن تكون عميلاً للوصول إلى هذه الصفحة. يرجى إكمال ملفك الشخصي.",
   "lounges.loadError": "فشل تحميل الصالونات. يرجى المحاولة مرة أخرى لاحقاً.",
+  "lounges.noServiceCategories": "لا توجد فئات خدمات متاحة",
+  "lounges.categoryServices": "خدمات {category}",
+  "lounges.categoryServicesComingSoon": "خدمات {category} قريبًا",
+  "lounges.servicesComingSoon": "خدمات هذه الفئة قريبًا",
+  "lounges.open": "مفتوح",
+  "lounges.closed": "مغلق",
+  "lounges.mostBooked": "الصالونات الأكثر حجزاً",
+  "lounges.mostBookedSubtitle": "بناءً على أعلى عدد حجوزات مكتملة",
 
   // ── Bookings ────────────────────────────────────────────────────────────
   "bookings.title": "حجوزاتي",
@@ -130,8 +139,22 @@ const ar: Record<string, string> = {
   "bookings.pending": "قيد الانتظار",
   "bookings.completed": "مكتمل",
   "bookings.noBookings": "لا توجد حجوزات بعد",
+  "bookings.emptyActiveTitle": "لا توجد حجوزات قادمة",
+  "bookings.emptyActiveDesc":
+    "ليس لديك أي حجوزات نشطة. اكتشف الصالونات واحجز موعدك الأول!",
+  "bookings.emptyHistoryDesc": "ستظهر حجوزاتك المكتملة والملغاة هنا.",
   "bookings.cancelBooking": "إلغاء الحجز",
   "bookings.reschedule": "إعادة الجدولة",
+
+  "bookings.stat.totalActive": "إجمالي النشطة",
+  "bookings.stat.pending": "قيد الانتظار",
+  "bookings.stat.confirmed": "مؤكد",
+  "bookings.stat.inQueue": "في الطابور",
+  "bookings.stat.totalHistory": "إجمالي السجل",
+  "bookings.stat.completed": "مكتملة",
+  "bookings.stat.absent": "غياب",
+  "bookings.stat.cancelled": "ملغاة",
+  "bookings.stat.totalSpent": "إجمالي المصروف",
 
   // ── Profile ─────────────────────────────────────────────────────────────
   "profile.editProfile": "تعديل الملف الشخصي",
@@ -634,6 +657,14 @@ const ar: Record<string, string> = {
   "content.menu.unhide": "إظهار (مشرف)",
   "content.menu.forceDelete": "حذف إجباري (مشرف)",
   "content.latestUpdates": "آخر التحديثات",
+  "content.post.hidden": "مخفي عن الخلاصات العامة",
+  "content.post.more": "المزيد",
+  "content.post.deleteConfirm":
+    "حذف هذا المنشور؟ لا يمكن التراجع عن هذا الإجراء.",
+  "content.viewAllComments_one": "عرض تعليق واحد",
+  "content.viewAllComments_other": "عرض جميع التعليقات ({count})",
+  "feed.rateLimit":
+    "طلبات كثيرة جداً — يرجى الانتظار {seconds} ثانية قبل تحديث الخلاصة.",
   "common.notNow": "ليس الآن",
   "common.phoneNumber": "رقم الهاتف",
   "common.email": "البريد الإلكتروني",
@@ -1052,18 +1083,24 @@ const ar: Record<string, string> = {
   "booking.total": "الإجمالي:",
   "booking.service": "خدمة",
   "booking.services": "خدمات",
+  "booking.serviceLabel": "الخدمة:",
   "booking.dt": "دت",
-  "booking.min": "د",
+  "booking.min": "دقيقة",
   "booking.handledBy": "تمت المعالجة",
+  "booking.handled": "تمت المعالجة",
   "booking.by": "بواسطة {name}",
   "booking.handledByMultiple": "تمت المعالجة بواسطة:",
+  "booking.handledByLabel": "تمت المعالجة بواسطة",
   "booking.agentsCount": "({count} وكلاء)",
   "booking.cancelledBy": "بواسطة {name}",
+  "booking.duration": "المدة:",
+  "booking.price": "السعر:",
   "booking.statusPending": "قيد الانتظار",
   "booking.statusConfirmed": "مؤكد",
   "booking.statusCancelled": "ملغى",
   "booking.statusInQueue": "في الصّف",
   "booking.statusCompleted": "مكتمل",
+  "booking.statusNoShow": "لم يحضر",
 
   // ── Cancel booking dialog ───────────────────────────────────────────────
   "booking.cancelTitle": "إلغاء الحجز",
@@ -1437,8 +1474,6 @@ const ar: Record<string, string> = {
 
   // ── Booking: History ────────────────────────────────────────────────────
   "booking.history.addressNA": "العنوان غير متاح",
-  "booking.history.clientNotes": "ملاحظات العميل:",
-  "booking.history.cancelReason": "سبب الإلغاء:",
   "booking.history.deleteTitle": "حذف الحجز",
   "booking.history.deleteDesc":
     "هل أنت متأكد أنك تريد حذف هذا الحجز نهائياً؟ لا يمكن التراجع عن هذا الإجراء.",
@@ -1474,6 +1509,17 @@ const ar: Record<string, string> = {
   "marketplace.startSellingDesc":
     "انضم إلى مئات المحترفين. افتح متجرك وابدأ البيع.",
   "marketplace.openMyStore": "افتح متجري",
+  "marketplace.heroDesc": "تسوّق من أفضل متاجر ومحترفي الجمال.",
+  "marketplace.allProducts": "جميع المنتجات",
+  "marketplace.allStores": "جميع المتاجر",
+  "marketplace.cart": "السلة",
+  "marketplace.wishlist": "المفضلة",
+  "marketplace.category.beauty": "الجمال",
+  "marketplace.category.fashion": "الأزياء",
+  "marketplace.category.wellness": "العافية",
+  "marketplace.category.accessories": "الإكسسوارات",
+  "marketplace.category.tools": "الأدوات",
+  "marketplace.category.other": "أخرى",
   "marketplace.store.title": "المتاجر",
   "marketplace.store.search": "ابحث في المتاجر...",
   "marketplace.store.noResults": "لم يتم العثور على متاجر",
@@ -1684,6 +1730,18 @@ const ar: Record<string, string> = {
   "postFeed.reel": "ريل",
   "postFeed.following": "المتابعات",
   "postFeed.explore": "استكشاف",
+  "postFeed.error.title": "خلاصة المجتمع قادمة قريباً",
+  "postFeed.error.desc":
+    "نعمل على توفير تجربة اجتماعية تتيح لك مشاركة المنشورات والتواصل مع الآخرين. تفقدنا قريباً!",
+  "postFeed.shortcuts": "الوصول السريع",
+  "postFeed.savedPosts": "المنشورات المحفوظة",
+  "postFeed.bookings": "الحجوزات",
+  "postFeed.exploreLounges": "استكشاف الصالونات",
+  "postFeed.suggestions": "اقتراحات",
+  "postFeed.suggestionsDesc":
+    "تتجدد الريلز والصالونات المقترحة تلقائياً للحفاظ على تحديث خلاصتك.",
+  "postFeed.suggestionsTip":
+    "استخدم تبويب «استكشاف» لاكتشاف محتوى جديد، و«المتابعات» لرؤية ما ينشره الأشخاص الذين تتابعهم.",
 
   // ── Queue: Header & Stats ──────────────────────────────────────────────
   "queue.liveQueue": "الصّف المباشر",

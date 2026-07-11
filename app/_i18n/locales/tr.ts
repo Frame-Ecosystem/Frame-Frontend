@@ -109,6 +109,7 @@ const tr: Record<string, string> = {
   "lounges.viewProfile": "Profili Gör",
   "lounges.subtitle": "Harika salonları keşfedin ve göz atın.",
   "lounges.allLounges": "Tüm Salonlar",
+  "lounges.popularSalons": "Popüler Salonlar",
   "lounges.loungesOffering": "{service} sunan salonlar",
   "lounges.sortedByDistance": "Konumunuza göre mesafeye göre sıralandı",
   "lounges.updateLocation": "Daha iyi sonuçlar için konumunuzu güncelleyin",
@@ -117,6 +118,15 @@ const tr: Record<string, string> = {
     "Bu sayfaya erişmek için müşteri olmanız gerekir. Lütfen profilinizi tamamlayın.",
   "lounges.loadError":
     "Salonlar yüklenemedi. Lütfen daha sonra tekrar deneyin.",
+  "lounges.noServiceCategories": "Hizmet kategorisi mevcut değil",
+  "lounges.categoryServices": "{category} Hizmetleri",
+  "lounges.categoryServicesComingSoon": "{category} Hizmetleri Yakında",
+  "lounges.servicesComingSoon": "Bu kategoriden hizmetler yakında gelecek",
+  "lounges.open": "Açık",
+  "lounges.closed": "Kapalı",
+  "lounges.mostBooked": "En Çok Rezervasyon Alan Salonlar",
+  "lounges.mostBookedSubtitle":
+    "En yüksek tamamlanmış rezervasyon sayısına göre",
 
   // ── Bookings ────────────────────────────────────────────────────────────
   "bookings.title": "Randevularım",
@@ -128,8 +138,23 @@ const tr: Record<string, string> = {
   "bookings.pending": "Beklemede",
   "bookings.completed": "Tamamlandı",
   "bookings.noBookings": "Henüz randevu yok",
+  "bookings.emptyActiveTitle": "Yaklaşan randevu yok",
+  "bookings.emptyActiveDesc":
+    "Aktif randevunuz yok. Salonları keşfedin ve ilk randevunuzu oluşturun!",
+  "bookings.emptyHistoryDesc":
+    "Tamamlanan ve iptal edilen randevularınız burada görünecek.",
   "bookings.cancelBooking": "Randevuyu İptal Et",
   "bookings.reschedule": "Yeniden Planla",
+
+  "bookings.stat.totalActive": "Toplam Aktif",
+  "bookings.stat.pending": "Beklemede",
+  "bookings.stat.confirmed": "Onaylı",
+  "bookings.stat.inQueue": "Sırada",
+  "bookings.stat.totalHistory": "Toplam Geçmiş",
+  "bookings.stat.completed": "Tamamlanan",
+  "bookings.stat.absent": "Gelmedi",
+  "bookings.stat.cancelled": "İptal Edilen",
+  "bookings.stat.totalSpent": "Toplam Harcama",
 
   // ── Profile ─────────────────────────────────────────────────────────────
   "profile.editProfile": "Profili Düzenle",
@@ -1073,11 +1098,16 @@ const tr: Record<string, string> = {
   "booking.total": "Toplam:",
   "booking.service": "hizmet",
   "booking.services": "hizmet",
+  "booking.serviceLabel": "Hizmet:",
+  "booking.duration": "Süre:",
+  "booking.price": "Fiyat:",
   "booking.dt": "dt",
   "booking.min": "dk",
   "booking.handledBy": "İşleme alan",
+  "booking.handled": "İşlendi",
   "booking.by": "{name} tarafından",
   "booking.handledByMultiple": "İşleme Alan:",
+  "booking.handledByLabel": "İşleyen",
   "booking.agentsCount": "({count} temsilci)",
   "booking.cancelledBy": "{name} tarafından",
   "booking.statusPending": "beklemede",
@@ -1085,6 +1115,7 @@ const tr: Record<string, string> = {
   "booking.statusCancelled": "iptal edildi",
   "booking.statusInQueue": "sırada",
   "booking.statusCompleted": "tamamlandı",
+  "booking.statusNoShow": "Gelmedi",
 
   // ── Cancel booking dialog ───────────────────────────────────────────────
   "booking.cancelTitle": "Rezervasyonu İptal Et",
@@ -1472,8 +1503,6 @@ const tr: Record<string, string> = {
 
   // ── Booking: History ────────────────────────────────────────────────────
   "booking.history.addressNA": "Adres mevcut değil",
-  "booking.history.clientNotes": "Müşteri Notları:",
-  "booking.history.cancelReason": "İptal Nedeni:",
   "booking.history.deleteTitle": "Rezervasyonu Sil",
   "booking.history.deleteDesc":
     "Bu rezervasyonu kalıcı olarak silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.",
@@ -1510,6 +1539,18 @@ const tr: Record<string, string> = {
   "marketplace.startSellingDesc":
     "Yüzlerce güzellik uzmanına katılın. Mağazanızı açın ve satış yapın.",
   "marketplace.openMyStore": "Mağazamı Aç",
+  "marketplace.heroDesc":
+    "En iyi güzellik uzmanlarından ve salonlarından alışveriş yapın.",
+  "marketplace.allProducts": "Tüm Ürünler",
+  "marketplace.allStores": "Tüm Mağazalar",
+  "marketplace.cart": "Sepet",
+  "marketplace.wishlist": "Favoriler",
+  "marketplace.category.beauty": "Güzellik",
+  "marketplace.category.fashion": "Moda",
+  "marketplace.category.wellness": "Wellness",
+  "marketplace.category.accessories": "Aksesuarlar",
+  "marketplace.category.tools": "Aletler",
+  "marketplace.category.other": "Diğer",
   "marketplace.store.title": "Mağazalar",
   "marketplace.store.search": "Mağaza ara...",
   "marketplace.store.noResults": "Mağaza bulunamadı",

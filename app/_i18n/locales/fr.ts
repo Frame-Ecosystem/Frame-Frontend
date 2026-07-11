@@ -108,6 +108,7 @@ const fr: Record<string, string> = {
   "lounges.viewProfile": "Voir le profil",
   "lounges.subtitle": "Parcourez et découvrez des salons incroyables.",
   "lounges.allLounges": "Tous les salons",
+  "lounges.popularSalons": "Salons populaires",
   "lounges.loungesOffering": "Salons proposant {service}",
   "lounges.sortedByDistance": "Triés par distance depuis votre position",
   "lounges.updateLocation":
@@ -118,6 +119,17 @@ const fr: Record<string, string> = {
     "Vous devez être un client pour accéder à cette page. Veuillez compléter votre profil.",
   "lounges.loadError":
     "Impossible de charger les salons. Veuillez réessayer plus tard.",
+  "lounges.noServiceCategories": "Aucune catégorie de service disponible",
+  "lounges.categoryServices": "Services {category}",
+  "lounges.categoryServicesComingSoon":
+    "Services {category} bientôt disponibles",
+  "lounges.servicesComingSoon":
+    "Services de cette catégorie bientôt disponibles",
+  "lounges.open": "Ouvert",
+  "lounges.closed": "Fermé",
+  "lounges.mostBooked": "Salons les plus réservés",
+  "lounges.mostBookedSubtitle":
+    "Basé sur le plus grand nombre de réservations terminées",
 
   // ── Bookings ────────────────────────────────────────────────────────────
   "bookings.title": "Mes réservations",
@@ -129,8 +141,23 @@ const fr: Record<string, string> = {
   "bookings.pending": "En attente",
   "bookings.completed": "Terminée",
   "bookings.noBookings": "Aucune réservation pour l'instant",
+  "bookings.emptyActiveTitle": "Aucune réservation à venir",
+  "bookings.emptyActiveDesc":
+    "Vous n'avez aucune réservation active. Découvrez les salons et réservez votre premier rendez-vous !",
+  "bookings.emptyHistoryDesc":
+    "Vos réservations terminées et annulées apparaîtront ici.",
   "bookings.cancelBooking": "Annuler la réservation",
   "bookings.reschedule": "Reprogrammer",
+
+  "bookings.stat.totalActive": "Total actives",
+  "bookings.stat.pending": "En attente",
+  "bookings.stat.confirmed": "Confirmées",
+  "bookings.stat.inQueue": "En file",
+  "bookings.stat.totalHistory": "Total historique",
+  "bookings.stat.completed": "Terminées",
+  "bookings.stat.absent": "Absentes",
+  "bookings.stat.cancelled": "Annulées",
+  "bookings.stat.totalSpent": "Total dépensé",
 
   // ── Profile ─────────────────────────────────────────────────────────────
   "profile.editProfile": "Modifier le profil",
@@ -1096,11 +1123,16 @@ const fr: Record<string, string> = {
   "booking.total": "Total :",
   "booking.service": "service",
   "booking.services": "services",
+  "booking.serviceLabel": "Service :",
+  "booking.duration": "Durée :",
+  "booking.price": "Prix :",
   "booking.dt": "dt",
   "booking.min": "min",
   "booking.handledBy": "Traité",
+  "booking.handled": "Traité",
   "booking.by": "par {name}",
   "booking.handledByMultiple": "Traité par :",
+  "booking.handledByLabel": "Traité par",
   "booking.agentsCount": "({count} agents)",
   "booking.cancelledBy": "Par {name}",
   "booking.statusPending": "en attente",
@@ -1108,6 +1140,7 @@ const fr: Record<string, string> = {
   "booking.statusCancelled": "annulé",
   "booking.statusInQueue": "en file",
   "booking.statusCompleted": "terminé",
+  "booking.statusNoShow": "Absent",
 
   // ── Cancel booking dialog ───────────────────────────────────────────────
   "booking.cancelTitle": "Annuler la réservation",
@@ -1504,8 +1537,6 @@ const fr: Record<string, string> = {
 
   // ── Booking: History ────────────────────────────────────────────────────
   "booking.history.addressNA": "Adresse non disponible",
-  "booking.history.clientNotes": "Notes du client :",
-  "booking.history.cancelReason": "Raison d'annulation :",
   "booking.history.deleteTitle": "Supprimer la réservation",
   "booking.history.deleteDesc":
     "Êtes-vous sûr de vouloir supprimer définitivement cette réservation ? Cette action est irréversible.",
@@ -1542,6 +1573,18 @@ const fr: Record<string, string> = {
   "marketplace.startSellingDesc":
     "Rejoignez des centaines de professionnels de la beauté. Ouvrez votre boutique.",
   "marketplace.openMyStore": "Ouvrir ma boutique",
+  "marketplace.heroDesc":
+    "Achetez chez les meilleurs professionnels et salons de beauté.",
+  "marketplace.allProducts": "Tous les produits",
+  "marketplace.allStores": "Toutes les boutiques",
+  "marketplace.cart": "Panier",
+  "marketplace.wishlist": "Liste de souhaits",
+  "marketplace.category.beauty": "Beauté",
+  "marketplace.category.fashion": "Mode",
+  "marketplace.category.wellness": "Bien-être",
+  "marketplace.category.accessories": "Accessoires",
+  "marketplace.category.tools": "Outils",
+  "marketplace.category.other": "Autre",
   "marketplace.store.title": "Boutiques",
   "marketplace.store.search": "Rechercher des boutiques...",
   "marketplace.store.noResults": "Aucune boutique trouvée",

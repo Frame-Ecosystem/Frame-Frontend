@@ -104,6 +104,7 @@ const en: Record<string, string> = {
   "lounges.viewProfile": "View Profile",
   "lounges.subtitle": "Browse and discover amazing lounges.",
   "lounges.allLounges": "All Lounges",
+  "lounges.popularSalons": "Popular Salons",
   "lounges.loungesOffering": "Lounges offering {service}",
   "lounges.sortedByDistance": "Sorted by distance from your location",
   "lounges.updateLocation": "Update your location for better results",
@@ -112,6 +113,14 @@ const en: Record<string, string> = {
   "lounges.clientAccessRequired":
     "You need to be a client to access this page. Please complete your profile.",
   "lounges.loadError": "Failed to load lounges. Please try again later.",
+  "lounges.noServiceCategories": "No service categories available",
+  "lounges.categoryServices": "{category} Services",
+  "lounges.categoryServicesComingSoon": "{category} Services Coming Soon",
+  "lounges.servicesComingSoon": "Services from this category coming soon",
+  "lounges.open": "Open",
+  "lounges.closed": "Closed",
+  "lounges.mostBooked": "Most Booked Salons",
+  "lounges.mostBookedSubtitle": "Based on the highest completed booking count",
 
   // ── Bookings ────────────────────────────────────────────────────────────
   "bookings.title": "My Bookings",
@@ -123,8 +132,23 @@ const en: Record<string, string> = {
   "bookings.pending": "Pending",
   "bookings.completed": "Completed",
   "bookings.noBookings": "No bookings yet",
+  "bookings.emptyActiveTitle": "No upcoming bookings",
+  "bookings.emptyActiveDesc":
+    "You don't have any active bookings. Discover lounges and book your first appointment!",
+  "bookings.emptyHistoryDesc":
+    "Your completed and cancelled bookings will appear here.",
   "bookings.cancelBooking": "Cancel Booking",
   "bookings.reschedule": "Reschedule",
+
+  "bookings.stat.totalActive": "Total Active",
+  "bookings.stat.pending": "Pending",
+  "bookings.stat.confirmed": "Confirmed",
+  "bookings.stat.inQueue": "In Queue",
+  "bookings.stat.totalHistory": "Total History",
+  "bookings.stat.completed": "Completed",
+  "bookings.stat.absent": "Absent",
+  "bookings.stat.cancelled": "Cancelled",
+  "bookings.stat.totalSpent": "Total Spent",
 
   // ── Profile ─────────────────────────────────────────────────────────────
   "profile.editProfile": "Edit Profile",
@@ -675,6 +699,14 @@ const en: Record<string, string> = {
   "content.menu.unhide": "Unhide (Admin)",
   "content.menu.forceDelete": "Force Delete (Admin)",
   "content.latestUpdates": "Latest Updates",
+  "content.post.hidden": "Hidden from public feeds",
+  "content.post.more": "more",
+  "content.post.deleteConfirm":
+    "Delete this post? This action cannot be undone.",
+  "content.viewAllComments_one": "View all {count} comment",
+  "content.viewAllComments_other": "View all {count} comments",
+  "feed.rateLimit":
+    "Too many requests — please wait {seconds}s before refreshing the feed.",
 
   // ── Common (extended) ───────────────────────────────────────────────────
   "common.add": "Add",
@@ -1129,6 +1161,7 @@ const en: Record<string, string> = {
   "booking.total": "Total:",
   "booking.service": "service",
   "booking.services": "services",
+  "booking.serviceLabel": "Service:",
   "booking.dt": "dt",
   "booking.min": "min",
   "booking.handledBy": "Handled",
@@ -1529,8 +1562,6 @@ const en: Record<string, string> = {
 
   // ── Booking: History ────────────────────────────────────────────────────
   "booking.history.addressNA": "Address not available",
-  "booking.history.clientNotes": "Client Notes:",
-  "booking.history.cancelReason": "Cancellation Reason:",
   "booking.history.deleteTitle": "Delete Booking",
   "booking.history.deleteDesc":
     "Are you sure you want to permanently delete this booking? This action cannot be undone and will remove all booking data.",
@@ -1567,6 +1598,17 @@ const en: Record<string, string> = {
   "marketplace.startSellingDesc":
     "Join hundreds of beauty professionals. Open your store and reach thousands of customers.",
   "marketplace.openMyStore": "Open My Store",
+  "marketplace.heroDesc": "Shop from the best beauty professionals and salons.",
+  "marketplace.allProducts": "All Products",
+  "marketplace.allStores": "All Stores",
+  "marketplace.cart": "Cart",
+  "marketplace.wishlist": "Wishlist",
+  "marketplace.category.beauty": "Beauty",
+  "marketplace.category.fashion": "Fashion",
+  "marketplace.category.wellness": "Wellness",
+  "marketplace.category.accessories": "Accessories",
+  "marketplace.category.tools": "Tools",
+  "marketplace.category.other": "Other",
   "marketplace.store.title": "Stores",
   "marketplace.store.search": "Search stores...",
   "marketplace.store.noResults": "No stores found",
@@ -1779,6 +1821,18 @@ const en: Record<string, string> = {
   "postFeed.reel": "Reel",
   "postFeed.following": "Following",
   "postFeed.explore": "Explore",
+  "postFeed.error.title": "Community Feed Coming Soon",
+  "postFeed.error.desc":
+    "We're working on bringing you a social experience where you can share posts and connect with others. Check back soon!",
+  "postFeed.shortcuts": "Shortcuts",
+  "postFeed.savedPosts": "Saved posts",
+  "postFeed.bookings": "Bookings",
+  "postFeed.exploreLounges": "Explore lounges",
+  "postFeed.suggestions": "Suggestions",
+  "postFeed.suggestionsDesc":
+    "Reels and lounge suggestions refresh automatically to keep your feed fresh.",
+  "postFeed.suggestionsTip":
+    "Use the Explore tab for discovery, and Following for people you already follow.",
 
   // ── Queue: Header & Stats ──────────────────────────────────────────────
   "queue.liveQueue": "Live Queue",
@@ -1948,6 +2002,8 @@ const en: Record<string, string> = {
   "admin.users.resetPwDesc": "Set a new password for this user",
   "booking.handled": "Handled",
   "booking.handledByLabel": "Handled by",
+  "booking.duration": "Duration:",
+  "booking.price": "Price:",
   "booking.statusNoShow": "No Show",
   "cover.dialogTitleCover": "Cover Image",
   "cover.dialogTitleProfile": "Profile Image",
