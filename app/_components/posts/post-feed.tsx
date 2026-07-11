@@ -39,10 +39,7 @@ import { getProfilePath } from "../../_lib/profile"
 import type { FeedItem } from "../../_types/content"
 import { useTranslation } from "@/app/_i18n"
 import { resetScrollAndFocusHeader } from "@/app/_lib/scroll-reset"
-import {
-  getFeedRateLimitMessage,
-  isFeedRateLimitError,
-} from "@/app/_systems/feed/lib/feed-rate-limit"
+import { isFeedRateLimitError } from "@/app/_systems/feed/lib/feed-rate-limit"
 
 // ── Types & Constants ──────────────────────────────────────────
 
@@ -51,7 +48,7 @@ type FeedTab = "explore" | "following"
 const DEFAULT_TAB: FeedTab = "explore"
 
 export function PostFeed() {
-  const { t } = useTranslation()
+  const { t, dir } = useTranslation()
   const { user } = useAuth()
   const pathname = usePathname()
   const isHomePage = pathname === "/home"
@@ -75,7 +72,7 @@ export function PostFeed() {
 
   const feed = activeTab === "following" ? following : explore
   const rateLimitBanner = feed.feedRateLimit.showBanner
-    ? getFeedRateLimitMessage(feed.feedRateLimit.remainingSeconds)
+    ? t("feed.rateLimit", { seconds: feed.feedRateLimit.remainingSeconds })
     : null
 
   // ── Floating nav visibility ─────────────────────────────────
@@ -163,11 +160,10 @@ export function PostFeed() {
         <div className="max-w-md text-center">
           <div className="mb-4 text-6xl">🚧</div>
           <h3 className="mb-2 text-lg font-semibold">
-            Community Feed Coming Soon
+            {t("postFeed.error.title")}
           </h3>
           <p className="text-muted-foreground mb-4">
-            We&apos;re working on bringing you a social experience where you can
-            share posts and connect with others. Check back soon!
+            {t("postFeed.error.desc")}
           </p>
           <Button onClick={() => feed.refetch()} variant="outline">
             <RefreshCw className="mr-2 h-4 w-4" />
@@ -182,23 +178,25 @@ export function PostFeed() {
     <div className="mx-auto w-full max-w-[1240px]">
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-[250px_minmax(0,680px)_250px] lg:items-start lg:gap-5">
         <aside className="hidden lg:sticky lg:top-28 lg:block">
-          <DesktopRailCard title="Shortcuts">
-            <DesktopRailLink
-              href="/saved"
-              icon={Bookmark}
-              label="Saved posts"
-            />
-            <DesktopRailLink
-              href="/bookings"
-              icon={Calendar}
-              label="Bookings"
-            />
-            <DesktopRailLink
-              href="/lounges"
-              icon={Store}
-              label="Explore lounges"
-            />
-          </DesktopRailCard>
+          <div dir={dir}>
+            <DesktopRailCard title={t("postFeed.shortcuts")}>
+              <DesktopRailLink
+                href="/saved"
+                icon={Bookmark}
+                label={t("postFeed.savedPosts")}
+              />
+              <DesktopRailLink
+                href="/bookings"
+                icon={Calendar}
+                label={t("postFeed.bookings")}
+              />
+              <DesktopRailLink
+                href="/lounges"
+                icon={Store}
+                label={t("postFeed.exploreLounges")}
+              />
+            </DesktopRailCard>
+          </div>
         </aside>
 
         <main className="min-w-0 space-y-4 lg:space-y-5">
@@ -311,21 +309,21 @@ export function PostFeed() {
         </main>
 
         <aside className="hidden lg:sticky lg:top-28 lg:block">
-          <DesktopRailCard title="Suggestions">
-            <p className="text-muted-foreground text-xs leading-relaxed">
-              Reels and lounge suggestions refresh automatically to keep your
-              feed fresh.
-            </p>
-            <div className="bg-muted/60 mt-3 rounded-xl p-3">
-              <div className="flex items-start gap-2">
-                <Sparkles className="text-primary mt-0.5 h-4 w-4" />
-                <p className="text-xs leading-relaxed">
-                  Use the Explore tab for discovery, and Following for people
-                  you already follow.
-                </p>
+          <div dir={dir}>
+            <DesktopRailCard title={t("postFeed.suggestions")}>
+              <p className="text-muted-foreground text-xs leading-relaxed">
+                {t("postFeed.suggestionsDesc")}
+              </p>
+              <div className="bg-muted/60 mt-3 rounded-xl p-3">
+                <div className="flex items-start gap-2">
+                  <Sparkles className="text-primary mt-0.5 h-4 w-4" />
+                  <p className="text-xs leading-relaxed">
+                    {t("postFeed.suggestionsTip")}
+                  </p>
+                </div>
               </div>
-            </div>
-          </DesktopRailCard>
+            </DesktopRailCard>
+          </div>
         </aside>
       </div>
     </div>

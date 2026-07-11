@@ -11,6 +11,7 @@ import { ReportModal } from "./report-modal"
 import { EditPostDialog } from "./edit-post-dialog"
 import type { Post } from "../../_types"
 import { useAuth } from "@/app/_auth"
+import { useTranslation } from "@/app/_i18n"
 import {
   useTogglePostLike,
   useTogglePostSave,
@@ -34,6 +35,7 @@ export function PostCard({
   onEditClick: _onEditClick,
 }: Readonly<PostCardProps>) {
   const { user } = useAuth()
+  const { t, dir } = useTranslation()
   const [showReport, setShowReport] = useState(false)
   const [showEdit, setShowEdit] = useState(false)
   const [showDoubleTapHeart, setShowDoubleTapHeart] = useState(false)
@@ -63,10 +65,10 @@ export function PostCard({
 
   const handleDelete = useCallback(() => {
     if (!post?._id) return
-    if (globalThis.confirm("Delete this post? This action cannot be undone.")) {
+    if (globalThis.confirm(t("content.post.deleteConfirm"))) {
       deleteMutation.mutate(post._id)
     }
-  }, [deleteMutation, post])
+  }, [deleteMutation, post, t])
 
   // Defensive: validate post data integrity after all hooks
   if (!post?._id || !post.authorId) {
@@ -90,9 +92,12 @@ export function PostCard({
     >
       {/* Hidden indicator for admins */}
       {post.isHidden && isAdmin && (
-        <div className="flex items-center gap-1.5 bg-amber-500/10 px-4 py-1.5 text-xs font-medium text-amber-600 dark:text-amber-400">
+        <div
+          dir={dir}
+          className="flex items-center gap-1.5 bg-amber-500/10 px-4 py-1.5 text-xs font-medium text-amber-600 dark:text-amber-400"
+        >
           <EyeOff className="h-3 w-3" />
-          Hidden from public feeds
+          {t("content.post.hidden")}
         </div>
       )}
       {/* Header */}
@@ -124,7 +129,7 @@ export function PostCard({
               onClick={() => setExpanded(true)}
               className="text-muted-foreground text-sm"
             >
-              more
+              {t("content.post.more")}
             </button>
           )}
         </div>
@@ -181,11 +186,11 @@ export function PostCard({
       {/* Comment preview / button */}
       {post.commentCount > 0 && onCommentClick && (
         <button
+          dir={dir}
           onClick={onCommentClick}
           className="text-muted-foreground hover:text-foreground block px-4 pb-3 text-sm transition-colors"
         >
-          View all {post.commentCount} comment
-          {post.commentCount === 1 ? "" : "s"}
+          {t("content.viewAllComments", { count: post.commentCount })}
         </button>
       )}
 
