@@ -154,7 +154,7 @@ export function PostCard({
           <ImageCarousel
             images={post.media}
             alt="Post image"
-            aspectRatio={post.media.length > 1 ? "square" : "video"}
+            aspectRatio="square"
             priority={priority}
             onDoubleClick={handleDoubleTap}
           />
