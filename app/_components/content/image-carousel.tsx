@@ -15,7 +15,6 @@ interface ImageCarouselProps {
 
 const SWIPE_VELOCITY_THRESHOLD = 0.5 // px/ms
 const SWIPE_DISTANCE_THRESHOLD = 40 // px
-const _SPRING_TENSION = 0.6 // Spring-like easing intensity
 
 export function ImageCarousel({
   images,
