@@ -97,7 +97,6 @@ export function PostFeedModal({
               <PostCard
                 post={post}
                 priority={post._id === focusedPost?._id || index < 3}
-                hideCloseButton
               />
             </div>
           ))}

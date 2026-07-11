@@ -11,7 +11,6 @@ interface ImageCarouselProps {
   aspectRatio?: "square" | "video" | "auto" | "portrait"
   priority?: boolean
   onDoubleClick?: () => void
-  hideCloseButton?: boolean
 }
 
 const SWIPE_VELOCITY_THRESHOLD = 0.5 // px/ms
@@ -24,7 +23,6 @@ export function ImageCarousel({
   aspectRatio = "square",
   priority = false,
   onDoubleClick,
-  hideCloseButton = false,
 }: Readonly<ImageCarouselProps>) {
   const [current, setCurrent] = useState(0)
   const [lightboxOpen, setLightboxOpen] = useState(false)
@@ -299,20 +297,18 @@ export function ImageCarousel({
             tabIndex={-1}
           />
 
-          {!hideCloseButton && (
-            <button
-              type="button"
-              onClick={closeLightbox}
-              className="fixed z-[2147483647] rounded-full border border-white/20 bg-white/10 p-2.5 text-white shadow-xl backdrop-blur-lg transition-all duration-200 hover:bg-white/20 active:scale-95"
-              style={{
-                top: "max(16px, env(safe-area-inset-top))",
-                right: "max(16px, env(safe-area-inset-right))",
-              }}
-              aria-label="Close"
-            >
-              <X className="h-6 w-6" />
-            </button>
-          )}
+          <button
+            type="button"
+            onClick={closeLightbox}
+            className="fixed z-[2147483647] rounded-full border border-white/20 bg-white/10 p-2.5 text-white shadow-xl backdrop-blur-lg transition-all duration-200 hover:bg-white/20 active:scale-95"
+            style={{
+              top: "max(16px, env(safe-area-inset-top))",
+              right: "max(16px, env(safe-area-inset-right))",
+            }}
+            aria-label="Close"
+          >
+            <X className="h-6 w-6" />
+          </button>
 
           <div className="absolute inset-0 z-[110]">
             <div

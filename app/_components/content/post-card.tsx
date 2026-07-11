@@ -26,7 +26,6 @@ interface PostCardProps {
   priority?: boolean
   onCommentClick?: () => void
   onEditClick?: () => void
-  hideCloseButton?: boolean
 }
 
 export function PostCard({
@@ -34,7 +33,6 @@ export function PostCard({
   priority,
   onCommentClick,
   onEditClick: _onEditClick,
-  hideCloseButton = false,
 }: Readonly<PostCardProps>) {
   const { user } = useAuth()
   const { t, dir } = useTranslation()
@@ -159,7 +157,6 @@ export function PostCard({
             aspectRatio="square"
             priority={priority}
             onDoubleClick={handleDoubleTap}
-            hideCloseButton={hideCloseButton}
           />
           {/* Double-tap heart animation */}
           {showDoubleTapHeart && (
