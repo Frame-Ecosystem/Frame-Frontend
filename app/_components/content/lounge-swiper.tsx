@@ -51,7 +51,7 @@ export function LoungeSwiper({ lounges }: Readonly<LoungeSwiperProps>) {
   if (lounges.length === 0) return null
 
   return (
-    <section className="bg-card border-border/60 mx-4 overflow-hidden rounded-2xl border shadow-sm lg:mx-5">
+    <section className="bg-card border-border/60 overflow-hidden rounded-2xl border shadow-sm">
       {/* Header */}
       <div className="border-border/60 flex items-center justify-between border-b px-4 py-3">
         <div className="flex items-center gap-2">
@@ -70,7 +70,7 @@ export function LoungeSwiper({ lounges }: Readonly<LoungeSwiperProps>) {
 
       {/* Horizontal scroll container */}
       <div
-        className="scrollbar-hide flex gap-3 overflow-x-auto px-3 py-3"
+        className="scrollbar-hide mx-4 flex gap-3 overflow-x-auto px-3 py-3 lg:mx-5"
         style={{
           scrollSnapType: "x mandatory",
           WebkitOverflowScrolling: "touch",
