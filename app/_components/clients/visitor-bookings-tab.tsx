@@ -15,9 +15,12 @@ import type { ClientBookingItem } from "@/app/_types"
 import { SimpleListSkeleton } from "@/app/_components/skeletons/clients"
 import { resolveProfileImage } from "@/app/_lib/image-utils"
 import { useTranslation } from "@/app/_i18n"
+import { VisitorStatsCards } from "./visitor-stats-cards"
+import type { ClientStats } from "@/app/_types"
 
 interface VisitorBookingsTabProps {
   clientId: string
+  stats?: ClientStats | null
 }
 
 function BookingRow({ booking }: { booking: ClientBookingItem }) {
@@ -64,7 +67,10 @@ function BookingRow({ booking }: { booking: ClientBookingItem }) {
   )
 }
 
-export function VisitorBookingsTab({ clientId }: VisitorBookingsTabProps) {
+export function VisitorBookingsTab({
+  clientId,
+  stats,
+}: VisitorBookingsTabProps) {
   const { t } = useTranslation()
   const [page, setPage] = useState(1)
 
@@ -85,6 +91,7 @@ export function VisitorBookingsTab({ clientId }: VisitorBookingsTabProps) {
 
   return (
     <div className="space-y-4">
+      {stats && <VisitorStatsCards stats={stats} />}
       {data.bookings.map((booking) => (
         <BookingRow key={booking._id} booking={booking} />
       ))}

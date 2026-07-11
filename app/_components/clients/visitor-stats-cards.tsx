@@ -7,7 +7,6 @@ import { Card, CardContent } from "../ui/card"
 
 interface VisitorStatsCardsProps {
   stats: ClientStats
-  onCardClick: () => void
 }
 
 interface StatItem {
@@ -38,10 +37,7 @@ const STAT_ITEMS: StatItem[] = [
   },
 ]
 
-export function VisitorStatsCards({
-  stats,
-  onCardClick,
-}: VisitorStatsCardsProps) {
+export function VisitorStatsCards({ stats }: VisitorStatsCardsProps) {
   const { t } = useTranslation()
 
   return (
@@ -51,8 +47,7 @@ export function VisitorStatsCards({
         return (
           <Card
             key={stat.key}
-            className="border-border/40 from-muted/30 cursor-pointer bg-gradient-to-br to-transparent transition-colors hover:shadow-sm"
-            onClick={onCardClick}
+            className="border-border/40 from-muted/30 bg-gradient-to-br to-transparent"
           >
             <CardContent className="flex items-center gap-3 p-4">
               <div

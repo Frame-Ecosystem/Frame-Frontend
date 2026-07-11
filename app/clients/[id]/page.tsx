@@ -18,7 +18,6 @@ import { useTranslation } from "@/app/_i18n"
 
 import { VisitorProfileSkeleton } from "@/app/_components/clients/visitor-profile-skeleton"
 import { VisitorProfileHeader } from "@/app/_components/clients/visitor-profile-header"
-import { VisitorStatsCards } from "@/app/_components/clients/visitor-stats-cards"
 import { VisitorOverviewTab } from "@/app/_components/clients/visitor-overview-tab"
 import { VisitorBookingsTab } from "@/app/_components/clients/visitor-bookings-tab"
 import { UserReelsTab } from "@/app/_components/profile/user-reels-tab"
@@ -157,16 +156,6 @@ export default function ClientVisitorProfilePage() {
           onImageClick={handleImageClick}
         />
 
-        {/* Stats Cards */}
-        {stats && (
-          <div className="mx-auto max-w-5xl px-4 pt-4 sm:px-6 lg:px-8">
-            <VisitorStatsCards
-              stats={stats}
-              onCardClick={() => setActiveTab("bookings")}
-            />
-          </div>
-        )}
-
         {/* ── Tab Navigation ──────────────────────────────── */}
         <div
           data-nav-tabs
@@ -226,7 +215,7 @@ export default function ClientVisitorProfilePage() {
           )}
           {activeTab === "reels" && <UserReelsTab userId={clientId} />}
           {activeTab === "bookings" && (
-            <VisitorBookingsTab clientId={clientId} />
+            <VisitorBookingsTab clientId={clientId} stats={stats} />
           )}
         </div>
       </div>
