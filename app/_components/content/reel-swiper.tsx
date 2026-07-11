@@ -18,7 +18,7 @@ export function ReelSwiper({ reels }: Readonly<ReelSwiperProps>) {
   if (reels.length === 0) return null
 
   return (
-    <section className="bg-card border-border/60 overflow-hidden rounded-2xl border shadow-sm">
+    <section className="bg-card border-border/60 mx-4 overflow-hidden rounded-2xl border shadow-sm lg:mx-5">
       {/* Header */}
       <div className="border-border/60 flex items-center gap-2 border-b px-4 py-3">
         <Film className="text-primary h-4 w-4" />
