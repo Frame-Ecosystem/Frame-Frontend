@@ -24,6 +24,7 @@ interface VisitorBookingsTabProps {
 }
 
 function BookingRow({ booking }: { booking: ClientBookingItem }) {
+  const { t } = useTranslation()
   return (
     <div className="border-border/60 flex items-center gap-4 rounded-xl border p-4">
       <Link href={`/lounges/${booking.loungeId._id}`} className="shrink-0">
@@ -56,8 +57,10 @@ function BookingRow({ booking }: { booking: ClientBookingItem }) {
         </p>
         {booking.loungeServiceIds?.length > 0 && (
           <p className="text-muted-foreground text-xs">
-            {booking.loungeServiceIds.length} service
-            {booking.loungeServiceIds.length > 1 ? "s" : ""}
+            {booking.loungeServiceIds.length}{" "}
+            {t("clients.serviceCount", {
+              count: booking.loungeServiceIds.length,
+            })}
           </p>
         )}
       </div>

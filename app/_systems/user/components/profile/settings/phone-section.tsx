@@ -50,7 +50,7 @@ export function PhoneSection({
               <Label htmlFor="phoneNumber">{t("settings.phoneNumber")}</Label>
               <div className="relative mt-1">
                 <span className="text-muted-foreground absolute top-1/2 left-3 -translate-y-1/2 transform text-sm font-medium">
-                  TN 216
+                  {t("settings.countryCode")}
                 </span>
                 <Input
                   ref={phoneRef}
@@ -70,7 +70,7 @@ export function PhoneSection({
                   placeholder={
                     user?.phoneNumber
                       ? user.phoneNumber.replace(/^216/, "")
-                      : "12345678"
+                      : t("settings.phonePlaceholder")
                   }
                   className="pl-16"
                   maxLength={8}

@@ -160,7 +160,9 @@ const UserSession = ({ compact }: { compact?: boolean } = {}) => {
           // or the stored session has expired. Show the login form so the user
           // can re-authenticate — do NOT re-open the session picker (infinite loop).
           toast.info(
-            `Session expired — please sign in as ${getUserDisplayName(session.user)}.`,
+            t("auth.sessionExpiredSwitch", {
+              name: getUserDisplayName(session.user),
+            }),
           )
           setDialogOpen(true)
           // sessionUser=null forces the full login form to render,
@@ -253,7 +255,7 @@ const UserSession = ({ compact }: { compact?: boolean } = {}) => {
             className="ring-offset-background focus:ring-ring absolute top-4 right-4 z-10 rounded-sm opacity-70 transition-opacity hover:opacity-100 focus:ring-2 focus:ring-offset-2 focus:outline-hidden"
           >
             <X className="h-4 w-4" />
-            <span className="sr-only">Close</span>
+            <span className="sr-only">{t("common.close")}</span>
           </button>
 
           {/* Show stored sessions browser before signin form */}
@@ -328,7 +330,7 @@ const UserSession = ({ compact }: { compact?: boolean } = {}) => {
             className="ring-offset-background focus:ring-ring absolute top-4 right-4 z-10 rounded-sm opacity-70 transition-opacity hover:opacity-100 focus:ring-2 focus:ring-offset-2 focus:outline-hidden"
           >
             <X className="h-4 w-4" />
-            <span className="sr-only">Close</span>
+            <span className="sr-only">{t("common.close")}</span>
           </button>
           <SignupFlow
             onSuccess={closeSignUp}

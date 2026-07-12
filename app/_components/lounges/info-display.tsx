@@ -4,6 +4,7 @@ import ContactInfo from "../common/profile-display/contact-info"
 import DisplayLocation from "./display-location"
 import OpeningHours from "@/app/_core/components/forms/opening-hours"
 import Extras from "../common/extras"
+import { useTranslation } from "@/app/_i18n"
 
 interface InfoDisplayProps {
   phones?: string[]
@@ -24,6 +25,7 @@ export default function InfoDisplay({
   openingHours,
   isMobile = false,
 }: InfoDisplayProps) {
+  const { t } = useTranslation()
   return (
     <div className="mb-12 space-y-4 xl:mx-auto xl:w-3/5">
       {/* Location with read more */}
@@ -50,12 +52,12 @@ export default function InfoDisplay({
       {/* Extras (extracted) */}
       <Extras
         amenities={[
-          "Free Wi-Fi",
-          "Parking",
-          "Credit Card",
-          "Premium Products",
-          "Air Conditioned",
-          "Qualified Professionals",
+          t("extras.wifi"),
+          t("extras.parking"),
+          t("extras.creditCard"),
+          t("extras.premium"),
+          t("extras.airCon"),
+          t("extras.qualified"),
         ]}
       />
     </div>

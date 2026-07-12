@@ -22,6 +22,7 @@ import {
   AvatarImage,
   AvatarFallback,
 } from "@/app/_components/ui/avatar"
+import { useTranslation } from "@/app/_i18n"
 
 /** Prevent Radix events from closing dialogs. */
 const prevent = (e: Event) => e.preventDefault()
@@ -32,6 +33,7 @@ const noop = () => {}
 const UserSession = ({ compact }: { compact?: boolean } = {}) => {
   // ===== STATE =====
   const { user, isLoading } = useAuth()
+  const { t } = useTranslation()
   const [dialogOpen, setDialogOpen] = useState(false)
   const [signupOpen, setSignupOpen] = useState(false)
   const [popoverOpen, setPopoverOpen] = useState(false)
@@ -131,7 +133,7 @@ const UserSession = ({ compact }: { compact?: boolean } = {}) => {
             className="ring-offset-background focus:ring-ring absolute top-4 right-4 z-10 rounded-sm opacity-70 transition-opacity hover:opacity-100 focus:ring-2 focus:ring-offset-2 focus:outline-hidden"
           >
             <X className="h-4 w-4" />
-            <span className="sr-only">Close</span>
+            <span className="sr-only">{t("common.close")}</span>
           </button>
           <SignInDialog
             onSuccess={closeSignIn}
@@ -159,7 +161,7 @@ const UserSession = ({ compact }: { compact?: boolean } = {}) => {
             className="ring-offset-background focus:ring-ring absolute top-4 right-4 z-10 rounded-sm opacity-70 transition-opacity hover:opacity-100 focus:ring-2 focus:ring-offset-2 focus:outline-hidden"
           >
             <X className="h-4 w-4" />
-            <span className="sr-only">Close</span>
+            <span className="sr-only">{t("common.close")}</span>
           </button>
           <SignupFlow
             onSuccess={closeSignUp}

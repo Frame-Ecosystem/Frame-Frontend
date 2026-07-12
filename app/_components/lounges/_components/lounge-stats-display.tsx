@@ -2,6 +2,7 @@
 
 import { Heart, Star, Users } from "lucide-react"
 import { useMemo } from "react"
+import { useTranslation } from "@/app/_i18n"
 
 interface LoungeStatsDisplayProps {
   averageRating?: number
@@ -27,26 +28,28 @@ export function LoungeStatsDisplay({
   onFollowersClick,
   className = "",
 }: LoungeStatsDisplayProps) {
+  const { t } = useTranslation()
   // Format large numbers for display (1000 → 1k, 1000000 → 1M)
   const formatNumber = useMemo(
-    () => (n: number): string => {
-      if (n >= 1_000_000)
-        return `${(n / 1_000_000).toFixed(1).replace(/\.0$/, "")}M`
-      if (n >= 1_000)
-        return `${(n / 1_000).toFixed(1).replace(/\.0$/, "")}K`
-      return String(n)
-    },
+    () =>
+      (n: number): string => {
+        if (n >= 1_000_000)
+          return `${(n / 1_000_000).toFixed(1).replace(/\.0$/, "")}M`
+        if (n >= 1_000) return `${(n / 1_000).toFixed(1).replace(/\.0$/, "")}K`
+        return String(n)
+      },
     [],
   )
 
   // Determine rating badge color based on score
   const getRatingColor = useMemo(
-    () => (rating: number): string => {
-      if (rating >= 4.5) return "text-emerald-500 bg-emerald-500/10"
-      if (rating >= 4.0) return "text-blue-500 bg-blue-500/10"
-      if (rating >= 3.0) return "text-amber-500 bg-amber-500/10"
-      return "text-orange-500 bg-orange-500/10"
-    },
+    () =>
+      (rating: number): string => {
+        if (rating >= 4.5) return "text-emerald-500 bg-emerald-500/10"
+        if (rating >= 4.0) return "text-blue-500 bg-blue-500/10"
+        if (rating >= 3.0) return "text-amber-500 bg-amber-500/10"
+        return "text-orange-500 bg-orange-500/10"
+      },
     [],
   )
 
@@ -55,10 +58,13 @@ export function LoungeStatsDisplay({
       {/* Rating Card */}
       <button
         onClick={onRatingClick}
-        className={`group relative rounded-xl border border-border/50 bg-gradient-to-br from-background to-muted/30 p-3 sm:p-4 transition-all duration-300 hover:border-primary/50 hover:shadow-md hover:shadow-primary/10 ${
+        className={`group border-border/50 from-background to-muted/30 hover:border-primary/50 hover:shadow-primary/10 relative rounded-xl border bg-gradient-to-br p-3 transition-all duration-300 hover:shadow-md sm:p-4 ${
           onRatingClick ? "cursor-pointer" : "cursor-default"
         }`}
-        aria-label={`Rating: ${averageRating.toFixed(1)} out of 5, ${ratingCount} reviews`}
+        aria-label={t("lounges.ratingAriaLabel", {
+          rating: averageRating.toFixed(1),
+          count: ratingCount,
+        })}
       >
         <div className="flex flex-col items-center gap-2">
           {/* Star Icon */}
@@ -72,20 +78,20 @@ export function LoungeStatsDisplay({
           <div className="text-center">
             {ratingCount > 0 ? (
               <>
-                <div className="text-sm font-bold leading-none sm:text-base">
+                <div className="text-sm leading-none font-bold sm:text-base">
                   {averageRating.toFixed(1)}
                 </div>
-                <div className="text-xs text-muted-foreground leading-tight">
-                  {ratingCount} {ratingCount === 1 ? "review" : "reviews"}
+                <div className="text-muted-foreground text-xs leading-tight">
+                  {t("lounges.reviewCount", { count: ratingCount })}
                 </div>
               </>
             ) : (
               <>
-                <div className="text-sm font-bold leading-none sm:text-base">
+                <div className="text-sm leading-none font-bold sm:text-base">
                   —
                 </div>
-                <div className="text-xs text-muted-foreground leading-tight">
-                  No reviews
+                <div className="text-muted-foreground text-xs leading-tight">
+                  {t("lounges.noReviews")}
                 </div>
               </>
             )}
@@ -94,7 +100,7 @@ export function LoungeStatsDisplay({
       </button>
 
       {/* Likes Card */}
-      <div className="relative rounded-xl border border-border/50 bg-gradient-to-br from-background to-muted/30 p-3 sm:p-4 transition-all duration-300 hover:border-rose-500/30 hover:shadow-md hover:shadow-rose-500/5">
+      <div className="border-border/50 from-background to-muted/30 relative rounded-xl border bg-gradient-to-br p-3 transition-all duration-300 hover:border-rose-500/30 hover:shadow-md hover:shadow-rose-500/5 sm:p-4">
         <div className="flex flex-col items-center gap-2">
           {/* Heart Icon */}
           <div className="rounded-lg bg-rose-500/10 p-2 transition-all duration-300 group-hover:scale-110">
@@ -103,11 +109,11 @@ export function LoungeStatsDisplay({
 
           {/* Likes Count */}
           <div className="text-center">
-            <div className="text-sm font-bold leading-none sm:text-base">
+            <div className="text-sm leading-none font-bold sm:text-base">
               {formatNumber(likeCount)}
             </div>
-            <div className="text-xs text-muted-foreground leading-tight">
-              {likeCount === 1 ? "like" : "likes"}
+            <div className="text-muted-foreground text-xs leading-tight">
+              {t("lounges.likeCount", { count: likeCount })}
             </div>
           </div>
         </div>
@@ -116,10 +122,12 @@ export function LoungeStatsDisplay({
       {/* Followers Card */}
       <button
         onClick={onFollowersClick}
-        className={`group relative rounded-xl border border-border/50 bg-gradient-to-br from-background to-muted/30 p-3 sm:p-4 transition-all duration-300 hover:border-blue-500/30 hover:shadow-md hover:shadow-blue-500/10 ${
+        className={`group border-border/50 from-background to-muted/30 relative rounded-xl border bg-gradient-to-br p-3 transition-all duration-300 hover:border-blue-500/30 hover:shadow-md hover:shadow-blue-500/10 sm:p-4 ${
           onFollowersClick ? "cursor-pointer" : "cursor-default"
         }`}
-        aria-label={`Followers: ${formatNumber(followerCount)}`}
+        aria-label={t("lounges.followersAriaLabel", {
+          count: formatNumber(followerCount),
+        })}
       >
         <div className="flex flex-col items-center gap-2">
           {/* Users Icon */}
@@ -129,11 +137,11 @@ export function LoungeStatsDisplay({
 
           {/* Followers Count */}
           <div className="text-center">
-            <div className="text-sm font-bold leading-none sm:text-base">
+            <div className="text-sm leading-none font-bold sm:text-base">
               {formatNumber(followerCount)}
             </div>
-            <div className="text-xs text-muted-foreground leading-tight">
-              followers
+            <div className="text-muted-foreground text-xs leading-tight">
+              {t("lounges.followers")}
             </div>
           </div>
         </div>

@@ -11,6 +11,7 @@ import { FollowButton } from "@/app/_components/common/follow-button"
 import { MessageButton } from "@/app/_components/common/message-button"
 import { FollowStats } from "@/app/_components/common/follow-stats"
 import type { ClientProfile } from "@/app/_types"
+import { useTranslation } from "@/app/_i18n"
 import { getDisplayName, getInitials, toImageUrl } from "./utils"
 
 interface VisitorProfileHeaderProps {
@@ -22,6 +23,7 @@ export function VisitorProfileHeader({
   profile,
   onImageClick,
 }: VisitorProfileHeaderProps) {
+  const { t } = useTranslation()
   const displayName = getDisplayName(profile)
   const profileUrl = toImageUrl(profile.profileImage)
   const coverUrl = toImageUrl(profile.coverImage)
@@ -34,12 +36,17 @@ export function VisitorProfileHeader({
           <button
             type="button"
             className="relative h-full w-full cursor-pointer"
-            onClick={() => onImageClick(coverUrl, `${displayName} cover`)}
-            aria-label="View cover photo"
+            onClick={() =>
+              onImageClick(
+                coverUrl,
+                t("clients.coverPhotoAlt", { name: displayName }),
+              )
+            }
+            aria-label={t("clients.viewCoverPhoto")}
           >
             <Image
               src={coverUrl}
-              alt="Cover"
+              alt={t("clients.coverPhoto")}
               fill
               sizes="(max-width: 1024px) 100vw, 1600px"
               quality={80}
@@ -62,7 +69,7 @@ export function VisitorProfileHeader({
             onClick={() => {
               if (profileUrl) onImageClick(profileUrl, displayName)
             }}
-            aria-label="View profile photo"
+            aria-label={t("clients.viewProfilePhoto")}
           >
             <Avatar className="ring-background h-20 w-20 shadow-xl ring-4 sm:h-24 sm:w-24 md:h-28 md:w-28">
               {profileUrl && (

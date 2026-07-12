@@ -6,6 +6,7 @@ import { ContentGrid } from "../content/content-grid"
 import { PostFeedModal } from "../content/post-feed-modal"
 import { CreatePostDialog } from "../content/create-post-dialog"
 import { useAuth } from "@/app/_auth"
+import { useTranslation } from "@/app/_i18n"
 import type { Post } from "../../_types/content"
 
 interface UserPostsTabProps {
@@ -22,6 +23,7 @@ export const UserPostsTab = memo(function UserPostsTab({
   focusPost,
 }: UserPostsTabProps) {
   const { user } = useAuth()
+  const { t } = useTranslation()
   const isOwner = user?._id === userId
   const postsQuery = useUserPosts(userId)
   const [selectedPost, setSelectedPost] = useState<Post | null>(null)
@@ -50,7 +52,7 @@ export const UserPostsTab = memo(function UserPostsTab({
   if (postsQuery.isLoading) {
     return (
       <div className="flex items-center justify-center py-12">
-        <div className="text-muted-foreground">Loading posts...</div>
+        <div className="text-muted-foreground">{t("common.loading")}</div>
       </div>
     )
   }
@@ -58,7 +60,7 @@ export const UserPostsTab = memo(function UserPostsTab({
   if (postsQuery.isError) {
     return (
       <div className="flex items-center justify-center py-12">
-        <div className="text-destructive">Failed to load posts</div>
+        <div className="text-destructive">{t("common.error")}</div>
       </div>
     )
   }

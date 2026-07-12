@@ -40,12 +40,17 @@ export function VisitorProfileHeader({
           <button
             type="button"
             className="relative h-full w-full cursor-pointer"
-            onClick={() => onImageClick(coverUrl, `${displayName} cover`)}
-            aria-label="View cover photo"
+            onClick={() =>
+              onImageClick(
+                coverUrl,
+                t("clients.coverPhotoAlt", { name: displayName }),
+              )
+            }
+            aria-label={t("clients.viewCoverPhoto")}
           >
             <Image
               src={coverUrl}
-              alt="Cover"
+              alt={t("clients.coverPhoto")}
               fill
               sizes="100vw"
               quality={80}
@@ -78,7 +83,7 @@ export function VisitorProfileHeader({
             onClick={() => {
               if (profileUrl) onImageClick(profileUrl, displayName)
             }}
-            aria-label="View profile photo"
+            aria-label={t("clients.viewProfilePhoto")}
           >
             <Avatar className="ring-background h-20 w-20 shadow-xl ring-4 sm:h-24 sm:w-24 md:h-28 md:w-28">
               {profileUrl && (

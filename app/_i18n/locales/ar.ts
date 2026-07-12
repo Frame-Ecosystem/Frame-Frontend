@@ -128,6 +128,16 @@ const ar: Record<string, string> = {
   "lounges.closed": "مغلق",
   "lounges.mostBooked": "الصالونات الأكثر حجزاً",
   "lounges.mostBookedSubtitle": "بناءً على أعلى عدد حجوزات مكتملة",
+  "lounges.ratingAriaLabel": "التقييم: {rating} من 5، {count} تقييمات",
+  "lounges.reviewCount": "{count, plural, =1 {# تقييم} other {# تقييمات}}",
+  "lounges.noReviews": "لا توجد تقييمات",
+  "lounges.likeCount": "{count, plural, =1 {# إعجاب} other {# إعجابات}}",
+  "lounges.like": "إعجاب",
+  "lounges.follow": "متابعة",
+  "lounges.following": "يتابع",
+  "lounges.followerCount": "{count, plural, =1 {# متابع} other {# متابعين}}",
+  "lounges.followers": "المتابعون",
+  "lounges.followersAriaLabel": "المتابعون: {count}",
 
   // ── Bookings ────────────────────────────────────────────────────────────
   "bookings.title": "حجوزاتي",
@@ -719,6 +729,8 @@ const ar: Record<string, string> = {
   "settings.firstNamePlaceholder": "أدخل اسمك الأول",
   "settings.lastNamePlaceholder": "أدخل اسم عائلتك",
   "settings.phoneHint": "أدخل 8 أرقام (مثال: 12345678)",
+  "settings.countryCode": "TN 216",
+  "settings.phonePlaceholder": "12345678",
   "settings.logout": "تسجيل الخروج",
   "settings.logoutAll": "تسجيل الخروج من جميع الأجهزة",
 
@@ -904,6 +916,10 @@ const ar: Record<string, string> = {
   "lounge.notFound": "الصالون غير موجود",
   "lounge.notFoundDesc": "الصالون المطلوب غير موجود.",
   "lounge.browseLounges": "تصفح الصالونات",
+  "lounge.tabInfo": "معلومات",
+  "lounge.tabPortfolio": "معرض الأعمال",
+  "lounge.tabServices": "الخدمات",
+  "lounge.tabQueue": "الانتظار",
 
   // ── Saved page ──────────────────────────────────────────────────────────
   "saved.title": "المحفوظات",
@@ -1625,6 +1641,7 @@ const ar: Record<string, string> = {
   "extras.premium": "منتجات فاخرة",
   "extras.airCon": "تكييف هواء",
   "extras.qualified": "محترفون مؤهلون",
+  "extras.defaultName": "إضافة",
 
   // ── Admin Extras ────────────────────────────────────────────────────────
   "admin.extras.title": "الإضافات",
@@ -1724,6 +1741,11 @@ const ar: Record<string, string> = {
   "clients.cancelled": "ملغي",
   "clients.absent": "غائب",
   "clients.total": "الإجمالي",
+  "clients.coverPhoto": "غلاف",
+  "clients.coverPhotoAlt": "غلاف {name}",
+  "clients.viewCoverPhoto": "عرض صورة الغلاف",
+  "clients.viewProfilePhoto": "عرض صورة الملف الشخصي",
+  "clients.serviceCount": "{count, plural, =1 {خدمة} other {خدمات}}",
 
   // ── Post Feed ───────────────────────────────────────────────────────────
   "postFeed.whatsOnYourMind": "بماذا تفكر؟",

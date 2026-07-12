@@ -127,6 +127,17 @@ const tr: Record<string, string> = {
   "lounges.mostBooked": "En Çok Rezervasyon Alan Salonlar",
   "lounges.mostBookedSubtitle":
     "En yüksek tamamlanmış rezervasyon sayısına göre",
+  "lounges.ratingAriaLabel": "Puan: {rating}/5, {count} değerlendirme",
+  "lounges.reviewCount":
+    "{count, plural, =1 {# değerlendirme} other {# değerlendirme}}",
+  "lounges.noReviews": "Değerlendirme yok",
+  "lounges.likeCount": "{count, plural, =1 {# beğeni} other {# beğeni}}",
+  "lounges.like": "Beğen",
+  "lounges.follow": "Takip Et",
+  "lounges.following": "Takip Ediliyor",
+  "lounges.followerCount": "{count, plural, =1 {# takipçi} other {# takipçi}}",
+  "lounges.followers": "Takipçiler",
+  "lounges.followersAriaLabel": "Takipçiler: {count}",
 
   // ── Bookings ────────────────────────────────────────────────────────────
   "bookings.title": "Randevularım",
@@ -725,6 +736,8 @@ const tr: Record<string, string> = {
   "settings.firstNamePlaceholder": "Adınızı girin",
   "settings.lastNamePlaceholder": "Soyadınızı girin",
   "settings.phoneHint": "8 rakam girin (ör: 12345678)",
+  "settings.countryCode": "TN 216",
+  "settings.phonePlaceholder": "12345678",
   "settings.logout": "Çıkış Yap",
   "settings.logoutAll": "Tüm Cihazlardan Çıkış Yap",
 
@@ -916,6 +929,10 @@ const tr: Record<string, string> = {
   "lounge.notFound": "Salon bulunamadı",
   "lounge.notFoundDesc": "İstenen salon bulunamadı.",
   "lounge.browseLounges": "Salonlara Göz At",
+  "lounge.tabInfo": "Bilgi",
+  "lounge.tabPortfolio": "Portföy",
+  "lounge.tabServices": "Hizmetler",
+  "lounge.tabQueue": "Sıra",
 
   // ── Saved page ──────────────────────────────────────────────────────────
   "saved.title": "Kaydedilenler",
@@ -1658,6 +1675,7 @@ const tr: Record<string, string> = {
   "extras.premium": "Premium Ürünler",
   "extras.airCon": "Klima",
   "extras.qualified": "Nitelikli Profesyoneller",
+  "extras.defaultName": "Ek",
 
   // ── Admin Extras ────────────────────────────────────────────────────────
   "admin.extras.title": "Ekstralar",
@@ -1759,6 +1777,11 @@ const tr: Record<string, string> = {
   "clients.cancelled": "İptal",
   "clients.absent": "Gelmedi",
   "clients.total": "Toplam",
+  "clients.coverPhoto": "Kapak",
+  "clients.coverPhotoAlt": "{name} kapak fotoğrafı",
+  "clients.viewCoverPhoto": "Kapak fotoğrafını görüntüle",
+  "clients.viewProfilePhoto": "Profil fotoğrafını görüntüle",
+  "clients.serviceCount": "{count, plural, =1 {hizmet} other {hizmet}}",
 
   // ── Post Feed ───────────────────────────────────────────────────────────
   "postFeed.whatsOnYourMind": "Aklınızda ne var?",

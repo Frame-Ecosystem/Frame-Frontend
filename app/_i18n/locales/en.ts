@@ -121,6 +121,17 @@ const en: Record<string, string> = {
   "lounges.closed": "Closed",
   "lounges.mostBooked": "Most Booked Salons",
   "lounges.mostBookedSubtitle": "Based on the highest completed booking count",
+  "lounges.ratingAriaLabel": "Rating: {rating} out of 5, {count} reviews",
+  "lounges.reviewCount": "{count, plural, =1 {# review} other {# reviews}}",
+  "lounges.noReviews": "No reviews",
+  "lounges.likeCount": "{count, plural, =1 {# like} other {# likes}}",
+  "lounges.like": "Like",
+  "lounges.follow": "Follow",
+  "lounges.following": "Following",
+  "lounges.followerCount":
+    "{count, plural, =1 {# follower} other {# followers}}",
+  "lounges.followers": "Followers",
+  "lounges.followersAriaLabel": "Followers: {count}",
 
   // ── Bookings ────────────────────────────────────────────────────────────
   "bookings.title": "My Bookings",
@@ -577,6 +588,7 @@ const en: Record<string, string> = {
   "auth.signin.signInDifferent": "Sign in with different account",
   "auth.signin.savedSessions": "Saved Sessions",
   "auth.signin.signInWithDifferent": "Or sign in with different credentials",
+  "auth.sessionExpiredSwitch": "Session expired — please sign in as {name}.",
   "auth.signin.validationEmailOrPhoneRequired":
     "Email or phone number is required",
   "auth.signin.validationEmailOrPhoneInvalid":
@@ -786,6 +798,8 @@ const en: Record<string, string> = {
   "settings.firstNamePlaceholder": "Enter your first name",
   "settings.lastNamePlaceholder": "Enter your last name",
   "settings.phoneHint": "Enter 8 digits (e.g., 12345678)",
+  "settings.countryCode": "TN 216",
+  "settings.phonePlaceholder": "12345678",
   "settings.logout": "Logout",
   "settings.logoutAll": "Logout from All Devices",
 
@@ -975,6 +989,10 @@ const en: Record<string, string> = {
   "lounge.notFound": "Lounge Not Found",
   "lounge.notFoundDesc": "The requested lounge could not be found.",
   "lounge.browseLounges": "Browse Lounges",
+  "lounge.tabInfo": "Info",
+  "lounge.tabPortfolio": "Portfolio",
+  "lounge.tabServices": "Services",
+  "lounge.tabQueue": "Queue",
 
   // ── Saved page ──────────────────────────────────────────────────────────
   "saved.title": "Saved",
@@ -1716,6 +1734,7 @@ const en: Record<string, string> = {
   "extras.premium": "Premium Products",
   "extras.airCon": "Air Conditioned",
   "extras.qualified": "Qualified Professionals",
+  "extras.defaultName": "Extra",
 
   // ── Admin Extras ────────────────────────────────────────────────────────
   "admin.extras.title": "Extras",
@@ -1815,6 +1834,11 @@ const en: Record<string, string> = {
   "clients.cancelled": "Cancelled",
   "clients.absent": "Absent",
   "clients.total": "Total",
+  "clients.coverPhoto": "Cover",
+  "clients.coverPhotoAlt": "{name} cover",
+  "clients.viewCoverPhoto": "View cover photo",
+  "clients.viewProfilePhoto": "View profile photo",
+  "clients.serviceCount": "{count, plural, =1 {service} other {services}}",
 
   // ── Post Feed ───────────────────────────────────────────────────────────
   "postFeed.whatsOnYourMind": "What's on your mind?",

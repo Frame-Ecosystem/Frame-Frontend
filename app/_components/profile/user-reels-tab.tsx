@@ -5,6 +5,7 @@ import { CreateReelDialog } from "../content/create-reel-dialog"
 import { useOpenReel } from "../content/hooks/use-open-reel"
 import { LoungeReelsViewer } from "../content/lounge-reels-viewer"
 import { useAuth } from "@/app/_auth"
+import { useTranslation } from "@/app/_i18n"
 import type { Reel } from "../../_types/content"
 
 interface UserReelsTabProps {
@@ -19,6 +20,7 @@ interface UserReelsTabProps {
  */
 export function UserReelsTab({ userId, isLounge = false }: UserReelsTabProps) {
   const { user } = useAuth()
+  const { t } = useTranslation()
   const isOwner = user?._id === userId
   const { openReel } = useOpenReel()
   const [selectedReelId, setSelectedReelId] = useState<string | null>(null)
@@ -35,7 +37,7 @@ export function UserReelsTab({ userId, isLounge = false }: UserReelsTabProps) {
   if (reelsQuery.isLoading) {
     return (
       <div className="flex items-center justify-center py-12">
-        <div className="text-muted-foreground">Loading reels...</div>
+        <div className="text-muted-foreground">{t("common.loading")}</div>
       </div>
     )
   }
@@ -43,7 +45,7 @@ export function UserReelsTab({ userId, isLounge = false }: UserReelsTabProps) {
   if (reelsQuery.isError) {
     return (
       <div className="flex items-center justify-center py-12">
-        <div className="text-destructive">Failed to load reels</div>
+        <div className="text-destructive">{t("common.error")}</div>
       </div>
     )
   }

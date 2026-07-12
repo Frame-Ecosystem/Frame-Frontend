@@ -130,6 +130,16 @@ const fr: Record<string, string> = {
   "lounges.mostBooked": "Salons les plus réservés",
   "lounges.mostBookedSubtitle":
     "Basé sur le plus grand nombre de réservations terminées",
+  "lounges.ratingAriaLabel": "Note : {rating} sur 5, {count} avis",
+  "lounges.reviewCount": "{count, plural, =1 {# avis} other {# avis}}",
+  "lounges.noReviews": "Aucun avis",
+  "lounges.likeCount": "{count, plural, =1 {# like} other {# likes}}",
+  "lounges.like": "J'aime",
+  "lounges.follow": "Suivre",
+  "lounges.following": "Abonné",
+  "lounges.followerCount": "{count, plural, =1 {# abonné} other {# abonnés}}",
+  "lounges.followers": "Abonnés",
+  "lounges.followersAriaLabel": "Abonnés : {count}",
 
   // ── Bookings ────────────────────────────────────────────────────────────
   "bookings.title": "Mes réservations",
@@ -741,6 +751,8 @@ const fr: Record<string, string> = {
   "settings.firstNamePlaceholder": "Entrez votre prénom",
   "settings.lastNamePlaceholder": "Entrez votre nom de famille",
   "settings.phoneHint": "Entrez 8 chiffres (ex : 12345678)",
+  "settings.countryCode": "TN 216",
+  "settings.phonePlaceholder": "12345678",
   "settings.logout": "Déconnexion",
   "settings.logoutAll": "Se déconnecter de tous les appareils",
 
@@ -936,6 +948,10 @@ const fr: Record<string, string> = {
   "lounge.notFound": "Salon introuvable",
   "lounge.notFoundDesc": "Le salon demandé est introuvable.",
   "lounge.browseLounges": "Parcourir les salons",
+  "lounge.tabInfo": "Infos",
+  "lounge.tabPortfolio": "Portfolio",
+  "lounge.tabServices": "Services",
+  "lounge.tabQueue": "File d'attente",
 
   // ── Saved page ──────────────────────────────────────────────────────────
   "saved.title": "Enregistrés",
@@ -1692,6 +1708,7 @@ const fr: Record<string, string> = {
   "extras.premium": "Produits premium",
   "extras.airCon": "Climatisation",
   "extras.qualified": "Professionnels qualifiés",
+  "extras.defaultName": "Supplément",
 
   // ── Admin Extras ────────────────────────────────────────────────────────
   "admin.extras.title": "Extras",
@@ -1792,6 +1809,11 @@ const fr: Record<string, string> = {
   "clients.cancelled": "Annulé",
   "clients.absent": "Absent",
   "clients.total": "Total",
+  "clients.coverPhoto": "Couverture",
+  "clients.coverPhotoAlt": "Couverture de {name}",
+  "clients.viewCoverPhoto": "Voir la photo de couverture",
+  "clients.viewProfilePhoto": "Voir la photo de profil",
+  "clients.serviceCount": "{count, plural, =1 {service} other {services}}",
 
   // ── Post Feed ───────────────────────────────────────────────────────────
   "postFeed.whatsOnYourMind": "Quoi de neuf ?",

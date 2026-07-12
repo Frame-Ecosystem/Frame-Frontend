@@ -10,10 +10,12 @@ import {
   useFollowCounts,
   useToggleFollow,
 } from "@/app/_systems/user/hooks"
+import { useTranslation } from "@/app/_i18n"
 import type { LoungeDetail } from "../_lib/use-lounge-data"
 
 export function LoungeHero({ lounge }: { lounge: LoungeDetail }) {
   const router = useRouter()
+  const { t } = useTranslation()
   const targetId = lounge._id ?? lounge.id
 
   const { data: isLiked = false } = useCheckLiked(targetId)
@@ -50,7 +52,7 @@ export function LoungeHero({ lounge }: { lounge: LoungeDetail }) {
               onClick={() => router.back()}
               className="hover:text-primary mb-6 inline-flex items-center text-white transition-colors"
             >
-              ← Back
+              ← {t("common.back")}
             </button>
 
             <Card className="border-white/20 bg-white/10 backdrop-blur-sm">
@@ -72,8 +74,7 @@ export function LoungeHero({ lounge }: { lounge: LoungeDetail }) {
                           {ratingCount > 0 ? rating.toFixed(1) : "-"}
                         </span>
                         <span className="text-white/80">
-                          ({ratingCount}{" "}
-                          {ratingCount === 1 ? "review" : "reviews"})
+                          ({t("lounges.reviewCount", { count: ratingCount })})
                         </span>
                       </div>
                     </div>
@@ -90,7 +91,7 @@ export function LoungeHero({ lounge }: { lounge: LoungeDetail }) {
                     <button
                       onClick={() => likeMutation.mutate()}
                       className="flex items-center gap-1.5 rounded-full bg-white/10 px-3 py-1.5 backdrop-blur-sm transition-colors hover:bg-white/20"
-                      aria-label="Like"
+                      aria-label={t("lounges.like")}
                       disabled={
                         likeMutation.isPending || likeMutation.isRateLimited
                       }
@@ -100,14 +101,19 @@ export function LoungeHero({ lounge }: { lounge: LoungeDetail }) {
                         className={`transition-colors ${isLiked ? "fill-red-500 text-red-500" : "text-white"}`}
                       />
                       <span className="text-sm font-medium text-white">
-                        {likeCount} {likeCount === 1 ? "like" : "likes"}
+                        {likeCount}{" "}
+                        {t("lounges.likeCount", { count: likeCount })}
                       </span>
                     </button>
 
                     <button
                       onClick={() => followMutation.mutate()}
                       className="flex items-center gap-1.5 rounded-full bg-white/10 px-3 py-1.5 backdrop-blur-sm transition-colors hover:bg-white/20"
-                      aria-label={isFollowing ? "Following" : "Follow"}
+                      aria-label={
+                        isFollowing
+                          ? t("lounges.following")
+                          : t("lounges.follow")
+                      }
                       disabled={
                         followMutation.isPending || followMutation.isRateLimited
                       }
@@ -119,7 +125,7 @@ export function LoungeHero({ lounge }: { lounge: LoungeDetail }) {
                       )}
                       <span className="text-sm font-medium text-white">
                         {followersCount}{" "}
-                        {followersCount === 1 ? "follower" : "followers"}
+                        {t("lounges.followerCount", { count: followersCount })}
                       </span>
                     </button>
                   </div>

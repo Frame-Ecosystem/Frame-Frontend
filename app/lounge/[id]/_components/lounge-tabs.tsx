@@ -12,6 +12,7 @@ import { LocationCard } from "@/app/_core/components/forms/location-card"
 import { ContactCard } from "@/app/_core/components/forms/contact-card"
 import { ExtrasCard } from "@/app/_core/components/forms/extras-card"
 import { useVisitorLoungeExtras } from "@/app/_systems/extras/hooks/useExtras"
+import { useTranslation } from "@/app/_i18n"
 import type { LoungeDetail } from "../_lib/use-lounge-data"
 
 // ── Types & Constants ───────────────────────────────────────────
@@ -20,13 +21,13 @@ type Tab = "info" | "reels" | "services" | "queue"
 
 const TABS: {
   id: Tab
-  label: string
+  labelKey: string
   icon: React.ComponentType<{ className?: string }>
 }[] = [
-  { id: "info", label: "Info", icon: InfoIcon },
-  { id: "reels", label: "Portfolio", icon: Film },
-  { id: "services", label: "Services", icon: CalendarIcon },
-  { id: "queue", label: "Queue", icon: Users },
+  { id: "info", labelKey: "lounge.tabInfo", icon: InfoIcon },
+  { id: "reels", labelKey: "lounge.tabPortfolio", icon: Film },
+  { id: "services", labelKey: "lounge.tabServices", icon: CalendarIcon },
+  { id: "queue", labelKey: "lounge.tabQueue", icon: Users },
 ]
 
 // ── Sub-components ──────────────────────────────────────────────
@@ -38,9 +39,10 @@ function TabNavigation({
   activeTab: Tab
   onTabChange: (tab: Tab) => void
 }) {
+  const { t } = useTranslation()
   return (
     <div className="flex justify-center gap-1">
-      {TABS.map(({ id, label, icon: Icon }) => (
+      {TABS.map(({ id, labelKey, icon: Icon }) => (
         <Button
           key={id}
           variant="ghost"
@@ -49,7 +51,7 @@ function TabNavigation({
           onClick={() => onTabChange(id)}
         >
           <Icon className="mr-2 h-4 w-4" />
-          {label}
+          {t(labelKey)}
         </Button>
       ))}
     </div>

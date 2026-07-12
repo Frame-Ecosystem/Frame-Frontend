@@ -382,7 +382,7 @@ export default function LoungeProfilePage() {
                         if (extra) {
                           acc.push({
                             _id: extra._id ?? le._id,
-                            name: extra.name ?? "Extra",
+                            name: extra.name ?? t("extras.defaultName"),
                             description: le.description ?? extra.description,
                             free: extra.free ?? true,
                             cost: le.cost ?? extra.cost ?? 0,
