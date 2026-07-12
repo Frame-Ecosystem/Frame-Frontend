@@ -48,6 +48,8 @@ const fr: Record<string, string> = {
   "common.or": "ou",
   "common.seeMore": "En savoir plus",
   "common.seeLess": "Réduire",
+  "common.sendMessage": "Envoyer un message",
+  "common.message": "Message",
   "common.copiedToClipboard": "Copié !",
 
   // ── Settings ────────────────────────────────────────────────────────────
@@ -131,15 +133,30 @@ const fr: Record<string, string> = {
   "lounges.mostBookedSubtitle":
     "Basé sur le plus grand nombre de réservations terminées",
   "lounges.ratingAriaLabel": "Note : {rating} sur 5, {count} avis",
-  "lounges.reviewCount": "{count, plural, =1 {# avis} other {# avis}}",
+  "lounges.reviewCount_one": "{count} avis",
+  "lounges.reviewCount_other": "{count} avis",
   "lounges.noReviews": "Aucun avis",
-  "lounges.likeCount": "{count, plural, =1 {# like} other {# likes}}",
+  "lounges.likeCount_one": "{count} like",
+  "lounges.likeCount_other": "{count} likes",
   "lounges.like": "J'aime",
   "lounges.follow": "Suivre",
   "lounges.following": "Abonné",
-  "lounges.followerCount": "{count, plural, =1 {# abonné} other {# abonnés}}",
+  "lounges.followerCount_one": "{count} abonné",
+  "lounges.followerCount_other": "{count} abonnés",
   "lounges.followers": "Abonnés",
   "lounges.followersAriaLabel": "Abonnés : {count}",
+  "lounges.notFound": "Salon introuvable",
+  "lounges.unnamedService": "Service sans nom",
+  "lounges.noLocation": "Aucun emplacement disponible",
+  "lounges.noDescription": "Aucune description disponible",
+  "lounges.backToLounges": "Retour aux salons",
+  "lounges.coverPhotoAlt": "Couverture de {name}",
+  "lounges.viewCoverPhoto": "Voir la photo de couverture",
+  "lounges.viewProfilePhoto": "Voir la photo de profil",
+  "lounges.rate": "Noter",
+  "lounges.editRating": "Modifier la note",
+  "lounges.closedQueueToast":
+    "Le salon est actuellement fermé et ne peut pas accepter de réservations. Allez dans l'onglet Services pour réserver à une autre date.",
 
   // ── Bookings ────────────────────────────────────────────────────────────
   "bookings.title": "Mes réservations",
@@ -848,6 +865,7 @@ const fr: Record<string, string> = {
   "loungePosts.comment": "Commenter",
   "loungePosts.share": "Partager",
   "loungePosts.loadMore": "Charger plus de publications",
+  "loungePosts.postImageAlt": "Image du post",
   "loungePosts.likes_one": "{count} j'aime",
   "loungePosts.likes_other": "{count} j'aime",
   "loungePosts.comments_one": "{count} commentaire",
@@ -882,6 +900,44 @@ const fr: Record<string, string> = {
   "services.gender.women": "Femmes",
   "services.gender.unisex": "Unisexe",
   "services.gender.kids": "Enfants",
+  "services.ourServices": "Nos Services",
+  "services.servicesCount_one": "{count} service",
+  "services.servicesCount_other": "{count} services",
+  "services.noServices": "Aucun service disponible pour le moment",
+
+  // ── Chat ────────────────────────────────────────────────────────────────
+  "chat.title": "Messages",
+  "chat.mutualFollowRequired":
+    "Vous devez vous suivre mutuellement pour envoyer des messages",
+  "chat.followBanner":
+    "Vous ne vous suivez plus mutuellement. Suivez-vous mutuellement pour activer la messagerie.",
+  "chat.slowDown": "Vous envoyez des messages trop vite. Ralentissez.",
+  "chat.failedToSend": "Échec de l'envoi du message. Veuillez réessayer.",
+  "chat.editWindowExpired":
+    "Vous ne pouvez modifier les messages que dans les 15 minutes",
+  "chat.messageRecalled": "Ce message a été révoqué",
+  "chat.editingMessage": "Modification du message",
+  "chat.typeMessage": "Écrivez un message…",
+  "chat.editMessagePlaceholder": "Modifier le message…",
+  "chat.send": "Envoyer",
+  "chat.attachFile": "Joindre un fichier",
+  "chat.removeFile": "Supprimer le fichier",
+  "chat.emoji": "Émoji",
+  "chat.react": "Réagir",
+  "chat.reply": "Répondre",
+  "chat.moreOptions": "Plus d'options",
+  "chat.edit": "Modifier",
+  "chat.deleteForMe": "Supprimer pour moi",
+  "chat.deleteForEveryone": "Supprimer pour tout le monde",
+  "chat.deleteConversation": "Supprimer la conversation",
+  "chat.search": "Rechercher des messages…",
+  "chat.noConversations": "Aucune conversation pour le moment",
+  "chat.noConversationsMatch": "Aucune conversation ne correspond",
+  "chat.startMessaging":
+    "Commencez une conversation en appuyant sur le bouton message sur un profil",
+  "chat.couldntLoad": "Impossible de charger la conversation",
+  "chat.checkConnection": "Vérifiez votre connexion et réessayez.",
+  "chat.noResults": "Aucun message trouvé",
 
   // ── Store ───────────────────────────────────────────────────────────────
   "store.title": "Boutique",
@@ -952,6 +1008,8 @@ const fr: Record<string, string> = {
   "lounge.tabPortfolio": "Portfolio",
   "lounge.tabServices": "Services",
   "lounge.tabQueue": "File d'attente",
+  "lounge.tabPosts": "Publications",
+  "lounge.tabReviews": "Avis",
 
   // ── Saved page ──────────────────────────────────────────────────────────
   "saved.title": "Enregistrés",
@@ -1813,7 +1871,8 @@ const fr: Record<string, string> = {
   "clients.coverPhotoAlt": "Couverture de {name}",
   "clients.viewCoverPhoto": "Voir la photo de couverture",
   "clients.viewProfilePhoto": "Voir la photo de profil",
-  "clients.serviceCount": "{count, plural, =1 {service} other {services}}",
+  "clients.serviceCount_one": "{count} service",
+  "clients.serviceCount_other": "{count} services",
 
   // ── Post Feed ───────────────────────────────────────────────────────────
   "postFeed.whatsOnYourMind": "Quoi de neuf ?",
@@ -1933,6 +1992,8 @@ const fr: Record<string, string> = {
   // ── Common: extended keys ────────────────────────────────────────────────
   "common.success": "Succès",
   "common.tryAgain": "Réessayer",
+  "common.ok": "OK",
+  "common.alertTitle": "Avis",
 
   // ── Service Management: UI labels ─────────────────────────────────────────
   "serviceMgmt.backToSettings": "Retour aux paramètres du salon",

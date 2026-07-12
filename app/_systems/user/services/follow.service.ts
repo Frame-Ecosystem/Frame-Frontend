@@ -2,6 +2,7 @@ import { apiClient } from "@/app/_core/api/api"
 import type {
   FollowToggleResult,
   FollowCheckResult,
+  MutualFollowCheck,
   FollowCounts,
   FollowingRecord,
   FollowerRecord,
@@ -36,6 +37,24 @@ class FollowService {
       return !!(payload.isFollowing ?? payload.following ?? false)
     } catch {
       return false
+    }
+  }
+
+  /** Check mutual follow status between the authenticated user and a target. */
+  async checkMutualFollow(targetId: string): Promise<MutualFollowCheck> {
+    try {
+      const res = await apiClient.get<{ data: MutualFollowCheck }>(
+        `/v1/follows/mutual-check/${targetId}`,
+        { suppressAuthFailure: true },
+      )
+      const payload = (res as any).data ?? res
+      return {
+        mutualFollow: !!payload.mutualFollow,
+        aFollowsB: !!payload.aFollowsB,
+        bFollowsA: !!payload.bFollowsA,
+      }
+    } catch {
+      return { mutualFollow: false, aFollowsB: false, bFollowsA: false }
     }
   }
 

@@ -44,6 +44,8 @@ const en: Record<string, string> = {
   "common.or": "or",
   "common.seeMore": "See more",
   "common.seeLess": "See less",
+  "common.sendMessage": "Send message",
+  "common.message": "Message",
   "common.copiedToClipboard": "Copied to clipboard",
 
   // ── Settings ────────────────────────────────────────────────────────────
@@ -122,16 +124,30 @@ const en: Record<string, string> = {
   "lounges.mostBooked": "Most Booked Salons",
   "lounges.mostBookedSubtitle": "Based on the highest completed booking count",
   "lounges.ratingAriaLabel": "Rating: {rating} out of 5, {count} reviews",
-  "lounges.reviewCount": "{count, plural, =1 {# review} other {# reviews}}",
+  "lounges.reviewCount_one": "{count} review",
+  "lounges.reviewCount_other": "{count} reviews",
   "lounges.noReviews": "No reviews",
-  "lounges.likeCount": "{count, plural, =1 {# like} other {# likes}}",
+  "lounges.likeCount_one": "{count} like",
+  "lounges.likeCount_other": "{count} likes",
   "lounges.like": "Like",
   "lounges.follow": "Follow",
   "lounges.following": "Following",
-  "lounges.followerCount":
-    "{count, plural, =1 {# follower} other {# followers}}",
+  "lounges.followerCount_one": "{count} follower",
+  "lounges.followerCount_other": "{count} followers",
   "lounges.followers": "Followers",
   "lounges.followersAriaLabel": "Followers: {count}",
+  "lounges.notFound": "Lounge not found",
+  "lounges.unnamedService": "Unnamed Service",
+  "lounges.noLocation": "No location available",
+  "lounges.noDescription": "No description available",
+  "lounges.backToLounges": "Back to Lounges",
+  "lounges.coverPhotoAlt": "{name} cover",
+  "lounges.viewCoverPhoto": "View cover photo",
+  "lounges.viewProfilePhoto": "View profile photo",
+  "lounges.rate": "Rate",
+  "lounges.editRating": "Edit Rating",
+  "lounges.closedQueueToast":
+    "Lounge is currently closed and can't accept bookings now. Go to the Services tab to book for another date.",
 
   // ── Bookings ────────────────────────────────────────────────────────────
   "bookings.title": "My Bookings",
@@ -891,6 +907,7 @@ const en: Record<string, string> = {
   "loungePosts.comment": "Comment",
   "loungePosts.share": "Share",
   "loungePosts.loadMore": "Load More Posts",
+  "loungePosts.postImageAlt": "Post image",
   "loungePosts.likes_one": "{count} like",
   "loungePosts.likes_other": "{count} likes",
   "loungePosts.comments_one": "{count} comment",
@@ -925,6 +942,42 @@ const en: Record<string, string> = {
   "services.gender.women": "Women",
   "services.gender.unisex": "Unisex",
   "services.gender.kids": "Kids",
+  "services.ourServices": "Our Services",
+  "services.servicesCount_one": "{count} service",
+  "services.servicesCount_other": "{count} services",
+  "services.noServices": "No services available at the moment",
+
+  // ── Chat ────────────────────────────────────────────────────────────────
+  "chat.title": "Messages",
+  "chat.mutualFollowRequired": "You must follow each other to send messages",
+  "chat.followBanner":
+    "You are no longer following each other. Follow each other to enable messaging.",
+  "chat.slowDown": "You're sending messages too fast. Slow down.",
+  "chat.failedToSend": "Failed to send message. Please try again.",
+  "chat.editWindowExpired": "You can only edit messages within 15 minutes",
+  "chat.messageRecalled": "This message was recalled",
+  "chat.editingMessage": "Editing message",
+  "chat.typeMessage": "Type a message…",
+  "chat.editMessagePlaceholder": "Edit message…",
+  "chat.send": "Send",
+  "chat.attachFile": "Attach file",
+  "chat.removeFile": "Remove file",
+  "chat.emoji": "Emoji",
+  "chat.react": "React",
+  "chat.reply": "Reply",
+  "chat.moreOptions": "More options",
+  "chat.edit": "Edit",
+  "chat.deleteForMe": "Delete for me",
+  "chat.deleteForEveryone": "Delete for everyone",
+  "chat.deleteConversation": "Delete conversation",
+  "chat.search": "Search messages…",
+  "chat.noConversations": "No conversations yet",
+  "chat.noConversationsMatch": "No conversations match",
+  "chat.startMessaging":
+    "Start a conversation by tapping the message button on a profile",
+  "chat.couldntLoad": "Couldn't load conversation",
+  "chat.checkConnection": "Check your connection and try again.",
+  "chat.noResults": "No messages found",
 
   // ── Store ───────────────────────────────────────────────────────────────
   "store.title": "Store",
@@ -993,6 +1046,8 @@ const en: Record<string, string> = {
   "lounge.tabPortfolio": "Portfolio",
   "lounge.tabServices": "Services",
   "lounge.tabQueue": "Queue",
+  "lounge.tabPosts": "Posts",
+  "lounge.tabReviews": "Reviews",
 
   // ── Saved page ──────────────────────────────────────────────────────────
   "saved.title": "Saved",
@@ -1838,7 +1893,8 @@ const en: Record<string, string> = {
   "clients.coverPhotoAlt": "{name} cover",
   "clients.viewCoverPhoto": "View cover photo",
   "clients.viewProfilePhoto": "View profile photo",
-  "clients.serviceCount": "{count, plural, =1 {service} other {services}}",
+  "clients.serviceCount_one": "{count} service",
+  "clients.serviceCount_other": "{count} services",
 
   // ── Post Feed ───────────────────────────────────────────────────────────
   "postFeed.whatsOnYourMind": "What's on your mind?",
@@ -1965,6 +2021,8 @@ const en: Record<string, string> = {
   // ── Common: extended keys ────────────────────────────────────────────────
   "common.success": "Success",
   "common.tryAgain": "Try again",
+  "common.ok": "OK",
+  "common.alertTitle": "Notice",
 
   // ── Service Management: UI labels ─────────────────────────────────────────
   "serviceMgmt.backToSettings": "Back to Lounge Settings",
@@ -2036,9 +2094,6 @@ const en: Record<string, string> = {
   "cover.viewCover": "View cover image",
   "cover.viewProfile": "View profile image",
   "followStats.loading": "Loading...",
-  "loungePosts.comments": "comments",
-  "loungePosts.likes": "likes",
-  "loungePosts.shares": "shares",
   "profile.failedUpdateCoverImage": "Failed to update cover image",
   "profile.failedUpdateProfileImage": "Failed to update profile image",
   "profile.noLikes": "No likes yet",

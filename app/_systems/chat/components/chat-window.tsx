@@ -2,7 +2,9 @@
 
 import { useState, useCallback, useEffect, useRef } from "react"
 import { MessageCircleOff } from "lucide-react"
+import { toast } from "sonner"
 import { useAuth } from "@/app/_auth"
+import { useTranslation } from "@/app/_i18n"
 import {
   useConversation,
   useMessages,
@@ -18,6 +20,10 @@ import { MessageList } from "./message-list"
 import { MessageInput } from "./message-input"
 import { MessageSearch } from "./message-search"
 import { ChatWindowSkeleton, ChatEmptyState } from "./ui/chat-atoms"
+import { AlertInfo } from "@/app/_components/common/alert-info"
+import { useAlert } from "@/app/_components/common/use-alert"
+import { FollowBrokenBanner } from "@/app/_components/common/follow-broken-banner"
+import { useMutualFollowCheck } from "@/app/_systems/user/hooks/useFollows"
 import type { Message, SendMessageDto, MessageContentType } from "../types"
 
 interface ChatWindowProps {
@@ -29,6 +35,7 @@ interface ChatWindowProps {
 export function ChatWindow({ conversationId, onBack }: ChatWindowProps) {
   const { user, isLoading: authLoading } = useAuth()
   const currentUserId = user?._id ?? ""
+  const { t } = useTranslation()
 
   // ── Server state ───────────────────────────────────────────
 
@@ -52,6 +59,14 @@ export function ChatWindow({ conversationId, onBack }: ChatWindowProps) {
   const deleteMessage = useDeleteMessage(conversationId)
   const toggleReaction = useToggleReaction(conversationId)
   const markRead = useMarkRead(conversationId)
+  const { alertProps, showAlert } = useAlert()
+
+  const otherUserId = conversation?.participants.find(
+    (p) => p._id !== currentUserId,
+  )?._id
+
+  const { data: mutualFollow } = useMutualFollowCheck(otherUserId)
+  const cannotSend = otherUserId != null && !mutualFollow?.mutualFollow
 
   // ── Real-time ──────────────────────────────────────────────
 
@@ -118,12 +133,26 @@ export function ChatWindow({ conversationId, onBack }: ChatWindowProps) {
       contentType: MessageContentType
       replyToId?: string
     }) => {
+      if (cannotSend) {
+        showAlert(t("chat.mutualFollowRequired"))
+        return
+      }
+
       if (editingMessage) {
-        // Edit flow
-        editMessage.mutate({
-          messageId: editingMessage._id,
-          dto: { text: opts.text ?? "" },
-        })
+        editMessage.mutate(
+          { messageId: editingMessage._id, dto: { text: opts.text ?? "" } },
+          {
+            onError: (err: any) => {
+              editMessage.reset()
+              const msg = err?.message ?? ""
+              if (msg.includes("15") && msg.includes("minute")) {
+                toast.error(t("chat.editWindowExpired"))
+              } else {
+                toast.error(t("chat.failedToSend"))
+              }
+            },
+          },
+        )
         setEditingMessage(null)
         return
       }
@@ -134,10 +163,22 @@ export function ChatWindow({ conversationId, onBack }: ChatWindowProps) {
         replyTo: opts.replyToId,
         file: opts.file,
       }
-      sendMessage.mutate(dto)
+      sendMessage.mutate(dto, {
+        onError: (err: any) => {
+          sendMessage.reset()
+          const msg = err?.message ?? ""
+          if (msg.includes("follow each other")) {
+            showAlert(t("chat.mutualFollowRequired"))
+          } else if (msg.includes("rate limit") || err?.status === 429) {
+            toast.error(t("chat.slowDown"), { duration: 4000 })
+          } else {
+            toast.error(t("chat.failedToSend"))
+          }
+        },
+      })
       setReplyTo(null)
     },
-    [editingMessage, editMessage, sendMessage],
+    [cannotSend, editingMessage, editMessage, sendMessage, showAlert, t],
   )
 
   // ── Event handlers ─────────────────────────────────────────
@@ -183,8 +224,8 @@ export function ChatWindow({ conversationId, onBack }: ChatWindowProps) {
     return (
       <ChatEmptyState
         icon={<MessageCircleOff />}
-        title="Couldn't load conversation"
-        description="Check your connection and try again."
+        title={t("chat.couldntLoad")}
+        description={t("chat.checkConnection")}
         className="flex-1"
       />
     )
@@ -225,6 +266,9 @@ export function ChatWindow({ conversationId, onBack }: ChatWindowProps) {
         onReact={handleReact}
       />
 
+      {/* Mutual follow broken banner */}
+      {cannotSend && <FollowBrokenBanner />}
+
       {/* Input */}
       <MessageInput
         getParticipantName={getParticipantName}
@@ -234,8 +278,10 @@ export function ChatWindow({ conversationId, onBack }: ChatWindowProps) {
         onCancelReply={() => setReplyTo(null)}
         onSend={handleSend}
         onTyping={emitTyping}
-        disabled={sendMessage.isPending}
+        disabled={sendMessage.isPending || cannotSend}
       />
+
+      <AlertInfo {...alertProps} />
     </div>
   )
 }

@@ -12,6 +12,13 @@ export interface FollowCheckResult {
   isFollowing: boolean
 }
 
+/** Shape returned by the mutual-follow-check endpoint. */
+export interface MutualFollowCheck {
+  mutualFollow: boolean
+  aFollowsB: boolean
+  bFollowsA: boolean
+}
+
 /** Follower / following counts for a user. */
 export interface FollowCounts {
   followersCount: number

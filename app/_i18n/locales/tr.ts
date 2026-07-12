@@ -49,6 +49,8 @@ const tr: Record<string, string> = {
   "common.or": "veya",
   "common.seeMore": "Daha fazla",
   "common.seeLess": "Daha az",
+  "common.sendMessage": "Mesaj gönder",
+  "common.message": "Mesaj",
   "common.copiedToClipboard": "Kopyalandı!",
 
   // ── Settings ────────────────────────────────────────────────────────────
@@ -128,16 +130,30 @@ const tr: Record<string, string> = {
   "lounges.mostBookedSubtitle":
     "En yüksek tamamlanmış rezervasyon sayısına göre",
   "lounges.ratingAriaLabel": "Puan: {rating}/5, {count} değerlendirme",
-  "lounges.reviewCount":
-    "{count, plural, =1 {# değerlendirme} other {# değerlendirme}}",
+  "lounges.reviewCount_one": "{count} değerlendirme",
+  "lounges.reviewCount_other": "{count} değerlendirme",
   "lounges.noReviews": "Değerlendirme yok",
-  "lounges.likeCount": "{count, plural, =1 {# beğeni} other {# beğeni}}",
+  "lounges.likeCount_one": "{count} beğeni",
+  "lounges.likeCount_other": "{count} beğeni",
   "lounges.like": "Beğen",
   "lounges.follow": "Takip Et",
   "lounges.following": "Takip Ediliyor",
-  "lounges.followerCount": "{count, plural, =1 {# takipçi} other {# takipçi}}",
+  "lounges.followerCount_one": "{count} takipçi",
+  "lounges.followerCount_other": "{count} takipçi",
   "lounges.followers": "Takipçiler",
   "lounges.followersAriaLabel": "Takipçiler: {count}",
+  "lounges.notFound": "Salon bulunamadı",
+  "lounges.unnamedService": "Adsız Hizmet",
+  "lounges.noLocation": "Konum bilgisi mevcut değil",
+  "lounges.noDescription": "Açıklama mevcut değil",
+  "lounges.backToLounges": "Salonlara Dön",
+  "lounges.coverPhotoAlt": "{name} kapak fotoğrafı",
+  "lounges.viewCoverPhoto": "Kapak fotoğrafını görüntüle",
+  "lounges.viewProfilePhoto": "Profil fotoğrafını görüntüle",
+  "lounges.rate": "Değerlendir",
+  "lounges.editRating": "Değerlendirmeyi Düzenle",
+  "lounges.closedQueueToast":
+    "Salon şu anda kapalı ve rezervasyon kabul edemiyor. Başka bir tarih için Hizmetler sekmesine gidin.",
 
   // ── Bookings ────────────────────────────────────────────────────────────
   "bookings.title": "Randevularım",
@@ -832,6 +848,7 @@ const tr: Record<string, string> = {
   "loungePosts.comment": "Yorum",
   "loungePosts.share": "Paylaş",
   "loungePosts.loadMore": "Daha Fazla Yükle",
+  "loungePosts.postImageAlt": "Gönderi görseli",
   "loungePosts.likes_one": "{count} beğeni",
   "loungePosts.likes_other": "{count} beğeni",
   "loungePosts.comments_one": "{count} yorum",
@@ -865,6 +882,44 @@ const tr: Record<string, string> = {
   "services.gender.women": "Kadınlar",
   "services.gender.unisex": "Unisex",
   "services.gender.kids": "Çocuklar",
+  "services.ourServices": "Hizmetlerimiz",
+  "services.servicesCount_one": "{count} hizmet",
+  "services.servicesCount_other": "{count} hizmet",
+  "services.noServices": "Şu anda mevcut hizmet bulunmuyor",
+
+  // ── Chat ────────────────────────────────────────────────────────────────
+  "chat.title": "Mesajlar",
+  "chat.mutualFollowRequired":
+    "Mesaj göndermek için birbirinizi takip etmelisiniz",
+  "chat.followBanner":
+    "Artık birbirinizi takip etmiyorsunuz. Mesajlaşmayı etkinleştirmek için birbirinizi takip edin.",
+  "chat.slowDown": "Çok hızlı mesaj gönderiyorsunuz. Yavaşlayın.",
+  "chat.failedToSend": "Mesaj gönderilemedi. Lütfen tekrar deneyin.",
+  "chat.editWindowExpired":
+    "Mesajları yalnızca 15 dakika içinde düzenleyebilirsiniz",
+  "chat.messageRecalled": "Bu mesaj geri çekildi",
+  "chat.editingMessage": "Mesaj düzenleniyor",
+  "chat.typeMessage": "Bir mesaj yazın…",
+  "chat.editMessagePlaceholder": "Mesajı düzenle…",
+  "chat.send": "Gönder",
+  "chat.attachFile": "Dosya ekle",
+  "chat.removeFile": "Dosyayı kaldır",
+  "chat.emoji": "Emoji",
+  "chat.react": "Tepki ver",
+  "chat.reply": "Yanıtla",
+  "chat.moreOptions": "Daha fazla seçenek",
+  "chat.edit": "Düzenle",
+  "chat.deleteForMe": "Benim için sil",
+  "chat.deleteForEveryone": "Herkes için sil",
+  "chat.deleteConversation": "Konuşmayı sil",
+  "chat.search": "Mesajlarda ara…",
+  "chat.noConversations": "Henüz konuşma yok",
+  "chat.noConversationsMatch": "Eşleşen konuşma yok",
+  "chat.startMessaging":
+    "Bir profilindeki mesaj düğmesine basarak konuşma başlatın",
+  "chat.couldntLoad": "Konuşma yüklenemedi",
+  "chat.checkConnection": "Bağlantınızı kontrol edin ve tekrar deneyin.",
+  "chat.noResults": "Mesaj bulunamadı",
 
   // ── Store ───────────────────────────────────────────────────────────────
   "store.title": "Mağaza",
@@ -933,6 +988,8 @@ const tr: Record<string, string> = {
   "lounge.tabPortfolio": "Portföy",
   "lounge.tabServices": "Hizmetler",
   "lounge.tabQueue": "Sıra",
+  "lounge.tabPosts": "Gönderiler",
+  "lounge.tabReviews": "Değerlendirmeler",
 
   // ── Saved page ──────────────────────────────────────────────────────────
   "saved.title": "Kaydedilenler",
@@ -1781,7 +1838,8 @@ const tr: Record<string, string> = {
   "clients.coverPhotoAlt": "{name} kapak fotoğrafı",
   "clients.viewCoverPhoto": "Kapak fotoğrafını görüntüle",
   "clients.viewProfilePhoto": "Profil fotoğrafını görüntüle",
-  "clients.serviceCount": "{count, plural, =1 {hizmet} other {hizmet}}",
+  "clients.serviceCount_one": "{count} hizmet",
+  "clients.serviceCount_other": "{count} hizmet",
 
   // ── Post Feed ───────────────────────────────────────────────────────────
   "postFeed.whatsOnYourMind": "Aklınızda ne var?",
@@ -1897,6 +1955,8 @@ const tr: Record<string, string> = {
   // ── Common: extended keys ────────────────────────────────────────────────
   "common.success": "Başarılı",
   "common.tryAgain": "Tekrar dene",
+  "common.ok": "Tamam",
+  "common.alertTitle": "Bilgi",
 
   // ── Service Management: UI labels ─────────────────────────────────────────
   "serviceMgmt.backToSettings": "Salon ayarlarına dön",

@@ -14,6 +14,8 @@ import { toast } from "sonner"
 export const followKeys = {
   all: ["follows"] as const,
   check: (targetId: string) => [...followKeys.all, "check", targetId] as const,
+  mutualCheck: (targetId: string) =>
+    [...followKeys.all, "mutualCheck", targetId] as const,
   counts: (userId: string) => [...followKeys.all, "counts", userId] as const,
   followers: (userId: string) =>
     [...followKeys.all, "followers", userId] as const,
@@ -29,6 +31,19 @@ export function useCheckFollowing(targetId: string | undefined) {
   return useQuery({
     queryKey: followKeys.check(targetId ?? ""),
     queryFn: () => followService.checkFollowing(targetId!),
+    enabled: !!targetId,
+    throwOnError: false,
+  })
+}
+
+/* ------------------------------------------------------------------ */
+/*  useMutualFollowCheck                                               */
+/* ------------------------------------------------------------------ */
+/** Check mutual follow status between the authenticated user and a target. */
+export function useMutualFollowCheck(targetId: string | undefined) {
+  return useQuery({
+    queryKey: followKeys.mutualCheck(targetId ?? ""),
+    queryFn: () => followService.checkMutualFollow(targetId!),
     enabled: !!targetId,
     throwOnError: false,
   })

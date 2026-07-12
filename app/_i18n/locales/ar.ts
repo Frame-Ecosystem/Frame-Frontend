@@ -51,6 +51,8 @@ const ar: Record<string, string> = {
   "common.or": "أو",
   "common.seeMore": "المزيد",
   "common.seeLess": "أقل",
+  "common.sendMessage": "إرسال رسالة",
+  "common.message": "رسالة",
   "common.copiedToClipboard": "تم النسخ!",
 
   // ── Settings ────────────────────────────────────────────────────────────
@@ -129,15 +131,30 @@ const ar: Record<string, string> = {
   "lounges.mostBooked": "الصالونات الأكثر حجزاً",
   "lounges.mostBookedSubtitle": "بناءً على أعلى عدد حجوزات مكتملة",
   "lounges.ratingAriaLabel": "التقييم: {rating} من 5، {count} تقييمات",
-  "lounges.reviewCount": "{count, plural, =1 {# تقييم} other {# تقييمات}}",
+  "lounges.reviewCount_one": "{count} تقييم",
+  "lounges.reviewCount_other": "{count} تقييمات",
   "lounges.noReviews": "لا توجد تقييمات",
-  "lounges.likeCount": "{count, plural, =1 {# إعجاب} other {# إعجابات}}",
+  "lounges.likeCount_one": "{count} إعجاب",
+  "lounges.likeCount_other": "{count} إعجابات",
   "lounges.like": "إعجاب",
   "lounges.follow": "متابعة",
   "lounges.following": "يتابع",
-  "lounges.followerCount": "{count, plural, =1 {# متابع} other {# متابعين}}",
+  "lounges.followerCount_one": "{count} متابع",
+  "lounges.followerCount_other": "{count} متابعين",
   "lounges.followers": "المتابعون",
   "lounges.followersAriaLabel": "المتابعون: {count}",
+  "lounges.notFound": "الصالون غير موجود",
+  "lounges.unnamedService": "خدمة بدون اسم",
+  "lounges.noLocation": "لا تتوفر موقع",
+  "lounges.noDescription": "لا تتوفر وصف",
+  "lounges.backToLounges": "العودة للصالونات",
+  "lounges.coverPhotoAlt": "غلاف {name}",
+  "lounges.viewCoverPhoto": "عرض صورة الغلاف",
+  "lounges.viewProfilePhoto": "عرض صورة الملف الشخصي",
+  "lounges.rate": "تقييم",
+  "lounges.editRating": "تعديل التقييم",
+  "lounges.closedQueueToast":
+    "الصالون مغلق حالياً ولا يمكنه قبول الحجوزات. انتقل إلى تبويب الخدمات للحجز في تاريخ آخر.",
 
   // ── Bookings ────────────────────────────────────────────────────────────
   "bookings.title": "حجوزاتي",
@@ -822,6 +839,7 @@ const ar: Record<string, string> = {
   "loungePosts.comment": "تعليق",
   "loungePosts.share": "مشاركة",
   "loungePosts.loadMore": "تحميل المزيد",
+  "loungePosts.postImageAlt": "صورة المنشور",
   "loungePosts.likes_one": "{count} إعجاب",
   "loungePosts.likes_other": "{count} إعجابات",
   "loungePosts.comments_one": "{count} تعليق",
@@ -854,6 +872,41 @@ const ar: Record<string, string> = {
   "services.gender.women": "نساء",
   "services.gender.unisex": "للجنسين",
   "services.gender.kids": "أطفال",
+  "services.ourServices": "خدماتنا",
+  "services.servicesCount_one": "{count} خدمة",
+  "services.servicesCount_other": "{count} خدمات",
+  "services.noServices": "لا توجد خدمات متاحة في الوقت الحالي",
+
+  // ── Chat ────────────────────────────────────────────────────────────────
+  "chat.title": "الرسائل",
+  "chat.mutualFollowRequired": "يجب أن تتابع بعضكما البعض لإرسال الرسائل",
+  "chat.followBanner":
+    "لم تعدا تتابعا بعضكما البعض. تابعا بعضكما البعض لتمكين الرسائل.",
+  "chat.slowDown": "أنت ترسل رسائل بسرعة كبيرة. تباطأ.",
+  "chat.failedToSend": "فشل إرسال الرسالة. يرجى المحاولة مرة أخرى.",
+  "chat.editWindowExpired": "يمكنك تعديل الرسائل خلال 15 دقيقة فقط",
+  "chat.messageRecalled": "تم سحب هذه الرسالة",
+  "chat.editingMessage": "جاري تعديل الرسالة",
+  "chat.typeMessage": "اكتب رسالة…",
+  "chat.editMessagePlaceholder": "تعديل الرسالة…",
+  "chat.send": "إرسال",
+  "chat.attachFile": "إرفاق ملف",
+  "chat.removeFile": "إزالة الملف",
+  "chat.emoji": "رموز تعبيرية",
+  "chat.react": "تفاعل",
+  "chat.reply": "رد",
+  "chat.moreOptions": "خيارات أخرى",
+  "chat.edit": "تعديل",
+  "chat.deleteForMe": "حذف بالنسبة لي",
+  "chat.deleteForEveryone": "حذف بالنسبة للجميع",
+  "chat.deleteConversation": "حذف المحادثة",
+  "chat.search": "بحث في الرسائل…",
+  "chat.noConversations": "لا توجد محادثات بعد",
+  "chat.noConversationsMatch": "لا توجد محادثات مطابقة",
+  "chat.startMessaging": "ابدأ محادثة بالضغط على زر الرسالة في الملف الشخصي",
+  "chat.couldntLoad": "تعذر تحميل المحادثة",
+  "chat.checkConnection": "تحقق من اتصالك وحاول مرة أخرى.",
+  "chat.noResults": "لم يتم العثور على رسائل",
 
   // ── Store ───────────────────────────────────────────────────────────────
   "store.title": "المتجر",
@@ -920,6 +973,8 @@ const ar: Record<string, string> = {
   "lounge.tabPortfolio": "معرض الأعمال",
   "lounge.tabServices": "الخدمات",
   "lounge.tabQueue": "الانتظار",
+  "lounge.tabPosts": "المنشورات",
+  "lounge.tabReviews": "التقييمات",
 
   // ── Saved page ──────────────────────────────────────────────────────────
   "saved.title": "المحفوظات",
@@ -1745,7 +1800,8 @@ const ar: Record<string, string> = {
   "clients.coverPhotoAlt": "غلاف {name}",
   "clients.viewCoverPhoto": "عرض صورة الغلاف",
   "clients.viewProfilePhoto": "عرض صورة الملف الشخصي",
-  "clients.serviceCount": "{count, plural, =1 {خدمة} other {خدمات}}",
+  "clients.serviceCount_one": "{count} خدمة",
+  "clients.serviceCount_other": "{count} خدمات",
 
   // ── Post Feed ───────────────────────────────────────────────────────────
   "postFeed.whatsOnYourMind": "بماذا تفكر؟",
@@ -1869,6 +1925,8 @@ const ar: Record<string, string> = {
   // ── Common: extended keys ────────────────────────────────────────────────
   "common.success": "تمّ بنجاح",
   "common.tryAgain": "حاول مجدداً",
+  "common.ok": "موافق",
+  "common.alertTitle": "تنبيه",
 
   // ── Service Management: UI labels ─────────────────────────────────────────
   "serviceMgmt.backToSettings": "العودة إلى إعدادات الصالون",
