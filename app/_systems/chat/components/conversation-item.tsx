@@ -11,6 +11,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/app/_components/ui/dropdown-menu"
+import { useTranslation } from "@/app/_i18n"
 import type { Conversation } from "../types"
 
 interface ConversationItemProps {
@@ -31,6 +32,7 @@ export function ConversationItem({
 }: ConversationItemProps) {
   const conversationId = conversation._id
   const other = conversation.participants.find((p) => p._id !== currentUserId)
+  const { t } = useTranslation()
 
   const displayName = other
     ? `${other.firstName ?? ""} ${other.lastName ?? ""}`.trim() ||
@@ -151,7 +153,7 @@ export function ConversationItem({
               className="text-destructive focus:text-destructive"
             >
               <Trash2 className="mr-2 h-4 w-4" />
-              Delete conversation
+              {t("chat.deleteConversation")}
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

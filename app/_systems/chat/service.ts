@@ -147,7 +147,7 @@ class ChatService {
   ): Promise<void> {
     await apiClient.delete(
       `${BASE}/conversations/${conversationId}/messages/${messageId}`,
-      { body: JSON.stringify(dto) },
+      dto,
     )
   }
 

@@ -4,6 +4,7 @@ import { useState } from "react"
 import { Search, X } from "lucide-react"
 import { useSearchMessages } from "../hooks/useChatQueries"
 import { formatDistanceToNow } from "date-fns"
+import { useTranslation } from "@/app/_i18n"
 import type { Message } from "../types"
 
 interface MessageSearchProps {
@@ -18,6 +19,7 @@ export function MessageSearch({
   onSelectMessage,
 }: MessageSearchProps) {
   const [query, setQuery] = useState("")
+  const { t } = useTranslation()
 
   const { data: results, isFetching } = useSearchMessages(
     conversationId,
@@ -35,7 +37,7 @@ export function MessageSearch({
           type="text"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          placeholder="Search in conversation…"
+          placeholder={t("chat.search")}
           className="placeholder:text-muted-foreground flex-1 bg-transparent text-sm outline-none"
         />
         {isFetching && (
@@ -83,7 +85,7 @@ export function MessageSearch({
 
       {query.length >= 2 && results?.length === 0 && !isFetching && (
         <div className="text-muted-foreground px-4 py-3 text-center text-sm">
-          No messages found
+          {t("chat.noResults")}
         </div>
       )}
     </div>

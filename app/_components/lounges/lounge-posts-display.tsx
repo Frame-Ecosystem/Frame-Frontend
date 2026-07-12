@@ -262,7 +262,7 @@ export default function PostsDisplay({
                     <div className="bg-muted relative aspect-[16/10] w-full overflow-hidden">
                       <Image
                         src={post.imageUrl}
-                        alt="Post image"
+                        alt={t("loungePosts.postImageAlt")}
                         fill
                         className="object-cover transition-transform duration-500 hover:scale-105"
                         sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"

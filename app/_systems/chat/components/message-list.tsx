@@ -1,6 +1,6 @@
 "use client"
 
-import { useRef, useState, useEffect, useCallback } from "react"
+import { useRef, useState, useEffect, useCallback, useMemo } from "react"
 import { ArrowDown } from "lucide-react"
 import { useInView } from "react-intersection-observer"
 import { cn } from "@/app/_lib/utils"
@@ -38,8 +38,19 @@ export function MessageList({
 }: MessageListProps) {
   const scrollRef = useRef<HTMLDivElement>(null)
   const bottomRef = useRef<HTMLDivElement>(null)
-  const prevLengthRef = useRef(messages.length)
   const [isNearBottom, setIsNearBottom] = useState(true)
+
+  // Filter out messages deleted "for me"
+  const visibleMessages = useMemo(
+    () =>
+      messages.filter(
+        (msg) =>
+          !msg.deletedFor?.some((id) => String(id) === String(currentUserId)),
+      ),
+    [messages, currentUserId],
+  )
+
+  const prevLengthRef = useRef(visibleMessages.length)
 
   // Top sentinel for infinite scroll (load older messages)
   const { ref: topRef, inView: topInView } = useInView({ threshold: 0 })
@@ -61,12 +72,12 @@ export function MessageList({
 
   // Scroll to bottom when new messages arrive (only if near bottom)
   useEffect(() => {
-    const newLength = messages.length
+    const newLength = visibleMessages.length
     if (newLength > prevLengthRef.current && isNearBottom) {
       bottomRef.current?.scrollIntoView({ behavior: "smooth" })
     }
     prevLengthRef.current = newLength
-  }, [messages.length, isNearBottom])
+  }, [visibleMessages.length, isNearBottom])
 
   // Initial scroll to bottom
   useEffect(() => {
@@ -79,9 +90,9 @@ export function MessageList({
 
   // Determine whether to show avatar (group consecutive messages from same sender)
   const shouldShowAvatar = (index: number) => {
-    if (index === messages.length - 1) return true
-    const curr = messages[index]
-    const next = messages[index + 1]
+    if (index === visibleMessages.length - 1) return true
+    const curr = visibleMessages[index]
+    const next = visibleMessages[index + 1]
     const currId =
       typeof curr.senderId === "string" ? curr.senderId : curr.senderId._id
     const nextId =
@@ -92,8 +103,8 @@ export function MessageList({
   // True when the previous message was from the same sender (tighter spacing + corner radius)
   const isPrevSameSender = (index: number) => {
     if (index === 0) return false
-    const curr = messages[index]
-    const prev = messages[index - 1]
+    const curr = visibleMessages[index]
+    const prev = visibleMessages[index - 1]
     const currId =
       typeof curr.senderId === "string" ? curr.senderId : curr.senderId._id
     const prevId =
@@ -116,7 +127,7 @@ export function MessageList({
           {isLoadingMore && <PulseDots />}
         </div>
 
-        {messages.map((msg, idx) => {
+        {visibleMessages.map((msg, idx) => {
           const senderId =
             typeof msg.senderId === "string"
               ? msg.senderId

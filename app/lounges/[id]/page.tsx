@@ -55,6 +55,7 @@ import { LocationCard } from "@/app/_core/components/forms/location-card"
 import { ContactCard } from "@/app/_core/components/forms/contact-card"
 import { ExtrasCard } from "@/app/_core/components/forms/extras-card"
 import { useVisitorLoungeExtras } from "@/app/_systems/extras/hooks/useExtras"
+import { useTranslation } from "@/app/_i18n"
 import { toast } from "sonner"
 
 type Tab = "info" | "posts" | "reels" | "services" | "queue" | "reviews"
@@ -63,6 +64,7 @@ export default function LoungePage() {
   const params = useParams()
   const id = params.id as string
   const { user, isLoading: authLoading } = useAuth()
+  const { t } = useTranslation()
   const isAuthenticated = !!user
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -218,7 +220,7 @@ export default function LoungePage() {
 
         if (!loungeData) {
           setCenter(null)
-          setError("Lounge not found")
+          setError(t("lounges.notFound"))
           return
         }
 
@@ -246,7 +248,7 @@ export default function LoungePage() {
           }) => ({
             _id: service._id,
             id: service._id,
-            name: service.serviceId?.name || "Unnamed Service",
+            name: service.serviceId?.name || t("lounges.unnamedService"),
             description: service.serviceId?.description || "",
             imageUrl:
               getValidImageUrl(service.image) ||
@@ -275,13 +277,13 @@ export default function LoungePage() {
           address:
             loungeData.location?.placeName ||
             loungeData.location?.address ||
-            "No location available",
+            t("lounges.noLocation"),
           imageUrl: loungeData.profileImage?.url || "/images/placeholder.svg",
           coverImageUrl:
             typeof loungeData.coverImage === "string"
               ? loungeData.coverImage
               : loungeData.coverImage?.url || undefined,
-          description: loungeData.bio || "No description available",
+          description: loungeData.bio || t("lounges.noDescription"),
           phones: loungeData.phoneNumber ? [loungeData.phoneNumber] : [],
           services: transformedServices,
           openingHours: loungeData.openingHours,
@@ -296,9 +298,7 @@ export default function LoungePage() {
         setCenter(transformedCenter)
       } catch (err: unknown) {
         if (err instanceof Error && err.message === "AUTH_FAILURE") return
-        setError(
-          err instanceof Error ? err.message : "Failed to load lounge details",
-        )
+        setError(err instanceof Error ? err.message : t("lounges.loadError"))
       } finally {
         setLoading(false)
       }
@@ -307,7 +307,7 @@ export default function LoungePage() {
     if (user) {
       fetchLounge()
     }
-  }, [user, id])
+  }, [user, id, t])
 
   if (authLoading || loading) {
     return <LoungeDetailSkeleton />
@@ -325,13 +325,13 @@ export default function LoungePage() {
           <div className="flex min-h-[400px] items-center justify-center">
             <div className="text-center">
               <p className="text-destructive mb-4">
-                {error || "Lounge not found"}
+                {error || t("lounges.notFound")}
               </p>
               <button
                 onClick={() => router.push("/lounges")}
                 className="text-primary hover:underline"
               >
-                Back to Lounges
+                {t("lounges.backToLounges")}
               </button>
             </div>
           </div>
@@ -372,13 +372,15 @@ export default function LoungePage() {
                 className="relative h-full w-full cursor-pointer"
                 onClick={() => {
                   setLightboxSrc(center.coverImageUrl!)
-                  setLightboxAlt(`${center.name} cover`)
+                  setLightboxAlt(
+                    t("lounges.coverPhotoAlt", { name: center.name }),
+                  )
                 }}
-                aria-label="View cover photo"
+                aria-label={t("lounges.viewCoverPhoto")}
               >
                 <Image
                   src={center.coverImageUrl}
-                  alt={`${center.name} cover`}
+                  alt={t("lounges.coverPhotoAlt", { name: center.name })}
                   fill
                   sizes="(max-width: 1024px) 100vw, 1600px"
                   quality={80}
@@ -393,13 +395,15 @@ export default function LoungePage() {
                 className="relative h-full w-full cursor-pointer"
                 onClick={() => {
                   setLightboxSrc(center.imageUrl!)
-                  setLightboxAlt(`${center.name} cover`)
+                  setLightboxAlt(
+                    t("lounges.coverPhotoAlt", { name: center.name }),
+                  )
                 }}
-                aria-label="View cover photo"
+                aria-label={t("lounges.viewCoverPhoto")}
               >
                 <Image
                   src={center.imageUrl}
-                  alt={`${center.name} cover`}
+                  alt={t("lounges.coverPhotoAlt", { name: center.name })}
                   fill
                   sizes="(max-width: 1024px) 100vw, 1600px"
                   quality={80}
@@ -430,7 +434,7 @@ export default function LoungePage() {
                       setLightboxAlt(center.name)
                     }
                   }}
-                  aria-label="View profile photo"
+                  aria-label={t("lounges.viewProfilePhoto")}
                 >
                   <Avatar className="ring-background h-20 w-20 shadow-xl ring-4 sm:h-24 sm:w-24 md:h-28 md:w-28">
                     {center.imageUrl &&
@@ -461,7 +465,7 @@ export default function LoungePage() {
         <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
           {/* Bio */}
           {center.description &&
-            center.description !== "No description available" && (
+            center.description !== t("lounges.noDescription") && (
               <div className="mt-2">
                 <p className="text-foreground/80 text-sm leading-relaxed whitespace-pre-line">
                   {isBioExpanded || center.description.length <= BIO_LIMIT
@@ -472,7 +476,7 @@ export default function LoungePage() {
                       onClick={() => setIsBioExpanded((v) => !v)}
                       className="text-primary hover:text-primary/80 ml-1 text-sm font-medium transition-colors"
                     >
-                      {isBioExpanded ? "less" : "more"}
+                      {isBioExpanded ? t("profile.less") : t("profile.more")}
                     </button>
                   )}
                 </p>
@@ -511,13 +515,13 @@ export default function LoungePage() {
                     ? "bg-yellow-500/10 text-yellow-600 hover:bg-yellow-500/20"
                     : "bg-muted/50 text-muted-foreground hover:bg-muted"
                 }`}
-                aria-label="Rate"
+                aria-label={t("lounges.rate")}
               >
                 <StarIcon
                   size={14}
                   className={isRated ? "fill-yellow-500 text-yellow-500" : ""}
                 />
-                <span className="text-sm font-medium">Rate</span>
+                <span className="text-sm font-medium">{t("lounges.rate")}</span>
               </button>
 
               {/* Like */}
@@ -545,13 +549,13 @@ export default function LoungePage() {
                     ? "bg-red-500/10 text-red-500 hover:bg-red-500/20"
                     : "bg-muted/50 text-muted-foreground hover:bg-muted"
                 }`}
-                aria-label="Like"
+                aria-label={t("lounges.like")}
               >
                 <Heart
                   size={14}
                   className={liked ? "fill-red-500 text-red-500" : ""}
                 />
-                <span className="text-sm font-medium">Like</span>
+                <span className="text-sm font-medium">{t("lounges.like")}</span>
               </button>
 
               {/* Follow */}
@@ -563,7 +567,9 @@ export default function LoungePage() {
                     ? "bg-green-500/10 text-green-600 hover:bg-green-500/20"
                     : "bg-muted/50 text-muted-foreground hover:bg-muted"
                 }`}
-                aria-label={isFollowing ? "Following" : "Follow"}
+                aria-label={
+                  isFollowing ? t("lounges.following") : t("lounges.follow")
+                }
               >
                 {isFollowing ? (
                   <UserCheck size={14} className="text-green-600" />
@@ -571,7 +577,7 @@ export default function LoungePage() {
                   <UserPlus size={14} />
                 )}
                 <span className="text-sm font-medium">
-                  {isFollowing ? "Following" : "Follow"}
+                  {isFollowing ? t("lounges.following") : t("lounges.follow")}
                 </span>
               </button>
 
@@ -597,7 +603,7 @@ export default function LoungePage() {
               onClick={() => handleTabChange("info")}
             >
               <InfoIcon className="h-4 w-4" />
-              Info
+              {t("lounge.tabInfo")}
             </Button>
             <Button
               variant="ghost"
@@ -606,7 +612,7 @@ export default function LoungePage() {
               onClick={() => handleTabChange("services")}
             >
               <CalendarIcon className="h-4 w-4" />
-              Services
+              {t("lounge.tabServices")}
             </Button>
             <Button
               variant="ghost"
@@ -614,17 +620,14 @@ export default function LoungePage() {
               className={`shrink-0 rounded-lg border px-3 py-2 text-sm font-medium transition-all duration-300 ${!isOpen ? "border-border text-muted-foreground/50 opacity-60" : activeTab === "queue" ? "border-primary bg-primary/10 text-primary" : "border-border text-foreground hover:border-primary/50 hover:text-primary hover:bg-primary/5"}`}
               onClick={() => {
                 if (!isOpen) {
-                  toast.info(
-                    "Lounge is currently closed and can't accept bookings now. Go to the Services tab to book for another date.",
-                    { duration: 4000 },
-                  )
+                  toast.info(t("lounges.closedQueueToast"), { duration: 4000 })
                   return
                 }
                 handleTabChange("queue")
               }}
             >
               <Users className="h-4 w-4" />
-              Queue
+              {t("lounge.tabQueue")}
             </Button>
             <Button
               variant="ghost"
@@ -633,7 +636,7 @@ export default function LoungePage() {
               onClick={() => handleTabChange("reels")}
             >
               <Film className="h-4 w-4" />
-              Portfolio
+              {t("lounge.tabPortfolio")}
             </Button>
             <Button
               variant="ghost"
@@ -642,7 +645,7 @@ export default function LoungePage() {
               onClick={() => handleTabChange("posts")}
             >
               <Grid3X3 className="h-4 w-4" />
-              Posts
+              {t("lounge.tabPosts")}
             </Button>
             <Button
               variant="ghost"
@@ -651,7 +654,7 @@ export default function LoungePage() {
               onClick={() => handleTabChange("reviews")}
             >
               <MessageSquare className="h-4 w-4" />
-              Reviews
+              {t("lounge.tabReviews")}
               {(center.ratingCount ?? 0) > 0 ? ` (${center.ratingCount})` : ""}
             </Button>
           </div>
@@ -687,7 +690,7 @@ export default function LoungePage() {
                 <div className="min-w-0 flex-1">
                   <LocationCard
                     address={
-                      center.address !== "No location available"
+                      center.address !== t("lounges.noLocation")
                         ? center.address
                         : undefined
                     }
@@ -759,7 +762,7 @@ export default function LoungePage() {
                     onClick={() => setShowRatingPopup(true)}
                   >
                     <StarIcon className="h-4 w-4" />
-                    {isRated ? "Edit Rating" : "Rate"}
+                    {isRated ? t("lounges.editRating") : t("lounges.rate")}
                   </Button>
                 )}
               </div>

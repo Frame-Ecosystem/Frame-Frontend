@@ -12,6 +12,7 @@ import { Send, Paperclip, X, Smile } from "lucide-react"
 import { cn } from "@/app/_lib/utils"
 import { Button } from "@/app/_components/ui/button"
 import { ReplyPreview } from "./reply-preview"
+import { useTranslation } from "@/app/_i18n"
 import type { Message, MessageContentType } from "../types"
 
 interface MessageInputProps {
@@ -51,6 +52,7 @@ export function MessageInput({
   const textareaRef = useRef<HTMLTextAreaElement>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const typingActiveRef = useRef(false)
+  const { t } = useTranslation()
 
   // Pre-fill textarea when entering edit mode
   useEffect(() => {
@@ -189,7 +191,7 @@ export function MessageInput({
         <div className="flex items-center justify-between py-2">
           <div className="flex items-center gap-2">
             <span className="text-primary text-xs font-semibold">
-              Editing message
+              {t("chat.editingMessage")}
             </span>
             <span className="text-muted-foreground truncate text-xs">
               {editingMessage.text}
@@ -252,7 +254,7 @@ export function MessageInput({
           <button
             onClick={clearFile}
             className="text-muted-foreground hover:text-foreground"
-            aria-label="Remove file"
+            aria-label={t("chat.removeFile")}
           >
             <X className="h-4 w-4" />
           </button>
@@ -269,7 +271,7 @@ export function MessageInput({
             "hover:bg-muted mb-1 flex h-9 w-9 shrink-0 items-center justify-center rounded-full transition-colors",
             disabled && "opacity-40",
           )}
-          aria-label="Attach file"
+          aria-label={t("chat.attachFile")}
         >
           <Paperclip className="h-5 w-5" />
         </button>
@@ -289,7 +291,11 @@ export function MessageInput({
             value={text}
             onChange={handleTextChange}
             onKeyDown={handleKeyDown}
-            placeholder={editingMessage ? "Edit message…" : "Type a message…"}
+            placeholder={
+              editingMessage
+                ? t("chat.editMessagePlaceholder")
+                : t("chat.typeMessage")
+            }
             disabled={disabled}
             rows={1}
             className={cn(
@@ -302,7 +308,7 @@ export function MessageInput({
             type="button"
             disabled={disabled}
             className="text-muted-foreground hover:text-foreground mb-0.5 ml-1 shrink-0 transition-colors"
-            aria-label="Emoji"
+            aria-label={t("chat.emoji")}
             tabIndex={-1}
           >
             <Smile className="h-5 w-5" />
@@ -315,7 +321,7 @@ export function MessageInput({
           onClick={doSend}
           disabled={!canSend}
           className="mb-1 h-9 w-9 shrink-0 rounded-full"
-          aria-label="Send"
+          aria-label={t("chat.send")}
         >
           <Send className="h-4 w-4" />
         </Button>

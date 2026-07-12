@@ -4,6 +4,7 @@ import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { ArrowLeft, Search } from "lucide-react"
 import { ChatAvatar, ChatIconBtn } from "./ui/chat-atoms"
+import { useTranslation } from "@/app/_i18n"
 import type { Conversation } from "../types"
 
 interface ChatHeaderProps {
@@ -21,6 +22,7 @@ export function ChatHeader({
   onBack,
 }: ChatHeaderProps) {
   const router = useRouter()
+  const { t } = useTranslation()
 
   const other = conversation.participants.find((p) => p._id !== currentUserId)
   const displayName = other
@@ -61,7 +63,7 @@ export function ChatHeader({
         {/* Back */}
         <ChatIconBtn
           onClick={() => (onBack ? onBack() : router.back())}
-          label="Back"
+          label={t("common.back")}
           className="-ml-1"
         >
           <ArrowLeft className="h-5 w-5" />
@@ -84,7 +86,7 @@ export function ChatHeader({
 
         {/* Actions */}
         <div className="flex shrink-0 items-center gap-1">
-          <ChatIconBtn onClick={onSearchToggle} label="Search messages">
+          <ChatIconBtn onClick={onSearchToggle} label={t("chat.search")}>
             <Search className="h-4 w-4" />
           </ChatIconBtn>
         </div>

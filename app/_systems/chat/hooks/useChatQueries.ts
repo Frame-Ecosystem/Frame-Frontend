@@ -369,6 +369,9 @@ export function useDeleteMessage(conversationId: string) {
       )
     },
     onSettled: () => {
+      queryClient.invalidateQueries({
+        queryKey: chatKeys.messagesCursor(conversationId),
+      })
       queryClient.invalidateQueries({ queryKey: chatKeys.conversations() })
     },
   })

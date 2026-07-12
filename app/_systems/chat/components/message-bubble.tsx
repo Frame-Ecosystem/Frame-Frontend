@@ -15,6 +15,7 @@ import { BubbleActions } from "./bubble-actions"
 import { ChatAvatar, MessageStatusIcon } from "./ui/chat-atoms"
 import { AttachmentRenderer } from "./attachment-renderer"
 import { ReplyPreview } from "./reply-preview"
+import { useTranslation } from "@/app/_i18n"
 
 import type { Message } from "../types"
 
@@ -189,6 +190,7 @@ export function MessageBubble({
   onReact,
 }: Readonly<MessageBubbleProps>) {
   const [showPicker, setShowPicker] = useState(false)
+  const { t } = useTranslation()
 
   const isPending = message._pending
   const isFailed = message._failed
@@ -252,7 +254,7 @@ export function MessageBubble({
       >
         {!isSent && <div className="mr-2 h-7 w-7 shrink-0" />}
         <p className="text-muted-foreground rounded-2xl border border-dashed px-4 py-1.5 text-sm italic">
-          This message was recalled
+          {t("chat.messageRecalled")}
         </p>
       </div>
     )

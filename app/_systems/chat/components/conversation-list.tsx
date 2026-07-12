@@ -6,6 +6,7 @@ import { Search, X } from "lucide-react"
 import { ConversationItem } from "./conversation-item"
 import { ConversationItemSkeleton, ChatEmptyState } from "./ui/chat-atoms"
 import { MessageCirclePlus } from "lucide-react"
+import { useTranslation } from "@/app/_i18n"
 import type { Conversation } from "../types"
 
 interface ConversationListProps {
@@ -27,6 +28,7 @@ export function ConversationList({
   onSelect,
 }: ConversationListProps) {
   const [query, setQuery] = useState("")
+  const { t } = useTranslation()
 
   const filtered = query
     ? conversations.filter((c) => {
@@ -60,7 +62,7 @@ export function ConversationList({
             type="text"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search conversations…"
+            placeholder={t("chat.search")}
             className="placeholder:text-muted-foreground flex-1 bg-transparent text-sm outline-none"
           />
           {query && (
@@ -76,7 +78,9 @@ export function ConversationList({
         {filtered.length === 0 ? (
           <ChatEmptyState
             icon={<MessageCirclePlus className="h-12 w-12" />}
-            title={query ? "No conversations match" : "No conversations yet"}
+            title={
+              query ? t("chat.noConversationsMatch") : t("chat.noConversations")
+            }
           />
         ) : (
           filtered.map((c) => (

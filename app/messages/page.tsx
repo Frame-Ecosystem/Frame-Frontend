@@ -9,10 +9,12 @@ import {
 import { useConversationsSocket } from "../_systems/chat/hooks/useChatSocket"
 import { ConversationList } from "../_systems/chat/components/conversation-list"
 import { MessageCircle } from "lucide-react"
+import { useTranslation } from "@/app/_i18n"
 
 export default function MessagesPage() {
   const { user, isLoading } = useAuth()
   const currentUserId = user?._id ?? ""
+  const { t } = useTranslation()
 
   const { data, isLoading: convLoading } = useConversations()
   const deleteConversation = useDeleteConversation()
@@ -59,7 +61,7 @@ export default function MessagesPage() {
                 <MessageCircle className="text-primary h-6 w-6 lg:h-7 lg:w-7" />
               </div>
               <h1 className="text-2xl font-bold tracking-tight lg:text-3xl">
-                Messages
+                {t("chat.title")}
               </h1>
             </div>
           </div>

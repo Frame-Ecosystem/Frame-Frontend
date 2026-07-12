@@ -6,6 +6,7 @@ import ServiceItem from "./service-item"
 import { Lounge, LoungeService } from "@/app/_types"
 import { useAuth } from "@/app/_auth"
 import BookingCTA from "../bookings/booking-cta"
+import { useTranslation } from "@/app/_i18n"
 
 interface OurServicesProps {
   services: LoungeService[]
@@ -14,6 +15,7 @@ interface OurServicesProps {
 
 export default function OurServices({ services, center }: OurServicesProps) {
   const { user } = useAuth()
+  const { t } = useTranslation()
   const isClient = user?.type === "client"
   const [selectedServices, setSelectedServices] = useState<LoungeService[]>([])
 
@@ -37,10 +39,10 @@ export default function OurServices({ services, center }: OurServicesProps) {
       <div className="mb-4 flex items-center justify-between">
         <h3 className="flex items-center gap-2 text-lg font-semibold">
           <CalendarIcon className="text-primary h-5 w-5" />
-          Our Services
+          {t("services.ourServices")}
         </h3>
         <Badge variant="secondary" className="px-3 py-1">
-          {services.length} services
+          {t("services.servicesCount", { count: services.length })}
         </Badge>
       </div>
 
@@ -68,7 +70,7 @@ export default function OurServices({ services, center }: OurServicesProps) {
           </div>
         ) : (
           <p className="text-muted-foreground py-8 text-center">
-            No services available at the moment
+            {t("services.noServices")}
           </p>
         )}
       </div>

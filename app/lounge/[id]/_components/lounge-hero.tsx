@@ -101,7 +101,6 @@ export function LoungeHero({ lounge }: { lounge: LoungeDetail }) {
                         className={`transition-colors ${isLiked ? "fill-red-500 text-red-500" : "text-white"}`}
                       />
                       <span className="text-sm font-medium text-white">
-                        {likeCount}{" "}
                         {t("lounges.likeCount", { count: likeCount })}
                       </span>
                     </button>
@@ -124,7 +123,6 @@ export function LoungeHero({ lounge }: { lounge: LoungeDetail }) {
                         <UserPlus size={16} className="text-white" />
                       )}
                       <span className="text-sm font-medium text-white">
-                        {followersCount}{" "}
                         {t("lounges.followerCount", { count: followersCount })}
                       </span>
                     </button>
