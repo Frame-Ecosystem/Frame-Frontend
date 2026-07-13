@@ -108,14 +108,8 @@ export default function LoungePage() {
         <div className="mx-auto max-w-7xl lg:pt-0">
           <LoungeHero lounge={lounge} />
 
-          <div className="space-y-4 lg:col-span-8">
-            <div className="md:grid md:grid-cols-5">
-              <div className="hidden md:block" />
-              <div className="md:col-span-3">
-                <LoungeTabs lounge={lounge} loungeId={id} />
-              </div>
-              <div className="hidden md:col-span-1 md:block" />
-            </div>
+          <div className="mx-auto max-w-4xl px-4 py-6 sm:px-6 lg:px-8">
+            <LoungeTabs lounge={lounge} loungeId={id} />
           </div>
         </div>
       </div>

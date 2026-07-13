@@ -6,7 +6,7 @@ import { Heart } from "lucide-react"
 import { useMyLikes } from "../../_hooks/queries"
 import { useAuth } from "@/app/_auth"
 import { useTranslation } from "../../_i18n"
-import type { LikedLounge } from "../../_types"
+import type { LikedTarget } from "../../_types"
 import { cn } from "../../_lib/utils"
 import { FavoriteLoungesSkeleton } from "../skeletons/lounges"
 
@@ -14,17 +14,17 @@ interface FavoriteLoungesSectionProps {
   className?: string
 }
 
-function FavoriteCard({ like }: { like: LikedLounge }) {
+function FavoriteCard({ like }: { like: LikedTarget }) {
   const router = useRouter()
-  const lounge = like.loungeId
+  const target = like.targetId
 
   const name =
-    lounge.loungeTitle ||
-    `${lounge.firstName || ""} ${lounge.lastName || ""}`.trim()
+    target.loungeTitle ||
+    `${target.firstName || ""} ${target.lastName || ""}`.trim()
 
   const imageUrl =
-    typeof lounge.profileImage === "object"
-      ? lounge.profileImage?.url
+    typeof target.profileImage === "object"
+      ? target.profileImage?.url
       : undefined
 
   return (
@@ -32,9 +32,9 @@ function FavoriteCard({ like }: { like: LikedLounge }) {
       role="button"
       tabIndex={0}
       className="group flex w-20 shrink-0 cursor-pointer flex-col items-center gap-1.5"
-      onClick={() => router.push(`/lounges/${lounge._id}?tab=posts`)}
+      onClick={() => router.push(`/lounges/${target._id}?tab=posts`)}
       onKeyDown={(e) => {
-        if (e.key === "Enter") router.push(`/lounges/${lounge._id}?tab=posts`)
+        if (e.key === "Enter") router.push(`/lounges/${target._id}?tab=posts`)
       }}
     >
       {/* Animated border ring */}

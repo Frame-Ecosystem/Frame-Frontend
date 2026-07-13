@@ -426,7 +426,7 @@ export default function LoungeProfilePage() {
                 averageRating={user?.averageRating ?? 0}
                 ratingCount={user?.ratingCount ?? 0}
               />
-              <ReviewsList loungeId={user._id} />
+              <ReviewsList targetId={user._id} />
             </div>
           )}
         </div>

@@ -130,14 +130,17 @@ const tr: Record<string, string> = {
   "lounges.mostBookedSubtitle":
     "En yüksek tamamlanmış rezervasyon sayısına göre",
   "lounges.ratingAriaLabel": "Puan: {rating}/5, {count} değerlendirme",
+  "lounges.reviewCount_zero": "Değerlendirme",
   "lounges.reviewCount_one": "{count} değerlendirme",
   "lounges.reviewCount_other": "{count} değerlendirme",
   "lounges.noReviews": "Değerlendirme yok",
+  "lounges.likeCount_zero": "Beğeni",
   "lounges.likeCount_one": "{count} beğeni",
   "lounges.likeCount_other": "{count} beğeni",
   "lounges.like": "Beğen",
   "lounges.follow": "Takip Et",
   "lounges.following": "Takip Ediliyor",
+  "lounges.followerCount_zero": "Takipçi",
   "lounges.followerCount_one": "{count} takipçi",
   "lounges.followerCount_other": "{count} takipçi",
   "lounges.followers": "Takipçiler",
@@ -288,6 +291,27 @@ const tr: Record<string, string> = {
   "queue.servicesSelected_other": "{count} hizmet seçildi",
   "queue.notes": "Notlar",
   "queue.specialRequests": "Özel istekler veya notlar...",
+  "queue.myQueue": "Bugünün sırası",
+  "queue.myQueueSubtitle": "Hizmet bekleyen müşterilerin canlı görünümü.",
+  "queue.statWaiting": "Bekliyor",
+  "queue.statInService": "Hizmette",
+  "queue.statCompleted": "Tamamlandı",
+  "queue.statAbsent": "Yok",
+  "queue.finishFirst":
+    "Mevcut hizmetinizi tamamlayın, sonra bir sonrakini çağırın.",
+  "queue.ready": "Hazır olduğunuzda.",
+  "queue.waitingCount_one": "{count} müşteri bekliyor",
+  "queue.waitingCount_other": "{count} müşteri bekliyor",
+  "queue.waitingCount_zero": "Kimse beklemiyor",
+  "queue.callNext": "Bir sonrakini çağır",
+  "queue.queueSection": "Sıra",
+  "queue.dragHint":
+    "Kartları sürükleyerek sıralayın. İşlem için düğmeye dokunun.",
+  "queue.totalCount": "{count} toplam",
+  "queue.loadError": "Sıranız yüklenemedi.",
+  "queue.tryAgain": "Tekrar dene",
+  "queue.emptyTitle": "Şu anda sıranızda kimse yok",
+  "queue.emptyHint": "Müşteriler katıldığında burada görünecek.",
 
   // ── Admin ───────────────────────────────────────────────────────────────
   "admin.dashboard": "Kontrol Paneli",
@@ -824,6 +848,15 @@ const tr: Record<string, string> = {
   "rating.update": "Değerlendirmeyi Güncelle",
   "rating.submit": "Değerlendirmeyi Gönder",
   "rating.remove": "Değerlendirmeyi Kaldır",
+  "rating.thisProfile": "bu profil",
+  "rating.saved": "Değerlendirme kaydedildi!",
+  "rating.removed": "Değerlendirme kaldırıldı",
+  "rating.saveFailed": "Değerlendirme kaydedilemedi",
+  "rating.removeFailed": "Değerlendirme kaldırılamadı",
+
+  // ── Like toast ──────────────────────────────────────────────────────────
+  "like.tooMany": "Çok fazla beğeni isteği. Lütfen yavaşlayın.",
+  "like.failed": "Beğeni güncellenemedi",
 
   // ── Location ────────────────────────────────────────────────────────────
   "location.label": "Konum",

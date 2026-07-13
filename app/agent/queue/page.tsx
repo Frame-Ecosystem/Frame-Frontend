@@ -28,11 +28,13 @@ import {
 } from "@/app/_systems/bookings/types/queue"
 import { AgentAvailabilityToggle } from "@/app/_systems/user/components/agents/availability-toggle"
 import QueueList from "@/app/_systems/bookings/components/queue/queue-list"
+import { useTranslation } from "@/app/_i18n"
 import { cn } from "@/app/_lib/utils"
 
 // ── Page ────────────────────────────────────────────────────────
 
 export default function AgentQueuePage() {
+  const { t } = useTranslation()
   const searchParams = useSearchParams()
   const highlightBookingId =
     searchParams.get("bookingId") ?? searchParams.get("highlight")
@@ -83,10 +85,10 @@ export default function AgentQueuePage() {
     <div className="space-y-5 sm:space-y-6">
       <header className="flex flex-col gap-2">
         <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">
-          Today&apos;s queue
+          {t("queue.myQueue")}
         </h1>
         <p className="text-muted-foreground text-sm">
-          Live view of clients waiting for service.
+          {t("queue.myQueueSubtitle")}
         </p>
       </header>
 
@@ -95,28 +97,28 @@ export default function AgentQueuePage() {
       <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-4">
         <StatCard
           icon={Clock}
-          label="Waiting"
+          label={t("queue.statWaiting")}
           value={stats.waiting}
           accent="text-amber-600 dark:text-amber-400"
           ring="ring-amber-500/20"
         />
         <StatCard
           icon={PlayCircle}
-          label="In Service"
+          label={t("queue.statInService")}
           value={stats.inService}
           accent="text-blue-600 dark:text-blue-400"
           ring="ring-blue-500/20"
         />
         <StatCard
           icon={CheckCircle2}
-          label="Completed"
+          label={t("queue.statCompleted")}
           value={stats.completed}
           accent="text-emerald-600 dark:text-emerald-400"
           ring="ring-emerald-500/20"
         />
         <StatCard
           icon={UserX}
-          label="Absent"
+          label={t("queue.statAbsent")}
           value={stats.absent}
           accent="text-rose-600 dark:text-rose-400"
           ring="ring-rose-500/20"
@@ -126,14 +128,12 @@ export default function AgentQueuePage() {
       <Card className="bg-primary text-primary-foreground sticky top-3 z-10 flex flex-col gap-3 p-4 shadow-md sm:flex-row sm:items-center sm:justify-between sm:p-5">
         <div className="space-y-0.5">
           <p className="text-sm opacity-80">
-            {hasInService
-              ? "Finish your current service first, then call the next person."
-              : "Ready when you are."}
+            {hasInService ? t("queue.finishFirst") : t("queue.ready")}
           </p>
           <p className="text-base font-semibold">
             {stats.waiting > 0
-              ? `${stats.waiting} ${stats.waiting === 1 ? "client" : "clients"} waiting`
-              : "No one waiting"}
+              ? t("queue.waitingCount", { count: stats.waiting })
+              : t("queue.waitingCount", { count: 0 })}
           </p>
         </div>
         <Button
@@ -153,19 +153,23 @@ export default function AgentQueuePage() {
           ) : (
             <PhoneCall className="mr-2 h-4 w-4" />
           )}
-          Call next
+          {t("queue.callNext")}
         </Button>
       </Card>
 
       <Card className="overflow-hidden">
         <div className="flex items-center justify-between gap-3 border-b p-4 sm:p-5">
           <div className="flex items-center gap-2">
-            <h2 className="text-base font-semibold">Queue</h2>
+            <h2 className="text-base font-semibold">
+              {t("queue.queueSection")}
+            </h2>
             <p className="text-muted-foreground hidden text-xs sm:block">
-              Drag cards to reorder. Tap a button to act.
+              {t("queue.dragHint")}
             </p>
           </div>
-          <Badge variant="outline">{stats.total} total</Badge>
+          <Badge variant="outline">
+            {t("queue.totalCount", { count: stats.total })}
+          </Badge>
         </div>
 
         <div className="p-3 sm:p-4">
@@ -176,10 +180,10 @@ export default function AgentQueuePage() {
           ) : queueQuery.isError ? (
             <div className="flex flex-col items-center justify-center gap-3 p-10 text-center">
               <p className="text-muted-foreground text-sm">
-                Couldn&apos;t load your queue.
+                {t("queue.loadError")}
               </p>
               <Button variant="outline" onClick={() => queueQuery.refetch()}>
-                Try again
+                {t("queue.tryAgain")}
               </Button>
             </div>
           ) : (
@@ -197,8 +201,8 @@ export default function AgentQueuePage() {
               }
               isUpdating={isUpdating}
               highlightBookingId={highlightBookingId}
-              emptyTitle="No one in your queue right now"
-              emptyHint="Clients will appear here when they join."
+              emptyTitle={t("queue.emptyTitle")}
+              emptyHint={t("queue.emptyHint")}
             />
           )}
         </div>

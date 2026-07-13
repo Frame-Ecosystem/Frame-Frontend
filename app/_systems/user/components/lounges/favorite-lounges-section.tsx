@@ -5,7 +5,8 @@ import { useRouter } from "next/navigation"
 import { Heart } from "lucide-react"
 import { useMyLikes } from "@/app/_hooks/queries"
 import { useAuth } from "@/app/_auth"
-import type { LikedLounge } from "@/app/_types"
+import { useTranslation } from "@/app/_i18n"
+import type { LikedTarget } from "@/app/_types"
 import { cn } from "@/app/_lib/utils"
 import { FavoriteLoungesSkeleton } from "@/app/_components/skeletons/lounges"
 
@@ -13,17 +14,17 @@ interface FavoriteLoungesSectionProps {
   className?: string
 }
 
-function FavoriteCard({ like }: { like: LikedLounge }) {
+function FavoriteCard({ like }: { like: LikedTarget }) {
   const router = useRouter()
-  const lounge = like.loungeId
+  const target = like.targetId
 
   const name =
-    lounge.loungeTitle ||
-    `${lounge.firstName || ""} ${lounge.lastName || ""}`.trim()
+    target.loungeTitle ||
+    `${target.firstName || ""} ${target.lastName || ""}`.trim()
 
   const imageUrl =
-    typeof lounge.profileImage === "object"
-      ? lounge.profileImage?.url
+    typeof target.profileImage === "object"
+      ? target.profileImage?.url
       : undefined
 
   return (
@@ -31,9 +32,9 @@ function FavoriteCard({ like }: { like: LikedLounge }) {
       role="button"
       tabIndex={0}
       className="group flex w-20 shrink-0 cursor-pointer flex-col items-center gap-1.5"
-      onClick={() => router.push(`/lounges/${lounge._id}?tab=posts`)}
+      onClick={() => router.push(`/lounges/${target._id}?tab=posts`)}
       onKeyDown={(e) => {
-        if (e.key === "Enter") router.push(`/lounges/${lounge._id}?tab=posts`)
+        if (e.key === "Enter") router.push(`/lounges/${target._id}?tab=posts`)
       }}
     >
       {/* Animated border ring */}
@@ -61,6 +62,7 @@ export default function FavoriteLoungesSection({
   className,
 }: FavoriteLoungesSectionProps) {
   const { user } = useAuth()
+  const { t } = useTranslation()
   const { data, isLoading } = useMyLikes(20)
 
   const allLikes = data?.pages.flatMap((p) => p.data) ?? []
@@ -77,7 +79,7 @@ export default function FavoriteLoungesSection({
       <div className="my-2 flex items-center gap-3 lg:mb-3">
         <Heart size={20} className="fill-primary text-primary lg:h-6 lg:w-6" />
         <h2 className="text-muted-foreground lg:text-foreground text-xs font-bold uppercase lg:text-lg lg:font-semibold lg:normal-case">
-          Favorites
+          {t("lounges.favorites")}
         </h2>
       </div>
 

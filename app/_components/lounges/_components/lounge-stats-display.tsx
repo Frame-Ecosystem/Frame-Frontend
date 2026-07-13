@@ -1,8 +1,8 @@
 "use client"
 
 import { Heart, Star, Users } from "lucide-react"
-import { useMemo } from "react"
 import { useTranslation } from "@/app/_i18n"
+import { formatCompactNumber, getRatingColor } from "@/app/_lib/format"
 
 interface LoungeStatsDisplayProps {
   averageRating?: number
@@ -29,29 +29,6 @@ export function LoungeStatsDisplay({
   className = "",
 }: LoungeStatsDisplayProps) {
   const { t } = useTranslation()
-  // Format large numbers for display (1000 → 1k, 1000000 → 1M)
-  const formatNumber = useMemo(
-    () =>
-      (n: number): string => {
-        if (n >= 1_000_000)
-          return `${(n / 1_000_000).toFixed(1).replace(/\.0$/, "")}M`
-        if (n >= 1_000) return `${(n / 1_000).toFixed(1).replace(/\.0$/, "")}K`
-        return String(n)
-      },
-    [],
-  )
-
-  // Determine rating badge color based on score
-  const getRatingColor = useMemo(
-    () =>
-      (rating: number): string => {
-        if (rating >= 4.5) return "text-emerald-500 bg-emerald-500/10"
-        if (rating >= 4.0) return "text-blue-500 bg-blue-500/10"
-        if (rating >= 3.0) return "text-amber-500 bg-amber-500/10"
-        return "text-orange-500 bg-orange-500/10"
-      },
-    [],
-  )
 
   return (
     <div className={`mt-4 grid grid-cols-3 gap-3 sm:gap-4 ${className}`}>
@@ -110,7 +87,7 @@ export function LoungeStatsDisplay({
           {/* Likes Count */}
           <div className="text-center">
             <div className="text-sm leading-none font-bold sm:text-base">
-              {formatNumber(likeCount)}
+              {formatCompactNumber(likeCount)}
             </div>
             <div className="text-muted-foreground text-xs leading-tight">
               {t("lounges.likeCount", { count: likeCount })}
@@ -126,7 +103,7 @@ export function LoungeStatsDisplay({
           onFollowersClick ? "cursor-pointer" : "cursor-default"
         }`}
         aria-label={t("lounges.followersAriaLabel", {
-          count: formatNumber(followerCount),
+          count: formatCompactNumber(followerCount),
         })}
       >
         <div className="flex flex-col items-center gap-2">
@@ -138,7 +115,7 @@ export function LoungeStatsDisplay({
           {/* Followers Count */}
           <div className="text-center">
             <div className="text-sm leading-none font-bold sm:text-base">
-              {formatNumber(followerCount)}
+              {formatCompactNumber(followerCount)}
             </div>
             <div className="text-muted-foreground text-xs leading-tight">
               {t("lounges.followers")}

@@ -4,7 +4,6 @@ import { useEffect, useRef, useCallback } from "react"
 import { X, ArrowLeft } from "lucide-react"
 import { PostCard } from "./post-card"
 import type { Post } from "../../_types/content"
-import { useTranslation } from "@/app/_i18n"
 
 interface PostFeedModalProps {
   posts: Post[]
@@ -24,7 +23,6 @@ export function PostFeedModal({
   open,
   onOpenChange,
 }: PostFeedModalProps) {
-  const { dir } = useTranslation()
   const focusedRef = useRef<HTMLDivElement>(null)
 
   // Lock body scroll while open
@@ -62,10 +60,7 @@ export function PostFeedModal({
   if (!open) return null
 
   return (
-    <div
-      dir={dir}
-      className="bg-background fixed inset-0 z-[10000] flex flex-col"
-    >
+    <div className="bg-background fixed inset-0 z-[10000] flex flex-col">
       {/* Top bar */}
       <div className="bg-background/95 supports-backdrop-filter:bg-background/80 border-border/60 flex shrink-0 items-center gap-3 border-b px-4 py-3 backdrop-blur-md">
         <button

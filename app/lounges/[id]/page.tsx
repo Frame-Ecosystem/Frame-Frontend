@@ -5,7 +5,6 @@ import Image from "next/image"
 import {
   StarIcon,
   InfoIcon,
-  Heart,
   Film,
   Users,
   CalendarIcon,
@@ -26,13 +25,13 @@ import { RatingSummaryBadge } from "@/app/_components/common/star-rating"
 import ReviewsList from "@/app/_components/common/reviews-list"
 import {
   useMyRating,
-  useCheckLiked,
-  useToggleLike,
   useFollowCounts,
   useCheckFollowing,
   useToggleFollow,
 } from "@/app/_hooks/queries"
+import { HeartButton } from "@/app/_components/common/heart-button"
 import { MessageButton } from "@/app/_components/common/message-button"
+import { resolveActiveUserType } from "@/app/_core/types/common"
 import { FollowListDialog } from "@/app/_components/common/follow-stats"
 import OurServices from "@/app/_components/services/our-services"
 import QueueDisplay from "@/app/_components/queue/queue-display"
@@ -134,8 +133,6 @@ export default function LoungePage() {
   const [isBioExpanded, setIsBioExpanded] = useState(false)
   const [showRatingPopup, setShowRatingPopup] = useState(false)
   const [showFullHours, setShowFullHours] = useState(false)
-  const { data: liked = false } = useCheckLiked(id)
-  const toggleLike = useToggleLike(id)
   const { data: myRating } = useMyRating(id)
   const isRated = !!myRating
   const { data: followCounts } = useFollowCounts(id)
@@ -525,38 +522,26 @@ export default function LoungePage() {
               </button>
 
               {/* Like */}
-              <button
-                onClick={() => {
-                  toggleLike.mutate({
-                    onSuccess: (result) => {
-                      setCenter((prev) =>
-                        prev
-                          ? {
-                              ...prev,
-                              likeCount: Math.max(
-                                0,
-                                (prev.likeCount ?? 0) + (result.liked ? 1 : -1),
-                              ),
-                            }
-                          : prev,
-                      )
-                    },
-                  })
+              <HeartButton
+                targetId={id}
+                targetType="lounge"
+                likerType={resolveActiveUserType(user?.type)}
+                currentUserId={user?._id}
+                variant="pill"
+                onToggle={(liked) => {
+                  setCenter((prev) =>
+                    prev
+                      ? {
+                          ...prev,
+                          likeCount: Math.max(
+                            0,
+                            (prev.likeCount ?? 0) + (liked ? 1 : -1),
+                          ),
+                        }
+                      : prev,
+                  )
                 }}
-                disabled={toggleLike.isRateLimited || toggleLike.isPending}
-                className={`flex items-center gap-1.5 rounded-full px-2 py-1 transition-colors disabled:pointer-events-none disabled:opacity-50 ${
-                  liked
-                    ? "bg-red-500/10 text-red-500 hover:bg-red-500/20"
-                    : "bg-muted/50 text-muted-foreground hover:bg-muted"
-                }`}
-                aria-label={t("lounges.like")}
-              >
-                <Heart
-                  size={14}
-                  className={liked ? "fill-red-500 text-red-500" : ""}
-                />
-                <span className="text-sm font-medium">{t("lounges.like")}</span>
-              </button>
+              />
 
               {/* Follow */}
               <button
@@ -766,7 +751,7 @@ export default function LoungePage() {
                   </Button>
                 )}
               </div>
-              <ReviewsList loungeId={id} />
+              <ReviewsList targetId={id} />
             </div>
           )}
         </div>
@@ -775,8 +760,8 @@ export default function LoungePage() {
       <RatingDialog
         isOpen={showRatingPopup}
         onOpenChange={setShowRatingPopup}
-        loungeId={id}
-        loungeName={center?.name}
+        targetId={id}
+        targetName={center?.name}
         onRatingChange={async () => {
           try {
             const loungeData = await clientService.getLoungeById(id)

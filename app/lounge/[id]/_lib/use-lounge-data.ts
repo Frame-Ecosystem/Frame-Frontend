@@ -7,7 +7,7 @@ import type { Lounge, LoungeService } from "@/app/_types"
 /** Lounge with fully resolved details for the owner page */
 export interface LoungeDetail extends Lounge {
   services: LoungeService[]
-  openingHours?: any
+  openingHours?: Record<string, { from: string; to: string }> | null
   latitude?: number
   longitude?: number
   email?: string
@@ -78,9 +78,11 @@ export function useLoungeData(id: string) {
         setLounge(
           transformLoungeData(loungeData, transformServices(servicesData)),
         )
-      } catch (err: any) {
+      } catch (err: unknown) {
         if (isAuthError(err) || cancelled) return
-        setError(err?.message || "Failed to load lounge details")
+        const msg =
+          err instanceof Error ? err.message : "Failed to load lounge details"
+        setError(msg)
       } finally {
         if (!cancelled) setIsFetching(false)
       }

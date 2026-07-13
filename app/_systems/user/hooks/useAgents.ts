@@ -348,6 +348,7 @@ export function useMyQueue(date?: string) {
     queryKey: agentKeys.myQueue(date),
     queryFn: () => agentService.getMyQueue(date),
     enabled: user?.type === "agent",
+    throwOnError: false,
   })
 }
 
@@ -358,6 +359,7 @@ export function useMyQueueStats() {
     queryFn: () => agentService.getMyQueueStats(),
     enabled: user?.type === "agent",
     refetchOnWindowFocus: true,
+    throwOnError: false,
   })
 }
 

@@ -1,22 +1,25 @@
 "use client"
 
 import Image from "next/image"
+import { StarIcon, UserCheck, UserPlus } from "lucide-react"
 import {
   Avatar,
   AvatarImage,
   AvatarFallback,
 } from "@/app/_components/ui/avatar"
 import { ExpandableBioVisitor } from "@/app/_components/common/profile-display/expandable-bio-visitor"
-import { FollowButton } from "@/app/_components/common/follow-button"
+import { HeartButton } from "@/app/_components/common/heart-button"
 import { MessageButton } from "@/app/_components/common/message-button"
-import { FollowStats } from "@/app/_components/common/follow-stats"
+import { LoungeStatsDisplay } from "@/app/_components/lounges/_components/lounge-stats-display"
+import { useTranslation } from "@/app/_i18n"
 import type { Agent } from "@/app/_types"
+import type { ActiveUserType } from "@/app/_core/types/common"
 
-function getDisplayName(agent: Agent): string {
+function getDisplayName(agent: Agent, fallbackLabel: string): string {
   return (
     agent.agentName ||
     `${agent.firstName || ""} ${agent.lastName || ""}`.trim() ||
-    "Agent"
+    fallbackLabel
   )
 }
 
@@ -40,13 +43,40 @@ function toImageUrl(img: unknown): string | undefined {
 interface AgentVisitorProfileHeaderProps {
   agent: Agent
   onImageClick: (src: string, alt: string) => void
+  averageRating?: number
+  ratingCount?: number
+  likeCount?: number
+  followerCount?: number
+  isFollowing?: boolean
+  isRated?: boolean
+  followBusy?: boolean
+  followLimited?: boolean
+  likerType?: ActiveUserType
+  currentUserId?: string
+  onRate?: () => void
+  onFollow?: () => void
+  onFollowersClick?: () => void
 }
 
 export function AgentVisitorProfileHeader({
   agent,
   onImageClick,
+  averageRating = 0,
+  ratingCount = 0,
+  likeCount = 0,
+  followerCount = 0,
+  isFollowing = false,
+  isRated = false,
+  followBusy = false,
+  followLimited = false,
+  likerType = "client",
+  currentUserId,
+  onRate,
+  onFollow,
+  onFollowersClick,
 }: AgentVisitorProfileHeaderProps) {
-  const displayName = getDisplayName(agent)
+  const { t } = useTranslation()
+  const displayName = getDisplayName(agent, t("agents.headerAgent"))
   const profileUrl = toImageUrl(agent.profileImage)
   const coverUrl = toImageUrl(agent.coverImage)
 
@@ -59,7 +89,7 @@ export function AgentVisitorProfileHeader({
             type="button"
             className="relative h-full w-full cursor-pointer"
             onClick={() => onImageClick(coverUrl, `${displayName} cover`)}
-            aria-label="View cover photo"
+            aria-label={t("lounges.viewCoverPhoto")}
           >
             <Image
               src={coverUrl}
@@ -86,7 +116,7 @@ export function AgentVisitorProfileHeader({
             onClick={() => {
               if (profileUrl) onImageClick(profileUrl, displayName)
             }}
-            aria-label="View profile photo"
+            aria-label={t("lounges.viewProfilePhoto")}
           >
             <Avatar className="ring-background h-20 w-20 shadow-xl ring-4 sm:h-24 sm:w-24 md:h-28 md:w-28">
               {profileUrl && (
@@ -110,7 +140,7 @@ export function AgentVisitorProfileHeader({
         </div>
       </div>
 
-      {/* Bio + Follow Stats + Follow Button */}
+      {/* Bio + Stats + Actions */}
       <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
         {agent.bio && (
           <div className="mt-2">
@@ -118,12 +148,70 @@ export function AgentVisitorProfileHeader({
           </div>
         )}
 
-        <div className="mt-3">
-          <FollowStats userId={agent._id} />
-        </div>
+        {/* ── Stats: Rating · Likes · Followers ─────────────────── */}
+        <LoungeStatsDisplay
+          averageRating={averageRating}
+          ratingCount={ratingCount}
+          likeCount={likeCount}
+          followerCount={followerCount}
+          onRatingClick={onRate}
+          onFollowersClick={onFollowersClick}
+        />
 
+        {/* ── Action Buttons: Rate · Like · Follow · Message ────── */}
         <div className="mt-3 flex items-center justify-center gap-3">
-          <FollowButton targetId={agent._id} />
+          {onRate && (
+            <button
+              type="button"
+              onClick={onRate}
+              className={`flex items-center gap-1.5 rounded-full px-2 py-1 transition-colors ${
+                isRated
+                  ? "bg-yellow-500/10 text-yellow-600 hover:bg-yellow-500/20"
+                  : "bg-muted/50 text-muted-foreground hover:bg-muted"
+              }`}
+              aria-label={t("lounges.rate")}
+            >
+              <StarIcon
+                size={14}
+                className={isRated ? "fill-yellow-500 text-yellow-500" : ""}
+              />
+              <span className="text-sm font-medium">{t("lounges.rate")}</span>
+            </button>
+          )}
+
+          <HeartButton
+            targetId={agent._id}
+            targetType="agent"
+            likerType={likerType}
+            currentUserId={currentUserId}
+            variant="pill"
+          />
+
+          {onFollow && (
+            <button
+              type="button"
+              onClick={onFollow}
+              disabled={followLimited || followBusy}
+              className={`flex items-center gap-1.5 rounded-full px-2 py-1 transition-colors disabled:pointer-events-none disabled:opacity-50 ${
+                isFollowing
+                  ? "bg-green-500/10 text-green-600 hover:bg-green-500/20"
+                  : "bg-muted/50 text-muted-foreground hover:bg-muted"
+              }`}
+              aria-label={
+                isFollowing ? t("lounges.following") : t("lounges.follow")
+              }
+            >
+              {isFollowing ? (
+                <UserCheck size={14} className="text-green-600" />
+              ) : (
+                <UserPlus size={14} />
+              )}
+              <span className="text-sm font-medium">
+                {isFollowing ? t("lounges.following") : t("lounges.follow")}
+              </span>
+            </button>
+          )}
+
           <MessageButton recipientId={agent._id} />
         </div>
       </div>

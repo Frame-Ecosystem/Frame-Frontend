@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { InfoIcon, Film, CalendarIcon, Users, Loader2 } from "lucide-react"
+import { InfoIcon, Film, Scissors, Users, Loader2 } from "lucide-react"
 import { Card, CardContent, CardHeader } from "@/app/_components/ui/card"
 import { Button } from "@/app/_components/ui/button"
 import OurServices from "@/app/_components/services/our-services"
@@ -26,7 +26,7 @@ const TABS: {
 }[] = [
   { id: "info", labelKey: "lounge.tabInfo", icon: InfoIcon },
   { id: "reels", labelKey: "lounge.tabPortfolio", icon: Film },
-  { id: "services", labelKey: "lounge.tabServices", icon: CalendarIcon },
+  { id: "services", labelKey: "lounge.tabServices", icon: Scissors },
   { id: "queue", labelKey: "lounge.tabQueue", icon: Users },
 ]
 

@@ -90,7 +90,7 @@ function LoadMoreCard({
 export default function LoungesPage() {
   const { user, isLoading } = useAuth()
   const router = useRouter()
-  const { t, dir } = useTranslation()
+  const { t } = useTranslation()
 
   const [lounges, setLounges] = useState<LoungeUser[]>([])
   const [loading, setLoading] = useState(true)
@@ -281,10 +281,7 @@ export default function LoungesPage() {
 
   return (
     <ErrorBoundary>
-      <div
-        dir={dir}
-        className="from-background via-background to-muted/20 min-h-screen bg-linear-to-br"
-      >
+      <div className="from-background via-background to-muted/20 min-h-screen bg-linear-to-br">
         <div className="mx-auto max-w-7xl lg:pt-0">
           <div className="p-5 lg:px-8 lg:py-12">
             {/* HERO SECTION */}

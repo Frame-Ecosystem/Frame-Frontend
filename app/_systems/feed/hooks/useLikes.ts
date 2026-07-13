@@ -7,21 +7,22 @@
 import { useEffect, useRef, useState } from "react"
 import { likeService } from "@/app/_services/like.service"
 import { toast } from "sonner"
+import { useTranslation } from "@/app/_i18n"
 
 export const likeKeys = {
   all: ["likes"] as const,
-  check: (loungeId: string) => [...likeKeys.all, "check", loungeId] as const,
+  check: (targetId: string) => [...likeKeys.all, "check", targetId] as const,
   myLikes: (limit?: number) => [...likeKeys.all, "my", limit] as const,
-  loungeLikers: (loungeId: string) =>
-    [...likeKeys.all, "lounge", loungeId] as const,
+  targetLikers: (targetId: string) =>
+    [...likeKeys.all, "target", targetId] as const,
 }
 
-/** Check whether the authenticated client has liked a specific lounge. */
-export function useCheckLiked(loungeId: string | undefined) {
+/** Check whether the authenticated user has liked a specific target. */
+export function useCheckLiked(targetId: string | undefined) {
   return useQuery({
-    queryKey: likeKeys.check(loungeId ?? ""),
-    queryFn: () => likeService.checkLiked(loungeId!),
-    enabled: !!loungeId,
+    queryKey: likeKeys.check(targetId ?? ""),
+    queryFn: () => likeService.checkLiked(targetId!),
+    enabled: !!targetId,
     throwOnError: false,
   })
 }
@@ -30,22 +31,23 @@ export function useCheckLiked(loungeId: string | undefined) {
 const RATE_LIMIT_COOLDOWN = 30_000
 
 function isRateLimitError(err: unknown): boolean {
-  const code = (err as any)?.code ?? ""
-  const msg = (err as any)?.message ?? ""
-  return code === "RATE_LIMIT_EXCEEDED" || msg.includes("slow down")
+  if (err instanceof Error) {
+    const code = "code" in err ? String((err as { code?: unknown }).code) : ""
+    return code === "RATE_LIMIT_EXCEEDED" || err.message.includes("slow down")
+  }
+  return false
 }
 
 /**
  * Toggle like/unlike with optimistic UI and rate-limit handling.
  * Returns `{ mutate, isPending, isRateLimited }`.
- * When `isRateLimited` is `true` the button should be disabled.
  */
-export function useToggleLike(loungeId: string) {
+export function useToggleLike(targetId: string) {
   const queryClient = useQueryClient()
   const [isRateLimited, setIsRateLimited] = useState(false)
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const { t } = useTranslation()
 
-  // Clear timer on unmount
   useEffect(
     () => () => {
       if (timerRef.current) clearTimeout(timerRef.current)
@@ -56,43 +58,41 @@ export function useToggleLike(loungeId: string) {
   const mutation = useMutation({
     mutationFn: () => {
       if (isRateLimited) return Promise.reject(new Error("RATE_LIMITED_LOCAL"))
-      return likeService.toggle(loungeId)
+      return likeService.toggle(targetId)
     },
-    // Optimistic update on the "check" query
     onMutate: async () => {
       if (isRateLimited) return {}
       await queryClient.cancelQueries({
-        queryKey: likeKeys.check(loungeId),
+        queryKey: likeKeys.check(targetId),
       })
       const previous = queryClient.getQueryData<boolean>(
-        likeKeys.check(loungeId),
+        likeKeys.check(targetId),
       )
       queryClient.setQueryData(
-        likeKeys.check(loungeId),
+        likeKeys.check(targetId),
         (old: boolean | undefined) => !old,
       )
       return { previous }
     },
     onError: (_err, _vars, context) => {
-      // Revert on failure
       if (context?.previous !== undefined) {
-        queryClient.setQueryData(likeKeys.check(loungeId), context.previous)
+        queryClient.setQueryData(likeKeys.check(targetId), context.previous)
       }
-      if ((_err as any)?.message === "RATE_LIMITED_LOCAL") return
+      if (_err instanceof Error && _err.message === "RATE_LIMITED_LOCAL") return
       if (isRateLimitError(_err)) {
-        toast.error("Too many like requests. Please slow down.")
+        toast.error(t("like.tooMany"))
         setIsRateLimited(true)
         timerRef.current = setTimeout(
           () => setIsRateLimited(false),
           RATE_LIMIT_COOLDOWN,
         )
       } else {
-        toast.error("Failed to update like")
+        toast.error(t("like.failed"))
       }
     },
     onSettled: (_data, err) => {
-      if ((err as any)?.message === "RATE_LIMITED_LOCAL") return
-      queryClient.invalidateQueries({ queryKey: likeKeys.check(loungeId) })
+      if (err instanceof Error && err.message === "RATE_LIMITED_LOCAL") return
+      queryClient.invalidateQueries({ queryKey: likeKeys.check(targetId) })
       queryClient.invalidateQueries({ queryKey: likeKeys.all })
     },
   })
@@ -105,7 +105,7 @@ export function useToggleLike(loungeId: string) {
   return { ...mutation, mutate, isRateLimited }
 }
 
-/** Paginated list of the authenticated client's liked lounges. */
+/** Paginated list of the authenticated user's liked targets. */
 export function useMyLikes(limit = 20) {
   return useInfiniteQuery({
     queryKey: likeKeys.myLikes(limit),
@@ -118,17 +118,20 @@ export function useMyLikes(limit = 20) {
   })
 }
 
-/** Paginated list of clients who liked a lounge. */
-export function useLoungeLikers(loungeId: string | undefined, limit = 20) {
+/** Paginated list of users who liked a target. */
+export function useTargetLikers(targetId: string | undefined, limit = 20) {
   return useInfiniteQuery({
-    queryKey: likeKeys.loungeLikers(loungeId ?? ""),
+    queryKey: likeKeys.targetLikers(targetId ?? ""),
     queryFn: ({ pageParam = 1 }) =>
-      likeService.getLoungeLikers(loungeId!, pageParam, limit),
+      likeService.getTargetLikers(targetId!, pageParam, limit),
     initialPageParam: 1,
     getNextPageParam: (last) => {
       const totalPages = Math.ceil(last.total / last.limit)
       return last.page < totalPages ? last.page + 1 : undefined
     },
-    enabled: !!loungeId,
+    enabled: !!targetId,
   })
 }
+
+/** @deprecated Use useTargetLikers instead */
+export const useLoungeLikers = useTargetLikers

@@ -2,42 +2,41 @@
 import type { Rating, PaginatedRatings, SubmitRatingInput } from "@/app/_types"
 
 class RatingService {
-  /** Create or update the authenticated client's rating for a lounge. */
+  /** Create or update the authenticated user's rating for a target. */
   async upsert(input: SubmitRatingInput): Promise<Rating> {
-    const body: SubmitRatingInput = {
-      loungeId: input.loungeId,
+    const body: { targetId: string; score: number; comment?: string } = {
+      targetId: input.targetId,
       score: input.score,
     }
     if (input.comment?.trim()) body.comment = input.comment.trim()
     const res = await apiClient.put<{ data: Rating }>("/v1/ratings", body)
-    return (res as any).data ?? res
+    return res.data
   }
 
-  /** Delete the authenticated client's rating for a lounge. */
-  async remove(loungeId: string): Promise<void> {
-    await apiClient.delete(`/v1/ratings/${loungeId}`)
+  /** Delete the authenticated user's rating for a target. */
+  async remove(targetId: string): Promise<void> {
+    await apiClient.delete(`/v1/ratings/${targetId}`)
   }
 
-  /** Fetch paginated ratings for a lounge. */
-  async getLoungeRatings(
-    loungeId: string,
+  /** Fetch paginated ratings for a target (lounge or agent). */
+  async getTargetRatings(
+    targetId: string,
     page = 1,
     limit = 20,
   ): Promise<PaginatedRatings> {
-    const res = await apiClient.get<PaginatedRatings>(
-      `/v1/ratings/lounge/${loungeId}?page=${page}&limit=${limit}`,
+    return apiClient.get<PaginatedRatings>(
+      `/v1/ratings/target/${targetId}?page=${page}&limit=${limit}`,
       { suppressAuthFailure: true },
     )
-    return res
   }
 
-  /** Fetch the authenticated client's own rating for a lounge (or null). */
-  async getMyRating(loungeId: string): Promise<Rating | null> {
+  /** Fetch the authenticated user's own rating for a target (or null). */
+  async getMyRating(targetId: string): Promise<Rating | null> {
     const res = await apiClient.get<{ data: Rating | null }>(
-      `/v1/ratings/me/${loungeId}`,
+      `/v1/ratings/me/${targetId}`,
       { suppressAuthFailure: true },
     )
-    return (res as any).data ?? res ?? null
+    return res.data ?? null
   }
 }
 

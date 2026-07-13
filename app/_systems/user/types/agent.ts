@@ -62,6 +62,11 @@ export interface Agent {
   loungeId?: string | AgentLounge
   idLoungeService?: string[]
 
+  // Social stats (populated by backend on User documents)
+  averageRating?: number
+  ratingCount?: number
+  likeCount?: number
+
   createdAt: string
   updatedAt: string
 }

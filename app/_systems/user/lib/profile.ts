@@ -1,4 +1,5 @@
 ﻿import type { User } from "@/app/_types"
+import type { UserType } from "@/app/_systems/user/types/user"
 
 export const getProfilePath = (user?: User | null) => {
   const role = user?.type?.toLowerCase()
@@ -7,6 +8,27 @@ export const getProfilePath = (user?: User | null) => {
   if (role === "lounge") return "/profile/lounge"
   if (role === "client") return "/profile/client"
   return "/"
+}
+
+/**
+ * Get the public profile route for another user by their type and ID.
+ * Use this for links to lounges, agents, or clients from feed, reviews, etc.
+ */
+export const getPublicProfilePath = (
+  type: UserType | string | undefined,
+  id: string,
+): string | undefined => {
+  if (!id) return undefined
+  switch (type) {
+    case "lounge":
+      return `/lounges/${id}`
+    case "agent":
+      return `/agents/${id}`
+    case "client":
+      return `/clients/${id}`
+    default:
+      return undefined
+  }
 }
 
 export const getHomePath = (user?: User | null) => {

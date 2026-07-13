@@ -2,24 +2,26 @@
 
 import Image from "next/image"
 import { useRouter } from "next/navigation"
-import { StarIcon, Heart, UserPlus, UserCheck, MapPin } from "lucide-react"
+import { StarIcon, UserPlus, UserCheck, MapPin } from "lucide-react"
 import { Card, CardContent } from "@/app/_components/ui/card"
-import { useCheckLiked, useToggleLike } from "@/app/_systems/feed/hooks"
+import { HeartButton } from "@/app/_components/common/heart-button"
+import { MessageButton } from "@/app/_components/common/message-button"
+import { LoungeStatsDisplay } from "@/app/_components/lounges/_components/lounge-stats-display"
 import {
   useCheckFollowing,
   useFollowCounts,
   useToggleFollow,
 } from "@/app/_systems/user/hooks"
+import { useAuth } from "@/app/_auth"
 import { useTranslation } from "@/app/_i18n"
+import { resolveActiveUserType } from "@/app/_core/types/common"
 import type { LoungeDetail } from "../_lib/use-lounge-data"
 
 export function LoungeHero({ lounge }: { lounge: LoungeDetail }) {
   const router = useRouter()
   const { t } = useTranslation()
+  const { user } = useAuth()
   const targetId = lounge._id ?? lounge.id
-
-  const { data: isLiked = false } = useCheckLiked(targetId)
-  const likeMutation = useToggleLike(targetId)
 
   const { data: isFollowing = false } = useCheckFollowing(targetId)
   const followMutation = useToggleFollow(targetId)
@@ -29,6 +31,8 @@ export function LoungeHero({ lounge }: { lounge: LoungeDetail }) {
   const ratingCount = lounge.ratingCount ?? 0
   const likeCount = lounge.likeCount ?? 0
   const followersCount = followCounts?.followersCount ?? 0
+
+  const likerType = resolveActiveUserType(user?.type)
 
   return (
     <div className="relative h-[60vh] lg:h-[70vh]">
@@ -49,6 +53,7 @@ export function LoungeHero({ lounge }: { lounge: LoungeDetail }) {
         <div className="w-full p-5 lg:px-8 lg:pb-12">
           <div className="mx-auto max-w-4xl">
             <button
+              type="button"
               onClick={() => router.back()}
               className="hover:text-primary mb-6 inline-flex items-center text-white transition-colors"
             >
@@ -88,24 +93,17 @@ export function LoungeHero({ lounge }: { lounge: LoungeDetail }) {
 
                   {/* Action Buttons */}
                   <div className="flex flex-col gap-3 lg:flex-row lg:items-center">
-                    <button
-                      onClick={() => likeMutation.mutate()}
-                      className="flex items-center gap-1.5 rounded-full bg-white/10 px-3 py-1.5 backdrop-blur-sm transition-colors hover:bg-white/20"
-                      aria-label={t("lounges.like")}
-                      disabled={
-                        likeMutation.isPending || likeMutation.isRateLimited
-                      }
-                    >
-                      <Heart
-                        size={16}
-                        className={`transition-colors ${isLiked ? "fill-red-500 text-red-500" : "text-white"}`}
-                      />
-                      <span className="text-sm font-medium text-white">
-                        {t("lounges.likeCount", { count: likeCount })}
-                      </span>
-                    </button>
+                    <HeartButton
+                      targetId={targetId}
+                      targetType="lounge"
+                      likerType={likerType}
+                      currentUserId={user?._id}
+                      variant="overlay"
+                      label={t("lounges.likeCount", { count: likeCount })}
+                    />
 
                     <button
+                      type="button"
                       onClick={() => followMutation.mutate()}
                       className="flex items-center gap-1.5 rounded-full bg-white/10 px-3 py-1.5 backdrop-blur-sm transition-colors hover:bg-white/20"
                       aria-label={
@@ -126,10 +124,20 @@ export function LoungeHero({ lounge }: { lounge: LoungeDetail }) {
                         {t("lounges.followerCount", { count: followersCount })}
                       </span>
                     </button>
+
+                    <MessageButton recipientId={targetId} />
                   </div>
                 </div>
               </CardContent>
             </Card>
+
+            {/* Stats Bar: Rating · Likes · Followers */}
+            <LoungeStatsDisplay
+              averageRating={rating}
+              ratingCount={ratingCount}
+              likeCount={likeCount}
+              followerCount={followersCount}
+            />
           </div>
         </div>
       </div>

@@ -133,14 +133,17 @@ const fr: Record<string, string> = {
   "lounges.mostBookedSubtitle":
     "Basé sur le plus grand nombre de réservations terminées",
   "lounges.ratingAriaLabel": "Note : {rating} sur 5, {count} avis",
+  "lounges.reviewCount_zero": "Avis",
   "lounges.reviewCount_one": "{count} avis",
   "lounges.reviewCount_other": "{count} avis",
   "lounges.noReviews": "Aucun avis",
+  "lounges.likeCount_zero": "Likes",
   "lounges.likeCount_one": "{count} like",
   "lounges.likeCount_other": "{count} likes",
   "lounges.like": "J'aime",
   "lounges.follow": "Suivre",
   "lounges.following": "Abonné",
+  "lounges.followerCount_zero": "Abonnés",
   "lounges.followerCount_one": "{count} abonné",
   "lounges.followerCount_other": "{count} abonnés",
   "lounges.followers": "Abonnés",
@@ -295,6 +298,27 @@ const fr: Record<string, string> = {
   "queue.servicesSelected_other": "{count} services sélectionnés",
   "queue.notes": "Notes",
   "queue.specialRequests": "Demandes spéciales ou notes...",
+  "queue.myQueue": "File d\u2019attente du jour",
+  "queue.myQueueSubtitle": "Vue en direct des clients en attente de service.",
+  "queue.statWaiting": "En attente",
+  "queue.statInService": "En service",
+  "queue.statCompleted": "Terminé",
+  "queue.statAbsent": "Absent",
+  "queue.finishFirst":
+    "Terminez votre service en cours, puis appelez le suivant.",
+  "queue.ready": "Prêt quand vous l\u2019êtes.",
+  "queue.waitingCount_one": "{count} client en attente",
+  "queue.waitingCount_other": "{count} clients en attente",
+  "queue.waitingCount_zero": "Personne en attente",
+  "queue.callNext": "Appeler le suivant",
+  "queue.queueSection": "File d\u2019attente",
+  "queue.dragHint":
+    "Glissez les cartes pour réordonner. Appuyez sur un bouton pour agir.",
+  "queue.totalCount": "{count} total",
+  "queue.loadError": "Impossible de charger votre file d\u2019attente.",
+  "queue.tryAgain": "Réessayer",
+  "queue.emptyTitle": "Personne dans votre file d\u2019attente",
+  "queue.emptyHint": "Les clients apparaîtront ici lorsqu\u2019ils rejoignent.",
 
   // ── Admin ───────────────────────────────────────────────────────────────
   "admin.dashboard": "Tableau de bord",
@@ -841,6 +865,15 @@ const fr: Record<string, string> = {
   "rating.update": "Modifier l'évaluation",
   "rating.submit": "Envoyer l'évaluation",
   "rating.remove": "Supprimer l'évaluation",
+  "rating.thisProfile": "ce profil",
+  "rating.saved": "Évaluation enregistrée !",
+  "rating.removed": "Évaluation supprimée",
+  "rating.saveFailed": "Échec de l'enregistrement de l'évaluation",
+  "rating.removeFailed": "Échec de la suppression de l'évaluation",
+
+  // ── Like toast ──────────────────────────────────────────────────────────
+  "like.tooMany": "Trop de demandes de j'aime. Veuillez ralentir.",
+  "like.failed": "Échec de la mise à jour du j'aime",
 
   // ── Location ────────────────────────────────────────────────────────────
   "location.label": "Emplacement",

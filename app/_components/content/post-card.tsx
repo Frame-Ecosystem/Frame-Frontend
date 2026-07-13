@@ -33,7 +33,7 @@ export function PostCard({
   onCommentClick,
 }: Readonly<PostCardProps>) {
   const { user } = useAuth()
-  const { t, dir } = useTranslation()
+  const { t } = useTranslation()
   const [showReport, setShowReport] = useState(false)
   const [showEdit, setShowEdit] = useState(false)
   const [showDoubleTapHeart, setShowDoubleTapHeart] = useState(false)
@@ -90,10 +90,7 @@ export function PostCard({
     >
       {/* Hidden indicator for admins */}
       {post.isHidden && isAdmin && (
-        <div
-          dir={dir}
-          className="flex items-center gap-1.5 bg-amber-500/10 px-4 py-1.5 text-xs font-medium text-amber-600 dark:text-amber-400"
-        >
+        <div className="flex items-center gap-1.5 bg-amber-500/10 px-4 py-1.5 text-xs font-medium text-amber-600 dark:text-amber-400">
           <EyeOff className="h-3 w-3" />
           {t("content.post.hidden")}
         </div>
@@ -184,7 +181,6 @@ export function PostCard({
       {/* Comment preview / button */}
       {post.commentCount > 0 && onCommentClick && (
         <button
-          dir={dir}
           onClick={onCommentClick}
           className="text-muted-foreground hover:text-foreground block px-4 pb-3 text-sm transition-colors"
         >

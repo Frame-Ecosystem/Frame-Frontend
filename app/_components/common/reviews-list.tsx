@@ -9,35 +9,35 @@ import {
 } from "@/app/_components/ui/avatar"
 import { Button } from "@/app/_components/ui/button"
 import { StarRating } from "@/app/_components/common/star-rating"
-import { useLoungeRatings } from "@/app/_hooks/queries"
-import type { Rating, PopulatedClient } from "@/app/_types"
+import { useTargetRatings } from "@/app/_hooks/queries"
+import { isPopulatedRater } from "@/app/_types"
+import { getPublicProfilePath } from "@/app/_systems/user/lib/profile"
+import type { Rating } from "@/app/_types"
 import { ReviewsListSkeleton } from "@/app/_components/skeletons/reviews"
 import { useTranslation } from "@/app/_i18n"
 
-function isPopulatedClient(c: string | PopulatedClient): c is PopulatedClient {
-  return typeof c === "object" && "_id" in c
-}
-
 function ReviewCard({ rating }: { rating: Rating }) {
   const router = useRouter()
-  const client = isPopulatedClient(rating.clientId) ? rating.clientId : null
+  const rater = isPopulatedRater(rating.raterId) ? rating.raterId : null
   const { t } = useTranslation()
-  const name = client
-    ? `${client.firstName} ${client.lastName}`
-    : t("reviews.anonymous")
-  const initials = client
-    ? `${client.firstName?.[0] ?? ""}${client.lastName?.[0] ?? ""}`.toUpperCase()
-    : "?"
-  const avatarUrl = client?.profileImage?.url
 
-  const handleAvatarClick = client
-    ? () => router.push(`/clients/${client._id}`)
+  const name = rater
+    ? `${rater.firstName} ${rater.lastName}`
+    : t("reviews.anonymous")
+  const initials = rater
+    ? `${rater.firstName?.[0] ?? ""}${rater.lastName?.[0] ?? ""}`.toUpperCase()
+    : "?"
+  const avatarUrl = rater?.profileImage?.url
+  const profilePath = getPublicProfilePath(rater?.type, rater?._id ?? "")
+
+  const handleAvatarClick = profilePath
+    ? () => router.push(profilePath)
     : undefined
 
   return (
     <div className="border-border flex gap-3 border-b py-4 last:border-0">
       <Avatar
-        className={`h-10 w-10 shrink-0 ${client ? "cursor-pointer transition-opacity hover:opacity-80" : ""}`}
+        className={`h-10 w-10 shrink-0 ${profilePath ? "cursor-pointer transition-opacity hover:opacity-80" : ""}`}
         onClick={handleAvatarClick}
       >
         {avatarUrl && <AvatarImage src={avatarUrl} alt={name} />}
@@ -48,7 +48,7 @@ function ReviewCard({ rating }: { rating: Rating }) {
       <div className="min-w-0 flex-1">
         <div className="flex items-center justify-between gap-2">
           <span
-            className={`truncate text-sm font-medium ${client ? "cursor-pointer hover:underline" : ""}`}
+            className={`truncate text-sm font-medium ${profilePath ? "cursor-pointer hover:underline" : ""}`}
             onClick={handleAvatarClick}
           >
             {name}
@@ -71,13 +71,13 @@ function ReviewCard({ rating }: { rating: Rating }) {
 }
 
 interface ReviewsListProps {
-  loungeId: string
+  targetId: string
 }
 
-export default function ReviewsList({ loungeId }: ReviewsListProps) {
+export default function ReviewsList({ targetId }: ReviewsListProps) {
   const { t } = useTranslation()
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } =
-    useLoungeRatings(loungeId)
+    useTargetRatings(targetId)
 
   const ratings = data?.pages.flatMap((p) => p.data) ?? []
   const total = data?.pages[0]?.total ?? 0

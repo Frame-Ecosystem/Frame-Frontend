@@ -10,6 +10,7 @@ import {
 } from "@/app/_components/ui/dialog"
 import { Button } from "@/app/_components/ui/button"
 import { Textarea } from "@/app/_components/ui/textarea"
+import { InteractiveStarRating } from "@/app/_components/common/interactive-star-rating"
 import {
   useMyRating,
   useUpsertRating,
@@ -25,31 +26,28 @@ const SCORE_LABEL_KEYS = [
   "rating.veryGood",
   "rating.excellent",
 ] as const
-const STARS = [1, 2, 3, 4, 5] as const
 const MAX_COMMENT_LENGTH = 1000
 
 interface RatingDialogProps {
   isOpen: boolean
   onOpenChange: (open: boolean) => void
-  loungeId: string
-  loungeName?: string | null
+  targetId: string
+  targetName?: string | null
   onRatingChange?: () => void
 }
 
 export default function RatingDialog({
   isOpen,
   onOpenChange,
-  loungeId,
-  loungeName,
+  targetId,
+  targetName,
   onRatingChange,
 }: RatingDialogProps) {
   const { t } = useTranslation()
-  const { data: existingRating } = useMyRating(isOpen ? loungeId : undefined)
-  const upsertMutation = useUpsertRating(loungeId)
-  const deleteMutation = useDeleteRating(loungeId)
+  const { data: existingRating } = useMyRating(isOpen ? targetId : undefined)
+  const upsertMutation = useUpsertRating(targetId)
+  const deleteMutation = useDeleteRating(targetId)
 
-  // Derived state: local overrides are null until user interacts,
-  // falling through to the fetched existingRating values.
   const [userScore, setUserScore] = useState<number | null>(null)
   const [hoverScore, setHoverScore] = useState(0)
   const [userComment, setUserComment] = useState<string | null>(null)
@@ -80,7 +78,7 @@ export default function RatingDialog({
   const handleSubmit = () => {
     if (score < 1) return
     upsertMutation.mutate(
-      { loungeId, score, comment: comment.trim() || undefined },
+      { targetId, score, comment: comment.trim() || undefined },
       { onSuccess: handleMutationSuccess },
     )
   }
@@ -100,35 +98,21 @@ export default function RatingDialog({
             {isUpdate ? t("rating.updateTitle") : t("rating.rateTitle")}
           </DialogTitle>
           <p className="text-muted-foreground text-center text-sm">
-            {t("rating.howWouldYouRate", { name: loungeName || "this lounge" })}
+            {t("rating.howWouldYouRate", {
+              name: targetName || t("rating.thisProfile"),
+            })}
           </p>
         </DialogHeader>
 
         <div className="flex flex-col items-center gap-6 py-6">
           {/* Star selector */}
-          <div className="flex items-center gap-3">
-            {STARS.map((star) => (
-              <button
-                key={star}
-                type="button"
-                disabled={isBusy}
-                onClick={() => setUserScore(star)}
-                onMouseEnter={() => setHoverScore(star)}
-                onMouseLeave={() => setHoverScore(0)}
-                className="transition-all duration-200 hover:scale-125 focus:outline-none active:scale-110 disabled:opacity-50"
-                aria-label={`${star} star`}
-              >
-                <StarIcon
-                  size={44}
-                  className={`transition-all duration-200 ${
-                    star <= activeScore
-                      ? "fill-yellow-500 text-yellow-500 drop-shadow-lg"
-                      : "text-gray-300 dark:text-gray-600"
-                  }`}
-                />
-              </button>
-            ))}
-          </div>
+          <InteractiveStarRating
+            value={activeScore}
+            onChange={setUserScore}
+            onHover={setHoverScore}
+            onLeave={() => setHoverScore(0)}
+            disabled={isBusy}
+          />
 
           {/* Score label */}
           <div className="h-8 text-center">

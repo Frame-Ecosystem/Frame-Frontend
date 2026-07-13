@@ -3,9 +3,10 @@
 import { useCallback } from "react"
 import Image from "next/image"
 import { useRouter } from "next/navigation"
-import { PhoneIcon, StarIcon, Heart } from "lucide-react"
+import { PhoneIcon, StarIcon } from "lucide-react"
 import { useAuth } from "@/app/_auth"
-import { useCheckLiked, useToggleLike } from "@/app/_hooks/queries"
+import { HeartButton } from "@/app/_components/common/heart-button"
+import { resolveActiveUserType } from "@/app/_core/types/common"
 import type { Lounge } from "@/app/_types"
 import { Badge } from "@/app/_components/ui/badge"
 import { Button } from "@/app/_components/ui/button"
@@ -14,9 +15,6 @@ import { Card, CardContent } from "@/app/_components/ui/card"
 const LoungeItem = ({ lounge }: { lounge: Lounge }) => {
   const { user } = useAuth()
   const router = useRouter()
-  const isClient = user?.type === "client"
-  const { data: liked } = useCheckLiked(isClient ? lounge.id : undefined)
-  const toggleLike = useToggleLike(lounge.id)
 
   const navigateToLounge = useCallback(() => {
     if (user) {
@@ -34,13 +32,6 @@ const LoungeItem = ({ lounge }: { lounge: Lounge }) => {
   const handleBookNowClick = (e: React.MouseEvent) => {
     e.stopPropagation()
     navigateToLounge()
-  }
-
-  const handleLikeClick = (e: React.MouseEvent) => {
-    e.preventDefault()
-    e.stopPropagation()
-    if (!isClient) return
-    toggleLike.mutate()
   }
 
   const phone = lounge.phones?.[0]
@@ -100,26 +91,13 @@ const LoungeItem = ({ lounge }: { lounge: Lounge }) => {
           <div className="px-1 py-3">
             <div className="flex items-center justify-between gap-1">
               <h3 className="min-w-0 truncate font-semibold">{lounge.name}</h3>
-              {isClient && (
-                <button
-                  type="button"
-                  onClick={handleLikeClick}
-                  disabled={toggleLike.isRateLimited || toggleLike.isPending}
-                  className="flex shrink-0 items-center gap-0.5 disabled:opacity-50"
-                >
-                  <span className="text-muted-foreground text-[11px]">
-                    {lounge.likeCount ?? 0}
-                  </span>
-                  <Heart
-                    size={14}
-                    className={
-                      liked
-                        ? "fill-red-500 text-red-500"
-                        : "text-muted-foreground"
-                    }
-                  />
-                </button>
-              )}
+              <HeartButton
+                targetId={lounge.id}
+                targetType="lounge"
+                likerType={resolveActiveUserType(user?.type)}
+                currentUserId={user?._id}
+                likeCount={lounge.likeCount ?? 0}
+              />
             </div>
 
             <p

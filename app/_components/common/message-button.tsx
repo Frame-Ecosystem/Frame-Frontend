@@ -76,7 +76,7 @@ export function MessageButton({ recipientId, className }: MessageButtonProps) {
       onSuccess: (res) => {
         router.push(`/messages/${res.conversation._id}`)
       },
-      onError: (err: any) => {
+      onError: (err: Error) => {
         reset()
         const msg = err?.message ?? ""
         if (msg.includes("follow each other")) {
