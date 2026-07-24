@@ -6,7 +6,6 @@ import { useAuth } from "@/app/_auth"
 import { ChatWindow } from "../../_systems/chat/components/chat-window"
 import { ErrorBoundary } from "@/app/_components/common/errorBoundary"
 
-/** True once we know we're on a ≥1024 px viewport (after first paint). */
 function useIsDesktop() {
   const [isDesktop, setIsDesktop] = useState(() => {
     if (typeof window === "undefined") return false
@@ -40,26 +39,21 @@ export default function ConversationPage() {
     </ErrorBoundary>
   )
 
-  if (isDesktop) {
+  if (!isDesktop) {
     return (
-      <div className="fixed inset-0 z-50 flex">
-        {/* Backdrop */}
-        <div
-          className="flex-1 cursor-pointer bg-black/20 backdrop-blur-[2px] transition-opacity duration-300"
-          onClick={() => router.push("/messages")}
-          aria-label="Close messages"
-        />
-        {/* Panel */}
-        <div className="animate-in slide-in-from-right bg-background flex h-full w-1/3 min-w-[360px] flex-col border-l shadow-2xl duration-300">
-          {window_}
-        </div>
+      <div className="fixed inset-0 z-10 flex flex-col overflow-hidden">
+        {window_}
       </div>
     )
   }
 
   return (
-    <div className="fixed inset-0 z-10 flex flex-col overflow-hidden">
-      {window_}
+    <div className="from-background via-background to-muted/20 min-h-screen bg-linear-to-br lg:h-full lg:min-h-0">
+      <div className="mx-auto max-w-7xl lg:flex lg:h-full lg:flex-col lg:pt-0">
+        <div className="flex flex-1 flex-col p-5 lg:overflow-hidden lg:px-8 lg:py-12">
+          {window_}
+        </div>
+      </div>
     </div>
   )
 }

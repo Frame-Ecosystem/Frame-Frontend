@@ -117,7 +117,7 @@ export function MessageList({
       <div
         ref={scrollRef}
         onScroll={handleScroll}
-        className="flex flex-1 flex-col overflow-y-auto overscroll-none pt-2 pb-[calc(5rem+env(safe-area-inset-bottom,0px))] lg:pb-2"
+        className="flex flex-1 flex-col overflow-y-auto overscroll-none pt-2 pb-[calc(5rem+env(safe-area-inset-bottom,0px))] lg:pb-[5rem]"
       >
         {/* Spacer: pushes messages to the bottom when there are few */}
         <div className="flex-1" />

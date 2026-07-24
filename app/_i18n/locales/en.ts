@@ -984,6 +984,12 @@ const en: Record<string, string> = {
   "chat.mutualFollowRequired": "You must follow each other to send messages",
   "chat.followBanner":
     "You are no longer following each other. Follow each other to enable messaging.",
+  "chat.followBrokenMutual":
+    "You are no longer following each other. Follow each other again to continue messaging.",
+  "chat.followBrokenYouUnfollowed":
+    "You unfollowed {name}. Follow each other again to continue messaging.",
+  "chat.followBrokenTheyUnfollowed":
+    "{name} unfollowed you. Follow each other to continue messaging.",
   "chat.slowDown": "You're sending messages too fast. Slow down.",
   "chat.failedToSend": "Failed to send message. Please try again.",
   "chat.editWindowExpired": "You can only edit messages within 15 minutes",

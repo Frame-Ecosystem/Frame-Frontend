@@ -944,6 +944,12 @@ const fr: Record<string, string> = {
     "Vous devez vous suivre mutuellement pour envoyer des messages",
   "chat.followBanner":
     "Vous ne vous suivez plus mutuellement. Suivez-vous mutuellement pour activer la messagerie.",
+  "chat.followBrokenMutual":
+    "Vous ne vous suivez plus mutuellement. Suivez-vous mutuellement à nouveau pour continuer à vous envoyer des messages.",
+  "chat.followBrokenYouUnfollowed":
+    "Vous ne suivez plus {name}. Suivez-vous mutuellement à nouveau pour continuer à vous envoyer des messages.",
+  "chat.followBrokenTheyUnfollowed":
+    "{name} ne vous suit plus. Suivez-vous mutuellement pour continuer à vous envoyer des messages.",
   "chat.slowDown": "Vous envoyez des messages trop vite. Ralentissez.",
   "chat.failedToSend": "Échec de l'envoi du message. Veuillez réessayer.",
   "chat.editWindowExpired":

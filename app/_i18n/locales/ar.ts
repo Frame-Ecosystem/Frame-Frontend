@@ -913,6 +913,12 @@ const ar: Record<string, string> = {
   "chat.mutualFollowRequired": "يجب أن تتابع بعضكما البعض لإرسال الرسائل",
   "chat.followBanner":
     "لم تعدا تتابعا بعضكما البعض. تابعا بعضكما البعض لتمكين الرسائل.",
+  "chat.followBrokenMutual":
+    "لم تعدا تتابعا بعضكما البعض. تابعا بعضكما البعض مرة أخرى لمتابعة الرسائل.",
+  "chat.followBrokenYouUnfollowed":
+    "لقد ألغيت متابعة {name}. تابعا بعضكما البعض مرة أخرى لمتابعة الرسائل.",
+  "chat.followBrokenTheyUnfollowed":
+    "{name} ألغى متابعتك. تابعا بعضكما البعض مرة أخرى لمتابعة الرسائل.",
   "chat.slowDown": "أنت ترسل رسائل بسرعة كبيرة. تباطأ.",
   "chat.failedToSend": "فشل إرسال الرسالة. يرجى المحاولة مرة أخرى.",
   "chat.editWindowExpired": "يمكنك تعديل الرسائل خلال 15 دقيقة فقط",

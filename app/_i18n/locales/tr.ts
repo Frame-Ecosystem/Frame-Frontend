@@ -926,6 +926,12 @@ const tr: Record<string, string> = {
     "Mesaj göndermek için birbirinizi takip etmelisiniz",
   "chat.followBanner":
     "Artık birbirinizi takip etmiyorsunuz. Mesajlaşmayı etkinleştirmek için birbirinizi takip edin.",
+  "chat.followBrokenMutual":
+    "Artık birbirinizi takip etmiyorsunuz. Mesajlaşmaya devam etmek için tekrar birbirinizi takip edin.",
+  "chat.followBrokenYouUnfollowed":
+    "{name} kullanıcısının takibini bıraktınız. Mesajlaşmaya devam etmek için tekrar birbirinizi takip edin.",
+  "chat.followBrokenTheyUnfollowed":
+    "{name} sizin takibinizi bıraktı. Mesajlaşmaya devam etmek için birbirinizi takip edin.",
   "chat.slowDown": "Çok hızlı mesaj gönderiyorsunuz. Yavaşlayın.",
   "chat.failedToSend": "Mesaj gönderilemedi. Lütfen tekrar deneyin.",
   "chat.editWindowExpired":

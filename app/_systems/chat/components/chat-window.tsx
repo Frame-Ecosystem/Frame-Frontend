@@ -61,12 +61,19 @@ export function ChatWindow({ conversationId, onBack }: ChatWindowProps) {
   const markRead = useMarkRead(conversationId)
   const { alertProps, showAlert } = useAlert()
 
-  const otherUserId = conversation?.participants.find(
+  const otherParticipant = conversation?.participants.find(
     (p) => p._id !== currentUserId,
-  )?._id
+  )
+  const otherUserId = otherParticipant?._id
 
   const { data: mutualFollow } = useMutualFollowCheck(otherUserId)
   const cannotSend = otherUserId != null && !mutualFollow?.mutualFollow
+
+  const otherUserName = otherParticipant
+    ? `${otherParticipant.firstName ?? ""} ${otherParticipant.lastName ?? ""}`.trim() ||
+      otherParticipant.loungeTitle ||
+      ""
+    : ""
 
   // ── Real-time ──────────────────────────────────────────────
 
@@ -266,20 +273,25 @@ export function ChatWindow({ conversationId, onBack }: ChatWindowProps) {
         onReact={handleReact}
       />
 
-      {/* Mutual follow broken banner */}
-      {cannotSend && <FollowBrokenBanner />}
-
-      {/* Input */}
-      <MessageInput
-        getParticipantName={getParticipantName}
-        editingMessage={editingMessage}
-        onCancelEdit={() => setEditingMessage(null)}
-        replyTo={replyTo}
-        onCancelReply={() => setReplyTo(null)}
-        onSend={handleSend}
-        onTyping={emitTyping}
-        disabled={sendMessage.isPending || cannotSend}
-      />
+      {/* Mutual follow broken — replaces input */}
+      {cannotSend ? (
+        <FollowBrokenBanner
+          aFollowsB={mutualFollow?.aFollowsB}
+          bFollowsA={mutualFollow?.bFollowsA}
+          otherUserName={otherUserName}
+        />
+      ) : (
+        <MessageInput
+          getParticipantName={getParticipantName}
+          editingMessage={editingMessage}
+          onCancelEdit={() => setEditingMessage(null)}
+          replyTo={replyTo}
+          onCancelReply={() => setReplyTo(null)}
+          onSend={handleSend}
+          onTyping={emitTyping}
+          disabled={sendMessage.isPending}
+        />
+      )}
 
       <AlertInfo {...alertProps} />
     </div>
