@@ -226,6 +226,7 @@ export default function SignUpForm({
 
   return (
     <form
+      dir="ltr"
       onSubmit={handleSubmit(onSubmit, () => setSubmitAttempted(true))}
       className="space-y-1.5"
     >

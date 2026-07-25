@@ -208,7 +208,7 @@ const SignInDialog = ({
   }
 
   return (
-    <>
+    <div dir="ltr">
       {/* Desktop header */}
       <div className="hidden w-full items-center justify-center p-5 md:flex">
         <DialogHeader className="flex w-full flex-col items-center">
@@ -280,150 +280,143 @@ const SignInDialog = ({
               </div>
             )}
 
-            {/* Hide form while checking existing session to avoid flicker */}
-            {!isCheckingSession && (
-              <form
-                onSubmit={handleSubmit(onSubmit, () =>
-                  setSubmitAttempted(true),
-                )}
-                className="space-y-4"
-              >
-                {/* Email / Phone */}
-                <div className="space-y-2">
-                  <Label htmlFor="emailOrPhone">
-                    {t("auth.signin.emailOrPhone")}
-                  </Label>
-                  <Controller
-                    control={control}
-                    name="emailOrPhone"
-                    render={({ field }) => (
-                      <div className="relative">
-                        {isPhone && (
-                          <div className="text-muted-foreground pointer-events-none absolute top-1/2 left-3 z-10 flex -translate-y-1/2 items-center gap-1 text-sm">
-                            <span className="font-medium">+216</span>
-                            <span className="bg-muted text-muted-foreground rounded px-1 py-0.5 text-xs">
-                              TN
-                            </span>
-                          </div>
-                        )}
-                        <Input
-                          id="emailOrPhone"
-                          type="text"
-                          placeholder={t("auth.signin.emailPhonePlaceholder")}
-                          value={field.value}
-                          onChange={(e) => {
-                            const raw = e.target.value
-                            setFormError("")
-
-                            if (
-                              raw.includes("@") ||
-                              EMAIL_CHAR_PATTERN.test(raw)
-                            ) {
-                              field.onChange(raw)
-                              return
-                            }
-
-                            field.onChange(
-                              raw.replace(/\D/g, "").slice(0, MAX_PHONE_DIGITS),
-                            )
-                          }}
-                          className={isPhone ? "pl-20" : ""}
-                          required
-                          autoComplete="username"
-                        />
-                      </div>
-                    )}
-                  />
-                  {errors.emailOrPhone?.message && (
-                    <p className="text-destructive text-sm">
-                      {errors.emailOrPhone.message}
-                    </p>
-                  )}
-                </div>
-
-                {/* Password */}
-                <div className="space-y-2">
-                  <Label htmlFor="password">{t("auth.signin.password")}</Label>
-                  <div className="relative">
-                    <Input
-                      id="password"
-                      type={showPassword ? "text" : "password"}
-                      placeholder="••••••••"
-                      required
-                      minLength={8}
-                      className="pr-10"
-                      autoComplete="current-password"
-                      {...register("password", {
-                        onChange: () => setFormError(""),
-                      })}
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowPassword((prev) => !prev)}
-                      className="text-muted-foreground hover:text-foreground absolute inset-y-0 right-0 flex items-center pr-3"
-                    >
-                      {showPassword ? (
-                        <EyeOff className="h-4 w-4" />
-                      ) : (
-                        <Eye className="h-4 w-4" />
+            <form
+              onSubmit={handleSubmit(onSubmit, () => setSubmitAttempted(true))}
+              className="space-y-4"
+            >
+              {/* Email / Phone */}
+              <div className="space-y-2">
+                <Label htmlFor="emailOrPhone">
+                  {t("auth.signin.emailOrPhone")}
+                </Label>
+                <Controller
+                  control={control}
+                  name="emailOrPhone"
+                  render={({ field }) => (
+                    <div className="relative">
+                      {isPhone && (
+                        <div className="text-muted-foreground pointer-events-none absolute top-1/2 left-3 z-10 flex -translate-y-1/2 items-center gap-1 text-sm">
+                          <span className="font-medium">+216</span>
+                          <span className="bg-muted text-muted-foreground rounded px-1 py-0.5 text-xs">
+                            TN
+                          </span>
+                        </div>
                       )}
-                    </button>
-                  </div>
-                  {errors.password?.message && (
-                    <p className="text-destructive text-sm">
-                      {errors.password.message}
-                    </p>
+                      <Input
+                        id="emailOrPhone"
+                        type="text"
+                        placeholder={t("auth.signin.emailPhonePlaceholder")}
+                        value={field.value}
+                        onChange={(e) => {
+                          const raw = e.target.value
+                          setFormError("")
+
+                          if (
+                            raw.includes("@") ||
+                            EMAIL_CHAR_PATTERN.test(raw)
+                          ) {
+                            field.onChange(raw)
+                            return
+                          }
+
+                          field.onChange(
+                            raw.replace(/\D/g, "").slice(0, MAX_PHONE_DIGITS),
+                          )
+                        }}
+                        className={isPhone ? "pl-20" : ""}
+                        required
+                        autoComplete="username"
+                      />
+                    </div>
                   )}
-                </div>
-
-                {formError && (
-                  <p className="text-destructive text-sm">{formError}</p>
+                />
+                {errors.emailOrPhone?.message && (
+                  <p className="text-destructive text-sm">
+                    {errors.emailOrPhone.message}
+                  </p>
                 )}
+              </div>
 
-                <Button
-                  type="submit"
-                  className="w-full"
-                  disabled={
-                    loading || isLocked || (!isValid && submitAttempted)
-                  }
-                  onClick={() => setSubmitAttempted(true)}
+              {/* Password */}
+              <div className="space-y-2">
+                <Label htmlFor="password">{t("auth.signin.password")}</Label>
+                <div className="relative">
+                  <Input
+                    id="password"
+                    type={showPassword ? "text" : "password"}
+                    placeholder="••••••••"
+                    required
+                    minLength={8}
+                    className="pr-10"
+                    autoComplete="current-password"
+                    {...register("password", {
+                      onChange: () => setFormError(""),
+                    })}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword((prev) => !prev)}
+                    className="text-muted-foreground hover:text-foreground absolute inset-y-0 right-0 flex items-center pr-3"
+                  >
+                    {showPassword ? (
+                      <EyeOff className="h-4 w-4" />
+                    ) : (
+                      <Eye className="h-4 w-4" />
+                    )}
+                  </button>
+                </div>
+                {errors.password?.message && (
+                  <p className="text-destructive text-sm">
+                    {errors.password.message}
+                  </p>
+                )}
+              </div>
+
+              {formError && (
+                <p className="text-destructive text-sm">{formError}</p>
+              )}
+
+              <Button
+                type="submit"
+                className="w-full"
+                disabled={loading || isLocked || (!isValid && submitAttempted)}
+                onClick={() => setSubmitAttempted(true)}
+              >
+                {isLocked
+                  ? t("auth.rateLimit", {
+                      remainingSeconds: String(remainingSeconds),
+                    })
+                  : loading
+                    ? t("common.loading")
+                    : t("auth.signin.submit")}
+              </Button>
+
+              <div className="text-center">
+                <button
+                  type="button"
+                  onClick={handleForgotPassword}
+                  className="text-primary text-sm hover:underline"
                 >
-                  {isLocked
-                    ? t("auth.rateLimit", {
-                        remainingSeconds: String(remainingSeconds),
-                      })
-                    : loading
-                      ? t("common.loading")
-                      : t("auth.signin.submit")}
-                </Button>
+                  {t("auth.signin.forgotPassword")}
+                </button>
+              </div>
 
-                <div className="text-center">
-                  <button
-                    type="button"
-                    onClick={handleForgotPassword}
-                    className="text-primary text-sm hover:underline"
-                  >
-                    {t("auth.signin.forgotPassword")}
-                  </button>
-                </div>
+              <GoogleButton onClick={handleGoogleSignIn} />
 
-                <GoogleButton onClick={handleGoogleSignIn} />
-
-                <div className="text-center text-sm">
-                  <button
-                    type="button"
-                    onClick={handleSignUp}
-                    className="text-primary hover:underline"
-                  >
-                    {t("auth.signin.dontHaveAccount")} {t("auth.signin.signup")}
-                  </button>
-                </div>
-              </form>
-            )}
+              <div className="text-center text-sm">
+                <button
+                  type="button"
+                  onClick={handleSignUp}
+                  className="text-primary hover:underline"
+                >
+                  {t("auth.signin.dontHaveAccount")} {t("auth.signin.signup")}
+                </button>
+              </div>
+            </form>
           </>
         )}
       </div>
-    </>
+    </div>
   )
 }
 

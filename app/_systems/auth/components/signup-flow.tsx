@@ -55,7 +55,7 @@ export default function SignupFlow({
 
   if (!selectedType) {
     return (
-      <>
+      <div dir="ltr">
         <DialogHeader>
           <DialogTitle className="text-center">
             {t("auth.signup.chooseAccountType")}
@@ -141,13 +141,13 @@ export default function SignupFlow({
             </div>
           )}
         </div>
-      </>
+      </div>
     )
   }
 
   if (waitingForVerification) {
     return (
-      <>
+      <div dir="ltr">
         <DialogHeader>
           <DialogTitle className="text-center">
             {t("auth.signup.checkEmail")}
@@ -191,12 +191,12 @@ export default function SignupFlow({
             </div>
           </div>
         </div>
-      </>
+      </div>
     )
   }
 
   return (
-    <>
+    <div dir="ltr">
       <DialogHeader>
         <DialogTitle className="text-center">
           {t("auth.signup.createAccount")}
@@ -216,6 +216,6 @@ export default function SignupFlow({
           onOpenSignInFlow={onOpenSignInFlow}
         />
       </div>
-    </>
+    </div>
   )
 }
