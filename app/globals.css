@@ -570,6 +570,17 @@
 [dir="rtl"] [class*=" pr-10"] { padding-inline-start: 2.5rem; padding-right: unset; }
 [dir="rtl"] [class*=" pr-20"] { padding-inline-start: 5rem; padding-right: unset; }
 
+/* Flip right-* (absolute/inset) to inset-inline-end in RTL */
+[dir="rtl"] [class*=" right-0"] { inset-inline-end: 0; right: unset; }
+[dir="rtl"] [class*=" right-3"] { inset-inline-end: 0.75rem; right: unset; }
+[dir="rtl"] [class*=" right-4"] { inset-inline-end: 1rem; right: unset; }
+
+/* Flip left-* (absolute/inset) to inset-inline-start in RTL */
+[dir="rtl"] [class*=" left-0"] { inset-inline-start: 0; left: unset; }
+[dir="rtl"] [class*=" left-3"] { inset-inline-start: 0.75rem; left: unset; }
+[dir="rtl"] [class*=" left-4"] { inset-inline-start: 1rem; left: unset; }
+[dir="rtl"] [class*=" left-1/2"] { inset-inline-start: 50%; left: unset; }
+
 /* Text alignment: flip text-left/text-right to logical equivalents */
 [dir="rtl"] [class*="text-left"] { text-align: start !important; }
 [dir="rtl"] [class*="text-right"] { text-align: end !important; }

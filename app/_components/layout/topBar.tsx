@@ -47,7 +47,7 @@ const TopBar: React.FC<TopBarProps> = ({
       </div>
 
       {/* RIGHT SIDE: Actions */}
-      <div className="ml-auto flex items-center gap-1.5 md:gap-2">
+      <div className="mr-2 ml-auto flex items-center gap-1.5 md:mr-3 md:gap-2">
         {/* Get Started (unauthenticated) */}
         {(showGetStarted ?? !user) && !(externalIsLoading ?? false) && (
           <Button
