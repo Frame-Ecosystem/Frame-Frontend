@@ -3,22 +3,7 @@
 import { useEffect } from "react"
 import { usePathname, useRouter } from "next/navigation"
 import { useAuth } from "@/app/_auth"
-
-const PUBLIC_ROUTES = [
-  "/",
-  "/auth/google/callback",
-  "/auth/google/done",
-  "/auth/google/error",
-  "/auth/forgot-password",
-  "/auth/reset-password",
-  "/auth/verify",
-  "/auth/check-email",
-  "/sentry-example-page",
-]
-
-function isPublicRoute(pathname: string): boolean {
-  return PUBLIC_ROUTES.includes(pathname)
-}
+import { isPublicRoute } from "@/app/_auth/constants"
 
 export default function AuthGuard({ children }: { children: React.ReactNode }) {
   const { user, isLoading } = useAuth()
@@ -39,5 +24,5 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
   // On protected routes without auth, render nothing (redirect is in progress)
   if (!user && !isPublicRoute(pathname)) return null
 
-  return <>{children}</>
+  return children
 }

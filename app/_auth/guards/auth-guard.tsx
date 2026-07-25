@@ -3,24 +3,9 @@
 import { useEffect } from "react"
 import { usePathname, useRouter } from "next/navigation"
 import { useAuth } from "@/app/_auth"
+import { isPublicRoute } from "@/app/_auth/constants"
 import { Skeleton } from "@/app/_components/ui/skeleton"
 import { Loader2 } from "lucide-react"
-
-const PUBLIC_ROUTES = [
-  "/",
-  "/auth/google/callback",
-  "/auth/google/done",
-  "/auth/google/error",
-  "/auth/forgot-password",
-  "/auth/reset-password",
-  "/auth/verify",
-  "/auth/check-email",
-  "/sentry-example-page",
-]
-
-function isPublicRoute(pathname: string): boolean {
-  return PUBLIC_ROUTES.includes(pathname)
-}
 
 /** Content-shaped skeleton shown while the session restore runs in the background. */
 function SessionRestoreSkeleton() {
@@ -52,7 +37,7 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
   }, [isLoading, user, publicRoute, router])
 
   // Public routes must render immediately to avoid intermittent white screens.
-  if (isLoading && publicRoute) return <>{children}</>
+  if (isLoading && publicRoute) return children
 
   // While restoring session on a protected route, show a skeleton (not blank text).
   if (isLoading) return <SessionRestoreSkeleton />
@@ -71,5 +56,5 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
     )
   }
 
-  return <>{children}</>
+  return children
 }

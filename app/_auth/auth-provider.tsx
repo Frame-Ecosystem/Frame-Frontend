@@ -36,6 +36,7 @@ import { useTheme } from "next-themes"
 import { useTranslation } from "../_i18n"
 import type { Locale } from "../_i18n"
 import { reportError } from "../_lib/report-error"
+import { isPublicRoute } from "./constants"
 
 /** Default token lifetime (seconds) when backend doesn't provide expiresIn. */
 const DEFAULT_EXPIRES_IN = 900
@@ -54,7 +55,7 @@ function withTimeout<T>(
   ms: number,
   label: string,
 ): Promise<T> {
-  let timer: ReturnType<typeof setTimeout>
+  let timer: ReturnType<typeof setTimeout> | undefined
   return Promise.race([
     promise,
     new Promise<T>((_, reject) => {
@@ -63,20 +64,10 @@ function withTimeout<T>(
         ms,
       )
     }),
-  ]).finally(() => clearTimeout(timer))
+  ]).finally(() => {
+    if (timer !== undefined) clearTimeout(timer)
+  })
 }
-
-const PUBLIC_ROUTES = [
-  "/",
-  "/auth/google/callback",
-  "/auth/google/done",
-  "/auth/google/error",
-  "/auth/forgot-password",
-  "/auth/reset-password",
-  "/auth/verify",
-  "/auth/check-email",
-  "/sentry-example-page",
-]
 
 function isAuthDebugEnabled(): boolean {
   if (typeof window === "undefined") return false
@@ -121,13 +112,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const router = useRouter()
   const pathname = usePathname()
 
-  const isPublicRoute = useCallback(
-    (path: string | null): boolean => {
-      if (!path) return false
-      return PUBLIC_ROUTES.includes(path)
-    },
-    [PUBLIC_ROUTES],
-  )
+  // isPublicRoute is a module-level pure function — no callback wrapper needed
 
   // Apply user's saved theme preference
   const applyUserTheme = useCallback(
@@ -503,7 +488,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
 
     bootstrapAuth()
-  }, [isPublicRoute, pathname, restoreSession, user])
+  }, [pathname, restoreSession, user])
 
   // ── Cross-tab sync via StorageEvent on `hasRefreshToken` flag ──
 
