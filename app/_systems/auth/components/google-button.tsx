@@ -19,12 +19,12 @@ const GoogleButton: React.FC<GoogleButtonProps> = ({
   return (
     <>
       {/* Divider */}
-      <div className="relative">
+      <div className="relative py-1">
         <div className="absolute inset-0 flex items-center">
-          <span className="w-full border-t" />
+          <span className="border-border/60 w-full border-t" />
         </div>
         <div className="relative flex justify-center text-xs uppercase">
-          <span className="bg-background text-muted-foreground px-2">
+          <span className="bg-background text-muted-foreground px-3 text-[11px] font-medium tracking-wider">
             {t("auth.orContinueWith")}
           </span>
         </div>
@@ -34,11 +34,11 @@ const GoogleButton: React.FC<GoogleButtonProps> = ({
       <Button
         type="button"
         variant="outline"
-        className={`w-full ${className}`}
+        className={`border-border/70 hover:bg-muted/50 h-11 w-full rounded-lg text-sm font-medium transition-all duration-200 ${className}`}
         onClick={onClick}
         disabled={disabled}
       >
-        <svg className="mr-2 h-4 w-4" viewBox="0 0 24 24" aria-hidden>
+        <svg className="mr-2.5 h-4 w-4" viewBox="0 0 24 24" aria-hidden>
           <path
             fill="#4285F4"
             d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"

@@ -446,7 +446,7 @@ const tr: Record<string, string> = {
   "auth.signup.creatingAccount": "Hesap oluşturuluyor...",
   "auth.signup.submit": "Kayıt Ol",
   "auth.signup.hasAccount": "Zaten hesabınız var mı? Giriş yapın",
-  "auth.signin.title": "Frame'e Giriş Yap",
+  "auth.signin.title": "Giriş Yap",
   "auth.signin.emailOrPhone": "E-posta veya Telefon Numarası",
   "auth.signin.emailPhonePlaceholder": "siz@ornek.com veya 50123456",
   "auth.signin.password": "Şifre",

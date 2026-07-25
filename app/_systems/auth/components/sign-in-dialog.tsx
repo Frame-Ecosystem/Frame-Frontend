@@ -9,7 +9,7 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { Button } from "@/app/_components/ui/button"
 import { Input } from "@/app/_components/ui/input"
 import { Label } from "@/app/_components/ui/label"
-import { DialogHeader, DialogTitle } from "@/app/_components/ui/dialog"
+import { DialogTitle } from "@/app/_components/ui/dialog"
 import openGoogleOAuthPopup, {
   handleGoogleAuthResult,
 } from "../lib/google-popup"
@@ -79,7 +79,7 @@ const SignInDialog = ({
   const router = useRouter()
   const { setAuth } = useAuth()
   const signInMutation = useSignIn()
-  const { t } = useTranslation()
+  const { t, isRTL } = useTranslation()
 
   const [loading, setLoading] = useState(false)
   const [continuingSession, setContinuingSession] = useState(false)
@@ -208,32 +208,25 @@ const SignInDialog = ({
   }
 
   return (
-    <div dir="ltr">
-      {/* Desktop header */}
-      <div className="hidden w-full items-center justify-center p-5 md:flex">
-        <DialogHeader className="flex w-full flex-col items-center">
-          <DialogTitle className="w-full text-center text-lg font-bold">
-            {t("auth.signin.title")}
-          </DialogTitle>
-        </DialogHeader>
+    <div dir="ltr" className="flex flex-col items-center">
+      {/* Header — centered for both Latin and Arabic */}
+      <div className="w-full text-center">
+        <DialogTitle className="text-xl font-semibold tracking-tight sm:text-2xl">
+          {t("auth.signin.title")}
+        </DialogTitle>
       </div>
 
-      {/* Mobile header */}
-      <DialogHeader className="md:hidden">
-        <DialogTitle>{t("auth.signin.title")}</DialogTitle>
-      </DialogHeader>
-
-      <div className="space-y-4">
-        {/* Continue with Session Banner (shown after session is found) */}
+      <div className="mt-8 w-full space-y-5">
+        {/* Continue with Session Banner */}
         {!isCheckingSession && sessionUser && (
-          <div className="border-border/50 bg-muted/30 space-y-3 rounded-lg border p-4">
-            <p className="text-muted-foreground text-xs">
+          <div className="bg-muted/40 border-border/60 space-y-3 rounded-xl border p-4 backdrop-blur-sm">
+            <p className="text-muted-foreground text-center text-xs">
               {t("auth.signin.existingSessionFound")}
             </p>
             <Button
               onClick={handleContinueSession}
               disabled={continuingSession}
-              className="w-full"
+              className="h-11 w-full rounded-lg text-sm font-medium transition-all duration-200"
               variant="default"
             >
               {continuingSession && (
@@ -257,23 +250,22 @@ const SignInDialog = ({
             <Button
               onClick={handleSignInDifferent}
               disabled={continuingSession}
-              className="w-full"
+              className="h-10 w-full rounded-lg text-xs font-medium"
               variant="outline"
               size="sm"
             >
-              <LogOut className="mr-2 h-4 w-4" />
+              <LogOut className="mr-2 h-3.5 w-3.5" />
               {t("auth.signin.signInDifferent")}
             </Button>
           </div>
         )}
 
-        {/* Sign-in Form (always shown unless user continues with session) */}
+        {/* Sign-in Form */}
         {!sessionUser && (
           <>
-            {/* Session Checking Indicator (non-blocking) */}
             {isCheckingSession && (
-              <div className="border-border/50 bg-muted/30 flex items-center justify-center gap-2 rounded-lg border py-3">
-                <Loader2 className="h-3.5 w-3.5 animate-spin" />
+              <div className="bg-muted/40 border-border/60 flex items-center justify-center gap-2 rounded-xl border py-3 backdrop-blur-sm">
+                <Loader2 className="text-muted-foreground h-3.5 w-3.5 animate-spin" />
                 <span className="text-muted-foreground text-xs">
                   {t("auth.signin.checkingSession")}
                 </span>
@@ -286,7 +278,10 @@ const SignInDialog = ({
             >
               {/* Email / Phone */}
               <div className="space-y-2">
-                <Label htmlFor="emailOrPhone">
+                <Label
+                  htmlFor="emailOrPhone"
+                  className={`text-foreground/80 text-xs font-medium tracking-wider uppercase ${isRTL ? "text-right" : ""}`}
+                >
                   {t("auth.signin.emailOrPhone")}
                 </Label>
                 <Controller
@@ -295,9 +290,9 @@ const SignInDialog = ({
                   render={({ field }) => (
                     <div className="relative">
                       {isPhone && (
-                        <div className="text-muted-foreground pointer-events-none absolute top-1/2 left-3 z-10 flex -translate-y-1/2 items-center gap-1 text-sm">
+                        <div className="text-muted-foreground pointer-events-none absolute top-1/2 left-3 z-10 flex -translate-y-1/2 items-center gap-1.5 text-sm">
                           <span className="font-medium">+216</span>
-                          <span className="bg-muted text-muted-foreground rounded px-1 py-0.5 text-xs">
+                          <span className="bg-muted/80 text-muted-foreground rounded-md px-1.5 py-0.5 text-[10px] font-semibold uppercase">
                             TN
                           </span>
                         </div>
@@ -323,7 +318,7 @@ const SignInDialog = ({
                             raw.replace(/\D/g, "").slice(0, MAX_PHONE_DIGITS),
                           )
                         }}
-                        className={isPhone ? "pl-20" : ""}
+                        className={`border-border/70 bg-background/50 placeholder:text-muted-foreground/50 focus:border-primary/50 focus:ring-primary/20 h-11 rounded-lg text-sm transition-all duration-200 focus:ring-2 ${isRTL ? "text-right placeholder:text-right" : ""} ${isPhone ? "pl-20" : ""}`}
                         required
                         autoComplete="username"
                       />
@@ -331,7 +326,7 @@ const SignInDialog = ({
                   )}
                 />
                 {errors.emailOrPhone?.message && (
-                  <p className="text-destructive text-sm">
+                  <p className="text-destructive flex items-center gap-1.5 text-xs">
                     {errors.emailOrPhone.message}
                   </p>
                 )}
@@ -339,7 +334,21 @@ const SignInDialog = ({
 
               {/* Password */}
               <div className="space-y-2">
-                <Label htmlFor="password">{t("auth.signin.password")}</Label>
+                <div className="flex items-center justify-between">
+                  <Label
+                    htmlFor="password"
+                    className={`text-foreground/80 text-xs font-medium tracking-wider uppercase ${isRTL ? "text-right" : ""}`}
+                  >
+                    {t("auth.signin.password")}
+                  </Label>
+                  <button
+                    type="button"
+                    onClick={handleForgotPassword}
+                    className="text-primary/80 hover:text-primary text-xs font-medium transition-colors duration-200"
+                  >
+                    {t("auth.signin.forgotPassword")}
+                  </button>
+                </div>
                 <div className="relative">
                   <Input
                     id="password"
@@ -347,7 +356,7 @@ const SignInDialog = ({
                     placeholder="••••••••"
                     required
                     minLength={8}
-                    className="pr-10"
+                    className={`border-border/70 bg-background/50 placeholder:text-muted-foreground/50 focus:border-primary/50 focus:ring-primary/20 h-11 rounded-lg text-sm transition-all duration-200 focus:ring-2 ${isRTL ? "pl-10 text-right placeholder:text-right" : "pr-10"}`}
                     autoComplete="current-password"
                     {...register("password", {
                       onChange: () => setFormError(""),
@@ -356,7 +365,7 @@ const SignInDialog = ({
                   <button
                     type="button"
                     onClick={() => setShowPassword((prev) => !prev)}
-                    className="text-muted-foreground hover:text-foreground absolute inset-y-0 right-0 flex items-center pr-3"
+                    className={`text-muted-foreground hover:text-foreground absolute inset-y-0 flex items-center transition-colors duration-200 ${isRTL ? "left-0 pl-3" : "right-0 pr-3"}`}
                   >
                     {showPassword ? (
                       <EyeOff className="h-4 w-4" />
@@ -366,19 +375,23 @@ const SignInDialog = ({
                   </button>
                 </div>
                 {errors.password?.message && (
-                  <p className="text-destructive text-sm">
+                  <p className="text-destructive flex items-center gap-1.5 text-xs">
                     {errors.password.message}
                   </p>
                 )}
               </div>
 
+              {/* Form-level error */}
               {formError && (
-                <p className="text-destructive text-sm">{formError}</p>
+                <div className="bg-destructive/10 text-destructive rounded-lg px-3 py-2.5 text-xs">
+                  {formError}
+                </div>
               )}
 
+              {/* Submit */}
               <Button
                 type="submit"
-                className="w-full"
+                className="h-11 w-full rounded-lg text-sm font-semibold tracking-wide transition-all duration-200"
                 disabled={loading || isLocked || (!isValid && submitAttempted)}
                 onClick={() => setSubmitAttempted(true)}
               >
@@ -391,27 +404,19 @@ const SignInDialog = ({
                     : t("auth.signin.submit")}
               </Button>
 
-              <div className="text-center">
-                <button
-                  type="button"
-                  onClick={handleForgotPassword}
-                  className="text-primary text-sm hover:underline"
-                >
-                  {t("auth.signin.forgotPassword")}
-                </button>
-              </div>
-
               <GoogleButton onClick={handleGoogleSignIn} />
 
-              <div className="text-center text-sm">
+              {/* Sign up link */}
+              <p className="text-muted-foreground text-center text-sm">
+                {t("auth.signin.dontHaveAccount")}{" "}
                 <button
                   type="button"
                   onClick={handleSignUp}
-                  className="text-primary hover:underline"
+                  className="text-primary hover:text-primary/80 font-semibold transition-colors duration-200"
                 >
-                  {t("auth.signin.dontHaveAccount")} {t("auth.signin.signup")}
+                  {t("auth.signin.signup")}
                 </button>
-              </div>
+              </p>
             </form>
           </>
         )}

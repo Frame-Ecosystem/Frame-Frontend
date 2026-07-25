@@ -609,7 +609,7 @@ const fr: Record<string, string> = {
   "auth.signup.creatingAccount": "Création du compte...",
   "auth.signup.submit": "S'inscrire",
   "auth.signup.hasAccount": "Vous avez déjà un compte ? Connectez-vous",
-  "auth.signin.title": "Se connecter à Frame",
+  "auth.signin.title": "Se connecter",
   "auth.signin.emailOrPhone": "E-mail ou numéro de téléphone",
   "auth.signin.emailPhonePlaceholder": "vous@exemple.com ou 50123456",
   "auth.signin.password": "Mot de passe",

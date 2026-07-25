@@ -615,7 +615,7 @@ const en: Record<string, string> = {
   "auth.signup.creatingAccount": "Creating account...",
   "auth.signup.submit": "Sign Up",
   "auth.signup.hasAccount": "Already have an account? Sign in",
-  "auth.signin.title": "Sign In to Frame",
+  "auth.signin.title": "Sign In",
   "auth.signin.emailOrPhone": "Email or Phone Number",
   "auth.signin.emailPhonePlaceholder": "you@example.com or 50123456",
   "auth.signin.password": "Password",

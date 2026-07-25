@@ -585,7 +585,7 @@ const ar: Record<string, string> = {
   "auth.signup.creatingAccount": "جارٍ إنشاء الحساب...",
   "auth.signup.submit": "إنشاء حساب",
   "auth.signup.hasAccount": "لديك حساب بالفعل؟ سجّل الدخول",
-  "auth.signin.title": "تسجيل الدخول إلى Frame",
+  "auth.signin.title": "تسجيل الدخول",
   "auth.signin.emailOrPhone": "البريد الإلكتروني أو رقم الهاتف",
   "auth.signin.emailPhonePlaceholder": "you@example.com أو 50123456",
   "auth.signin.password": "كلمة المرور",

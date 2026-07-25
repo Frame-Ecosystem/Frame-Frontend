@@ -5,11 +5,7 @@ import Image from "next/image"
 import { Card } from "@/app/_components/ui/card"
 import { Button } from "@/app/_components/ui/button"
 import SignUpForm from "./sign-up-form"
-import {
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-} from "@/app/_components/ui/dialog"
+import { DialogTitle, DialogDescription } from "@/app/_components/ui/dialog"
 import { useAuth } from "@/app/_auth"
 import { Mail } from "lucide-react"
 import { useTranslation } from "@/app/_i18n"
@@ -55,38 +51,43 @@ export default function SignupFlow({
 
   if (!selectedType) {
     return (
-      <div dir="ltr">
-        <DialogHeader>
-          <DialogTitle className="text-center">
+      <div dir="ltr" className="flex flex-col items-center">
+        {/* Header — centered for both Latin and Arabic */}
+        <div className="w-full text-center">
+          <DialogTitle className="text-xl font-semibold tracking-tight sm:text-2xl">
             {t("auth.signup.chooseAccountType")}
           </DialogTitle>
-          <DialogDescription className="text-center">
+          <DialogDescription className="text-muted-foreground mt-2 text-sm">
             {t("auth.signup.pickExperience")}
           </DialogDescription>
-        </DialogHeader>
-        <div className="w-full">
+        </div>
+
+        <div className="mt-8 w-full">
           <div className="flex flex-row justify-center gap-4 sm:gap-6">
+            {/* Client Card */}
             <div className="flex flex-col items-center gap-4">
               <Card
-                className={`flex w-auto max-w-[200px] flex-shrink-0 cursor-pointer flex-col items-center gap-4 p-6 transition-all duration-300 hover:shadow-lg sm:p-8 ${
+                className={`flex w-auto max-w-[200px] flex-shrink-0 cursor-pointer flex-col items-center gap-4 rounded-2xl p-6 transition-all duration-300 hover:shadow-lg sm:p-8 ${
                   focusedCard === "client"
-                    ? "ring-primary scale-105 shadow-lg ring-2"
-                    : "hover:scale-102"
+                    ? "bg-primary/5 ring-primary scale-105 shadow-lg ring-2"
+                    : "hover:bg-muted/50 hover:scale-[1.02]"
                 }`}
                 onClick={() => setFocusedCard("client")}
               >
-                <Image
-                  src="/images/clientType.png"
-                  alt="Client"
-                  width={80}
-                  height={80}
-                  className="h-16 w-16 rounded-md object-contain sm:h-20 sm:w-20"
-                />
-                <p className="text-bold text-center">
+                <div className="bg-muted/50 flex h-20 w-20 items-center justify-center rounded-2xl sm:h-24 sm:w-24">
+                  <Image
+                    src="/images/clientType.png"
+                    alt="Client"
+                    width={80}
+                    height={80}
+                    className="h-14 w-14 object-contain sm:h-16 sm:w-16"
+                  />
+                </div>
+                <p className="text-foreground text-center text-sm font-medium">
                   {t("auth.signup.continueAs")}
                 </p>
                 <Button
-                  className="w-full text-sm sm:text-base"
+                  className="h-10 w-full rounded-lg text-sm font-medium transition-all duration-200"
                   onClick={(e) => {
                     e.stopPropagation()
                     setFocusedCard("client")
@@ -97,27 +98,30 @@ export default function SignupFlow({
               </Card>
             </div>
 
+            {/* Lounge Card */}
             <div className="flex flex-col items-center gap-4">
               <Card
-                className={`flex w-auto max-w-[200px] flex-shrink-0 cursor-pointer flex-col items-center gap-4 p-6 transition-all duration-300 hover:shadow-lg sm:p-8 ${
+                className={`flex w-auto max-w-[200px] flex-shrink-0 cursor-pointer flex-col items-center gap-4 rounded-2xl p-6 transition-all duration-300 hover:shadow-lg sm:p-8 ${
                   focusedCard === "lounge"
-                    ? "ring-primary scale-105 shadow-lg ring-2"
-                    : "hover:scale-102"
+                    ? "bg-primary/5 ring-primary scale-105 shadow-lg ring-2"
+                    : "hover:bg-muted/50 hover:scale-[1.02]"
                 }`}
                 onClick={() => setFocusedCard("lounge")}
               >
-                <Image
-                  src="/images/loungeType.png"
-                  alt="Lounge"
-                  width={80}
-                  height={80}
-                  className="h-16 w-16 rounded-md object-contain sm:h-20 sm:w-20"
-                />
-                <p className="text-bold text-center">
+                <div className="bg-muted/50 flex h-20 w-20 items-center justify-center rounded-2xl sm:h-24 sm:w-24">
+                  <Image
+                    src="/images/loungeType.png"
+                    alt="Lounge"
+                    width={80}
+                    height={80}
+                    className="h-14 w-14 object-contain sm:h-16 sm:w-16"
+                  />
+                </div>
+                <p className="text-foreground text-center text-sm font-medium">
                   {t("auth.signup.continueAs")}
                 </p>
                 <Button
-                  className="color-primary w-full text-sm sm:text-base"
+                  className="h-10 w-full rounded-lg text-sm font-medium transition-all duration-200"
                   onClick={(e) => {
                     e.stopPropagation()
                     setFocusedCard("lounge")
@@ -129,11 +133,11 @@ export default function SignupFlow({
             </div>
           </div>
 
-          {/* Next button at bottom right */}
+          {/* Next button */}
           {focusedCard && (
-            <div className="mt-6 flex justify-end">
+            <div className="mt-8 flex justify-center">
               <Button
-                className="bg-primary hover:bg-primary/90 text-primary-foreground px-8"
+                className="h-11 w-full max-w-xs rounded-lg px-8 text-sm font-semibold tracking-wide transition-all duration-200 sm:max-w-sm"
                 onClick={() => setSelectedType(focusedCard)}
               >
                 {t("common.next")}
@@ -147,48 +151,50 @@ export default function SignupFlow({
 
   if (waitingForVerification) {
     return (
-      <div dir="ltr">
-        <DialogHeader>
-          <DialogTitle className="text-center">
+      <div dir="ltr" className="flex flex-col items-center">
+        {/* Header — centered */}
+        <div className="w-full text-center">
+          <DialogTitle className="text-xl font-semibold tracking-tight sm:text-2xl">
             {t("auth.signup.checkEmail")}
           </DialogTitle>
-          <DialogDescription className="text-center">
+          <DialogDescription className="text-muted-foreground mt-2 text-sm">
             {t("auth.signup.verificationSent", { email: signupEmail })}
           </DialogDescription>
-        </DialogHeader>
-        <div className="mx-auto w-full max-w-md space-y-4 px-4 text-center sm:space-y-6">
-          <div className="rounded-lg border border-blue-200 bg-blue-50 p-4 sm:p-6">
-            <Mail className="mx-auto mb-3 h-10 w-10 text-blue-500 sm:mb-4 sm:h-12 sm:w-12" />
-            <h3 className="mb-2 text-base font-semibold text-blue-900 sm:text-lg">
+        </div>
+
+        <div className="mx-auto mt-8 w-full max-w-md space-y-5 px-4 text-center sm:space-y-6">
+          <div className="rounded-2xl border border-blue-200/60 bg-blue-50/50 p-5 backdrop-blur-sm sm:p-6 dark:border-blue-900/40 dark:bg-blue-950/30">
+            <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-blue-100 sm:mb-5 sm:h-16 sm:w-16 dark:bg-blue-900/50">
+              <Mail className="h-7 w-7 text-blue-500 sm:h-8 sm:w-8" />
+            </div>
+            <h3 className="text-foreground mb-2 text-base font-semibold sm:text-lg">
               {t("auth.signup.verificationEmailSent")}
             </h3>
-            <p className="mb-3 text-xs text-blue-700 sm:mb-4 sm:text-sm">
+            <p className="text-muted-foreground mb-4 text-xs sm:text-sm">
               {t("auth.signup.clickLink")}
             </p>
-            <div className="flex items-center justify-center space-x-2 text-blue-600">
-              <div className="h-3 w-3 animate-pulse rounded-full bg-blue-400 sm:h-4 sm:w-4" />
-              <span className="text-xs sm:text-sm">
+            <div className="text-primary flex items-center justify-center gap-2">
+              <div className="bg-primary h-2 w-2 animate-pulse rounded-full" />
+              <span className="text-xs font-medium sm:text-sm">
                 {t("auth.signup.waitingVerification")}
               </span>
             </div>
           </div>
 
           <div className="space-y-3">
-            <p className="text-xs text-gray-600 sm:text-sm">
+            <p className="text-muted-foreground text-xs sm:text-sm">
               {t("auth.signup.didntReceive")}
             </p>
-            <div className="flex gap-2">
-              <Button
-                variant="outline"
-                onClick={() => {
-                  setWaitingForVerification(false)
-                  setSignupEmail("")
-                }}
-                className="flex-1 text-xs sm:text-sm"
-              >
-                {t("auth.signup.tryDifferentEmail")}
-              </Button>
-            </div>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setWaitingForVerification(false)
+                setSignupEmail("")
+              }}
+              className="h-10 w-full rounded-lg text-xs font-medium sm:text-sm"
+            >
+              {t("auth.signup.tryDifferentEmail")}
+            </Button>
           </div>
         </div>
       </div>
@@ -196,13 +202,14 @@ export default function SignupFlow({
   }
 
   return (
-    <div dir="ltr">
-      <DialogHeader>
-        <DialogTitle className="text-center">
+    <div dir="ltr" className="flex flex-col items-center">
+      {/* Header — centered for both Latin and Arabic */}
+      <div className="w-full text-center">
+        <DialogTitle className="text-xl font-semibold tracking-tight sm:text-2xl">
           {t("auth.signup.createAccount")}
         </DialogTitle>
-      </DialogHeader>
-      <div className="mx-auto w-full max-w-md px-4">
+      </div>
+      <div className="mx-auto mt-8 w-full max-w-md px-4">
         <SignUpForm
           onSuccess={(email?: string) => {
             if (email) {

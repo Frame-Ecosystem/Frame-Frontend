@@ -53,7 +53,7 @@ export default function SignUpForm({
   const { setAuth } = useAuth()
   const router = useRouter()
   const signUpMutation = useSignUp()
-  const { t } = useTranslation()
+  const { t, isRTL } = useTranslation()
 
   const signUpSchema = useMemo(
     () =>
@@ -228,14 +228,20 @@ export default function SignUpForm({
     <form
       dir="ltr"
       onSubmit={handleSubmit(onSubmit, () => setSubmitAttempted(true))}
-      className="space-y-1.5"
+      className="space-y-4"
     >
-      <div className="space-y-1">
-        <Label htmlFor="phoneNumber">{t("auth.signup.phoneNumber")}</Label>
+      {/* Phone Number */}
+      <div className="space-y-2">
+        <Label
+          htmlFor="phoneNumber"
+          className={`text-foreground/80 text-xs font-medium tracking-wider uppercase ${isRTL ? "text-right" : ""}`}
+        >
+          {t("auth.signup.phoneNumber")}
+        </Label>
         <div className="relative">
-          <div className="text-muted-foreground pointer-events-none absolute top-1/2 left-3 flex -translate-y-1/2 items-center gap-1 text-sm">
+          <div className="text-muted-foreground pointer-events-none absolute top-1/2 left-3 z-10 flex -translate-y-1/2 items-center gap-1.5 text-sm">
             <span className="font-medium">+216</span>
-            <span className="bg-muted text-muted-foreground rounded px-1 py-0.5 text-xs">
+            <span className="bg-muted/80 text-muted-foreground rounded-md px-1.5 py-0.5 text-[10px] font-semibold uppercase">
               TN
             </span>
           </div>
@@ -254,7 +260,7 @@ export default function SignUpForm({
                   setFormError("")
                   field.onChange(limitedValue)
                 }}
-                className="pl-20"
+                className={`border-border/70 bg-background/50 placeholder:text-muted-foreground/50 focus:border-primary/50 focus:ring-primary/20 h-11 rounded-lg pl-20 text-sm transition-all duration-200 focus:ring-2 ${isRTL ? "text-right placeholder:text-right" : ""}`}
                 required
                 autoComplete="tel"
               />
@@ -265,18 +271,25 @@ export default function SignUpForm({
           {t("auth.signup.phoneHint")}
         </p>
         {errors.phoneNumber?.message && (
-          <p className="text-destructive text-sm">
+          <p className="text-destructive flex items-center gap-1.5 text-xs">
             {errors.phoneNumber.message}
           </p>
         )}
       </div>
 
-      <div className="space-y-1">
-        <Label htmlFor="email">{t("auth.signup.email")}</Label>
+      {/* Email */}
+      <div className="space-y-2">
+        <Label
+          htmlFor="email"
+          className={`text-foreground/80 text-xs font-medium tracking-wider uppercase ${isRTL ? "text-right" : ""}`}
+        >
+          {t("auth.signup.email")}
+        </Label>
         <Input
           id="email"
           type="email"
           placeholder={t("auth.signup.emailPlaceholder")}
+          className={`border-border/70 bg-background/50 placeholder:text-muted-foreground/50 focus:border-primary/50 focus:ring-primary/20 h-11 rounded-lg text-sm transition-all duration-200 focus:ring-2 ${isRTL ? "text-right placeholder:text-right" : ""}`}
           required
           autoComplete="email"
           {...register("email", {
@@ -284,12 +297,20 @@ export default function SignUpForm({
           })}
         />
         {errors.email?.message && (
-          <p className="text-destructive text-sm">{errors.email.message}</p>
+          <p className="text-destructive flex items-center gap-1.5 text-xs">
+            {errors.email.message}
+          </p>
         )}
       </div>
 
-      <div className="space-y-1">
-        <Label htmlFor="password">{t("auth.signup.password")}</Label>
+      {/* Password */}
+      <div className="space-y-2">
+        <Label
+          htmlFor="password"
+          className={`text-foreground/80 text-xs font-medium tracking-wider uppercase ${isRTL ? "text-right" : ""}`}
+        >
+          {t("auth.signup.password")}
+        </Label>
         <div className="relative">
           <Input
             id="password"
@@ -297,7 +318,7 @@ export default function SignUpForm({
             placeholder="••••••••"
             required
             minLength={PASSWORD_POLICY.MIN_LENGTH}
-            className="pr-10"
+            className={`border-border/70 bg-background/50 placeholder:text-muted-foreground/50 focus:border-primary/50 focus:ring-primary/20 h-11 rounded-lg text-sm transition-all duration-200 focus:ring-2 ${isRTL ? "pl-10 text-right placeholder:text-right" : "pr-10"}`}
             autoComplete="new-password"
             {...register("password", {
               onChange: () => setFormError(""),
@@ -306,7 +327,7 @@ export default function SignUpForm({
           <button
             type="button"
             onClick={() => setShowPassword(!showPassword)}
-            className="text-muted-foreground hover:text-foreground absolute inset-y-0 right-0 flex items-center pr-3"
+            className={`text-muted-foreground hover:text-foreground absolute inset-y-0 flex items-center transition-colors duration-200 ${isRTL ? "left-0 pl-3" : "right-0 pr-3"}`}
           >
             {showPassword ? (
               <EyeOff className="h-4 w-4" />
@@ -317,12 +338,18 @@ export default function SignUpForm({
         </div>
         <PasswordStrengthBar password={password} />
         {errors.password?.message && (
-          <p className="text-destructive text-sm">{errors.password.message}</p>
+          <p className="text-destructive flex items-center gap-1.5 text-xs">
+            {errors.password.message}
+          </p>
         )}
       </div>
 
-      <div className="space-y-1">
-        <Label htmlFor="confirmPassword">
+      {/* Confirm Password */}
+      <div className="space-y-2">
+        <Label
+          htmlFor="confirmPassword"
+          className={`text-foreground/80 text-xs font-medium tracking-wider uppercase ${isRTL ? "text-right" : ""}`}
+        >
           {t("auth.signup.confirmPassword")}
         </Label>
         <div className="relative">
@@ -332,7 +359,7 @@ export default function SignUpForm({
             placeholder="••••••••"
             required
             minLength={PASSWORD_POLICY.MIN_LENGTH}
-            className="pr-10"
+            className={`border-border/70 bg-background/50 placeholder:text-muted-foreground/50 focus:border-primary/50 focus:ring-primary/20 h-11 rounded-lg text-sm transition-all duration-200 focus:ring-2 ${isRTL ? "pl-10 text-right placeholder:text-right" : "pr-10"}`}
             autoComplete="new-password"
             {...register("confirmPassword", {
               onChange: () => setFormError(""),
@@ -341,7 +368,7 @@ export default function SignUpForm({
           <button
             type="button"
             onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-            className="text-muted-foreground hover:text-foreground absolute inset-y-0 right-0 flex items-center pr-3"
+            className={`text-muted-foreground hover:text-foreground absolute inset-y-0 flex items-center transition-colors duration-200 ${isRTL ? "left-0 pl-3" : "right-0 pr-3"}`}
           >
             {showConfirmPassword ? (
               <EyeOff className="h-4 w-4" />
@@ -355,9 +382,9 @@ export default function SignUpForm({
           if (!matchRule) return null
           return (
             <p
-              className={`text-xs ${matchRule.met ? "text-green-600 dark:text-green-400" : "text-foreground"}`}
+              className={`text-xs ${matchRule.met ? "text-green-600 dark:text-green-400" : "text-muted-foreground"}`}
             >
-              <span className="inline-flex items-center gap-2">
+              <span className="inline-flex items-center gap-1.5">
                 {matchRule.met ? (
                   <Check className="h-3.5 w-3.5" aria-hidden />
                 ) : (
@@ -369,17 +396,23 @@ export default function SignUpForm({
           )
         })()}
         {errors.confirmPassword?.message && (
-          <p className="text-destructive text-sm">
+          <p className="text-destructive flex items-center gap-1.5 text-xs">
             {errors.confirmPassword.message}
           </p>
         )}
       </div>
 
-      {formError && <p className="text-destructive text-sm">{formError}</p>}
+      {/* Form-level error */}
+      {formError && (
+        <div className="bg-destructive/10 text-destructive rounded-lg px-3 py-2.5 text-xs">
+          {formError}
+        </div>
+      )}
 
+      {/* Submit */}
       <Button
         type="submit"
-        className="w-full"
+        className="h-11 w-full rounded-lg text-sm font-semibold tracking-wide transition-all duration-200"
         disabled={
           loading ||
           emailSending ||
@@ -403,25 +436,24 @@ export default function SignUpForm({
         disabled={loading || emailSending || !selectedType}
       />
 
-      {/* Sign in link: redirect to sign-in dialog */}
-      <div className="text-center text-sm">
+      {/* Sign in link */}
+      <p className="text-muted-foreground text-center text-sm">
+        {t("auth.signup.hasAccount")}{" "}
         <button
           type="button"
           onClick={() => {
             setFormError("")
-            // Close signup flow and open sign-in dialog if provided
             if (onOpenSignInFlow) {
               onOpenSignInFlow()
             } else {
-              // Fallback: navigate to home page (where sign-in dialog can be opened)
               router.push("/")
             }
           }}
-          className="text-primary hover:underline"
+          className="text-primary hover:text-primary/80 font-semibold transition-colors duration-200"
         >
-          {t("auth.signup.hasAccount")}
+          {t("auth.signin.submit")}
         </button>
-      </div>
+      </p>
     </form>
   )
 }
