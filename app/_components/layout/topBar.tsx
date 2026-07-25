@@ -11,6 +11,7 @@ import { useRouter } from "next/navigation"
 import { useAuth } from "@/app/_auth"
 import { useTranslation } from "../../_i18n"
 import { CreateContentButton } from "../content/create-content-button"
+import LanguageFlagButton from "./language-flag-button"
 
 interface TopBarProps {
   onGetStarted?: () => void
@@ -27,11 +28,11 @@ const TopBar: React.FC<TopBarProps> = ({
 }) => {
   const { user } = useAuth()
   const router = useRouter()
-  const { t } = useTranslation()
+  const { t, dir } = useTranslation()
 
   return (
     <div
-      dir="ltr"
+      dir={dir}
       data-nav-topbar
       className={`bg-background border-border border-b-primary fixed top-0 right-0 left-0 z-[9999] flex items-center justify-between gap-2 border-b px-3 py-4 pr-4 shadow-xl backdrop-blur-sm transition-transform duration-300 ease-in-out md:py-5 lg:px-10 lg:py-5 lg:pr-20 ${user ? "lg:hidden" : ""} ${className}`}
     >
@@ -104,8 +105,13 @@ const TopBar: React.FC<TopBarProps> = ({
           </div>
         )}
 
-        {/* Unauthenticated user session */}
-        {!user && <UserSession compact />}
+        {/* Unauthenticated: sign-in + language selector */}
+        {!user && (
+          <>
+            <UserSession compact />
+            <LanguageFlagButton />
+          </>
+        )}
       </div>
     </div>
   )

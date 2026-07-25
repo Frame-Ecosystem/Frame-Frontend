@@ -31,18 +31,12 @@ function getDirection(locale: Locale): Direction {
  *
  * Priority:
  *   1. Explicit localStorage preference
- *   2. Browser `navigator.language` prefix
- *   3. DEFAULT_LOCALE
+ *   2. DEFAULT_LOCALE ("ar")
  */
 function detectLocale(): Locale {
   if (typeof window !== "undefined") {
     const stored = localStorage.getItem(STORAGE_KEY) as Locale | null
     if (stored && SUPPORTED_LOCALES.includes(stored)) return stored
-  }
-
-  if (typeof navigator !== "undefined") {
-    const browserLang = navigator.language.split("-")[0] as Locale
-    if (SUPPORTED_LOCALES.includes(browserLang)) return browserLang
   }
 
   return DEFAULT_LOCALE
@@ -91,8 +85,7 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
     if (!mounted) return
     const root = document.documentElement
     root.lang = locale
-    // Keep document always LTR — individual title rows opt-in to RTL via dir={dir}
-    root.dir = "ltr"
+    root.dir = getDirection(locale)
 
     // Persist choice
     localStorage.setItem(STORAGE_KEY, locale)

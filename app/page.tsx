@@ -222,7 +222,7 @@ const LandingPage = () => {
   const { user, isLoading, ensureSession } = useAuth()
   const router = useRouter()
   const searchParams = useSearchParams()
-  const { t } = useTranslation()
+  const { t, isRTL } = useTranslation()
   const [signupOpen, setSignupOpen] = useState(false)
   const [signinOpen, setSigninOpen] = useState(false)
   const [isCheckingSession, setIsCheckingSession] = useState(false)
@@ -474,7 +474,9 @@ const LandingPage = () => {
                 onClick={openSignUp}
               >
                 {t("landing.getStartedFree")}
-                <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
+                <ArrowRight
+                  className={`ml-2 h-4 w-4 transition-transform ${isRTL ? "rotate-180 group-hover:-translate-x-1" : "group-hover:translate-x-1"}`}
+                />
               </Button>
               <Button
                 size="lg"
@@ -556,9 +558,9 @@ const LandingPage = () => {
                 const slideClass = pillarsInView.inView
                   ? "translate-x-0 translate-y-0 opacity-100"
                   : i === 0
-                    ? "-translate-x-12 opacity-0"
+                    ? `${isRTL ? "translate-x-12" : "-translate-x-12"} opacity-0`
                     : i === 2
-                      ? "translate-x-12 opacity-0"
+                      ? `${isRTL ? "-translate-x-12" : "translate-x-12"} opacity-0`
                       : "translate-y-12 opacity-0"
 
                 return (
@@ -662,7 +664,7 @@ const LandingPage = () => {
                       aria-hidden
                       className={`border-primary/20 absolute top-8 right-0 hidden w-[calc(50%-20px)] translate-x-full border-t-2 border-dashed transition-all duration-1000 ease-out md:block ${stepsInView.inView ? "scale-x-100 opacity-100" : "scale-x-0 opacity-0"}`}
                       style={{
-                        transformOrigin: "left",
+                        transformOrigin: isRTL ? "right" : "left",
                         transitionDelay: stepsInView.inView
                           ? `${700 + i * 300}ms`
                           : "0ms",
@@ -854,7 +856,7 @@ const LandingPage = () => {
             <div className="grid items-center gap-14 lg:grid-cols-2">
               {/* Left — visual card (slide from left) */}
               <div
-                className={`relative hidden transition-all duration-800 ease-out lg:block ${clientsInView.inView ? "translate-x-0 opacity-100" : "-translate-x-12 opacity-0"}`}
+                className={`relative hidden transition-all duration-800 ease-out lg:block ${clientsInView.inView ? "translate-x-0 opacity-100" : `${isRTL ? "translate-x-12" : "-translate-x-12"} opacity-0`}`}
                 style={{
                   transitionDelay: clientsInView.inView ? "200ms" : "0ms",
                 }}
@@ -927,7 +929,7 @@ const LandingPage = () => {
 
               {/* Right — copy (slide from right) */}
               <div
-                className={`transition-all duration-800 ease-out ${clientsInView.inView ? "translate-x-0 opacity-100" : "translate-x-12 opacity-0"}`}
+                className={`transition-all duration-800 ease-out ${clientsInView.inView ? "translate-x-0 opacity-100" : `${isRTL ? "-translate-x-12" : "translate-x-12"} opacity-0`}`}
               >
                 <span className="bg-primary/10 text-primary mb-4 inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-semibold tracking-wider uppercase">
                   {t("landing.forClients")}
@@ -964,7 +966,7 @@ const LandingPage = () => {
                   ].map((item, i) => (
                     <li
                       key={item}
-                      className={`text-foreground flex items-start gap-3 text-sm transition-all duration-500 ease-out ${clientsInView.inView ? "translate-x-0 opacity-100" : "translate-x-4 opacity-0"}`}
+                      className={`text-foreground flex items-start gap-3 text-sm transition-all duration-500 ease-out ${clientsInView.inView ? "translate-x-0 opacity-100" : `${isRTL ? "-translate-x-4" : "translate-x-4"} opacity-0`}`}
                       style={{
                         transitionDelay: clientsInView.inView
                           ? `${400 + i * 80}ms`
@@ -981,7 +983,9 @@ const LandingPage = () => {
                   onClick={openSignUp}
                 >
                   {t("landing.getStartedFree")}
-                  <ChevronRight className="ml-1 h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+                  <ChevronRight
+                    className={`ml-1 h-4 w-4 transition-transform ${isRTL ? "rotate-180 group-hover:-translate-x-0.5" : "group-hover:translate-x-0.5"}`}
+                  />
                 </Button>
               </div>
             </div>
@@ -999,7 +1003,7 @@ const LandingPage = () => {
             <div className="grid items-center gap-14 lg:grid-cols-2">
               {/* Left — copy (slide from left) */}
               <div
-                className={`transition-all duration-800 ease-out ${b2bInView.inView ? "translate-x-0 opacity-100" : "-translate-x-12 opacity-0"}`}
+                className={`transition-all duration-800 ease-out ${b2bInView.inView ? "translate-x-0 opacity-100" : `${isRTL ? "translate-x-12" : "-translate-x-12"} opacity-0`}`}
               >
                 <span className="bg-primary/10 text-primary mb-4 inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-semibold tracking-wider uppercase">
                   {t("landing.forLounges")}
@@ -1037,7 +1041,7 @@ const LandingPage = () => {
                   ].map((item, i) => (
                     <li
                       key={item}
-                      className={`text-foreground flex items-start gap-3 text-sm transition-all duration-500 ease-out ${b2bInView.inView ? "translate-x-0 opacity-100" : "-translate-x-4 opacity-0"}`}
+                      className={`text-foreground flex items-start gap-3 text-sm transition-all duration-500 ease-out ${b2bInView.inView ? "translate-x-0 opacity-100" : `${isRTL ? "translate-x-4" : "-translate-x-4"} opacity-0`}`}
                       style={{
                         transitionDelay: b2bInView.inView
                           ? `${400 + i * 80}ms`
@@ -1054,13 +1058,15 @@ const LandingPage = () => {
                   onClick={openSignUp}
                 >
                   {t("landing.registerLounge")}
-                  <ChevronRight className="ml-1 h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+                  <ChevronRight
+                    className={`ml-1 h-4 w-4 transition-transform ${isRTL ? "rotate-180 group-hover:-translate-x-0.5" : "group-hover:translate-x-0.5"}`}
+                  />
                 </Button>
               </div>
 
               {/* Right — visual card stack (slide from right) */}
               <div
-                className={`relative hidden transition-all duration-800 ease-out lg:block ${b2bInView.inView ? "translate-x-0 opacity-100" : "translate-x-12 opacity-0"}`}
+                className={`relative hidden transition-all duration-800 ease-out lg:block ${b2bInView.inView ? "translate-x-0 opacity-100" : `${isRTL ? "-translate-x-12" : "translate-x-12"} opacity-0`}`}
                 style={{ transitionDelay: b2bInView.inView ? "200ms" : "0ms" }}
               >
                 <div className="bg-card border-border absolute top-4 right-4 left-4 h-56 rounded-2xl border shadow-sm" />
@@ -1271,7 +1277,7 @@ const LandingPage = () => {
                 ].map((b, i) => (
                   <li
                     key={b}
-                    className={`text-foreground flex items-start gap-3 text-sm transition-all duration-500 ease-out sm:text-base ${mobileInView.inView ? "translate-x-0 opacity-100" : "translate-x-4 opacity-0"}`}
+                    className={`text-foreground flex items-start gap-3 text-sm transition-all duration-500 ease-out sm:text-base ${mobileInView.inView ? "translate-x-0 opacity-100" : `${isRTL ? "-translate-x-4" : "translate-x-4"} opacity-0`}`}
                     style={{
                       transitionDelay: mobileInView.inView
                         ? `${400 + i * 120}ms`
@@ -1321,7 +1327,9 @@ const LandingPage = () => {
                         className="h-11 px-5 text-sm font-semibold"
                       >
                         {t("landing.mobileNotifyButton")}
-                        <ArrowRight className="ml-1.5 h-4 w-4" />
+                        <ArrowRight
+                          className={`ml-1.5 h-4 w-4 ${isRTL ? "rotate-180" : ""}`}
+                        />
                       </Button>
                     </div>
                     <p className="text-muted-foreground mt-2 text-[11px]">
@@ -1360,7 +1368,9 @@ const LandingPage = () => {
                 onClick={openSignUp}
               >
                 {t("landing.createFreeAccount")}
-                <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
+                <ArrowRight
+                  className={`ml-2 h-4 w-4 transition-transform ${isRTL ? "rotate-180 group-hover:-translate-x-1" : "group-hover:translate-x-1"}`}
+                />
               </Button>
               <Button
                 size="lg"

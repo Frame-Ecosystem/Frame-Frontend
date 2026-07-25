@@ -1,5 +1,5 @@
 import type { Metadata } from "next"
-import { Inter, Nunito } from "next/font/google"
+import { Inter, Nunito, Noto_Sans_Arabic } from "next/font/google"
 import { Suspense } from "react"
 
 // Global styles
@@ -33,6 +33,10 @@ import ScrollResetOnNavigation from "./_components/layout/scroll-reset-on-naviga
 
 const inter = Inter({ subsets: ["latin"] })
 const nunito = Nunito({ subsets: ["latin"], variable: "--font-nunito" })
+const notoSansArabic = Noto_Sans_Arabic({
+  subsets: ["arabic"],
+  variable: "--font-arabic",
+})
 
 export const metadata: Metadata = {
   // Base URL for resolving relative URLs in metadata
@@ -186,7 +190,7 @@ export default function RootLayout({
 }>) {
   return (
     // suppressHydrationWarning prevents hydration mismatch warnings from theme changes
-    <html lang="fr" suppressHydrationWarning>
+    <html lang="ar" dir="rtl" suppressHydrationWarning>
       <head>
         {/* Single brand logo used as favicon across all color schemes */}
         <link rel="icon" type="image/png" href="/images/logos/fb-logo.png" />
@@ -194,7 +198,9 @@ export default function RootLayout({
         {/* Apple touch icon (home screen on iOS) */}
         <link rel="apple-touch-icon" href="/images/logos/fb-logo.png" />
       </head>
-      <body className={`${inter.className} ${nunito.variable}`}>
+      <body
+        className={`${inter.className} ${nunito.variable} ${notoSansArabic.variable}`}
+      >
         {/* PROVIDER HIERARCHY */}
 
         {/* Language provider — outermost so every component can translate */}

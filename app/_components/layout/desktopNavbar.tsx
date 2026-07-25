@@ -22,11 +22,12 @@ import { getProfilePath } from "../../_lib/profile"
 import { useTranslation } from "../../_i18n"
 import { useNotificationContext } from "../../_providers/notification"
 import { CreateContentButton } from "@/app/_components/content/create-content-button"
+import LanguageFlagButton from "./language-flag-button"
 
 const DesktopNavbar = () => {
   const pathname = usePathname()
   const { user, isLoading } = useAuth()
-  const { t } = useTranslation()
+  const { t, dir } = useTranslation()
   const { unreadMessageCount } = useNotificationContext()
 
   const isProfileActive =
@@ -78,7 +79,7 @@ const DesktopNavbar = () => {
 
   return (
     <Card
-      dir="ltr"
+      dir={dir}
       data-nav-desktop
       className="bg-card border-b-primary fixed top-0 right-0 left-0 z-[9999] hidden rounded-none border-b shadow-xl lg:block"
     >
@@ -150,6 +151,7 @@ const DesktopNavbar = () => {
           <NotificationButton />
 
           <UserSession />
+          {!user && <LanguageFlagButton />}
         </div>
       </CardContent>
     </Card>
