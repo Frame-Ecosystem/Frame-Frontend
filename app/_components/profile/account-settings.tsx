@@ -150,7 +150,7 @@ export function AccountSettings({
       toast.error(t("accountSettings.passwordsMismatch"))
       return
     }
-    if (passwordData.newPassword.length < 6) {
+    if (passwordData.newPassword.length < 8) {
       toast.error(t("accountSettings.passwordMinLength"))
       return
     }
@@ -323,6 +323,7 @@ export function AccountSettings({
               passwordData={passwordData}
               onInputChange={handlePasswordInputChange}
               currentPasswordRef={currentPasswordRef}
+              passwordStrength={user?.passwordStrength}
             />
             <LogoutSection
               onLogout={handleLogout}

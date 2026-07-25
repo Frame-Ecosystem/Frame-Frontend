@@ -65,6 +65,7 @@ export interface AuthTokenResponse {
 export interface SignupResponse {
   message: string
   success: boolean
+  passwordStrength?: PasswordStrength
 }
 
 /** Token refresh response (web) */
@@ -94,8 +95,10 @@ export interface AuthApiError {
 export const PASSWORD_POLICY = {
   MIN_LENGTH: 8,
   MAX_LENGTH: 128,
-  SPECIAL_CHARS: "@$!%*?&",
 } as const
+
+/** Server-computed password strength enum — matches backend exactly. */
+export type PasswordStrength = "weak" | "medium" | "strong"
 
 // ── Google OAuth Error Codes ──────────────────────────────────
 

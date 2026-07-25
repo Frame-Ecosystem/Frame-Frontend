@@ -1,4 +1,5 @@
 import type { CreateAgentDto, UpdateAgentDto, Agent } from "../../../_types"
+import { PASSWORD_POLICY } from "../../../_auth/auth.types"
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 const PHONE_RE = /^\+216[0-9]{8}$/
@@ -43,11 +44,10 @@ export function validateAgentForm(
   if (!agent && !formData.password?.trim()) {
     errors.password = "Password is required"
   } else if (formData.password) {
-    if (formData.password.length < 8) {
-      errors.password = "Password must be at least 8 characters"
-    } else if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(formData.password)) {
-      errors.password =
-        "Password must contain at least one uppercase letter, one lowercase letter, and one number"
+    if (formData.password.length < PASSWORD_POLICY.MIN_LENGTH) {
+      errors.password = `Password must be at least ${PASSWORD_POLICY.MIN_LENGTH} characters`
+    } else if (formData.password.length > PASSWORD_POLICY.MAX_LENGTH) {
+      errors.password = `Password must not exceed ${PASSWORD_POLICY.MAX_LENGTH} characters`
     }
   }
 
@@ -101,9 +101,10 @@ export function validateAgentNameOnBlur(name: string | undefined): string {
 
 export function validatePasswordOnBlur(password: string | undefined): string {
   if (!password) return ""
-  if (password.length < 8) return "Password must be at least 8 characters"
-  if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(password))
-    return "Password must contain at least one uppercase letter, one lowercase letter, and one number"
+  if (password.length < PASSWORD_POLICY.MIN_LENGTH)
+    return `Password must be at least ${PASSWORD_POLICY.MIN_LENGTH} characters`
+  if (password.length > PASSWORD_POLICY.MAX_LENGTH)
+    return `Password must not exceed ${PASSWORD_POLICY.MAX_LENGTH} characters`
   return ""
 }
 

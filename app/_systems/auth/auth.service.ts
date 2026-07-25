@@ -11,6 +11,7 @@ import type {
   MessageResponse,
   SessionInfo,
   SwitchSessionResponse,
+  PasswordStrength,
 } from "./auth.types"
 
 // ── Device Name Helper ──────────────────────────────────────────
@@ -422,12 +423,12 @@ class AuthService {
     currentPassword: string
     newPassword: string
     newPasswordConfirm: string
-  }): Promise<{ message: string } | null> {
+  }): Promise<{ message: string; passwordStrength?: PasswordStrength } | null> {
     try {
-      const data = await apiClient.post<{ message: string }>(
-        "/v1/me/change-password",
-        passwordData,
-      )
+      const data = await apiClient.post<{
+        message: string
+        passwordStrength?: PasswordStrength
+      }>("/v1/me/change-password", passwordData)
       return data
     } catch (err) {
       throw err instanceof Error ? err : new Error("Failed to change password")

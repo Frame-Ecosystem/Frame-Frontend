@@ -1,11 +1,15 @@
 "use client"
 
 import { useState } from "react"
-import { ChevronDown, Lock, Eye, EyeOff } from "lucide-react"
+import { ChevronDown, Lock, Eye, EyeOff, AlertTriangle } from "lucide-react"
 import { Button } from "../../ui/button"
 import { Input } from "../../ui/input"
 import { Label } from "../../ui/label"
+import { Popover, PopoverContent, PopoverTrigger } from "../../ui/popover"
+import { PasswordStrengthBar } from "../../ui/password-strength-bar"
 import { useTranslation } from "@/app/_i18n"
+import type { PasswordStrength } from "@/app/_auth/auth.types"
+import { PASSWORD_POLICY } from "@/app/_auth/auth.types"
 
 interface PasswordSectionProps {
   isOpen: boolean
@@ -19,6 +23,13 @@ interface PasswordSectionProps {
   }
   onInputChange: (field: string, value: string) => void
   currentPasswordRef: React.RefObject<HTMLInputElement | null>
+  passwordStrength?: PasswordStrength
+}
+
+const STRENGTH_MESSAGES: Record<string, string> = {
+  weak: "Your password is weak. Consider using a longer passphrase with a mix of characters.",
+  medium:
+    "Your password is not strong enough. Try adding more words or using uncommon words.",
 }
 
 export function PasswordSection({
@@ -29,6 +40,7 @@ export function PasswordSection({
   passwordData,
   onInputChange,
   currentPasswordRef,
+  passwordStrength,
 }: PasswordSectionProps) {
   const { t } = useTranslation()
   const [visibility, setVisibility] = useState({
@@ -40,20 +52,58 @@ export function PasswordSection({
   const toggleVis = (field: "current" | "new" | "confirm") =>
     setVisibility((prev) => ({ ...prev, [field]: !prev[field] }))
 
+  const showStrengthIcon =
+    passwordStrength === "weak" || passwordStrength === "medium"
+
   return (
     <div>
-      <button
+      <div
+        role="button"
+        tabIndex={0}
         onClick={toggle}
-        className="border-border bg-background/50 hover:bg-background/70 flex w-full items-center justify-between rounded-lg border p-3 transition-colors"
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault()
+            toggle()
+          }
+        }}
+        className="border-border bg-background/50 hover:bg-background/70 flex w-full cursor-pointer items-center justify-between rounded-lg border p-3 transition-colors"
       >
         <div className="flex items-center gap-2">
           <Lock className="h-4 w-4" />
           <span className="font-medium">{t("settings.changePassword")}</span>
+          {showStrengthIcon && (
+            <Popover>
+              <PopoverTrigger asChild>
+                <button
+                  type="button"
+                  onClick={(e) => e.stopPropagation()}
+                  className="inline-flex items-center"
+                  aria-label={
+                    passwordStrength === "weak"
+                      ? "Password is weak"
+                      : "Password could be stronger"
+                  }
+                >
+                  <AlertTriangle
+                    className={`h-4 w-4 ${
+                      passwordStrength === "weak"
+                        ? "text-red-500"
+                        : "text-yellow-500"
+                    }`}
+                  />
+                </button>
+              </PopoverTrigger>
+              <PopoverContent side="top" align="start" className="w-64 text-xs">
+                {STRENGTH_MESSAGES[passwordStrength!]}
+              </PopoverContent>
+            </Popover>
+          )}
         </div>
         <ChevronDown
           className={`text-muted-foreground h-4 w-4 transition-transform ${isOpen ? "rotate-180" : ""}`}
         />
-      </button>
+      </div>
 
       {isOpen && (
         <div className="bg-background/30 border-border/50 mt-4 rounded-lg border p-4">
@@ -101,7 +151,7 @@ export function PasswordSection({
                   onChange={(e) => onInputChange("newPassword", e.target.value)}
                   placeholder={t("settings.newPasswordPlaceholder")}
                   required
-                  minLength={6}
+                  minLength={PASSWORD_POLICY.MIN_LENGTH}
                   className="pr-10"
                 />
                 <button
@@ -115,6 +165,9 @@ export function PasswordSection({
                     <Eye className="h-4 w-4" />
                   )}
                 </button>
+              </div>
+              <div className="mt-2">
+                <PasswordStrengthBar password={passwordData.newPassword} />
               </div>
             </div>
 
@@ -133,7 +186,7 @@ export function PasswordSection({
                   }
                   placeholder={t("settings.confirmPasswordPlaceholder")}
                   required
-                  minLength={6}
+                  minLength={PASSWORD_POLICY.MIN_LENGTH}
                   className="pr-10"
                 />
                 <button

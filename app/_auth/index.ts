@@ -70,6 +70,7 @@ export {
 } from "./auth.types"
 
 // Types re-exported for convenience
+export type { PasswordStrength } from "./auth.types"
 export type { PasswordRule, PasswordRuleId } from "./hooks/use-password-rules"
 export type { AuthFlow, AuthErrorResult } from "./lib/error-mapper"
 export type {

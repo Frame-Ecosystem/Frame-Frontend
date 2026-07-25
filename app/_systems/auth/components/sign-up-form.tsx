@@ -11,6 +11,7 @@ import { useAuth } from "@/app/_auth"
 import { useRouter, useSearchParams } from "next/navigation"
 import { getLoginRedirectPath } from "@/app/_lib/profile"
 import { Check, X, Eye, EyeOff } from "lucide-react"
+import { PasswordStrengthBar } from "@/app/_components/ui/password-strength-bar"
 import { useSignUp } from "@/app/_hooks/queries"
 import GoogleButton from "./google-button"
 import openGoogleOAuthPopup, {
@@ -21,6 +22,7 @@ import { usePasswordRules } from "../hooks/use-password-rules"
 import { mapAuthError } from "../lib/error-mapper"
 import { useAuthRateLimit } from "../hooks/use-rate-limit"
 import { useTranslation } from "@/app/_i18n"
+import { PASSWORD_POLICY } from "@/app/_auth/auth.types"
 
 export default function SignUpForm({
   onSuccess,
@@ -68,12 +70,21 @@ export default function SignUpForm({
           password: z
             .string()
             .min(1, t("auth.signup.validationPasswordRequired"))
-            .min(8, t("auth.signup.validationPasswordMin"))
-            .max(128, t("auth.signup.validationPasswordMax")),
+            .min(
+              PASSWORD_POLICY.MIN_LENGTH,
+              t("auth.signup.validationPasswordMin"),
+            )
+            .max(
+              PASSWORD_POLICY.MAX_LENGTH,
+              t("auth.signup.validationPasswordMax"),
+            ),
           confirmPassword: z
             .string()
             .min(1, t("auth.signup.validationConfirmRequired"))
-            .min(8, t("auth.signup.validationPasswordMin")),
+            .min(
+              PASSWORD_POLICY.MIN_LENGTH,
+              t("auth.signup.validationPasswordMin"),
+            ),
         })
         .superRefine(({ password, confirmPassword }, ctx) => {
           if (!password || !confirmPassword) return
@@ -284,7 +295,7 @@ export default function SignUpForm({
             type={showPassword ? "text" : "password"}
             placeholder="••••••••"
             required
-            minLength={8}
+            minLength={PASSWORD_POLICY.MIN_LENGTH}
             className="pr-10"
             autoComplete="new-password"
             {...register("password", {
@@ -303,49 +314,7 @@ export default function SignUpForm({
             )}
           </button>
         </div>
-        <div>
-          <ul className="space-y-0 text-xs">
-            {(() => {
-              const filtered = rules.filter(
-                (rule) => rule.id !== "maxLength" && rule.id !== "match",
-              )
-              const minLength = filtered.find((r) => r.id === "minLength")
-              const digit = filtered.find((r) => r.id === "digit")
-              const rest = filtered.filter(
-                (r) => r.id !== "minLength" && r.id !== "digit",
-              )
-
-              const renderRule = (rule: (typeof filtered)[number]) => (
-                <span
-                  className={`inline-flex items-center gap-1 ${rule.met ? "text-green-600 dark:text-green-400" : "text-foreground"}`}
-                >
-                  {rule.met ? (
-                    <Check className="h-3.5 w-3.5" aria-hidden />
-                  ) : (
-                    <X className="h-3.5 w-3.5" aria-hidden />
-                  )}
-                  <span>{rule.label}</span>
-                </span>
-              )
-
-              return (
-                <>
-                  {minLength && digit && (
-                    <li className="flex items-center gap-3">
-                      {renderRule(minLength)}
-                      {renderRule(digit)}
-                    </li>
-                  )}
-                  {rest.map((rule) => (
-                    <li key={rule.id} aria-label={rule.label}>
-                      {renderRule(rule)}
-                    </li>
-                  ))}
-                </>
-              )
-            })()}
-          </ul>
-        </div>
+        <PasswordStrengthBar password={password} />
         {errors.password?.message && (
           <p className="text-destructive text-sm">{errors.password.message}</p>
         )}
@@ -361,7 +330,7 @@ export default function SignUpForm({
             type={showConfirmPassword ? "text" : "password"}
             placeholder="••••••••"
             required
-            minLength={8}
+            minLength={PASSWORD_POLICY.MIN_LENGTH}
             className="pr-10"
             autoComplete="new-password"
             {...register("confirmPassword", {

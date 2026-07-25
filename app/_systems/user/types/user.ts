@@ -1,5 +1,7 @@
 // User-related types
 
+import type { PasswordStrength } from "@/app/_auth/auth.types"
+
 export type UserType = "client" | "lounge" | "admin" | "agent"
 
 export type Gender = "male" | "female" | "unisex" | "kids"
@@ -48,6 +50,8 @@ export interface User {
   agentName?: string
   /** Agent-only: availability toggle driving the queue. */
   acceptQueueBooking?: boolean
+  /** Server-computed password strength: weak | medium | strong */
+  passwordStrength?: PasswordStrength
 }
 
 export interface AuthResponse {

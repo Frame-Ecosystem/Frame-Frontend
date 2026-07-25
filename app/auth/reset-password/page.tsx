@@ -17,13 +17,14 @@ import {
 import {
   authService,
   validateSignupPassword,
-  usePasswordRules,
   useAuthRateLimit,
   useAuth,
   mapAuthError,
+  PASSWORD_POLICY,
 } from "@/app/_auth"
 import { useRouter, useSearchParams } from "next/navigation"
-import { ArrowLeft, Check, Eye, EyeOff, Lock, X } from "lucide-react"
+import { ArrowLeft, Eye, EyeOff, Lock } from "lucide-react"
+import { PasswordStrengthBar } from "@/app/_components/ui/password-strength-bar"
 import Link from "next/link"
 import { useTranslation } from "@/app/_i18n"
 
@@ -56,12 +57,12 @@ export default function ResetPasswordPage() {
           newPassword: z
             .string()
             .min(1, t("auth.reset.passwordRequired"))
-            .min(8, t("auth.reset.passwordMinLength"))
-            .max(128, t("auth.reset.passwordMaxLength")),
+            .min(PASSWORD_POLICY.MIN_LENGTH, t("auth.reset.passwordMinLength"))
+            .max(PASSWORD_POLICY.MAX_LENGTH, t("auth.reset.passwordMaxLength")),
           confirmPassword: z
             .string()
             .min(1, t("auth.reset.confirmRequired"))
-            .min(8, t("auth.reset.passwordMinLength")),
+            .min(PASSWORD_POLICY.MIN_LENGTH, t("auth.reset.passwordMinLength")),
         })
         .superRefine(({ newPassword, confirmPassword }, ctx) => {
           if (!newPassword || !confirmPassword) return
@@ -110,8 +111,6 @@ export default function ResetPasswordPage() {
   })
 
   const newPassword = watch("newPassword")
-  const confirmPassword = watch("confirmPassword")
-  const { rules } = usePasswordRules(newPassword, confirmPassword)
 
   const onSubmit = async (values: Values) => {
     if (isLocked) return
@@ -237,7 +236,7 @@ export default function ResetPasswordPage() {
                           field.onChange(e.target.value)
                         }}
                         required
-                        minLength={8}
+                        minLength={PASSWORD_POLICY.MIN_LENGTH}
                         className="pr-10"
                         autoComplete="new-password"
                       />
@@ -256,30 +255,7 @@ export default function ResetPasswordPage() {
                   </button>
                 </div>
 
-                <div className="space-y-2">
-                  <ul className="space-y-1 text-xs">
-                    {rules.map((rule) => (
-                      <li
-                        key={rule.id}
-                        className={
-                          rule.met
-                            ? "text-green-600 dark:text-green-400"
-                            : "text-foreground"
-                        }
-                        aria-label={rule.label}
-                      >
-                        <span className="inline-flex items-center gap-2">
-                          {rule.met ? (
-                            <Check className="h-3.5 w-3.5" aria-hidden />
-                          ) : (
-                            <X className="h-3.5 w-3.5" aria-hidden />
-                          )}
-                          <span>{rule.label}</span>
-                        </span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
+                <PasswordStrengthBar password={newPassword} />
 
                 {errors.newPassword?.message && (
                   <p className="text-destructive text-sm">
@@ -298,7 +274,7 @@ export default function ResetPasswordPage() {
                     type={showConfirmPassword ? "text" : "password"}
                     placeholder="••••••••"
                     required
-                    minLength={8}
+                    minLength={PASSWORD_POLICY.MIN_LENGTH}
                     className="pr-10"
                     autoComplete="new-password"
                     {...register("confirmPassword", {

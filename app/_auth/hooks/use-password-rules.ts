@@ -4,22 +4,13 @@ import { useMemo } from "react"
 
 import { PASSWORD_POLICY } from "../auth.types"
 
-export type PasswordRuleId =
-  | "minLength"
-  | "maxLength"
-  | "uppercase"
-  | "lowercase"
-  | "digit"
-  | "special"
-  | "match"
+export type PasswordRuleId = "minLength" | "maxLength" | "match"
 
 export interface PasswordRule {
   id: PasswordRuleId
   label: string
   met: boolean
 }
-
-const SPECIAL_CHAR_RE = /[@$!%*?&]/
 
 export function evaluatePasswordRules(
   password: string,
@@ -37,26 +28,6 @@ export function evaluatePasswordRules(
       id: "maxLength",
       label: `No more than ${PASSWORD_POLICY.MAX_LENGTH} characters`,
       met: !password || password.length <= PASSWORD_POLICY.MAX_LENGTH,
-    },
-    {
-      id: "uppercase",
-      label: "One uppercase letter (A-Z)",
-      met: /[A-Z]/.test(password),
-    },
-    {
-      id: "lowercase",
-      label: "One lowercase letter (a-z)",
-      met: /[a-z]/.test(password),
-    },
-    {
-      id: "digit",
-      label: "One digit (0-9)",
-      met: /\d/.test(password),
-    },
-    {
-      id: "special",
-      label: `One special character (${PASSWORD_POLICY.SPECIAL_CHARS})`,
-      met: SPECIAL_CHAR_RE.test(password),
     },
   ]
 
