@@ -47,7 +47,7 @@ const TopBar: React.FC<TopBarProps> = ({
       </div>
 
       {/* RIGHT SIDE: Actions */}
-      <div className="mr-2 ml-auto flex items-center gap-1.5 md:mr-3 md:gap-2">
+      <div className="ml-auto flex items-center gap-1.5 md:gap-2">
         {/* Get Started (unauthenticated) */}
         {(showGetStarted ?? !user) && !(externalIsLoading ?? false) && (
           <Button
@@ -63,7 +63,7 @@ const TopBar: React.FC<TopBarProps> = ({
         )}
         {/* ── Mobile: arrow toggle with icons behind it, UserSession always visible ── */}
         {user && (
-          <div className="flex items-center gap-2 md:hidden">
+          <div className="mr-2 flex items-center gap-2 md:hidden">
             <CreateContentButton compact />
 
             <Button
@@ -85,7 +85,7 @@ const TopBar: React.FC<TopBarProps> = ({
 
         {/* ── Desktop/tablet: all icons visible ── */}
         {user && (
-          <div className="hidden items-center gap-2 md:flex">
+          <div className="mr-2 hidden items-center gap-2 md:flex">
             <CreateContentButton compact />
 
             <Button

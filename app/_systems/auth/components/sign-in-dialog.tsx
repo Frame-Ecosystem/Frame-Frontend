@@ -267,7 +267,7 @@ const SignInDialog = ({
           </div>
         )}
 
-        {/* Sign-in Form (hidden while session check is in progress) */}
+        {/* Sign-in Form (always shown unless user continues with session) */}
         {!sessionUser && (
           <>
             {/* Session Checking Indicator (non-blocking) */}
@@ -280,6 +280,7 @@ const SignInDialog = ({
               </div>
             )}
 
+            {/* Hide form while checking existing session to avoid flicker */}
             {!isCheckingSession && (
               <form
                 onSubmit={handleSubmit(onSubmit, () =>

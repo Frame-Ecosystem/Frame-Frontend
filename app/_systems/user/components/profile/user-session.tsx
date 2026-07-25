@@ -121,6 +121,7 @@ const UserSession = ({ compact }: { compact?: boolean } = {}) => {
       {/* Our own <button> calls closeSignIn() which is the ONLY close path.  */}
       <Dialog open={dialogOpen} onOpenChange={noop}>
         <DialogContent
+          dir="ltr"
           className="z-[9999] max-h-[90vh] w-[90%] overflow-y-auto rounded-2xl [&>button:last-child]:hidden"
           onInteractOutside={prevent}
           onFocusOutside={prevent}
@@ -149,6 +150,7 @@ const UserSession = ({ compact }: { compact?: boolean } = {}) => {
       {/* ── Sign-up dialog (always mounted, fully controlled) ── */}
       <Dialog open={signupOpen} onOpenChange={noop}>
         <DialogContent
+          dir="ltr"
           className="top-[55%] z-[9999] w-[90%] rounded-2xl [&>button:last-child]:hidden"
           onInteractOutside={prevent}
           onFocusOutside={prevent}

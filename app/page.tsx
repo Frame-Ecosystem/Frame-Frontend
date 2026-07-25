@@ -1633,6 +1633,7 @@ const LandingPage = () => {
       {/* ── Signup Dialog ── */}
       <Dialog open={signupOpen} onOpenChange={setSignupOpen}>
         <DialogContent
+          dir="ltr"
           className="top-[55%] max-h-[90vh] w-[90%] overflow-y-auto rounded-2xl"
           onInteractOutside={(e) => e.preventDefault()}
         >
@@ -1649,6 +1650,7 @@ const LandingPage = () => {
       {/* ── Sign-in Dialog ── */}
       <Dialog open={signinOpen} onOpenChange={closeSignIn}>
         <DialogContent
+          dir="ltr"
           className="max-h-[90vh] w-[90%] overflow-y-auto rounded-2xl"
           onInteractOutside={(e) => e.preventDefault()}
         >
