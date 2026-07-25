@@ -467,7 +467,8 @@ const fr: Record<string, string> = {
   "landing.averageRating": "Note moyenne",
 
   "landing.forClients": "Pour les clients",
-  "landing.clientsTitle": "Votre beauté,\nà votre façon",
+  "landing.clientsTitle": "Votre beauté,",
+  "landing.clientsTitleLine2": "votre",
   "landing.clientsSubtitle":
     "Découvrez les styles tendance, achetez des produits et réservez votre prochain rendez-vous — tout dans une seule appli.",
   "landing.clientsFeat1": "Parcourez les posts et reels des meilleurs salons",
@@ -2079,6 +2080,47 @@ const fr: Record<string, string> = {
   "serviceMgmt.deleteDesc":
     "Êtes-vous sûr de vouloir supprimer ce service ? Cette action est irréversible et supprimera le service de votre salon.",
   "serviceMgmt.deleteBtn": "Supprimer le service",
+
+  // ── Accessibility / ARIA labels ───────────────────────────────────────
+  "landing.changeLanguage": "Changer de langue",
+  "landing.appIconAlt": "Icône de l'application Frame Beauty",
+  "landing.jsonLdDescription":
+    "Frame Beauty — la plateforme tout-en-un pour découvrir les tendances beauté, acheter des produits professionnels et réserver des rendez-vous dans les meilleurs salons et barbiers près de chez vous.",
+  "landing.followOnInstagram": "Frame Beauty sur Instagram",
+  "landing.followOnFacebook": "Frame Beauty sur Facebook",
+  "landing.followOnThreads": "Frame Beauty sur Threads",
+  "landing.followOnTikTok": "Frame Beauty sur TikTok",
+  "landing.followOnYouTube": "Frame Beauty sur YouTube",
+  "landing.followOnLinkedIn": "Frame Beauty sur LinkedIn",
+  "landing.followOnX": "Frame Beauty sur X",
+  "landing.emailFrameBeauty": "Envoyer un email à Frame Beauty",
+
+  // ── Password strength ────────────────────────────────────────────────
+  "password.strengthWeak":
+    "Votre mot de passe est faible. Envisagez d'utiliser une phrase de passe plus longue avec un mélange de caractères.",
+  "password.strengthMedium":
+    "Votre mot de passe n'est pas assez fort. Essayez d'ajouter plus de mots ou d'utiliser des mots inhabituels.",
+  "password.isWeak": "Le mot de passe est faible",
+  "password.couldBeStronger": "Le mot de passe pourrait être plus fort",
+  "password.strengthLabel": "Force du mot de passe : {level}",
+
+  // ── Error / fallback pages ───────────────────────────────────────────
+  "common.backToHome": "Retour à l'accueil",
+  "error.title": "Une erreur s'est produite",
+  "error.description":
+    "Nous avons rencontré un problème inattendu lors du chargement de cette page.",
+  "error.supportHint":
+    "Veuillez réessayer. Si le problème persiste, contactez le support.",
+  "error.globalTitle": "Erreur d'application",
+  "error.globalDescription":
+    "Une erreur critique s'est produite. Nous l'avons enregistrée automatiquement pour que l'équipe puisse enquêter.",
+  "error.refreshHint":
+    "Veuillez actualiser la page ou revenir à l'écran d'accueil.",
+  "error.notFoundTitle": "Page non trouvée",
+  "error.notFoundDescription":
+    "La page que vous avez demandée n'existe pas ou a été déplacée.",
+  "error.notFoundHint":
+    "Si vous avez accédé à cette page depuis un lien dans l'application, veuillez revenir en arrière et réessayer.",
 }
 
 export default fr

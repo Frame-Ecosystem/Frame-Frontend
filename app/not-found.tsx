@@ -1,12 +1,16 @@
+"use client"
+
 import { ThemedFallbackPage } from "@/app/_components/common/themed-fallback-page"
+import { useTranslation } from "./_i18n"
 
 export default function NotFoundPage() {
+  const { t } = useTranslation()
   return (
     <ThemedFallbackPage
       code="404"
-      title="Page Not Found"
-      description="The page you requested does not exist or was moved."
-      supportHint="If you reached this page from an in-app link, please navigate back and retry."
+      title={t("error.notFoundTitle")}
+      description={t("error.notFoundDescription")}
+      supportHint={t("error.notFoundHint")}
     />
   )
 }

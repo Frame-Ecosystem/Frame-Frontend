@@ -2,12 +2,14 @@
 
 import { reportError } from "@/app/_lib/report-error"
 import { ThemedFallbackPage } from "@/app/_components/common/themed-fallback-page"
+import { useTranslation } from "./_i18n"
 
 export default function GlobalError({
   error,
 }: {
   error: Error & { digest?: string }
 }) {
+  const { t } = useTranslation()
   reportError(error, { source: "global-error", digest: error.digest })
 
   return (
@@ -15,12 +17,12 @@ export default function GlobalError({
       <body className="bg-background text-foreground">
         <ThemedFallbackPage
           code="500"
-          title="Application Error"
-          description="A critical error occurred. We logged it automatically so the team can investigate."
+          title={t("error.globalTitle")}
+          description={t("error.globalDescription")}
           supportHint={
             error.digest
               ? `Reference ID: ${error.digest}`
-              : "Please refresh the page or return to the home screen."
+              : t("error.refreshHint")
           }
         />
       </body>

@@ -27,7 +27,7 @@ import LanguageFlagButton from "./language-flag-button"
 const DesktopNavbar = () => {
   const pathname = usePathname()
   const { user, isLoading } = useAuth()
-  const { t, dir } = useTranslation()
+  const { t } = useTranslation()
   const { unreadMessageCount } = useNotificationContext()
 
   const isProfileActive =
@@ -79,7 +79,7 @@ const DesktopNavbar = () => {
 
   return (
     <Card
-      dir={dir}
+      dir="ltr"
       data-nav-desktop
       className="bg-card border-b-primary fixed top-0 right-0 left-0 z-[9999] hidden rounded-none border-b shadow-xl lg:block"
     >

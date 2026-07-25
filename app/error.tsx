@@ -3,6 +3,7 @@
 import { useEffect } from "react"
 import { reportError } from "@/app/_lib/report-error"
 import { ThemedFallbackPage } from "@/app/_components/common/themed-fallback-page"
+import { useTranslation } from "./_i18n"
 
 export default function AppErrorPage({
   error,
@@ -11,6 +12,7 @@ export default function AppErrorPage({
   error: Error & { digest?: string }
   reset: () => void
 }) {
+  const { t } = useTranslation()
   useEffect(() => {
     reportError(error, { source: "app-error", digest: error.digest })
   }, [error])
@@ -18,14 +20,12 @@ export default function AppErrorPage({
   return (
     <ThemedFallbackPage
       code="500"
-      title="Something Went Wrong"
-      description="We hit an unexpected issue while loading this page."
+      title={t("error.title")}
+      description={t("error.description")}
       showRetry
       onRetry={reset}
       supportHint={
-        error.digest
-          ? `Reference ID: ${error.digest}`
-          : "Please retry. If the issue persists, contact support."
+        error.digest ? `Reference ID: ${error.digest}` : t("error.supportHint")
       }
     />
   )

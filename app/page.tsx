@@ -353,8 +353,7 @@ const LandingPage = () => {
       url: "https://framebeauty.com",
       applicationCategory: "LifestyleApplication",
       operatingSystem: "All",
-      description:
-        "Frame Beauty — the all-in-one platform to discover beauty trends, shop professional products, and book appointments at top-rated salons and barbershops near you.",
+      description: t("landing.jsonLdDescription"),
       offers: {
         "@type": "Offer",
         price: "0",
@@ -366,7 +365,7 @@ const LandingPage = () => {
         reviewCount: "1000",
       },
     }),
-    [],
+    [t],
   )
 
   if (isLoading) {
@@ -868,20 +867,9 @@ const LandingPage = () => {
                     </div>
                     <div>
                       <div className="text-foreground text-lg font-bold">
-                        {t("landing.clientsTitle")
-                          .split("\n")
-                          .map((line, i) => (
-                            <span key={i}>
-                              {i === 0 ? (
-                                line
-                              ) : (
-                                <>
-                                  {line.replace("way", "")} <InlineBrandLogo />
-                                </>
-                              )}
-                              {i === 0 && <br />}
-                            </span>
-                          ))}
+                        {t("landing.clientsTitle")}
+                        <br />
+                        {t("landing.clientsTitleLine2")} <InlineBrandLogo />
                       </div>
 
                       <div className="mt-4 grid grid-cols-2 gap-3">
@@ -938,20 +926,9 @@ const LandingPage = () => {
                   className="text-foreground mb-4 text-3xl font-bold tracking-tight sm:text-4xl lg:text-5xl"
                   style={{ fontFamily: "var(--font-nunito), sans-serif" }}
                 >
-                  {t("landing.clientsTitle")
-                    .split("\n")
-                    .map((line, i) => (
-                      <span key={i}>
-                        {i === 0 ? (
-                          line
-                        ) : (
-                          <>
-                            {line.replace("way", "")} <InlineBrandLogo />
-                          </>
-                        )}
-                        {i === 0 && <br />}
-                      </span>
-                    ))}
+                  {t("landing.clientsTitle")}
+                  <br />
+                  {t("landing.clientsTitleLine2")} <InlineBrandLogo />
                 </h2>
                 <p className="text-muted-foreground mb-8 text-lg leading-relaxed">
                   {t("landing.clientsSubtitle")}
@@ -1201,7 +1178,7 @@ const LandingPage = () => {
                 <div className="bg-card border-border/50 relative flex h-56 w-56 items-center justify-center rounded-[2.5rem] border shadow-2xl sm:h-64 sm:w-64 lg:h-72 lg:w-72">
                   <Image
                     src="/images/logos/fb-logo.png"
-                    alt="Frame Beauty app icon"
+                    alt={t("landing.appIconAlt")}
                     width={240}
                     height={240}
                     priority
@@ -1405,7 +1382,7 @@ const LandingPage = () => {
                           href="https://instagram.com/framebeauty"
                           target="_blank"
                           rel="noopener noreferrer"
-                          aria-label="Frame Beauty on Instagram"
+                          aria-label={t("landing.followOnInstagram")}
                           className="text-muted-foreground hover:text-primary hover:border-border inline-flex h-9 w-9 items-center justify-center rounded-lg border border-transparent transition-colors"
                         >
                           <Instagram className="h-4 w-4" />
@@ -1414,7 +1391,7 @@ const LandingPage = () => {
                           href="https://facebook.com/framebeauty"
                           target="_blank"
                           rel="noopener noreferrer"
-                          aria-label="Frame Beauty on Facebook"
+                          aria-label={t("landing.followOnFacebook")}
                           className="text-muted-foreground hover:text-primary hover:border-border inline-flex h-9 w-9 items-center justify-center rounded-lg border border-transparent transition-colors"
                         >
                           <Facebook className="h-4 w-4" />
@@ -1423,7 +1400,7 @@ const LandingPage = () => {
                           href="https://threads.net/@framebeauty"
                           target="_blank"
                           rel="noopener noreferrer"
-                          aria-label="Frame Beauty on Threads"
+                          aria-label={t("landing.followOnThreads")}
                           className="text-muted-foreground hover:text-primary hover:border-border inline-flex h-9 w-9 items-center justify-center rounded-lg border border-transparent transition-colors"
                         >
                           <ThreadsIcon className="h-4 w-4" />
@@ -1432,7 +1409,7 @@ const LandingPage = () => {
                           href="https://tiktok.com/@framebeauty"
                           target="_blank"
                           rel="noopener noreferrer"
-                          aria-label="Frame Beauty on TikTok"
+                          aria-label={t("landing.followOnTikTok")}
                           className="text-muted-foreground hover:text-primary hover:border-border inline-flex h-9 w-9 items-center justify-center rounded-lg border border-transparent transition-colors"
                         >
                           <TikTokIcon className="h-4 w-4" />
@@ -1441,7 +1418,7 @@ const LandingPage = () => {
                           href="https://youtube.com/@framebeauty"
                           target="_blank"
                           rel="noopener noreferrer"
-                          aria-label="Frame Beauty on YouTube"
+                          aria-label={t("landing.followOnYouTube")}
                           className="text-muted-foreground hover:text-primary hover:border-border inline-flex h-9 w-9 items-center justify-center rounded-lg border border-transparent transition-colors"
                         >
                           <Youtube className="h-4 w-4" />
@@ -1450,7 +1427,7 @@ const LandingPage = () => {
                           href="https://linkedin.com/company/framebeauty"
                           target="_blank"
                           rel="noopener noreferrer"
-                          aria-label="Frame Beauty on LinkedIn"
+                          aria-label={t("landing.followOnLinkedIn")}
                           className="text-muted-foreground hover:text-primary hover:border-border inline-flex h-9 w-9 items-center justify-center rounded-lg border border-transparent transition-colors"
                         >
                           <Linkedin className="h-4 w-4" />
@@ -1459,14 +1436,14 @@ const LandingPage = () => {
                           href="https://x.com/framebeauty"
                           target="_blank"
                           rel="noopener noreferrer"
-                          aria-label="Frame Beauty on X"
+                          aria-label={t("landing.followOnX")}
                           className="text-muted-foreground hover:text-primary hover:border-border inline-flex h-9 w-9 items-center justify-center rounded-lg border border-transparent transition-colors"
                         >
                           <XIcon className="h-4 w-4" />
                         </a>
                         <a
                           href="mailto:abbassimoohamed@gmail.com"
-                          aria-label="Email Frame Beauty"
+                          aria-label={t("landing.emailFrameBeauty")}
                           className="text-muted-foreground hover:text-primary hover:border-border inline-flex h-9 w-9 items-center justify-center rounded-lg border border-transparent transition-colors"
                         >
                           <Mail className="h-4 w-4" />

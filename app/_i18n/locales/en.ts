@@ -457,7 +457,8 @@ const en: Record<string, string> = {
 
   // For Clients
   "landing.forClients": "For Clients",
-  "landing.clientsTitle": "Your beauty,\nyour way",
+  "landing.clientsTitle": "Your beauty,",
+  "landing.clientsTitleLine2": "your",
   "landing.clientsSubtitle":
     "Discover trending styles in the feed, shop products from top lounges, and book your next appointment — all in one app.",
   "landing.clientsFeat1": "Browse trending posts & reels from top lounges",
@@ -2141,6 +2142,44 @@ const en: Record<string, string> = {
   "reviews.loading": "Loading reviews...",
   "reviews.reviewPlural": "reviews",
   "reviews.reviewSingular": "review",
+
+  // ── Accessibility / ARIA labels ───────────────────────────────────────
+  "landing.changeLanguage": "Change language",
+  "landing.appIconAlt": "Frame Beauty app icon",
+  "landing.jsonLdDescription":
+    "Frame Beauty — the all-in-one platform to discover beauty trends, shop professional products, and book appointments at top-rated salons and barbershops near you.",
+  "landing.followOnInstagram": "Frame Beauty on Instagram",
+  "landing.followOnFacebook": "Frame Beauty on Facebook",
+  "landing.followOnThreads": "Frame Beauty on Threads",
+  "landing.followOnTikTok": "Frame Beauty on TikTok",
+  "landing.followOnYouTube": "Frame Beauty on YouTube",
+  "landing.followOnLinkedIn": "Frame Beauty on LinkedIn",
+  "landing.followOnX": "Frame Beauty on X",
+  "landing.emailFrameBeauty": "Email Frame Beauty",
+
+  // ── Password strength ────────────────────────────────────────────────
+  "password.strengthWeak":
+    "Your password is weak. Consider using a longer passphrase with a mix of characters.",
+  "password.strengthMedium":
+    "Your password is not strong enough. Try adding more words or using uncommon words.",
+  "password.isWeak": "Password is weak",
+  "password.couldBeStronger": "Password could be stronger",
+  "password.strengthLabel": "Password strength: {level}",
+
+  // ── Error / fallback pages ───────────────────────────────────────────
+  "common.backToHome": "Back To Home",
+  "error.title": "Something Went Wrong",
+  "error.description": "We hit an unexpected issue while loading this page.",
+  "error.supportHint": "Please retry. If the issue persists, contact support.",
+  "error.globalTitle": "Application Error",
+  "error.globalDescription":
+    "A critical error occurred. We logged it automatically so the team can investigate.",
+  "error.refreshHint": "Please refresh the page or return to the home screen.",
+  "error.notFoundTitle": "Page Not Found",
+  "error.notFoundDescription":
+    "The page you requested does not exist or was moved.",
+  "error.notFoundHint":
+    "If you reached this page from an in-app link, please navigate back and retry.",
 }
 
 export default en

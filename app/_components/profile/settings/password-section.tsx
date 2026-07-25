@@ -26,12 +26,6 @@ interface PasswordSectionProps {
   passwordStrength?: PasswordStrength
 }
 
-const STRENGTH_MESSAGES: Record<string, string> = {
-  weak: "Your password is weak. Consider using a longer passphrase with a mix of characters.",
-  medium:
-    "Your password is not strong enough. Try adding more words or using uncommon words.",
-}
-
 export function PasswordSection({
   isOpen,
   toggle,
@@ -81,8 +75,8 @@ export function PasswordSection({
                   className="inline-flex items-center"
                   aria-label={
                     passwordStrength === "weak"
-                      ? "Password is weak"
-                      : "Password could be stronger"
+                      ? t("password.isWeak")
+                      : t("password.couldBeStronger")
                   }
                 >
                   <AlertTriangle
@@ -95,7 +89,9 @@ export function PasswordSection({
                 </button>
               </PopoverTrigger>
               <PopoverContent side="top" align="start" className="w-64 text-xs">
-                {STRENGTH_MESSAGES[passwordStrength!]}
+                {passwordStrength === "weak"
+                  ? t("password.strengthWeak")
+                  : t("password.strengthMedium")}
               </PopoverContent>
             </Popover>
           )}

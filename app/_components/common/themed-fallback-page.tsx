@@ -4,6 +4,7 @@ import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { AlertTriangle, Home, RefreshCw, ArrowLeft } from "lucide-react"
 import { Button } from "@/app/_components/ui/button"
+import { useTranslation } from "@/app/_i18n"
 
 type ThemedFallbackPageProps = {
   code: string
@@ -23,6 +24,7 @@ export function ThemedFallbackPage({
   supportHint,
 }: Readonly<ThemedFallbackPageProps>) {
   const router = useRouter()
+  const { t } = useTranslation()
 
   return (
     <main className="from-background via-muted/40 to-background flex min-h-screen items-center justify-center bg-gradient-to-br p-4">
@@ -55,11 +57,11 @@ export function ThemedFallbackPage({
         <div className="mt-6 flex flex-wrap items-center gap-3">
           <Button type="button" variant="default" asChild>
             <Link href="/">
-              <Home className="h-4 w-4" /> Back To Home
+              <Home className="h-4 w-4" /> {t("common.backToHome")}
             </Link>
           </Button>
           <Button type="button" variant="outline" onClick={() => router.back()}>
-            <ArrowLeft className="h-4 w-4" /> Go Back
+            <ArrowLeft className="h-4 w-4" /> {t("common.goBack")}
           </Button>
           {showRetry ? (
             <Button
@@ -68,7 +70,7 @@ export function ThemedFallbackPage({
               onClick={onRetry}
               className="ml-auto"
             >
-              <RefreshCw className="h-4 w-4" /> Try Again
+              <RefreshCw className="h-4 w-4" /> {t("common.tryAgain")}
             </Button>
           ) : null}
         </div>

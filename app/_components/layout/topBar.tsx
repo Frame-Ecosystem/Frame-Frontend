@@ -28,11 +28,11 @@ const TopBar: React.FC<TopBarProps> = ({
 }) => {
   const { user } = useAuth()
   const router = useRouter()
-  const { t, dir } = useTranslation()
+  const { t } = useTranslation()
 
   return (
     <div
-      dir={dir}
+      dir="ltr"
       data-nav-topbar
       className={`bg-background border-border border-b-primary fixed top-0 right-0 left-0 z-[9999] flex items-center justify-between gap-2 border-b px-3 py-4 pr-4 shadow-xl backdrop-blur-sm transition-transform duration-300 ease-in-out md:py-5 lg:px-10 lg:py-5 lg:pr-20 ${user ? "lg:hidden" : ""} ${className}`}
     >

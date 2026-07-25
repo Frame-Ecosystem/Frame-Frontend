@@ -452,7 +452,8 @@ const ar: Record<string, string> = {
   "landing.averageRating": "متوسط التقييم",
 
   "landing.forClients": "للعملاء",
-  "landing.clientsTitle": "جمالك،\nعلى طريقتك",
+  "landing.clientsTitle": "جمالك،",
+  "landing.clientsTitleLine2": "طريقتك",
   "landing.clientsSubtitle":
     "اكتشف الصيحات الرائجة، تسوّق المنتجات واحجز موعدك القادم — كل ذلك في تطبيق واحد.",
   "landing.clientsFeat1": "تصفّح المنشورات والريلز من أفضل الصالونات",
@@ -2009,6 +2010,44 @@ const ar: Record<string, string> = {
   "serviceMgmt.deleteDesc":
     "هل أنت متأكد من حذف هذه الخدمة؟ لا يمكن التراجع عن هذا الإجراء وستتم إزالة الخدمة من صالونك.",
   "serviceMgmt.deleteBtn": "حذف الخدمة",
+
+  // ── Accessibility / ARIA labels ───────────────────────────────────────
+  "landing.changeLanguage": "تغيير اللغة",
+  "landing.appIconAlt": "أيقونة تطبيق Frame Beauty",
+  "landing.jsonLdDescription":
+    "Frame Beauty — المنصة الشاملة لاكتشاف صيحات الجمال وشراء المنتجات المهنية وحجز مواعيد في أفضل صالونات وصالونات الحلاقة بالقرب منك.",
+  "landing.followOnInstagram": "Frame Beauty على إنستغرام",
+  "landing.followOnFacebook": "Frame Beauty على فيسبوك",
+  "landing.followOnThreads": "Frame Beauty على ثريدز",
+  "landing.followOnTikTok": "Frame Beauty على تيك توك",
+  "landing.followOnYouTube": "Frame Beauty على يوتيوب",
+  "landing.followOnLinkedIn": "Frame Beauty على لينكد إن",
+  "landing.followOnX": "Frame Beauty على إكس",
+  "landing.emailFrameBeauty": "أرسل بريدًا إلى Frame Beauty",
+
+  // ── Password strength ────────────────────────────────────────────────
+  "password.strengthWeak":
+    "كلمة المرور ضعيفة. فكر في استخدام عبارة مرور أطول مع مزيج من الأحرف.",
+  "password.strengthMedium":
+    "كلمة المرور ليست قوية بما يكفي. حاول إضافة المزيد من الكلمات أو استخدام كلمات غير شائعة.",
+  "password.isWeak": "كلمة المرور ضعيفة",
+  "password.couldBeStronger": "يمكن أن تكون كلمة المرور أقوى",
+  "password.strengthLabel": "قوة كلمة المرور: {level}",
+
+  // ── Error / fallback pages ───────────────────────────────────────────
+  "common.backToHome": "العودة للرئيسية",
+  "error.title": "حدث خطأ ما",
+  "error.description": "واجهنا مشكلة غير متوقعة أثناء تحميل هذه الصفحة.",
+  "error.supportHint":
+    "يرجى المحاولة مرة أخرى. إذا استمرت المشكلة، تواصل مع الدعم.",
+  "error.globalTitle": "خطأ في التطبيق",
+  "error.globalDescription":
+    "حدث خطأ حرج. سجّلناه تلقائيًا حتى يتمكن الفريق من التحقيق.",
+  "error.refreshHint": "يرجى تحديث الصفحة أو العودة إلى الشاشة الرئيسية.",
+  "error.notFoundTitle": "الصفحة غير موجودة",
+  "error.notFoundDescription": "الصفحة التي طلبتها غير موجودة أو تم نقلها.",
+  "error.notFoundHint":
+    "إذا وصلت إلى هذه الصفحة من رابط داخل التطبيق، يرجى العودة والمحاولة مرة أخرى.",
 }
 
 export default ar

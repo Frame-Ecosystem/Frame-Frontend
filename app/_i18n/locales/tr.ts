@@ -456,7 +456,8 @@ const tr: Record<string, string> = {
   "landing.averageRating": "Ortalama Puan",
 
   "landing.forClients": "Müşteriler İçin",
-  "landing.clientsTitle": "Güzelliğin,\nsenin tarzın",
+  "landing.clientsTitle": "Güzelliğin,",
+  "landing.clientsTitleLine2": "senin",
   "landing.clientsSubtitle":
     "Akışta trend stilleri keşfet, ürünleri satın al ve bir sonraki randevunu al — hepsi tek uygulamada.",
   "landing.clientsFeat1": "En iyi salonlardan trend gönderi ve reelleri incele",
@@ -2042,6 +2043,45 @@ const tr: Record<string, string> = {
   "serviceMgmt.deleteDesc":
     "Bu hizmeti silmek istediğinizden emin misiniz? Bu işlem geri alınamaz ve hizmet salonunuzdan kaldırılacaktır.",
   "serviceMgmt.deleteBtn": "Hizmeti sil",
+
+  // ── Accessibility / ARIA labels ───────────────────────────────────────
+  "landing.changeLanguage": "Dili değiştir",
+  "landing.appIconAlt": "Frame Beauty uygulama simgesi",
+  "landing.jsonLdDescription":
+    "Frame Beauty — güzellik trendlerini keşfetmek, profesyonel ürünler satın almak ve yakınınızdaki en iyi salon ve berberlerde randevu almak için hepsi bir arada platform.",
+  "landing.followOnInstagram": "Frame Beauty Instagram'da",
+  "landing.followOnFacebook": "Frame Beauty Facebook'ta",
+  "landing.followOnThreads": "Frame Beauty Threads'da",
+  "landing.followOnTikTok": "Frame Beauty TikTok'ta",
+  "landing.followOnYouTube": "Frame Beauty YouTube'da",
+  "landing.followOnLinkedIn": "Frame Beauty LinkedIn'de",
+  "landing.followOnX": "Frame Beauty X'te",
+  "landing.emailFrameBeauty": "Frame Beauty'ye e-posta gönder",
+
+  // ── Password strength ────────────────────────────────────────────────
+  "password.strengthWeak":
+    "Şifreniz zayıf. Daha uzun bir parola ve karışık karakterler kullanmayı düşünün.",
+  "password.strengthMedium":
+    "Şifreniz yeterince güçlü değil. Daha fazla kelime eklemeyi veya nadir kelimeler kullanmayı deneyin.",
+  "password.isWeak": "Şifre zayıf",
+  "password.couldBeStronger": "Şifre daha güçlü olabilir",
+  "password.strengthLabel": "Şifre gücü: {level}",
+
+  // ── Error / fallback pages ───────────────────────────────────────────
+  "common.backToHome": "Ana Sayfaya Dön",
+  "error.title": "Bir Hata Oluştu",
+  "error.description":
+    "Bu sayfa yüklenirken beklenmeyen bir sorunla karşılaştık.",
+  "error.supportHint":
+    "Lütfen tekrar deneyin. Sorun devam ederse destek ile iletişime geçin.",
+  "error.globalTitle": "Uygulama Hatası",
+  "error.globalDescription":
+    "Kritik bir hata oluştu. Ekibin araştırma yapabilmesi için otomatik olarak kaydettik.",
+  "error.refreshHint": "Lütfen sayfayı yenileyin veya ana ekrana dönün.",
+  "error.notFoundTitle": "Sayfa Bulunamadı",
+  "error.notFoundDescription": "İstediğiniz sayfa mevcut değil veya taşınmış.",
+  "error.notFoundHint":
+    "Bu sayfaya uygulama içi bir bağlantıdan ulaştıysanız, lütfen geri dönüp tekrar deneyin.",
 }
 
 export default tr

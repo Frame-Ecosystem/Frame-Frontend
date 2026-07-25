@@ -37,7 +37,7 @@ function checkFlagEmoji(): boolean {
 
 export default function LanguageFlagButton() {
   const [ready, setReady] = useState({ mounted: false, flagOk: true })
-  const { locale, setLocale } = useTranslation()
+  const { locale, setLocale, t } = useTranslation()
 
   useLayoutEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
@@ -59,7 +59,7 @@ export default function LanguageFlagButton() {
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <button
-          aria-label="Change language"
+          aria-label={t("landing.changeLanguage")}
           className="border-primary/30 hover:bg-primary/10 flex h-10 w-10 items-center justify-center rounded-full border text-xs font-semibold transition-colors"
         >
           {ready.flagOk ? currentLang.flag : label}
