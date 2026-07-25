@@ -3,6 +3,8 @@
 import { useEffect } from "react"
 import { usePathname, useRouter } from "next/navigation"
 import { useAuth } from "@/app/_auth"
+import { Skeleton } from "@/app/_components/ui/skeleton"
+import { Loader2 } from "lucide-react"
 
 const PUBLIC_ROUTES = [
   "/",
@@ -18,6 +20,21 @@ const PUBLIC_ROUTES = [
 
 function isPublicRoute(pathname: string): boolean {
   return PUBLIC_ROUTES.includes(pathname)
+}
+
+/** Content-shaped skeleton shown while the session restore runs in the background. */
+function SessionRestoreSkeleton() {
+  return (
+    <div className="bg-background text-foreground flex min-h-screen items-center justify-center">
+      <div className="flex flex-col items-center gap-4">
+        <Loader2 className="text-primary h-6 w-6 animate-spin" />
+        <div className="space-y-2">
+          <Skeleton className="h-4 w-48" />
+          <Skeleton className="h-3 w-32" />
+        </div>
+      </div>
+    </div>
+  )
 }
 
 export default function AuthGuard({ children }: { children: React.ReactNode }) {
@@ -37,22 +54,19 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
   // Public routes must render immediately to avoid intermittent white screens.
   if (isLoading && publicRoute) return <>{children}</>
 
-  // While loading protected routes, show a deterministic shell instead of a blank screen.
-  if (isLoading) {
-    return (
-      <div className="bg-background text-foreground flex min-h-screen items-center justify-center">
-        <p className="text-muted-foreground text-sm">Loading session...</p>
-      </div>
-    )
-  }
+  // While restoring session on a protected route, show a skeleton (not blank text).
+  if (isLoading) return <SessionRestoreSkeleton />
 
   // On protected routes without auth, keep a visible shell while redirect is in progress.
   if (!user && !publicRoute) {
     return (
       <div className="bg-background text-foreground flex min-h-screen items-center justify-center">
-        <p className="text-muted-foreground text-sm">
-          Redirecting to sign in...
-        </p>
+        <div className="flex flex-col items-center gap-4">
+          <Loader2 className="text-primary h-6 w-6 animate-spin" />
+          <p className="text-muted-foreground text-sm">
+            Redirecting to sign in…
+          </p>
+        </div>
       </div>
     )
   }

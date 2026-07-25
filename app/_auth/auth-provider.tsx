@@ -40,6 +40,32 @@ import { reportError } from "../_lib/report-error"
 /** Default token lifetime (seconds) when backend doesn't provide expiresIn. */
 const DEFAULT_EXPIRES_IN = 900
 
+/**
+ * Hard timeout for the full session-restore flow (refresh-token + /v1/me).
+ * Chosen to stay well under the 2–3 s abandonment threshold.  On timeout,
+ * the login screen is shown so the user can sign in manually rather than
+ * staring at a blank/loading screen.
+ */
+const SESSION_RESTORE_TIMEOUT_MS = 1_500
+
+/** Races a promise against a timeout. Rejects with a descriptive Error on expiry. */
+function withTimeout<T>(
+  promise: Promise<T>,
+  ms: number,
+  label: string,
+): Promise<T> {
+  let timer: ReturnType<typeof setTimeout>
+  return Promise.race([
+    promise,
+    new Promise<T>((_, reject) => {
+      timer = setTimeout(
+        () => reject(new Error(`Timeout: ${label} exceeded ${ms}ms`)),
+        ms,
+      )
+    }),
+  ]).finally(() => clearTimeout(timer))
+}
+
 const PUBLIC_ROUTES = [
   "/",
   "/auth/google/callback",
@@ -154,43 +180,91 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [])
 
   const restoreSession = useCallback(async (): Promise<boolean> => {
-    // Don't restore session if user manually logged out
+    const t0 = performance.now()
+
+    // ── Local-first: skip network entirely when there's nothing to restore ─
     if (tokenManager.isManualLogout()) {
+      if (process.env.NODE_ENV !== "production") {
+        console.debug("[auth] restore skipped — manual logout")
+      }
+      return false
+    }
+
+    if (!tokenManager.hasSession()) {
+      if (process.env.NODE_ENV !== "production") {
+        console.debug("[auth] restore skipped — no session flag")
+      }
       return false
     }
 
     try {
-      const result = await authService.refreshToken()
+      // Wrap the sequential refresh + profile fetch in a hard timeout so
+      // the user is never stuck on a loading screen for more than ~1.5 s.
+      const result = await withTimeout(
+        (async () => {
+          const tRefresh = performance.now()
+          const refreshResult = await authService.refreshToken()
+          if (process.env.NODE_ENV !== "production") {
+            console.debug(
+              `[auth] refresh-token completed in ${(performance.now() - tRefresh).toFixed(0)}ms`,
+            )
+          }
 
-      if (!result?.ok || !result.data) {
-        tokenManager.clear()
-        return false
+          if (!refreshResult?.ok || !refreshResult.data) {
+            tokenManager.clear()
+            return { ok: false as const }
+          }
+
+          const newToken = refreshResult.data.token
+          const expiresIn = refreshResult.data.expiresIn || DEFAULT_EXPIRES_IN
+          if (refreshResult.data.csrfToken)
+            setSessionCsrfToken(refreshResult.data.csrfToken)
+
+          if (!newToken) {
+            tokenManager.clear()
+            return { ok: false as const }
+          }
+
+          tokenManager.set(newToken, expiresIn)
+          setAccessToken(newToken)
+          apiClient.setAccessTokenGetter(() => newToken)
+
+          const tProfile = performance.now()
+          const userData = await authService.getCurrentUser()
+          if (process.env.NODE_ENV !== "production") {
+            console.debug(
+              `[auth] /me completed in ${(performance.now() - tProfile).toFixed(0)}ms`,
+            )
+          }
+
+          if (userData) {
+            setUser(userData)
+            applyUserTheme(userData)
+            applyUserLanguage(userData)
+            getSocket()
+          }
+
+          return { ok: true as const }
+        })(),
+        SESSION_RESTORE_TIMEOUT_MS,
+        "session-restore",
+      )
+
+      if (process.env.NODE_ENV !== "production") {
+        console.debug(
+          `[auth] restoreSession total: ${(performance.now() - t0).toFixed(0)}ms — ${result.ok ? "success" : "failed"}`,
+        )
       }
 
-      const newToken = result.data.token
-      const expiresIn = result.data.expiresIn || DEFAULT_EXPIRES_IN
-      if (result.data.csrfToken) setSessionCsrfToken(result.data.csrfToken)
-
-      if (!newToken) {
-        tokenManager.clear()
-        return false
-      }
-
-      tokenManager.set(newToken, expiresIn)
-      setAccessToken(newToken)
-      apiClient.setAccessTokenGetter(() => newToken)
-
-      const userData = await authService.getCurrentUser()
-      if (userData) {
-        setUser(userData)
-        applyUserTheme(userData)
-        applyUserLanguage(userData)
-        getSocket()
-      }
-
-      return true
+      return result.ok
     } catch {
+      // Timeout or network error — clear stale state so the login screen shows
       tokenManager.clear()
+      if (process.env.NODE_ENV !== "production") {
+        console.debug(
+          `[auth] restoreSession failed/timed-out after ${(performance.now() - t0).toFixed(0)}ms`,
+        )
+      }
       return false
     }
   }, [applyUserTheme, applyUserLanguage])
@@ -411,6 +485,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
 
       if (user && tokenManager.token) {
+        setIsLoading(false)
+        return
+      }
+
+      // ── Local-first: skip the network round-trip when we already know
+      //    there's nothing to restore.  This makes the no-session path
+      //    instant instead of waiting for a timeout or failed refresh. ──
+      if (tokenManager.isManualLogout() || !tokenManager.hasSession()) {
         setIsLoading(false)
         return
       }
