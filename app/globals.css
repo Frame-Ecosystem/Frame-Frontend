@@ -585,6 +585,61 @@
 [dir="rtl"] [class*="text-left"] { text-align: start !important; }
 [dir="rtl"] [class*="text-right"] { text-align: end !important; }
 
+/* ──────────────────────────────────────────────────────────────────────────────
+   EXPLICIT LTR OVERRIDES — Prevent RTL flips inside dir="ltr" containers.
+   Any component that sets dir="ltr" (e.g. TopBar) is immune to the
+   [dir="rtl"] rules above because these rules restore the physical
+   margin/padding values that the RTL rules un-set.
+   ──────────────────────────────────────────────────────────────────────────── */
+[dir="ltr"] [class*=" ml-0"]  { margin-left: 0; margin-inline-end: unset; }
+[dir="ltr"] [class*=" ml-1"]  { margin-left: 0.25rem; margin-inline-end: unset; }
+[dir="ltr"] [class*=" ml-1.5"]{ margin-left: 0.375rem; margin-inline-end: unset; }
+[dir="ltr"] [class*=" ml-2"]  { margin-left: 0.5rem; margin-inline-end: unset; }
+[dir="ltr"] [class*=" ml-3"]  { margin-left: 0.75rem; margin-inline-end: unset; }
+[dir="ltr"] [class*=" ml-4"]  { margin-left: 1rem; margin-inline-end: unset; }
+[dir="ltr"] [class*=" ml-5"]  { margin-left: 1.25rem; margin-inline-end: unset; }
+[dir="ltr"] [class*=" ml-6"]  { margin-left: 1.5rem; margin-inline-end: unset; }
+[dir="ltr"] [class*=" ml-8"]  { margin-left: 2rem; margin-inline-end: unset; }
+[dir="ltr"] [class*=" ml-10"] { margin-left: 2.5rem; margin-inline-end: unset; }
+[dir="ltr"] [class*=" ml-20"] { margin-left: 5rem; margin-inline-end: unset; }
+[dir="ltr"] [class*=" ml-auto"]{ margin-left: auto; margin-inline-end: unset; }
+
+[dir="ltr"] [class*=" mr-0"]  { margin-right: 0; margin-inline-start: unset; }
+[dir="ltr"] [class*=" mr-0.5"]{ margin-right: 0.125rem; margin-inline-start: unset; }
+[dir="ltr"] [class*=" mr-1"]  { margin-right: 0.25rem; margin-inline-start: unset; }
+[dir="ltr"] [class*=" mr-1.5"]{ margin-right: 0.375rem; margin-inline-start: unset; }
+[dir="ltr"] [class*=" mr-2"]  { margin-right: 0.5rem; margin-inline-start: unset; }
+[dir="ltr"] [class*=" mr-3"]  { margin-right: 0.75rem; margin-inline-start: unset; }
+[dir="ltr"] [class*=" mr-4"]  { margin-right: 1rem; margin-inline-start: unset; }
+
+[dir="ltr"] [class*=" pl-0"]  { padding-left: 0; padding-inline-end: unset; }
+[dir="ltr"] [class*=" pl-1"]  { padding-left: 0.25rem; padding-inline-end: unset; }
+[dir="ltr"] [class*=" pl-2"]  { padding-left: 0.5rem; padding-inline-end: unset; }
+[dir="ltr"] [class*=" pl-3"]  { padding-left: 0.75rem; padding-inline-end: unset; }
+[dir="ltr"] [class*=" pl-4"]  { padding-left: 1rem; padding-inline-end: unset; }
+[dir="ltr"] [class*=" pl-5"]  { padding-left: 1.25rem; padding-inline-end: unset; }
+[dir="ltr"] [class*=" pl-6"]  { padding-left: 1.5rem; padding-inline-end: unset; }
+
+[dir="ltr"] [class*=" pr-0"]  { padding-right: 0; padding-inline-start: unset; }
+[dir="ltr"] [class*=" pr-1"]  { padding-right: 0.25rem; padding-inline-start: unset; }
+[dir="ltr"] [class*=" pr-2"]  { padding-right: 0.5rem; padding-inline-start: unset; }
+[dir="ltr"] [class*=" pr-3"]  { padding-right: 0.75rem; padding-inline-start: unset; }
+[dir="ltr"] [class*=" pr-4"]  { padding-right: 1rem; padding-inline-start: unset; }
+[dir="ltr"] [class*=" pr-5"]  { padding-right: 1.25rem; padding-inline-start: unset; }
+[dir="ltr"] [class*=" pr-6"]  { padding-right: 1.5rem; padding-inline-start: unset; }
+[dir="ltr"] [class*=" pr-8"]  { padding-right: 2rem; padding-inline-start: unset; }
+[dir="ltr"] [class*=" pr-10"] { padding-right: 2.5rem; padding-inline-start: unset; }
+[dir="ltr"] [class*=" pr-20"] { padding-right: 5rem; padding-inline-start: unset; }
+
+[dir="ltr"] [class*=" right-0"] { right: 0; inset-inline-end: unset; }
+[dir="ltr"] [class*=" right-3"] { right: 0.75rem; inset-inline-end: unset; }
+[dir="ltr"] [class*=" right-4"] { right: 1rem; inset-inline-end: unset; }
+
+[dir="ltr"] [class*=" left-0"] { left: 0; inset-inline-start: unset; }
+[dir="ltr"] [class*=" left-3"] { left: 0.75rem; inset-inline-start: unset; }
+[dir="ltr"] [class*=" left-4"] { left: 1rem; inset-inline-start: unset; }
+[dir="ltr"] [class*=" left-1/2"] { left: 50%; inset-inline-start: unset; }
+
 /* =============================================================================
    QUEUE FULLSCREEN MODE
    Hides all navigation elements when queue is in fullscreen / pseudo-fullscreen.
