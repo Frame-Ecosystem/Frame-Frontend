@@ -520,125 +520,74 @@
    RTL SUPPORT — Automatic margin/padding flipping for directional utilities
    When dir="rtl" is set on <html>, these rules convert physical directions
    (left/right) to logical directions (start/end) so the layout mirrors correctly.
+
+   Components that set dir="ltr" on themselves (e.g. TopBar, auth forms) are
+   automatically excluded via :not(:is([dir="ltr"], [dir="ltr"] *)) so their physical
+   properties are never flipped.
    ============================================================================= */
 
 /* Flip ml-* to margin-inline-end in RTL */
-[dir="rtl"] [class*=" ml-0"] { margin-inline-end: 0; margin-left: unset; }
-[dir="rtl"] [class*=" ml-0.5"] { margin-inline-end: 0.125rem; margin-left: unset; }
-[dir="rtl"] [class*=" ml-1"] { margin-inline-end: 0.25rem; margin-left: unset; }
-[dir="rtl"] [class*=" ml-1.5"] { margin-inline-end: 0.375rem; margin-left: unset; }
-[dir="rtl"] [class*=" ml-2"] { margin-inline-end: 0.5rem; margin-left: unset; }
-[dir="rtl"] [class*=" ml-3"] { margin-inline-end: 0.75rem; margin-left: unset; }
-[dir="rtl"] [class*=" ml-4"] { margin-inline-end: 1rem; margin-left: unset; }
-[dir="rtl"] [class*=" ml-5"] { margin-inline-end: 1.25rem; margin-left: unset; }
-[dir="rtl"] [class*=" ml-6"] { margin-inline-end: 1.5rem; margin-left: unset; }
-[dir="rtl"] [class*=" ml-8"] { margin-inline-end: 2rem; margin-left: unset; }
-[dir="rtl"] [class*=" ml-10"] { margin-inline-end: 2.5rem; margin-left: unset; }
-[dir="rtl"] [class*=" ml-12"] { margin-inline-end: 3rem; margin-left: unset; }
-[dir="rtl"] [class*=" ml-16"] { margin-inline-end: 4rem; margin-left: unset; }
-[dir="rtl"] [class*=" ml-20"] { margin-inline-end: 5rem; margin-left: unset; }
-[dir="rtl"] [class*=" ml-auto"] { margin-inline-end: auto; margin-left: unset; }
+[dir="rtl"] [class*=" ml-0"]:not(:is([dir="ltr"], [dir="ltr"] *)) { margin-inline-end: 0; margin-left: unset; }
+[dir="rtl"] [class*=" ml-0.5"]:not(:is([dir="ltr"], [dir="ltr"] *)) { margin-inline-end: 0.125rem; margin-left: unset; }
+[dir="rtl"] [class*=" ml-1"]:not(:is([dir="ltr"], [dir="ltr"] *)) { margin-inline-end: 0.25rem; margin-left: unset; }
+[dir="rtl"] [class*=" ml-1.5"]:not(:is([dir="ltr"], [dir="ltr"] *)) { margin-inline-end: 0.375rem; margin-left: unset; }
+[dir="rtl"] [class*=" ml-2"]:not(:is([dir="ltr"], [dir="ltr"] *)) { margin-inline-end: 0.5rem; margin-left: unset; }
+[dir="rtl"] [class*=" ml-3"]:not(:is([dir="ltr"], [dir="ltr"] *)) { margin-inline-end: 0.75rem; margin-left: unset; }
+[dir="rtl"] [class*=" ml-4"]:not(:is([dir="ltr"], [dir="ltr"] *)) { margin-inline-end: 1rem; margin-left: unset; }
+[dir="rtl"] [class*=" ml-5"]:not(:is([dir="ltr"], [dir="ltr"] *)) { margin-inline-end: 1.25rem; margin-left: unset; }
+[dir="rtl"] [class*=" ml-6"]:not(:is([dir="ltr"], [dir="ltr"] *)) { margin-inline-end: 1.5rem; margin-left: unset; }
+[dir="rtl"] [class*=" ml-8"]:not(:is([dir="ltr"], [dir="ltr"] *)) { margin-inline-end: 2rem; margin-left: unset; }
+[dir="rtl"] [class*=" ml-10"]:not(:is([dir="ltr"], [dir="ltr"] *)) { margin-inline-end: 2.5rem; margin-left: unset; }
+[dir="rtl"] [class*=" ml-12"]:not(:is([dir="ltr"], [dir="ltr"] *)) { margin-inline-end: 3rem; margin-left: unset; }
+[dir="rtl"] [class*=" ml-16"]:not(:is([dir="ltr"], [dir="ltr"] *)) { margin-inline-end: 4rem; margin-left: unset; }
+[dir="rtl"] [class*=" ml-20"]:not(:is([dir="ltr"], [dir="ltr"] *)) { margin-inline-end: 5rem; margin-left: unset; }
+[dir="rtl"] [class*=" ml-auto"]:not(:is([dir="ltr"], [dir="ltr"] *)) { margin-inline-end: auto; margin-left: unset; }
 
 /* Flip mr-* to margin-inline-start in RTL */
-[dir="rtl"] [class*=" mr-0"] { margin-inline-start: 0; margin-right: unset; }
-[dir="rtl"] [class*=" mr-0.5"] { margin-inline-start: 0.125rem; margin-right: unset; }
-[dir="rtl"] [class*=" mr-1"] { margin-inline-start: 0.25rem; margin-right: unset; }
-[dir="rtl"] [class*=" mr-1.5"] { margin-inline-start: 0.375rem; margin-right: unset; }
-[dir="rtl"] [class*=" mr-2"] { margin-inline-start: 0.5rem; margin-right: unset; }
-[dir="rtl"] [class*=" mr-3"] { margin-inline-start: 0.75rem; margin-right: unset; }
-[dir="rtl"] [class*=" mr-4"] { margin-inline-start: 1rem; margin-right: unset; }
-[dir="rtl"] [class*=" mr-auto"] { margin-inline-start: auto; margin-right: unset; }
+[dir="rtl"] [class*=" mr-0"]:not(:is([dir="ltr"], [dir="ltr"] *)) { margin-inline-start: 0; margin-right: unset; }
+[dir="rtl"] [class*=" mr-0.5"]:not(:is([dir="ltr"], [dir="ltr"] *)) { margin-inline-start: 0.125rem; margin-right: unset; }
+[dir="rtl"] [class*=" mr-1"]:not(:is([dir="ltr"], [dir="ltr"] *)) { margin-inline-start: 0.25rem; margin-right: unset; }
+[dir="rtl"] [class*=" mr-1.5"]:not(:is([dir="ltr"], [dir="ltr"] *)) { margin-inline-start: 0.375rem; margin-right: unset; }
+[dir="rtl"] [class*=" mr-2"]:not(:is([dir="ltr"], [dir="ltr"] *)) { margin-inline-start: 0.5rem; margin-right: unset; }
+[dir="rtl"] [class*=" mr-3"]:not(:is([dir="ltr"], [dir="ltr"] *)) { margin-inline-start: 0.75rem; margin-right: unset; }
+[dir="rtl"] [class*=" mr-4"]:not(:is([dir="ltr"], [dir="ltr"] *)) { margin-inline-start: 1rem; margin-right: unset; }
+[dir="rtl"] [class*=" mr-auto"]:not(:is([dir="ltr"], [dir="ltr"] *)) { margin-inline-start: auto; margin-right: unset; }
 
 /* Flip pl-* to padding-inline-end in RTL */
-[dir="rtl"] [class*=" pl-0"] { padding-inline-end: 0; padding-left: unset; }
-[dir="rtl"] [class*=" pl-1"] { padding-inline-end: 0.25rem; padding-left: unset; }
-[dir="rtl"] [class*=" pl-2"] { padding-inline-end: 0.5rem; padding-left: unset; }
-[dir="rtl"] [class*=" pl-3"] { padding-inline-end: 0.75rem; padding-left: unset; }
-[dir="rtl"] [class*=" pl-4"] { padding-inline-end: 1rem; padding-left: unset; }
-[dir="rtl"] [class*=" pl-5"] { padding-inline-end: 1.25rem; padding-left: unset; }
-[dir="rtl"] [class*=" pl-6"] { padding-inline-end: 1.5rem; padding-left: unset; }
+[dir="rtl"] [class*=" pl-0"]:not(:is([dir="ltr"], [dir="ltr"] *)) { padding-inline-end: 0; padding-left: unset; }
+[dir="rtl"] [class*=" pl-1"]:not(:is([dir="ltr"], [dir="ltr"] *)) { padding-inline-end: 0.25rem; padding-left: unset; }
+[dir="rtl"] [class*=" pl-2"]:not(:is([dir="ltr"], [dir="ltr"] *)) { padding-inline-end: 0.5rem; padding-left: unset; }
+[dir="rtl"] [class*=" pl-3"]:not(:is([dir="ltr"], [dir="ltr"] *)) { padding-inline-end: 0.75rem; padding-left: unset; }
+[dir="rtl"] [class*=" pl-4"]:not(:is([dir="ltr"], [dir="ltr"] *)) { padding-inline-end: 1rem; padding-left: unset; }
+[dir="rtl"] [class*=" pl-5"]:not(:is([dir="ltr"], [dir="ltr"] *)) { padding-inline-end: 1.25rem; padding-left: unset; }
+[dir="rtl"] [class*=" pl-6"]:not(:is([dir="ltr"], [dir="ltr"] *)) { padding-inline-end: 1.5rem; padding-left: unset; }
 
 /* Flip pr-* to padding-inline-start in RTL */
-[dir="rtl"] [class*=" pr-0"] { padding-inline-start: 0; padding-right: unset; }
-[dir="rtl"] [class*=" pr-1"] { padding-inline-start: 0.25rem; padding-right: unset; }
-[dir="rtl"] [class*=" pr-2"] { padding-inline-start: 0.5rem; padding-right: unset; }
-[dir="rtl"] [class*=" pr-3"] { padding-inline-start: 0.75rem; padding-right: unset; }
-[dir="rtl"] [class*=" pr-4"] { padding-inline-start: 1rem; padding-right: unset; }
-[dir="rtl"] [class*=" pr-5"] { padding-inline-start: 1.25rem; padding-right: unset; }
-[dir="rtl"] [class*=" pr-6"] { padding-inline-start: 1.5rem; padding-right: unset; }
-[dir="rtl"] [class*=" pr-8"] { padding-inline-start: 2rem; padding-right: unset; }
-[dir="rtl"] [class*=" pr-10"] { padding-inline-start: 2.5rem; padding-right: unset; }
-[dir="rtl"] [class*=" pr-20"] { padding-inline-start: 5rem; padding-right: unset; }
+[dir="rtl"] [class*=" pr-0"]:not(:is([dir="ltr"], [dir="ltr"] *)) { padding-inline-start: 0; padding-right: unset; }
+[dir="rtl"] [class*=" pr-1"]:not(:is([dir="ltr"], [dir="ltr"] *)) { padding-inline-start: 0.25rem; padding-right: unset; }
+[dir="rtl"] [class*=" pr-2"]:not(:is([dir="ltr"], [dir="ltr"] *)) { padding-inline-start: 0.5rem; padding-right: unset; }
+[dir="rtl"] [class*=" pr-3"]:not(:is([dir="ltr"], [dir="ltr"] *)) { padding-inline-start: 0.75rem; padding-right: unset; }
+[dir="rtl"] [class*=" pr-4"]:not(:is([dir="ltr"], [dir="ltr"] *)) { padding-inline-start: 1rem; padding-right: unset; }
+[dir="rtl"] [class*=" pr-5"]:not(:is([dir="ltr"], [dir="ltr"] *)) { padding-inline-start: 1.25rem; padding-right: unset; }
+[dir="rtl"] [class*=" pr-6"]:not(:is([dir="ltr"], [dir="ltr"] *)) { padding-inline-start: 1.5rem; padding-right: unset; }
+[dir="rtl"] [class*=" pr-8"]:not(:is([dir="ltr"], [dir="ltr"] *)) { padding-inline-start: 2rem; padding-right: unset; }
+[dir="rtl"] [class*=" pr-10"]:not(:is([dir="ltr"], [dir="ltr"] *)) { padding-inline-start: 2.5rem; padding-right: unset; }
+[dir="rtl"] [class*=" pr-20"]:not(:is([dir="ltr"], [dir="ltr"] *)) { padding-inline-start: 5rem; padding-right: unset; }
 
 /* Flip right-* (absolute/inset) to inset-inline-end in RTL */
-[dir="rtl"] [class*=" right-0"] { inset-inline-end: 0; right: unset; }
-[dir="rtl"] [class*=" right-3"] { inset-inline-end: 0.75rem; right: unset; }
-[dir="rtl"] [class*=" right-4"] { inset-inline-end: 1rem; right: unset; }
+[dir="rtl"] [class*=" right-0"]:not(:is([dir="ltr"], [dir="ltr"] *)) { inset-inline-end: 0; right: unset; }
+[dir="rtl"] [class*=" right-3"]:not(:is([dir="ltr"], [dir="ltr"] *)) { inset-inline-end: 0.75rem; right: unset; }
+[dir="rtl"] [class*=" right-4"]:not(:is([dir="ltr"], [dir="ltr"] *)) { inset-inline-end: 1rem; right: unset; }
 
 /* Flip left-* (absolute/inset) to inset-inline-start in RTL */
-[dir="rtl"] [class*=" left-0"] { inset-inline-start: 0; left: unset; }
-[dir="rtl"] [class*=" left-3"] { inset-inline-start: 0.75rem; left: unset; }
-[dir="rtl"] [class*=" left-4"] { inset-inline-start: 1rem; left: unset; }
-[dir="rtl"] [class*=" left-1/2"] { inset-inline-start: 50%; left: unset; }
+[dir="rtl"] [class*=" left-0"]:not(:is([dir="ltr"], [dir="ltr"] *)) { inset-inline-start: 0; left: unset; }
+[dir="rtl"] [class*=" left-3"]:not(:is([dir="ltr"], [dir="ltr"] *)) { inset-inline-start: 0.75rem; left: unset; }
+[dir="rtl"] [class*=" left-4"]:not(:is([dir="ltr"], [dir="ltr"] *)) { inset-inline-start: 1rem; left: unset; }
+[dir="rtl"] [class*=" left-1/2"]:not(:is([dir="ltr"], [dir="ltr"] *)) { inset-inline-start: 50%; left: unset; }
 
 /* Text alignment: flip text-left/text-right to logical equivalents */
-[dir="rtl"] [class*="text-left"] { text-align: start !important; }
-[dir="rtl"] [class*="text-right"] { text-align: end !important; }
-
-/* ──────────────────────────────────────────────────────────────────────────────
-   EXPLICIT LTR OVERRIDES — Prevent RTL flips inside dir="ltr" containers.
-   Any component that sets dir="ltr" (e.g. TopBar) is immune to the
-   [dir="rtl"] rules above because these rules restore the physical
-   margin/padding values that the RTL rules un-set.
-   ──────────────────────────────────────────────────────────────────────────── */
-[dir="ltr"] [class*=" ml-0"]  { margin-left: 0; margin-inline-end: unset; }
-[dir="ltr"] [class*=" ml-1"]  { margin-left: 0.25rem; margin-inline-end: unset; }
-[dir="ltr"] [class*=" ml-1.5"]{ margin-left: 0.375rem; margin-inline-end: unset; }
-[dir="ltr"] [class*=" ml-2"]  { margin-left: 0.5rem; margin-inline-end: unset; }
-[dir="ltr"] [class*=" ml-3"]  { margin-left: 0.75rem; margin-inline-end: unset; }
-[dir="ltr"] [class*=" ml-4"]  { margin-left: 1rem; margin-inline-end: unset; }
-[dir="ltr"] [class*=" ml-5"]  { margin-left: 1.25rem; margin-inline-end: unset; }
-[dir="ltr"] [class*=" ml-6"]  { margin-left: 1.5rem; margin-inline-end: unset; }
-[dir="ltr"] [class*=" ml-8"]  { margin-left: 2rem; margin-inline-end: unset; }
-[dir="ltr"] [class*=" ml-10"] { margin-left: 2.5rem; margin-inline-end: unset; }
-[dir="ltr"] [class*=" ml-20"] { margin-left: 5rem; margin-inline-end: unset; }
-[dir="ltr"] [class*=" ml-auto"]{ margin-left: auto; margin-inline-end: unset; }
-
-[dir="ltr"] [class*=" mr-0"]  { margin-right: 0; margin-inline-start: unset; }
-[dir="ltr"] [class*=" mr-0.5"]{ margin-right: 0.125rem; margin-inline-start: unset; }
-[dir="ltr"] [class*=" mr-1"]  { margin-right: 0.25rem; margin-inline-start: unset; }
-[dir="ltr"] [class*=" mr-1.5"]{ margin-right: 0.375rem; margin-inline-start: unset; }
-[dir="ltr"] [class*=" mr-2"]  { margin-right: 0.5rem; margin-inline-start: unset; }
-[dir="ltr"] [class*=" mr-3"]  { margin-right: 0.75rem; margin-inline-start: unset; }
-[dir="ltr"] [class*=" mr-4"]  { margin-right: 1rem; margin-inline-start: unset; }
-
-[dir="ltr"] [class*=" pl-0"]  { padding-left: 0; padding-inline-end: unset; }
-[dir="ltr"] [class*=" pl-1"]  { padding-left: 0.25rem; padding-inline-end: unset; }
-[dir="ltr"] [class*=" pl-2"]  { padding-left: 0.5rem; padding-inline-end: unset; }
-[dir="ltr"] [class*=" pl-3"]  { padding-left: 0.75rem; padding-inline-end: unset; }
-[dir="ltr"] [class*=" pl-4"]  { padding-left: 1rem; padding-inline-end: unset; }
-[dir="ltr"] [class*=" pl-5"]  { padding-left: 1.25rem; padding-inline-end: unset; }
-[dir="ltr"] [class*=" pl-6"]  { padding-left: 1.5rem; padding-inline-end: unset; }
-
-[dir="ltr"] [class*=" pr-0"]  { padding-right: 0; padding-inline-start: unset; }
-[dir="ltr"] [class*=" pr-1"]  { padding-right: 0.25rem; padding-inline-start: unset; }
-[dir="ltr"] [class*=" pr-2"]  { padding-right: 0.5rem; padding-inline-start: unset; }
-[dir="ltr"] [class*=" pr-3"]  { padding-right: 0.75rem; padding-inline-start: unset; }
-[dir="ltr"] [class*=" pr-4"]  { padding-right: 1rem; padding-inline-start: unset; }
-[dir="ltr"] [class*=" pr-5"]  { padding-right: 1.25rem; padding-inline-start: unset; }
-[dir="ltr"] [class*=" pr-6"]  { padding-right: 1.5rem; padding-inline-start: unset; }
-[dir="ltr"] [class*=" pr-8"]  { padding-right: 2rem; padding-inline-start: unset; }
-[dir="ltr"] [class*=" pr-10"] { padding-right: 2.5rem; padding-inline-start: unset; }
-[dir="ltr"] [class*=" pr-20"] { padding-right: 5rem; padding-inline-start: unset; }
-
-[dir="ltr"] [class*=" right-0"] { right: 0; inset-inline-end: unset; }
-[dir="ltr"] [class*=" right-3"] { right: 0.75rem; inset-inline-end: unset; }
-[dir="ltr"] [class*=" right-4"] { right: 1rem; inset-inline-end: unset; }
-
-[dir="ltr"] [class*=" left-0"] { left: 0; inset-inline-start: unset; }
-[dir="ltr"] [class*=" left-3"] { left: 0.75rem; inset-inline-start: unset; }
-[dir="ltr"] [class*=" left-4"] { left: 1rem; inset-inline-start: unset; }
-[dir="ltr"] [class*=" left-1/2"] { left: 50%; inset-inline-start: unset; }
+[dir="rtl"] [class*="text-left"]:not(:is([dir="ltr"], [dir="ltr"] *)) { text-align: start !important; }
+[dir="rtl"] [class*="text-right"]:not(:is([dir="ltr"], [dir="ltr"] *)) { text-align: end !important; }
 
 /* =============================================================================
    QUEUE FULLSCREEN MODE

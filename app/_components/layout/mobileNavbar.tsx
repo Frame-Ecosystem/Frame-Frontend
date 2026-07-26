@@ -72,6 +72,7 @@ const MobileNavbar = () => {
 
   return (
     <nav
+      dir="ltr"
       data-nav-mobile
       className={`bg-card/95 border-border fixed right-0 bottom-0 left-0 z-[9999] h-[86px] border-t shadow-[0_-2px_12px_0_rgba(0,0,0,0.04)] backdrop-blur-sm transition-transform duration-200 ease-out lg:hidden ${
         visible ? "translate-y-0" : "translate-y-[200%]"
