@@ -129,6 +129,7 @@ const UserSession = ({ compact }: { compact?: boolean } = {}) => {
         >
           <button
             type="button"
+            dir="ltr"
             onClick={closeSignIn}
             className="ring-offset-background focus:ring-ring absolute top-4 right-4 z-10 rounded-sm opacity-70 transition-opacity hover:opacity-100 focus:ring-2 focus:ring-offset-2 focus:outline-hidden"
           >
@@ -157,6 +158,7 @@ const UserSession = ({ compact }: { compact?: boolean } = {}) => {
         >
           <button
             type="button"
+            dir="ltr"
             onClick={closeSignUp}
             className="ring-offset-background focus:ring-ring absolute top-4 right-4 z-10 rounded-sm opacity-70 transition-opacity hover:opacity-100 focus:ring-2 focus:ring-offset-2 focus:outline-hidden"
           >
