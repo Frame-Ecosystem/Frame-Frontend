@@ -338,7 +338,7 @@ export default function QueueDisplay({
               onStatusChange={handleStatusChange}
               onRemove={handleRemove}
               onAddPerson={
-                user?.type === "client"
+                user?.type === "client" || mode === "staff"
                   ? () => setShowAddDialog(true)
                   : undefined
               }
@@ -355,7 +355,7 @@ export default function QueueDisplay({
                   : undefined
               }
               isTogglingBooking={toggleQueueBooking.isPending}
-              canBook={user?.type === "client"}
+              canBook={user?.type === "client" || mode === "staff"}
             />
           </div>
         ) : null}
