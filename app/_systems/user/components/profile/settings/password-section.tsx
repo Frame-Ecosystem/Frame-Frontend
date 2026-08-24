@@ -6,6 +6,7 @@ import { Button } from "@/app/_components/ui/button"
 import { Input } from "@/app/_components/ui/input"
 import { Label } from "@/app/_components/ui/label"
 import { useTranslation } from "@/app/_i18n"
+import { PASSWORD_POLICY } from "@/app/_systems/auth/auth.types"
 
 interface PasswordSectionProps {
   isOpen: boolean
@@ -101,7 +102,7 @@ export function PasswordSection({
                   onChange={(e) => onInputChange("newPassword", e.target.value)}
                   placeholder={t("settings.newPasswordPlaceholder")}
                   required
-                  minLength={6}
+                  minLength={PASSWORD_POLICY.MIN_LENGTH}
                   className="pr-10"
                 />
                 <button
@@ -133,7 +134,7 @@ export function PasswordSection({
                   }
                   placeholder={t("settings.confirmPasswordPlaceholder")}
                   required
-                  minLength={6}
+                  minLength={PASSWORD_POLICY.MIN_LENGTH}
                   className="pr-10"
                 />
                 <button
