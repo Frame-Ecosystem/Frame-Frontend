@@ -84,7 +84,6 @@ export interface SystemStats {
     client: number
     lounge: number
     agent: number
-    user: number
   }
   timestamp: string
 }
@@ -119,7 +118,6 @@ export interface DashboardStats {
     client: number
     lounge: number
     agent: number
-    user: number
   }
   timestamp: string
 }
