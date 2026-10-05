@@ -28,7 +28,7 @@ import { authService } from "./auth.service"
 import { tokenManager } from "./lib/token-manager"
 import { clearSessionCsrfToken, setSessionCsrfToken } from "./lib/csrf"
 import type { User } from "../_types"
-import { apiClient } from "../_services/api"
+import { apiClient, AuthRefreshRateLimitedError } from "../_services/api"
 import { getSocket, disconnectSocket } from "../_services/socket"
 import { pushNotificationService } from "../_services/push-notification.service"
 import { useTheme } from "next-themes"
@@ -75,8 +75,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
   const [accessToken, setAccessToken] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(true)
-  const isRefreshingRef = useRef(false)
-  const lastRefreshAttemptRef = useRef<number>(0)
+  const refreshAccessTokenPromiseRef = useRef<Promise<string | null> | null>(
+    null,
+  )
   const restoreAbortControllerRef = useRef<AbortController | null>(null)
   const { setTheme } = useTheme()
   const { setLocale } = useTranslation()
@@ -107,31 +108,28 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   // Refresh access token using refresh token from HttpOnly cookie
   const refreshAccessToken = useCallback(async (): Promise<string | null> => {
-    // Prevent concurrent refresh attempts
-    if (isRefreshingRef.current) return null
+    if (refreshAccessTokenPromiseRef.current)
+      return refreshAccessTokenPromiseRef.current
 
-    const now = Date.now()
-    if (now - lastRefreshAttemptRef.current < 5000) return null
-    lastRefreshAttemptRef.current = now
-
-    isRefreshingRef.current = true
-    try {
+    const refreshPromise = (async () => {
       const result = await authService.refreshToken()
-      if (result?.ok && result.data) {
+      if (result?.status === 429) throw new AuthRefreshRateLimitedError()
+      if (result?.ok && result.data?.token) {
         const newToken = result.data.token
         const expiresIn = result.data.expiresIn || DEFAULT_EXPIRES_IN
         if (result.data.csrfToken) setSessionCsrfToken(result.data.csrfToken)
-        if (newToken) {
-          tokenManager.set(newToken, expiresIn)
-          setAccessToken(newToken)
-          return newToken
-        }
+        tokenManager.set(newToken, expiresIn)
+        setAccessToken(newToken)
+        return newToken
       }
       return null
-    } catch {
-      return null
+    })()
+    refreshAccessTokenPromiseRef.current = refreshPromise
+    try {
+      return await refreshPromise
     } finally {
-      isRefreshingRef.current = false
+      if (refreshAccessTokenPromiseRef.current === refreshPromise)
+        refreshAccessTokenPromiseRef.current = null
     }
   }, [])
 

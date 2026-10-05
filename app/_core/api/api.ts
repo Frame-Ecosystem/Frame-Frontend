@@ -119,6 +119,13 @@ type ApiRequestOptions = {
   onResponse?: (response: Response) => void
 }
 
+export class AuthRefreshRateLimitedError extends Error {
+  constructor() {
+    super("Session refresh is temporarily rate limited. Please retry shortly.")
+    this.name = "AuthRefreshRateLimitedError"
+  }
+}
+
 class ApiClient {
   private baseUrl: string
   private _getAccessToken: (() => string | null) | null = null
