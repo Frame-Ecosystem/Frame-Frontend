@@ -9,16 +9,15 @@ import { authService, getUserDisplayName, getUserInitials } from "@/app/_auth"
 import type { User } from "@/app/_types"
 import { useAuth } from "@/app/_auth"
 import { useRouter } from "next/navigation"
-import { UserPlusIcon, LogOutIcon, Settings } from "lucide-react"
+import { LogOutIcon, Settings } from "lucide-react"
 import { useTranslation } from "@/app/_i18n"
 
 interface UserProps {
   user: User | null
-  onAddAccount?: () => void
   onClose?: () => void
 }
 
-const UserInfo = ({ user, onAddAccount, onClose }: UserProps) => {
+const UserInfo = ({ user, onClose }: UserProps) => {
   const { clearAuth } = useAuth()
   const router = useRouter()
   const { t } = useTranslation()
@@ -30,13 +29,6 @@ const UserInfo = ({ user, onAddAccount, onClose }: UserProps) => {
     await authService.signOut()
     clearAuth()
     router.push("/")
-  }
-
-  const handleAddAccount = () => {
-    if (onClose) onClose()
-    if (onAddAccount) {
-      onAddAccount()
-    }
   }
 
   return (
@@ -96,17 +88,6 @@ const UserInfo = ({ user, onAddAccount, onClose }: UserProps) => {
         >
           <Settings className="h-4 w-4" />
           {t("userInfo.settings")}
-        </Button>
-
-        {/* Add Another Account Button */}
-        <Button
-          variant="outline"
-          size="sm"
-          className="border-border hover:bg-primary/10 w-full justify-start gap-2 border-1"
-          onClick={handleAddAccount}
-        >
-          <UserPlusIcon className="h-4 w-4" />
-          {t("userInfo.addAccount")}
         </Button>
 
         {/* Sign Out Button - Transparent with red border */}

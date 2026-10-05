@@ -1444,7 +1444,6 @@ const fr: Record<string, string> = {
 
   // ── User info popover ───────────────────────────────────────────────────
   "userInfo.settings": "Paramètres",
-  "userInfo.addAccount": "Ajouter un autre compte",
   "userInfo.logout": "Déconnexion",
 
   // ── Saved content tab ───────────────────────────────────────────────────

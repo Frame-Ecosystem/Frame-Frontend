@@ -9,18 +9,12 @@ import {
   getUserDisplayName,
   getUserInitials,
 } from "@/app/_auth"
-import {
-  saveSession,
-  getAllSessions,
-  type StoredSession,
-} from "@/app/_auth/lib/sessions-manager"
 import { useTranslation } from "@/app/_i18n"
 import { Button } from "../ui/button"
 import { Popover, PopoverTrigger, PopoverContent } from "../ui/popover"
 import { Dialog, DialogContent } from "../ui/dialog"
 import UserInfo from "./user-info"
 import { Avatar, AvatarImage, AvatarFallback } from "../ui/avatar"
-import { toast } from "sonner"
 
 /** Prevent Radix events from closing dialogs. */
 const prevent = (e: Event) => e.preventDefault()
@@ -33,15 +27,13 @@ const SESSION_CHECK_TIMEOUT = 5000
 
 const UserSession = ({ compact }: { compact?: boolean } = {}) => {
   // ===== STATE =====
-  const { user, isLoading, ensureSession, loadStoredSession } = useAuth()
+  const { user, isLoading, ensureSession } = useAuth()
   const { t } = useTranslation()
   const [dialogOpen, setDialogOpen] = useState(false)
   const [signupOpen, setSignupOpen] = useState(false)
   const [popoverOpen, setPopoverOpen] = useState(false)
   const [isCheckingSession, setIsCheckingSession] = useState(false)
   const [sessionUser, setSessionUser] = useState<typeof user | null>(null)
-  const [storedSessions, setStoredSessions] = useState<StoredSession[]>([])
-  const [showStoredSessions, setShowStoredSessions] = useState(false)
   const sessionCheckAbortRef = useRef<AbortController | null>(null)
   const sessionCheckTimeoutRef = useRef<NodeJS.Timeout | null>(null)
   const isLoggedIn = !!user
@@ -62,7 +54,6 @@ const UserSession = ({ compact }: { compact?: boolean } = {}) => {
     setDialogOpen(false)
     setIsCheckingSession(false)
     setSessionUser(null)
-    setShowStoredSessions(false)
     sessionCheckAbortRef.current?.abort()
     if (sessionCheckTimeoutRef.current) {
       clearTimeout(sessionCheckTimeoutRef.current)
@@ -116,21 +107,6 @@ const UserSession = ({ compact }: { compact?: boolean } = {}) => {
   }, [ensureSession, user])
 
   // ===== EVENT HANDLERS =====
-  const handleAddAccount = useCallback(() => {
-    setPopoverOpen(false)
-
-    // Save current session before opening signin
-    if (user) {
-      saveSession(user)
-      // Load all stored sessions to show options
-      setStoredSessions(getAllSessions())
-      setShowStoredSessions(true)
-    }
-
-    setDialogOpen(true)
-    // Don't check session when explicitly adding new account
-  }, [user])
-
   const handleOpenSignIn = useCallback(() => {
     if (isLoading) return
     setDialogOpen(true)
@@ -144,36 +120,7 @@ const UserSession = ({ compact }: { compact?: boolean } = {}) => {
 
   const handleSignInDifferent = useCallback(() => {
     setSessionUser(null)
-    setShowStoredSessions(false)
   }, [])
-
-  const handleSelectStoredSession = useCallback(
-    (session: StoredSession) => {
-      // Close the current dialog while we attempt to restore the session
-      closeSignIn()
-      ;(async () => {
-        const success = await loadStoredSession(session)
-        if (success) {
-          // Session restored — auth context updated, dialogs stay closed
-        } else {
-          // Backend session switching is not supported (GET /v1/auth/sessions → 404)
-          // or the stored session has expired. Show the login form so the user
-          // can re-authenticate — do NOT re-open the session picker (infinite loop).
-          toast.info(
-            t("auth.sessionExpiredSwitch", {
-              name: getUserDisplayName(session.user),
-            }),
-          )
-          setDialogOpen(true)
-          // sessionUser=null forces the full login form to render,
-          // not the "Continue as X" shortcut (which would be wrong here).
-          setSessionUser(null)
-          setShowStoredSessions(false)
-        }
-      })()
-    },
-    [closeSignIn, loadStoredSession],
-  )
 
   // ===== SHARED UI ELEMENTS =====
   const userButton = (
@@ -229,11 +176,7 @@ const UserSession = ({ compact }: { compact?: boolean } = {}) => {
           <Popover open={popoverOpen} onOpenChange={setPopoverOpen}>
             <PopoverTrigger asChild>{userButton}</PopoverTrigger>
             <PopoverContent className="z-[9999] mt-6 w-72 p-0" align="end">
-              <UserInfo
-                user={user}
-                onAddAccount={handleAddAccount}
-                onClose={() => setPopoverOpen(false)}
-              />
+              <UserInfo user={user} onClose={() => setPopoverOpen(false)} />
             </PopoverContent>
           </Popover>
         ) : (
@@ -257,48 +200,6 @@ const UserSession = ({ compact }: { compact?: boolean } = {}) => {
             <X className="h-4 w-4" />
             <span className="sr-only">{t("common.close")}</span>
           </button>
-
-          {/* Show stored sessions browser before signin form */}
-          {showStoredSessions && storedSessions.length > 1 && (
-            <div className="mb-4 space-y-3">
-              <p className="text-muted-foreground text-sm font-medium">
-                {t("auth.signin.savedSessions")}
-              </p>
-              <div className="space-y-2">
-                {storedSessions.map((session) => (
-                  <button
-                    key={session.id}
-                    onClick={() => handleSelectStoredSession(session)}
-                    className="border-border hover:bg-muted/50 flex w-full items-center gap-3 rounded-lg border p-3 transition-colors"
-                  >
-                    <Avatar className="h-8 w-8">
-                      {session.user.profileImage &&
-                        typeof session.user.profileImage === "string" && (
-                          <AvatarImage src={session.user.profileImage} />
-                        )}
-                      <AvatarFallback className="text-xs">
-                        {getUserInitials(session.user)}
-                      </AvatarFallback>
-                    </Avatar>
-                    <div className="flex-1 text-left">
-                      <p className="text-sm font-medium">
-                        {getUserDisplayName(session.user)}
-                      </p>
-                      <p className="text-muted-foreground text-xs">
-                        {session.user.email || session.user.phoneNumber}
-                      </p>
-                    </div>
-                  </button>
-                ))}
-              </div>
-              <button
-                onClick={() => setShowStoredSessions(false)}
-                className="text-primary text-sm font-medium hover:underline"
-              >
-                {t("auth.signin.signInWithDifferent")}
-              </button>
-            </div>
-          )}
 
           <SignInDialog
             onSuccess={closeSignIn}

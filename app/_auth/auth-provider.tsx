@@ -27,7 +27,6 @@ import { usePathname, useRouter } from "next/navigation"
 import { authService } from "./auth.service"
 import { tokenManager } from "./lib/token-manager"
 import { clearSessionCsrfToken, setSessionCsrfToken } from "./lib/csrf"
-import { setActiveSession, type StoredSession } from "./lib/sessions-manager"
 import type { User } from "../_types"
 import { apiClient } from "../_services/api"
 import { getSocket, disconnectSocket } from "../_services/socket"
@@ -43,31 +42,10 @@ const DEFAULT_EXPIRES_IN = 900
 
 /**
  * Hard timeout for the full session-restore flow (refresh-token + /v1/me).
- * Chosen to stay well under the 2–3 s abandonment threshold.  On timeout,
- * the login screen is shown so the user can sign in manually rather than
- * staring at a blank/loading screen.
+ * Includes CSRF bootstrap when its token is not already available. On timeout,
+ * the landing page is shown; the persisted session hint is retained for retry.
  */
-const SESSION_RESTORE_TIMEOUT_MS = 1_500
-
-/** Races a promise against a timeout. Rejects with a descriptive Error on expiry. */
-function withTimeout<T>(
-  promise: Promise<T>,
-  ms: number,
-  label: string,
-): Promise<T> {
-  let timer: ReturnType<typeof setTimeout> | undefined
-  return Promise.race([
-    promise,
-    new Promise<T>((_, reject) => {
-      timer = setTimeout(
-        () => reject(new Error(`Timeout: ${label} exceeded ${ms}ms`)),
-        ms,
-      )
-    }),
-  ]).finally(() => {
-    if (timer !== undefined) clearTimeout(timer)
-  })
-}
+const SESSION_RESTORE_TIMEOUT_MS = 5_000
 
 function isAuthDebugEnabled(): boolean {
   if (typeof window === "undefined") return false
@@ -95,7 +73,6 @@ interface AuthContextType {
   clearAuth(): void
   refreshUser(): Promise<void>
   ensureSession(): Promise<boolean>
-  loadStoredSession(session: StoredSession): Promise<boolean>
   isLoading: boolean
 }
 
@@ -107,6 +84,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [isLoading, setIsLoading] = useState(true)
   const isRefreshingRef = useRef(false)
   const lastRefreshAttemptRef = useRef<number>(0)
+  const restoreAbortControllerRef = useRef<AbortController | null>(null)
   const { setTheme } = useTheme()
   const { setLocale } = useTranslation()
   const router = useRouter()
@@ -182,75 +160,99 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       return false
     }
 
+    restoreAbortControllerRef.current?.abort()
+    const controller = new AbortController()
+    restoreAbortControllerRef.current = controller
+    let timedOut = false
+    const timeoutId = setTimeout(() => {
+      timedOut = true
+      controller.abort()
+    }, SESSION_RESTORE_TIMEOUT_MS)
+    const clearRejectedSession = () => {
+      tokenManager.clear()
+      setAccessToken(null)
+    }
+
     try {
-      // Wrap the sequential refresh + profile fetch in a hard timeout so
-      // the user is never stuck on a loading screen for more than ~1.5 s.
-      const result = await withTimeout(
-        (async () => {
-          const tRefresh = performance.now()
-          const refreshResult = await authService.refreshToken()
-          if (process.env.NODE_ENV !== "production") {
-            console.debug(
-              `[auth] refresh-token completed in ${(performance.now() - tRefresh).toFixed(0)}ms`,
-            )
-          }
-
-          if (!refreshResult?.ok || !refreshResult.data) {
-            tokenManager.clear()
-            return { ok: false as const }
-          }
-
-          const newToken = refreshResult.data.token
-          const expiresIn = refreshResult.data.expiresIn || DEFAULT_EXPIRES_IN
-          if (refreshResult.data.csrfToken)
-            setSessionCsrfToken(refreshResult.data.csrfToken)
-
-          if (!newToken) {
-            tokenManager.clear()
-            return { ok: false as const }
-          }
-
-          tokenManager.set(newToken, expiresIn)
-          setAccessToken(newToken)
-          apiClient.setAccessTokenGetter(() => newToken)
-
-          const tProfile = performance.now()
-          const userData = await authService.getCurrentUser()
-          if (process.env.NODE_ENV !== "production") {
-            console.debug(
-              `[auth] /me completed in ${(performance.now() - tProfile).toFixed(0)}ms`,
-            )
-          }
-
-          if (userData) {
-            setUser(userData)
-            applyUserTheme(userData)
-            applyUserLanguage(userData)
-            getSocket()
-          }
-
-          return { ok: true as const }
-        })(),
-        SESSION_RESTORE_TIMEOUT_MS,
-        "session-restore",
-      )
-
+      const tRefresh = performance.now()
+      const refreshResult = await authService.refreshToken(controller.signal)
       if (process.env.NODE_ENV !== "production") {
         console.debug(
-          `[auth] restoreSession total: ${(performance.now() - t0).toFixed(0)}ms — ${result.ok ? "success" : "failed"}`,
+          `[auth] refresh-token completed in ${(performance.now() - tRefresh).toFixed(0)}ms`,
         )
       }
 
-      return result.ok
+      if (controller.signal.aborted && !timedOut) return false
+
+      if (!refreshResult) {
+        setAccessToken(null)
+        return false
+      }
+
+      if (!refreshResult.ok) {
+        if (refreshResult.status === 401) clearRejectedSession()
+        else setAccessToken(null)
+        return false
+      }
+
+      if (!refreshResult.data?.token) {
+        setAccessToken(null)
+        return false
+      }
+
+      const newToken = refreshResult.data.token
+      const tProfile = performance.now()
+      const userData = await authService.getCurrentUser(
+        newToken,
+        controller.signal,
+      )
+      if (process.env.NODE_ENV !== "production") {
+        console.debug(
+          `[auth] /me completed in ${(performance.now() - tProfile).toFixed(0)}ms`,
+        )
+      }
+
+      // Do not publish partial or stale auth state when the request timed out,
+      // was cancelled by logout, or the profile could not be restored.
+      if (controller.signal.aborted && !timedOut) return false
+      if (
+        !userData ||
+        timedOut ||
+        restoreAbortControllerRef.current !== controller ||
+        tokenManager.isManualLogout()
+      ) {
+        setAccessToken(null)
+        return false
+      }
+
+      if (refreshResult.data.csrfToken)
+        setSessionCsrfToken(refreshResult.data.csrfToken)
+      tokenManager.set(
+        newToken,
+        refreshResult.data.expiresIn || DEFAULT_EXPIRES_IN,
+      )
+      setAccessToken(newToken)
+      apiClient.setAccessTokenGetter(() => newToken)
+      setUser(userData)
+      applyUserTheme(userData)
+      applyUserLanguage(userData)
+      getSocket()
+
+      return true
     } catch {
-      // Timeout or network error — clear stale state so the login screen shows
-      tokenManager.clear()
+      if (controller.signal.aborted && !timedOut) return false
+      setAccessToken(null)
       if (process.env.NODE_ENV !== "production") {
         console.debug(
           `[auth] restoreSession failed/timed-out after ${(performance.now() - t0).toFixed(0)}ms`,
         )
       }
       return false
+    } finally {
+      clearTimeout(timeoutId)
+      if (restoreAbortControllerRef.current === controller) {
+        restoreAbortControllerRef.current = null
+      }
     }
   }, [applyUserTheme, applyUserLanguage])
 
@@ -265,11 +267,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   // Set authentication state (user + access token in memory)
   const setAuth = useCallback(
     (newUser: User | null, token: string | null, expiresIn?: number) => {
+      restoreAbortControllerRef.current?.abort()
       setUser(newUser)
       applyUserTheme(newUser)
       applyUserLanguage(newUser)
 
       if (token) {
+        tokenManager.clearManualLogout()
         tokenManager.set(token, expiresIn || DEFAULT_EXPIRES_IN)
         // Ensure ApiClient uses the token immediately to avoid races
         apiClient.setAccessTokenGetter(() => token)
@@ -289,6 +293,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   // Clear authentication state
   const clearAuth = useCallback(() => {
+    restoreAbortControllerRef.current?.abort()
+
     // Unregister FCM device token so the old user stops receiving pushes
     const deviceId =
       typeof window !== "undefined"
@@ -306,79 +312,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     // Disconnect Socket.IO
     disconnectSocket()
   }, [])
-
-  /**
-   * Load a stored session into the auth context.
-   * This switches the current authenticated user to a previously stored session.
-   *
-   * Industry best practice:
-   * 1. Clear current auth (logout)
-   * 2. Mark the stored session as active in localStorage
-   * 3. Attempt to restore session via backend refresh (will use latest refresh token)
-   * 4. Fallback: User must re-authenticate if session is expired
-   */
-  const loadStoredSession = useCallback(
-    async (session: StoredSession): Promise<boolean> => {
-      try {
-        // If already on this user, just mark active and keep current auth state.
-        if (user?._id === session.user._id && !!tokenManager.token) {
-          setActiveSession(session.id)
-          return true
-        }
-
-        // Attempt server-side session switch.
-        // NOTE: GET /v1/auth/sessions returns 404 on the current backend (v1.1.7).
-        // listSessions() catches that error and returns []. When this happens,
-        // candidates will be empty → this function returns false → the caller
-        // (handleSelectStoredSession) will show the login form for re-auth.
-        // If the backend adds the endpoint in future, this path will work automatically.
-        const sessions = await authService.listSessions()
-        const candidates = sessions.filter((s) => s.userId === session.user._id)
-        if (candidates.length === 0) {
-          return false
-        }
-
-        // Prefer non-current candidate, then most recently used.
-        const target = [...candidates].sort((a, b) => {
-          if (a.isCurrent !== b.isCurrent) return a.isCurrent ? 1 : -1
-          return (
-            new Date(b.lastUsedAt || b.createdAt).getTime() -
-            new Date(a.lastUsedAt || a.createdAt).getTime()
-          )
-        })[0]
-
-        const switched = await authService.switchSession(target.sessionId)
-        if (!switched?.token || !switched.data) {
-          return false
-        }
-
-        // Hard guard: backend must return selected identity.
-        if (switched.data._id !== session.user._id) {
-          return false
-        }
-
-        // Reset runtime auth artifacts and attach the switched identity/token.
-        disconnectSocket()
-        clearSessionCsrfToken()
-        tokenManager.clearManualLogout()
-        if (switched.csrfToken) {
-          setSessionCsrfToken(switched.csrfToken)
-        }
-
-        setAuth(
-          switched.data,
-          switched.token,
-          switched.expiresIn || DEFAULT_EXPIRES_IN,
-        )
-        setActiveSession(session.id)
-
-        return true
-      } catch {
-        return false
-      }
-    },
-    [setAuth, user],
-  )
 
   // Handle authentication failure — clear auth and redirect to root with sign-in dialog
   // When `localStorage.frame:debugAuth` is true, we expose diagnostic info on
@@ -451,6 +384,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   // ── Bootstrap: check auth on mount (once) ─────────────────
 
   useEffect(() => {
+    // Remove profile snapshots saved by the retired same-browser account switcher.
+    try {
+      localStorage.removeItem("frame:sessions")
+    } catch {
+      // Storage may be unavailable; the legacy data is no longer read.
+    }
+  }, [])
+
+  useEffect(() => {
     // Setup API client callbacks
     apiClient.setRefreshTokenCallback(refreshAccessToken)
     apiClient.setAuthFailureCallback(handleAuthFailure)
@@ -462,15 +404,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [handleAuthFailure, refreshAccessToken])
 
   useEffect(() => {
+    let cancelled = false
+
     const bootstrapAuth = async () => {
-      // Keep public routes fully static/no-auth-API on initial paint.
-      if (isPublicRoute(pathname)) {
-        setIsLoading(false)
+      // Keep public routes static, but check the root landing route so
+      // returning users go directly to their signed-in home.
+      if (isPublicRoute(pathname) && pathname !== "/") {
+        if (!cancelled) setIsLoading(false)
         return
       }
 
       if (user && tokenManager.token) {
-        setIsLoading(false)
+        if (!cancelled) setIsLoading(false)
         return
       }
 
@@ -478,16 +423,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       //    there's nothing to restore.  This makes the no-session path
       //    instant instead of waiting for a timeout or failed refresh. ──
       if (tokenManager.isManualLogout() || !tokenManager.hasSession()) {
-        setIsLoading(false)
+        if (!cancelled) setIsLoading(false)
         return
       }
 
       setIsLoading(true)
       await restoreSession()
-      setIsLoading(false)
+      if (!cancelled) setIsLoading(false)
     }
 
     bootstrapAuth()
+    return () => {
+      cancelled = true
+    }
   }, [pathname, restoreSession, user])
 
   // ── Cross-tab sync via StorageEvent on `hasRefreshToken` flag ──
@@ -577,7 +525,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         clearAuth,
         refreshUser,
         ensureSession,
-        loadStoredSession,
         isLoading,
       }}
     >

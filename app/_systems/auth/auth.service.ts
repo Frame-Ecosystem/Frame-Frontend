@@ -9,8 +9,6 @@ import type {
   SignupResponse,
   RefreshTokenResponse,
   MessageResponse,
-  SessionInfo,
-  SwitchSessionResponse,
   PasswordStrength,
 } from "./auth.types"
 
@@ -134,12 +132,13 @@ class AuthService {
    * Uses raw fetch to avoid ApiClient's 401 retry loop.
    * Returns parsed response with ok/status for the caller to handle.
    */
-  async getCsrfToken(): Promise<string | null> {
+  async getCsrfToken(signal?: AbortSignal): Promise<string | null> {
     try {
       const res = await fetch(`${this.getAuthBaseUrl()}/v1/auth/csrf-token`, {
         method: "GET",
         credentials: "include",
         headers: { Accept: "application/json" },
+        signal,
       })
       if (!res.ok) return null
 
@@ -152,7 +151,7 @@ class AuthService {
     }
   }
 
-  async refreshToken(): Promise<{
+  async refreshToken(signal?: AbortSignal): Promise<{
     ok: boolean
     status: number
     data?: RefreshTokenResponse
@@ -163,11 +162,10 @@ class AuthService {
       }
       let csrfToken = getCsrfTokenForRequest()
       if (!csrfToken) {
-        csrfToken = await this.getCsrfToken()
+        csrfToken = await this.getCsrfToken(signal)
       }
-      if (csrfToken) {
-        headers["x-csrf-token"] = csrfToken
-      }
+      if (signal?.aborted) return null
+      if (csrfToken) headers["x-csrf-token"] = csrfToken
 
       const res = await fetch(
         `${this.getAuthBaseUrl()}/v1/auth/refresh-token`,
@@ -175,6 +173,7 @@ class AuthService {
           method: "POST",
           credentials: "include",
           headers,
+          signal,
         },
       )
 
@@ -187,42 +186,6 @@ class AuthService {
       }
 
       return { ok: res.ok, status, data }
-    } catch {
-      return null
-    }
-  }
-
-  /**
-   * GET /v1/auth/sessions
-   * Returns all active sessions available for deterministic account switching.
-   */
-  async listSessions(): Promise<SessionInfo[]> {
-    try {
-      const response = await apiClient.get<
-        { data: SessionInfo[]; message?: string } | SessionInfo[]
-      >("/v1/auth/sessions")
-      if (response && typeof response === "object" && "data" in response) {
-        return Array.isArray(response.data) ? response.data : []
-      }
-      return Array.isArray(response) ? response : []
-    } catch {
-      return []
-    }
-  }
-
-  /**
-   * POST /v1/auth/switch-session
-   * Switches refresh/access context to the requested sessionId.
-   */
-  async switchSession(
-    sessionId: string,
-  ): Promise<SwitchSessionResponse | null> {
-    try {
-      const payload = { sessionId }
-      return await apiClient.post<SwitchSessionResponse>(
-        "/v1/auth/switch-session",
-        payload,
-      )
     } catch {
       return null
     }
@@ -282,11 +245,19 @@ class AuthService {
 
   // ── User Profile Endpoints (/v1/me/*) ───────────────────────
 
-  async getCurrentUser(): Promise<User | null> {
+  async getCurrentUser(
+    accessToken?: string,
+    signal?: AbortSignal,
+  ): Promise<User | null> {
     try {
       const response = await apiClient.get<
         { data: User; message?: string } | User
-      >("/v1/me")
+      >("/v1/me", {
+        ...(accessToken && { accessToken }),
+        ...(signal && { signal }),
+        skipAuthRefresh: true,
+        suppressAuthFailure: true,
+      })
       // Handle both response formats: {data: User} or User directly
       if (response && typeof response === "object" && "data" in response) {
         return response.data

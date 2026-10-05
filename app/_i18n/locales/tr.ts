@@ -1414,7 +1414,6 @@ const tr: Record<string, string> = {
 
   // ── User info popover ───────────────────────────────────────────────────
   "userInfo.settings": "Ayarlar",
-  "userInfo.addAccount": "Başka Hesap Ekle",
   "userInfo.logout": "Çıkış Yap",
 
   // ── Saved content tab ───────────────────────────────────────────────────

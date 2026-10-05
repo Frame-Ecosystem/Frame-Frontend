@@ -626,9 +626,6 @@ const en: Record<string, string> = {
   "auth.signin.existingSessionFound": "Existing session found",
   "auth.signin.continueAs": "Continue as {name}",
   "auth.signin.signInDifferent": "Sign in with different account",
-  "auth.signin.savedSessions": "Saved Sessions",
-  "auth.signin.signInWithDifferent": "Or sign in with different credentials",
-  "auth.sessionExpiredSwitch": "Session expired — please sign in as {name}.",
   "auth.signin.validationEmailOrPhoneRequired":
     "Email or phone number is required",
   "auth.signin.validationEmailOrPhoneInvalid":
@@ -1468,7 +1465,6 @@ const en: Record<string, string> = {
 
   // ── User info popover ───────────────────────────────────────────────────
   "userInfo.settings": "Settings",
-  "userInfo.addAccount": "Add Another Account",
   "userInfo.logout": "Logout",
 
   // ── Saved content tab ───────────────────────────────────────────────────

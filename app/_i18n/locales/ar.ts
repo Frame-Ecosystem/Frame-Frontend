@@ -1382,7 +1382,6 @@ const ar: Record<string, string> = {
 
   // ── User info popover ───────────────────────────────────────────────────
   "userInfo.settings": "الإعدادات",
-  "userInfo.addAccount": "إضافة حساب آخر",
   "userInfo.logout": "تسجيل الخروج",
 
   // ── Saved content tab ───────────────────────────────────────────────────

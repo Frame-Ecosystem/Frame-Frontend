@@ -1180,7 +1180,6 @@ const en: Record<string, string> = {
 
   // ── User info popover ───────────────────────────────────────────────────
   "userInfo.settings": "Settings",
-  "userInfo.addAccount": "Add Another Account",
   "userInfo.logout": "Logout",
 
   // ── Saved content tab ───────────────────────────────────────────────────

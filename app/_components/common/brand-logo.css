@@ -56,6 +56,65 @@
   animation: hero-shimmer-seq 8s ease-in-out infinite;
 }
 
+@keyframes session-logo-shadow {
+  0%,
+  100% {
+    opacity: 0.55;
+    transform: scale(0.92);
+    filter: drop-shadow(0 0 5px var(--color-primary));
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.06);
+    filter: drop-shadow(0 0 12px var(--color-primary));
+  }
+}
+
+@keyframes session-logo-float {
+  0%,
+  100% {
+    transform: translateY(1px) scale(0.96);
+  }
+  50% {
+    transform: translateY(-3px) scale(1);
+  }
+}
+
+@keyframes session-logo-ring {
+  to {
+    transform: rotate(1turn);
+  }
+}
+
+.session-logo-loader::before {
+  position: absolute;
+  inset: 1px;
+  border: 2px solid transparent;
+  border-radius: 50%;
+  border-top-color: var(--color-primary);
+  border-right-color: color-mix(in srgb, var(--color-primary) 35%, transparent);
+  box-shadow: 0 0 12px color-mix(in srgb, var(--color-primary) 70%, transparent);
+  content: "";
+  animation: session-logo-ring 1s linear infinite;
+}
+
+.session-logo-loader-mark {
+  animation:
+    session-logo-float 1s ease-in-out infinite,
+    session-logo-shadow 1s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .session-logo-loader::before,
+  .session-logo-loader-mark {
+    animation: none;
+  }
+
+  .session-logo-loader-mark {
+    filter: drop-shadow(0 0 8px var(--color-primary));
+  }
+}
+
 /*
   Brand icon theme swap
   Default (no theme class yet, e.g. SSR or silver-light) → dark icon visible

@@ -111,6 +111,9 @@ export const API_BASE_URL = getApiBaseUrl()
 export const GOOGLE_AUTH_BASE_URL = getGoogleAuthBaseUrl()
 
 type ApiRequestOptions = {
+  accessToken?: string
+  signal?: AbortSignal
+  skipAuthRefresh?: boolean
   suppressAuthFailure?: boolean
   timeoutMs?: number
   onResponse?: (response: Response) => void
@@ -198,7 +201,7 @@ class ApiClient {
     const url = `${this.baseUrl}${endpoint}`
 
     // Get access token from memory (via context)
-    let token = this._getAccessToken?.()
+    let token = apiOptions?.accessToken ?? this._getAccessToken?.()
 
     let headers: HeadersInit = {
       Accept: "application/json",
@@ -258,6 +261,9 @@ class ApiClient {
     try {
       const timeoutMs = this.resolveTimeoutMs(apiOptions?.timeoutMs)
       const controller = new AbortController()
+      const requestSignal = apiOptions?.signal
+        ? AbortSignal.any([controller.signal, apiOptions.signal])
+        : controller.signal
       const timeoutId = setTimeout(() => controller.abort(), timeoutMs)
 
       // compute debug flag at runtime to avoid SSR errors
@@ -269,7 +275,7 @@ class ApiClient {
           ...options,
           headers,
           credentials: "include", // Include HttpOnly cookies for refresh token
-          signal: controller.signal,
+          signal: requestSignal,
         })
       } finally {
         clearTimeout(timeoutId)
@@ -291,6 +297,7 @@ class ApiClient {
       if (
         response.status === 401 &&
         this.refreshTokenCallback &&
+        !apiOptions?.skipAuthRefresh &&
         !isPublicAuth
       ) {
         const newToken = await this.refreshTokenCallback()
@@ -305,7 +312,7 @@ class ApiClient {
             ...options,
             headers,
             credentials: "include",
-            signal: AbortSignal.timeout(timeoutMs),
+            signal: requestSignal,
           })
         } else {
           if (isDebug && typeof window !== "undefined") {
@@ -331,7 +338,9 @@ class ApiClient {
           } catch {}
         }
         if (!apiOptions?.suppressAuthFailure)
-          this.authFailureCallback?.({ url, status: response.status })
+          if (!apiOptions?.suppressAuthFailure) {
+            this.authFailureCallback?.({ url, status: response.status })
+          }
         throw new Error("AUTH_FAILURE")
       }
 

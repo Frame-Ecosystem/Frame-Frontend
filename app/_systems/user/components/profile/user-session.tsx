@@ -43,12 +43,6 @@ const UserSession = ({ compact }: { compact?: boolean } = {}) => {
   const closeSignIn = () => setDialogOpen(false)
   const closeSignUp = () => setSignupOpen(false)
 
-  // ===== EVENT HANDLERS =====
-  const handleAddAccount = () => {
-    setPopoverOpen(false)
-    setDialogOpen(true)
-  }
-
   // ===== SHARED UI ELEMENTS =====
   const userButton = (
     <Button
@@ -104,11 +98,7 @@ const UserSession = ({ compact }: { compact?: boolean } = {}) => {
           <Popover open={popoverOpen} onOpenChange={setPopoverOpen}>
             <PopoverTrigger asChild>{userButton}</PopoverTrigger>
             <PopoverContent className="z-[9999] mt-6 w-72 p-0" align="end">
-              <UserInfo
-                user={user}
-                onAddAccount={handleAddAccount}
-                onClose={() => setPopoverOpen(false)}
-              />
+              <UserInfo user={user} onClose={() => setPopoverOpen(false)} />
             </PopoverContent>
           </Popover>
         ) : (

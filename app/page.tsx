@@ -7,7 +7,7 @@ import { useRouter, useSearchParams } from "next/navigation"
 import Image from "next/image"
 import { Button } from "./_components/ui/button"
 import { ErrorBoundary } from "./_components/common/errorBoundary"
-import { getHomePath } from "./_lib/profile"
+import { SessionRestoreLoader } from "./_components/common/session-restore-loader"
 import {
   Scissors,
   Star,
@@ -39,7 +39,6 @@ import {
   InlineBrandLogo,
   FooterBrandLogo,
 } from "./_components/common/brand-logo"
-import { LandingSkeleton } from "./_components/skeletons/auth"
 import { useTranslation } from "./_i18n"
 
 /* ═══════════════════════════════════════════════════════════════════════════
@@ -339,7 +338,7 @@ const LandingPage = () => {
   // Redirect authenticated users
   useEffect(() => {
     if (!isLoading && user) {
-      router.push(getHomePath())
+      router.replace("/home")
     }
   }, [user, isLoading, router])
 
@@ -368,15 +367,13 @@ const LandingPage = () => {
     [t],
   )
 
-  if (isLoading) {
+  if (isLoading || user) {
     return (
       <ErrorBoundary>
-        <LandingSkeleton />
+        <SessionRestoreLoader />
       </ErrorBoundary>
     )
   }
-
-  if (user) return null
 
   return (
     <ErrorBoundary>
