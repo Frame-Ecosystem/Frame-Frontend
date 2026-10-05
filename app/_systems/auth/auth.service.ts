@@ -75,8 +75,15 @@ export function getUserInitials(user: User | null | undefined): string {
 
 // ── Auth Service ────────────────────────────────────────────────
 
+type RefreshResult = {
+  ok: boolean
+  status: number
+  data?: RefreshTokenResponse
+} | null
+
 class AuthService {
   private signupTimeoutMs = 90_000 // signup can be slower in production due to email provider latency
+  private refreshRequest: Promise<RefreshResult> | null = null
 
   private getAuthBaseUrl(): string {
     // In browsers, always use same-origin paths so Next rewrites can proxy
@@ -151,11 +158,28 @@ class AuthService {
     }
   }
 
-  async refreshToken(signal?: AbortSignal): Promise<{
-    ok: boolean
-    status: number
-    data?: RefreshTokenResponse
-  } | null> {
+  async refreshToken(signal?: AbortSignal): Promise<RefreshResult> {
+    if (this.refreshRequest) return this.refreshRequest
+
+    const performRefresh = () => this.performRefresh(signal)
+    const locks = typeof navigator !== "undefined" ? navigator.locks : undefined
+    const request: Promise<RefreshResult> = locks
+      ? (async () =>
+          await locks.request<Promise<RefreshResult>>(
+            "frame-auth-refresh-token",
+            performRefresh,
+          ))()
+      : performRefresh()
+
+    this.refreshRequest = request
+    try {
+      return await request
+    } finally {
+      if (this.refreshRequest === request) this.refreshRequest = null
+    }
+  }
+
+  private async performRefresh(signal?: AbortSignal): Promise<RefreshResult> {
     try {
       const headers: Record<string, string> = {
         "Content-Type": "application/json",
@@ -167,13 +191,15 @@ class AuthService {
       if (signal?.aborted) return null
       if (csrfToken) headers["x-csrf-token"] = csrfToken
 
+      // Refresh rotates a single-use cookie. Do not abort this request after it
+      // reaches the server: the server may rotate the token even if the client
+      // stops waiting, leaving the browser with a revoked cookie.
       const res = await fetch(
         `${this.getAuthBaseUrl()}/v1/auth/refresh-token`,
         {
           method: "POST",
           credentials: "include",
           headers,
-          signal,
         },
       )
 

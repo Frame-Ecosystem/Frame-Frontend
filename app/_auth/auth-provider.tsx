@@ -40,13 +40,6 @@ import { isPublicRoute } from "./constants"
 /** Default token lifetime (seconds) when backend doesn't provide expiresIn. */
 const DEFAULT_EXPIRES_IN = 900
 
-/**
- * Hard timeout for the full session-restore flow (refresh-token + /v1/me).
- * Includes CSRF bootstrap when its token is not already available. On timeout,
- * the landing page is shown; the persisted session hint is retained for retry.
- */
-const SESSION_RESTORE_TIMEOUT_MS = 5_000
-
 function isAuthDebugEnabled(): boolean {
   if (typeof window === "undefined") return false
 
@@ -163,11 +156,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     restoreAbortControllerRef.current?.abort()
     const controller = new AbortController()
     restoreAbortControllerRef.current = controller
-    let timedOut = false
-    const timeoutId = setTimeout(() => {
-      timedOut = true
-      controller.abort()
-    }, SESSION_RESTORE_TIMEOUT_MS)
     const clearRejectedSession = () => {
       tokenManager.clear()
       setAccessToken(null)
@@ -182,7 +170,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         )
       }
 
-      if (controller.signal.aborted && !timedOut) return false
+      if (controller.signal.aborted) return false
 
       if (!refreshResult) {
         setAccessToken(null)
@@ -212,12 +200,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         )
       }
 
-      // Do not publish partial or stale auth state when the request timed out,
-      // was cancelled by logout, or the profile could not be restored.
-      if (controller.signal.aborted && !timedOut) return false
+      // Do not publish partial or stale auth state when restore was cancelled
+      // by logout or the profile could not be restored.
+      if (controller.signal.aborted) return false
       if (
         !userData ||
-        timedOut ||
         restoreAbortControllerRef.current !== controller ||
         tokenManager.isManualLogout()
       ) {
@@ -240,16 +227,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       return true
     } catch {
-      if (controller.signal.aborted && !timedOut) return false
+      if (controller.signal.aborted) return false
       setAccessToken(null)
       if (process.env.NODE_ENV !== "production") {
         console.debug(
-          `[auth] restoreSession failed/timed-out after ${(performance.now() - t0).toFixed(0)}ms`,
+          `[auth] restoreSession failed after ${(performance.now() - t0).toFixed(0)}ms`,
         )
       }
       return false
     } finally {
-      clearTimeout(timeoutId)
       if (restoreAbortControllerRef.current === controller) {
         restoreAbortControllerRef.current = null
       }
