@@ -34,6 +34,7 @@ import {
   useBookFromQueue,
   useLoungeBookFromQueue,
 } from "@/app/_hooks/queries/useQueue"
+import { useAgentQueueBooking } from "@/app/_systems/user/hooks/useAgents"
 import type { LoungeServiceItem } from "@/app/_types"
 
 // ── Booking mode for lounge staff ────────────────────────────
@@ -48,7 +49,7 @@ interface BookFromQueueDialogProps {
   loungeId: string
   /** IDs of lounge-services this agent can perform (from LoungeAgent.idLoungeService) */
   agentServiceIds?: string[]
-  mode: "client" | "staff"
+  mode: "client" | "staff" | "agent"
 }
 
 export default function BookFromQueueDialog({
@@ -66,6 +67,8 @@ export default function BookFromQueueDialog({
   const { t } = useTranslation()
   const bookFromQueue = useBookFromQueue()
   const loungeBookFromQueue = useLoungeBookFromQueue()
+  const agentQueueBooking = useAgentQueueBooking()
+  const isStaffMode = mode !== "client"
 
   // ── Lounge staff mode fields ───────────────────────────────
   const [bookingMode, setBookingMode] = useState<BookingMode>("visitor")
@@ -74,12 +77,15 @@ export default function BookFromQueueDialog({
   const [clientEmail, setClientEmail] = useState("")
 
   // ── Fetch lounge services ──────────────────────────────────
-  // For lounge owners we use their own endpoint; for clients we use the public endpoint
+  // Use lounge-scoped service reads for staff accounts, then filter to the agent's qualifications.
   const { data: allServices, isLoading: servicesLoading } = useQuery({
     queryKey: ["loungeServicesForQueue", loungeId, mode],
     queryFn: async () => {
       if (mode === "staff") {
         return loungeService.getAll()
+      }
+      if (mode === "agent") {
+        return loungeService.getServicesByLoungeId(loungeId)
       }
       // Client view — use public endpoint
       const services = await clientService.getLoungeServicesById(loungeId)
@@ -128,38 +134,7 @@ export default function BookFromQueueDialog({
   }
 
   const handleSubmit = () => {
-    if (mode === "staff") {
-      // ── Lounge staff: use dedicated lounge endpoint ─────────
-      if (bookingMode === "visitor") {
-        if (!visitorName.trim()) return
-        loungeBookFromQueue.mutate(
-          {
-            loungeId,
-            agentId,
-            visitorName: visitorName.trim(),
-            loungeServiceIds:
-              selectedServiceIds.length > 0 ? selectedServiceIds : undefined,
-            notes: notes.trim() || undefined,
-          },
-          { onSuccess: resetForm },
-        )
-      } else {
-        if (!clientPhone.trim()) return
-        loungeBookFromQueue.mutate(
-          {
-            loungeId,
-            agentId,
-            clientPhone: clientPhone.trim(),
-            clientEmail: clientEmail.trim() || undefined,
-            loungeServiceIds:
-              selectedServiceIds.length > 0 ? selectedServiceIds : undefined,
-            notes: notes.trim() || undefined,
-          },
-          { onSuccess: resetForm },
-        )
-      }
-    } else {
-      // ── Client self-booking ─────────────────────────────────
+    if (mode === "client") {
       if (selectedServiceIds.length === 0) return
       const clientId = user?._id
       if (!clientId) return
@@ -171,6 +146,41 @@ export default function BookFromQueueDialog({
           agentId,
           loungeServiceIds: selectedServiceIds,
           notes: notes.trim() || undefined,
+        },
+        { onSuccess: resetForm },
+      )
+      return
+    }
+
+    const customerDetails =
+      bookingMode === "visitor"
+        ? { visitorName: visitorName.trim() }
+        : {
+            clientPhone: clientPhone.trim(),
+            clientEmail: clientEmail.trim() || undefined,
+          }
+    if (
+      (bookingMode === "visitor" && !visitorName.trim()) ||
+      (bookingMode === "client" && !clientPhone.trim())
+    ) {
+      return
+    }
+
+    const bookingDetails = {
+      ...customerDetails,
+      loungeServiceIds:
+        selectedServiceIds.length > 0 ? selectedServiceIds : undefined,
+      notes: notes.trim() || undefined,
+    }
+
+    if (mode === "agent") {
+      agentQueueBooking.mutate(bookingDetails, { onSuccess: resetForm })
+    } else {
+      loungeBookFromQueue.mutate(
+        {
+          ...bookingDetails,
+          loungeId,
+          agentId,
         },
         { onSuccess: resetForm },
       )
@@ -191,26 +201,28 @@ export default function BookFromQueueDialog({
     resetForm()
   }
 
-  const isPending = bookFromQueue.isPending || loungeBookFromQueue.isPending
+  const isPending =
+    bookFromQueue.isPending ||
+    loungeBookFromQueue.isPending ||
+    agentQueueBooking.isPending
 
   // Staff mode: allow submit without services (they're optional for lounge)
-  const isSubmitDisabled =
-    mode === "staff"
-      ? bookingMode === "visitor"
-        ? !visitorName.trim() || isPending
-        : !clientPhone.trim() || isPending
-      : selectedServiceIds.length === 0 || isPending
+  const isSubmitDisabled = isStaffMode
+    ? bookingMode === "visitor"
+      ? !visitorName.trim() || isPending
+      : !clientPhone.trim() || isPending
+    : selectedServiceIds.length === 0 || isPending
 
   return (
     <Dialog open={open} onOpenChange={resetAndClose}>
       <DialogContent className="sm:max-w-lg sm:p-6">
         <DialogHeader>
           <DialogTitle>
-            {mode === "staff" ? t("queue.addToQueue") : t("queue.joinTheQueue")}
+            {isStaffMode ? t("queue.addToQueue") : t("queue.joinTheQueue")}
           </DialogTitle>
           <DialogDescription>
             {agentName
-              ? mode === "staff"
+              ? isStaffMode
                 ? t("queue.addVisitorOrClient", { name: agentName })
                 : t("queue.selectServicesFor", { name: agentName })
               : t("queue.selectServicesJoin")}
@@ -219,7 +231,7 @@ export default function BookFromQueueDialog({
 
         <div className="space-y-4 py-4">
           {/* ── Booking Mode Toggle (staff only) ────────────── */}
-          {mode === "staff" && (
+          {isStaffMode && (
             <div className="space-y-3">
               <Label className="text-sm font-semibold">
                 {t("queue.bookingType")}
@@ -310,7 +322,7 @@ export default function BookFromQueueDialog({
           {/* Service List */}
           <Label className="text-sm font-semibold">
             {t("queue.selectServices")}
-            {mode === "staff" && (
+            {isStaffMode && (
               <span className="text-muted-foreground ml-1 text-xs font-normal">
                 ({t("queue.optional")})
               </span>
@@ -450,7 +462,7 @@ export default function BookFromQueueDialog({
             </Button>
             <Button onClick={handleSubmit} disabled={isSubmitDisabled}>
               {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              {mode === "staff" ? t("queue.addToQueue") : t("queue.joinQueue")}
+              {isStaffMode ? t("queue.addToQueue") : t("queue.joinQueue")}
             </Button>
           </div>
         </div>

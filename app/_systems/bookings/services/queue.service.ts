@@ -10,17 +10,6 @@ const QUEUE_BASE = "/v1/queues"
 
 class QueueService {
   /**
-   * Get a single agent's queue for a given date (defaults to today)
-   */
-  async getAgentQueue(agentId: string, date?: string): Promise<Queue | null> {
-    const endpoint = date
-      ? `${QUEUE_BASE}/agent/${agentId}?date=${date}`
-      : `${QUEUE_BASE}/agent/${agentId}`
-    const response = await apiClient.get<QueueResponse>(endpoint)
-    return response?.data ?? null
-  }
-
-  /**
    * Get all agent queues for a specific lounge (by ID)
    */
   async getLoungeQueues(loungeId: string, date?: string): Promise<Queue[]> {
@@ -88,7 +77,7 @@ class QueueService {
     bookingId: string,
     date?: string,
     markAbsent?: boolean,
-  ): Promise<void> {
+  ): Promise<Queue | null> {
     const params = new URLSearchParams()
     if (date) params.set("date", date)
     if (markAbsent) params.set("markAbsent", "true")
@@ -96,7 +85,8 @@ class QueueService {
     const endpoint = query
       ? `${QUEUE_BASE}/agent/${agentId}/persons/${bookingId}?${query}`
       : `${QUEUE_BASE}/agent/${agentId}/persons/${bookingId}`
-    await apiClient.delete(endpoint)
+    const response = await apiClient.delete<QueueResponse>(endpoint)
+    return response?.data ?? null
   }
 
   /**

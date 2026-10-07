@@ -1,6 +1,6 @@
 "use client"
 
-import { useMemo } from "react"
+import { useMemo, useState } from "react"
 import { useSearchParams } from "next/navigation"
 import {
   Loader2,
@@ -16,7 +16,7 @@ import { Badge } from "@/app/_components/ui/badge"
 import { Card } from "@/app/_components/ui/card"
 import {
   useMyQueue,
-  useMyQueueStats,
+  useMyAgentProfile,
   useCallNextPerson,
   useUpdateMyQueuePersonStatus,
   useReorderMyQueuePerson,
@@ -30,17 +30,28 @@ import { AgentAvailabilityToggle } from "@/app/_systems/user/components/agents/a
 import QueueList from "@/app/_systems/bookings/components/queue/queue-list"
 import { useTranslation } from "@/app/_i18n"
 import { cn } from "@/app/_lib/utils"
+import BookFromQueueDialog from "@/app/_systems/bookings/components/queue/book-from-queue-dialog"
+import QueueBookingCard from "@/app/_systems/bookings/components/queue/queue-booking-card"
 
 // ── Page ────────────────────────────────────────────────────────
 
 export default function AgentQueuePage() {
+  const [showAddDialog, setShowAddDialog] = useState(false)
   const { t } = useTranslation()
   const searchParams = useSearchParams()
   const highlightBookingId =
     searchParams.get("bookingId") ?? searchParams.get("highlight")
 
   const queueQuery = useMyQueue()
-  const statsQuery = useMyQueueStats()
+  const profileQuery = useMyAgentProfile()
+  const agentProfile = profileQuery.data
+  const loungeId =
+    typeof agentProfile?.parentLounge === "string"
+      ? agentProfile.parentLounge
+      : agentProfile?.parentLounge?._id
+  const agentServiceIds =
+    agentProfile?.idLoungeService ??
+    agentProfile?.services?.map((service) => service._id)
   const callNext = useCallNextPerson()
   const updateStatus = useUpdateMyQueuePersonStatus()
   const reorder = useReorderMyQueuePerson()
@@ -51,16 +62,21 @@ export default function AgentQueuePage() {
     return [...list].sort((a, b) => a.position - b.position)
   }, [queueQuery.data])
 
-  const stats = statsQuery.data ?? {
-    total: persons.length,
-    waiting: persons.filter((p) => p.status === QueuePersonStatus.WAITING)
-      .length,
-    inService: persons.filter((p) => p.status === QueuePersonStatus.IN_SERVICE)
-      .length,
-    completed: persons.filter((p) => p.status === QueuePersonStatus.COMPLETED)
-      .length,
-    absent: persons.filter((p) => p.status === QueuePersonStatus.ABSENT).length,
-  }
+  const stats = useMemo(
+    () => ({
+      total: persons.length,
+      waiting: persons.filter((p) => p.status === QueuePersonStatus.WAITING)
+        .length,
+      inService: persons.filter(
+        (p) => p.status === QueuePersonStatus.IN_SERVICE,
+      ).length,
+      completed: persons.filter((p) => p.status === QueuePersonStatus.COMPLETED)
+        .length,
+      absent: persons.filter((p) => p.status === QueuePersonStatus.ABSENT)
+        .length,
+    }),
+    [persons],
+  )
 
   const isInitialLoading = queueQuery.isLoading && !queueQuery.data
   const hasInService = persons.some(
@@ -173,6 +189,13 @@ export default function AgentQueuePage() {
         </div>
 
         <div className="p-3 sm:p-4">
+          <div className="mb-3">
+            <QueueBookingCard
+              mode="staff"
+              onAddPerson={() => setShowAddDialog(true)}
+              canBook={!!loungeId && !profileQuery.isLoading}
+            />
+          </div>
           {isInitialLoading ? (
             <div className="flex items-center justify-center p-12">
               <Loader2 className="text-muted-foreground h-6 w-6 animate-spin" />
@@ -207,6 +230,18 @@ export default function AgentQueuePage() {
           )}
         </div>
       </Card>
+
+      {agentProfile && loungeId && (
+        <BookFromQueueDialog
+          open={showAddDialog}
+          onOpenChange={setShowAddDialog}
+          agentId={agentProfile._id}
+          agentName={agentProfile.agentName}
+          loungeId={loungeId}
+          agentServiceIds={agentServiceIds}
+          mode="agent"
+        />
+      )}
     </div>
   )
 }

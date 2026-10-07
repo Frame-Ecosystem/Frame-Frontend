@@ -452,6 +452,35 @@ If there are no more waiting persons:
 
 ---
 
+### `POST /v1/agents/me/queue/bookings` — Add Client or Walk-in
+
+Uses the shared lounge booking dialog and creates a booking directly in the authenticated agent's own queue. The server derives the agent and lounge from the session, so do not send `agentId` or `loungeId`. The service selection is limited to services assigned to the agent.
+
+Send exactly one of the following:
+
+```json
+{
+  "visitorName": "Walk-in Guest",
+  "loungeServiceIds": ["<loungeServiceId>"],
+  "notes": "Optional note"
+}
+```
+
+Or identify an existing client by phone and/or email:
+
+```json
+{
+  "clientPhone": "+21600000000",
+  "loungeServiceIds": ["<loungeServiceId>"]
+}
+```
+
+`loungeServiceIds` and `notes` are optional. Existing-client details must resolve to a client account. The response is `201` with the created booking in `data`; the booking is already in the agent's queue. Missing/ambiguous identity or an unassigned service returns `400`; unauthenticated and wrong-role requests return `401` and `403`.
+
+Use this booking endpoint to add a new walk-in or find a client. `POST /v1/agents/me/queue/persons` is only for adding an already-existing booking by `bookingId`.
+
+---
+
 ### `POST /v1/agents/me/queue/persons` — Manually Add Person
 
 Add a booking to the queue (e.g. walk-in, or re-adding after removal).
@@ -645,9 +674,10 @@ Work through this list top-to-bottom before shipping.
 
 ### Queue UI (agent-facing)
 
-- [ ] Build or update the queue view to consume `GET /v1/agents/me/queue`.
-- [ ] The **"Call Next"** button calls `POST /v1/agents/me/queue/next` — no body required. Re-fetch the queue after success.
-- [ ] The **stats bar** (Waiting / In Service / Completed / Absent counts) should call `GET /v1/agents/me/queue/stats`.
+- [ ] Load the initial queue snapshot from `GET /v1/agents/me/queue`; derive queue statistics from that same snapshot.
+- [ ] The **"Call Next"** button calls `POST /v1/agents/me/queue/next` — no body required. The response and queue socket event carry the updated queue.
+- [ ] Subscribe to `queue:agent:{agentId}` and apply each `queue:updated` event's `data` snapshot directly; do not refetch the queue or stats after each event.
+- [ ] On socket reconnect, re-fetch the queue once to resynchronize any changes made while disconnected. The initial REST snapshot remains the bootstrap and recovery path.
 - [ ] Status badge for each person maps as follows:
 
   | Value | Display label | Suggested colour |
@@ -659,7 +689,6 @@ Work through this list top-to-bottom before shipping.
 
 - [ ] The drag-to-reorder (or position input) feature calls `PUT /v1/agents/me/queue/persons/:bookingId/reorder` with `{ "newPosition": N }`.
 - [ ] The remove/mark-absent action calls `DELETE /v1/agents/me/queue/persons/:bookingId?markAbsent=true`.
-- [ ] Optionally poll or use WebSocket (Socket.IO) for real-time queue updates — the backend emits queue change events on the agent's room.
 
 ### Lounge dashboard (managing agents)
 

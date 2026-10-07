@@ -166,6 +166,43 @@ All fields optional:
 
 **Scoping:** Lounge users can only update agents under their own lounge. Admin can update any agent.
 
+### POST `/v1/agents/me/queue/bookings` — Add Client or Walk-in to Own Queue
+
+**Auth:** Agent JWT + CSRF.
+
+Creates a booking and immediately adds it to the authenticated agent's queue. The server derives the agent and lounge from the token; callers must not send `agentId` or `loungeId`. Selected services must be assigned to that agent.
+
+**Request:** `application/json` — provide either a walk-in name or an existing client's phone/email, not both.
+
+```json
+{
+  "visitorName": "Walk-in Guest",
+  "loungeServiceIds": ["<loungeServiceId>"],
+  "notes": "Optional note"
+}
+```
+
+For an existing client, use `clientPhone` and/or `clientEmail` instead:
+
+```json
+{
+  "clientPhone": "+21600000000",
+  "loungeServiceIds": ["<loungeServiceId>"]
+}
+```
+
+`loungeServiceIds` and `notes` are optional. Client lookup must match an existing client account.
+
+**Response (201):**
+```json
+{
+  "data": { "created booking" },
+  "message": "Client or visitor added to queue successfully"
+}
+```
+
+The created booking is already added to the queue. **Errors:** `400` for missing/ambiguous details, unknown client, or services not assigned to the agent; `401` for missing/invalid JWT; `403` for a non-agent account; `404` when the agent/lounge cannot be found.
+
 ### Image Upload (Separate Endpoint)
 
 ```
@@ -184,6 +221,7 @@ Multipart with `image` field. Same auth. Returns updated agent document.
 | GET | `/v1/agents/me` | agent | Get own profile |
 | PATCH | `/v1/agents/me` | agent + CSRF | Update own profile (limited fields) |
 | PATCH | `/v1/agents/me/availability` | agent + CSRF | Toggle queue availability `{ acceptQueueBooking: bool }` |
+| POST | `/v1/agents/me/queue/bookings` | agent + CSRF | Create a client/visitor booking in own queue |
 
 ---
 
@@ -228,4 +266,4 @@ All error responses follow: `{ "message": "error description" }`
 | **Admin** | Full access to all | Full access; must specify `parentLounge` when creating |
 | **Lounge** | Own services only (auto-scoped) | Own agents only (auto-bound) |
 | **Client** | Read-only (list/search) | Read-only (list) |
-| **Agent** | Associated services (read) | Own profile only |
+| **Agent** | Associated services (read) | Own profile and queue |

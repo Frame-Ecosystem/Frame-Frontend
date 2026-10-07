@@ -29,7 +29,7 @@ import { tokenManager } from "./lib/token-manager"
 import { clearSessionCsrfToken, setSessionCsrfToken } from "./lib/csrf"
 import type { User } from "../_types"
 import { apiClient, AuthRefreshRateLimitedError } from "../_services/api"
-import { getSocket, disconnectSocket } from "../_services/socket"
+import { disconnectSocket, reconnectSocketWithAuth } from "../_services/socket"
 import { pushNotificationService } from "../_services/push-notification.service"
 import { useTheme } from "next-themes"
 import { useTranslation } from "../_i18n"
@@ -221,7 +221,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setUser(userData)
       applyUserTheme(userData)
       applyUserLanguage(userData)
-      getSocket()
+      reconnectSocketWithAuth()
 
       return true
     } catch {
@@ -263,10 +263,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         apiClient.setAccessTokenGetter(() => token)
         setAccessToken(token)
         // Establish Socket.IO connection now that we have a token
-        const sock = getSocket()
-        if (!sock.connected && !sock.active) {
-          sock.connect()
-        }
+        reconnectSocketWithAuth()
       } else {
         tokenManager.clear()
         setAccessToken(null)
@@ -445,6 +442,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
               setUserRef.current(userData)
               applyUserThemeRef.current(userData)
               applyUserLanguageRef.current(userData)
+              reconnectSocketWithAuth()
             }
           } catch {
             /* ignore */
@@ -484,6 +482,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           setUser(user || null)
           applyUserTheme(user || null)
           applyUserLanguage(user || null)
+          reconnectSocketWithAuth()
         }
       } catch {
         // ignore malformed messages

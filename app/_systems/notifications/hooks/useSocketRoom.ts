@@ -4,8 +4,8 @@
  *   for events, automatically cleaning up when rooms/events change
  *   or the component unmounts.
  *
- *   Handles reconnection: rooms are re-joined on every `connect`
- *   event so the server-side room membership is restored.
+ *   Re-joins rooms and runs the optional snapshot resync after each
+ *   connection so missed events cannot leave cached state stale.
  */
 
 import { useEffect, useRef } from "react"
@@ -17,15 +17,19 @@ import { getSocket } from "@/app/_services/socket"
  *
  * @param rooms  Room name(s) to join. Accepts a single string or an array.
  * @param events Record of `{ eventName: handler }` pairs to register.
+ * @param onReconnect Resync callback run after initial connect and reconnect.
  */
 export function useSocketRoom(
   rooms: string | string[],
 
   events: Record<string, (data: any) => void>,
+  onReconnect?: () => void,
 ) {
   const joinedRoomsRef = useRef<string[]>([])
   const eventsRef = useRef(events)
+  const onReconnectRef = useRef(onReconnect)
   eventsRef.current = events
+  onReconnectRef.current = onReconnect
 
   // Stabilise rooms identity: join a string so the effect only re-runs
   // when the actual room names change, not on every render.
@@ -43,6 +47,7 @@ export function useSocketRoom(
     // ── Helper to (re-)join rooms ───────────────────────────
     const joinRooms = () => {
       socket.emit("join", validRooms)
+      onReconnectRef.current?.()
     }
 
     // Join now if already connected

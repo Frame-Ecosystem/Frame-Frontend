@@ -4,7 +4,7 @@
 //
 // - Management hooks (admin / lounge): useAgents, useAgent, useCreate/Update/DeleteAgent, useUploadAgentImage
 // - Self-service hooks (agent):        useMyAgentProfile, useUpdateMyAgentProfile, useToggleMyAvailability, useUploadMyAgentImage
-// - Queue hooks (agent):               useMyQueue, useMyQueueStats, useCallNext, useAddToMyQueue, useUpdateMyQueuePersonStatus, useReorderMyQueuePerson, useRemoveFromMyQueue
+// - Queue hooks (agent):               useMyQueue, useCallNext, useAddToMyQueue, useAgentQueueBooking, useUpdateMyQueuePersonStatus, useReorderMyQueuePerson, useRemoveFromMyQueue
 
 import { useMemo } from "react"
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
@@ -14,7 +14,6 @@ import { agentService } from "@/app/_systems/user/services/agent.service"
 import { AGENT_ERROR_MESSAGES } from "@/app/_systems/user/types/agent"
 import type {
   Agent,
-  AgentQueueStats,
   CreateAgentDto,
   UpdateAgentDto,
   UpdateMyAgentProfileDto,
@@ -37,7 +36,6 @@ export const agentKeys = {
   me: () => [...agentKeys.all, "me"] as const,
   myQueue: (date?: string) =>
     [...agentKeys.all, "me", "queue", date ?? "today"] as const,
-  myQueueStats: () => [...agentKeys.all, "me", "queue", "stats"] as const,
 }
 
 // ── Error helper ────────────────────────────────────────────────
@@ -336,30 +334,36 @@ export function useMyQueue(date?: string) {
         data: Queue
         timestamp: string
       }) => {
+        if (
+          payload.agentId !== agentId ||
+          payload.data.date.slice(0, 10) !==
+            (date ?? new Date().toISOString().slice(0, 10)).slice(0, 10)
+        ) {
+          return
+        }
+        void queryClient.cancelQueries({
+          queryKey: agentKeys.myQueue(date),
+          exact: true,
+        })
         queryClient.setQueryData(agentKeys.myQueue(date), payload.data)
-        queryClient.invalidateQueries({ queryKey: agentKeys.myQueueStats() })
       },
     }),
-    [queryClient, date],
+    [agentId, queryClient, date],
   )
-  useSocketRoom(rooms, events)
+  useSocketRoom(rooms, events, () =>
+    queryClient.invalidateQueries({
+      queryKey: agentKeys.myQueue(date),
+      exact: true,
+    }),
+  )
 
   return useQuery({
     queryKey: agentKeys.myQueue(date),
     queryFn: () => agentService.getMyQueue(date),
     enabled: user?.type === "agent",
     throwOnError: false,
-  })
-}
-
-export function useMyQueueStats() {
-  const { user } = useAuth()
-  return useQuery({
-    queryKey: agentKeys.myQueueStats(),
-    queryFn: () => agentService.getMyQueueStats(),
-    enabled: user?.type === "agent",
-    refetchOnWindowFocus: true,
-    throwOnError: false,
+    refetchOnReconnect: false,
+    refetchOnWindowFocus: false,
   })
 }
 
@@ -371,8 +375,6 @@ export function useCallNextPerson() {
       if (queue) {
         queryClient.setQueryData(agentKeys.myQueue(), queue)
       }
-      queryClient.invalidateQueries({ queryKey: agentKeys.myQueueStats() })
-      queryClient.invalidateQueries({ queryKey: agentKeys.all })
       toast.success("Next person called")
     },
     onError: (error) => {
@@ -394,8 +396,28 @@ export function useAddToMyQueue() {
     }) => agentService.addToMyQueue(bookingId, position),
     onSuccess: (queue) => {
       if (queue) queryClient.setQueryData(agentKeys.myQueue(), queue)
-      queryClient.invalidateQueries({ queryKey: agentKeys.myQueueStats() })
       toast.success("Added to queue")
+    },
+    onError: (error) => {
+      if (isAuthError(error)) return
+      toast.error(agentErrorMessage(error, "Failed to add to queue"))
+    },
+  })
+}
+
+export function useAgentQueueBooking() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (input: {
+      visitorName?: string
+      clientPhone?: string
+      clientEmail?: string
+      loungeServiceIds?: string[]
+      notes?: string
+    }) => agentService.addClientOrVisitorToMyQueue(input),
+    onSuccess: () => {
+      toast.success("Added to queue!")
+      queryClient.invalidateQueries({ queryKey: ["bookings"] })
     },
     onError: (error) => {
       if (isAuthError(error)) return
@@ -416,7 +438,6 @@ export function useUpdateMyQueuePersonStatus() {
     }) => agentService.updateMyQueuePersonStatus(bookingId, status),
     onSuccess: (queue, variables) => {
       if (queue) queryClient.setQueryData(agentKeys.myQueue(), queue)
-      queryClient.invalidateQueries({ queryKey: agentKeys.myQueueStats() })
       const labels: Record<QueuePersonStatus, string> = {
         [QueuePersonStatus.WAITING]: "Moved back to waiting",
         [QueuePersonStatus.IN_SERVICE]: "Service started",
@@ -466,7 +487,6 @@ export function useRemoveFromMyQueue() {
     }) => agentService.removeFromMyQueue(bookingId, markAbsent),
     onSuccess: (queue, variables) => {
       if (queue) queryClient.setQueryData(agentKeys.myQueue(), queue)
-      queryClient.invalidateQueries({ queryKey: agentKeys.myQueueStats() })
       toast.success(
         variables.markAbsent
           ? "Marked absent and removed"
@@ -481,4 +501,4 @@ export function useRemoveFromMyQueue() {
 }
 
 // Convenience re-export so callers only need one import.
-export type { Agent, AgentQueueStats }
+export type { Agent }

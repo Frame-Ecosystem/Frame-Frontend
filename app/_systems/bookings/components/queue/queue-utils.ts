@@ -58,8 +58,9 @@ export function estimatedWaitTime(
 
     if (p.status === "inService" && p.inServiceAt) {
       // For in-service persons, only count remaining time
-      const elapsed = Math.floor(
-        (Date.now() - new Date(p.inServiceAt).getTime()) / 60000,
+      const elapsed = Math.max(
+        0,
+        Math.floor((Date.now() - new Date(p.inServiceAt).getTime()) / 60000),
       )
       return sum + Math.max(duration - elapsed, 0)
     }

@@ -11,8 +11,8 @@ import type {
   Agent,
   AgentFilters,
   AgentLoungeService,
-  AgentQueueStats,
   AgentStats,
+  Booking,
   CreateAgentDto,
   Paginated,
   Queue,
@@ -46,8 +46,8 @@ interface QueueResponse {
   message?: string
 }
 
-interface QueueStatsResponse {
-  data: AgentQueueStats
+interface BookingResponse {
+  data: Booking
   message?: string
 }
 
@@ -288,17 +288,18 @@ class AgentService {
     return res?.data ?? null
   }
 
-  async getMyQueueStats(): Promise<AgentQueueStats> {
-    const res = await apiClient.get<QueueStatsResponse>(`${ME_QUEUE}/stats`)
-    return (
-      res?.data ?? {
-        total: 0,
-        waiting: 0,
-        inService: 0,
-        completed: 0,
-        absent: 0,
-      }
+  async addClientOrVisitorToMyQueue(input: {
+    visitorName?: string
+    clientPhone?: string
+    clientEmail?: string
+    loungeServiceIds?: string[]
+    notes?: string
+  }): Promise<Booking> {
+    const res = await apiClient.post<BookingResponse>(
+      `${ME_QUEUE}/bookings`,
+      input,
     )
+    return res.data
   }
 
   /**

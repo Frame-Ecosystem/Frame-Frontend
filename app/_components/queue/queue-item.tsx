@@ -141,6 +141,11 @@ export default function QueueItem({
   const isVisitor = !client && !!person.visitorName
   const status = person.status
   const isInService = status === "inService"
+  const hasOtherPersonInService = allPersons.some(
+    (candidate) =>
+      candidate.status === QueuePersonStatus.IN_SERVICE &&
+      candidate.bookingId?._id !== bookingId,
+  )
   const validTransitions = getValidTransitions(status)
   const clientName = client
     ? getClientFullName(client.firstName, client.lastName)
@@ -368,7 +373,10 @@ export default function QueueItem({
                   size="sm"
                   variant={variant}
                   className="h-7 gap-1 px-2 text-xs"
-                  disabled={isUpdating}
+                  disabled={
+                    isUpdating ||
+                    (key === "inService" && hasOtherPersonInService)
+                  }
                   onClick={() => onStatusChange?.(bookingId, targetStatus)}
                 >
                   <Icon className="h-3 w-3" />

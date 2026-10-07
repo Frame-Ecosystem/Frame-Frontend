@@ -1,8 +1,7 @@
 "use client"
 
 import { useState, useRef, useMemo, useCallback } from "react"
-import { Button } from "../ui/button"
-import { CalendarDays, RefreshCw } from "lucide-react"
+import { CalendarDays } from "lucide-react"
 
 import { format } from "date-fns"
 import { useQuery } from "@tanstack/react-query"
@@ -81,22 +80,19 @@ export default function QueueDisplay({
   const isOwner = !loungeId && user?.type === "lounge"
 
   // Only enable the query that is actually needed
-  const {
-    data: myQueues,
-    isLoading: myLoading,
-    refetch: refetchMy,
-  } = useMyLoungeQueues(selectedDate, isOwner)
-  const {
-    data: specificQueues,
-    isLoading: specificLoading,
-    refetch: refetchSpecific,
-  } = useLoungeQueues(loungeId ?? null, selectedDate)
+  const { data: myQueues, isLoading: myLoading } = useMyLoungeQueues(
+    selectedDate,
+    isOwner,
+  )
+  const { data: specificQueues, isLoading: specificLoading } = useLoungeQueues(
+    loungeId ?? null,
+    selectedDate,
+  )
   const apiQueues: Queue[] = useMemo(
     () => (isOwner ? (myQueues ?? []) : (specificQueues ?? [])),
     [isOwner, myQueues, specificQueues],
   )
   const isLoading = isOwner ? myLoading : specificLoading
-  const refetch = isOwner ? refetchMy : refetchSpecific
 
   // ── Fetch all lounge agents to show queues for all agents ──
   const effectiveLoungeId = loungeId ?? (isOwner ? user?._id : undefined)
@@ -275,29 +271,16 @@ export default function QueueDisplay({
             : undefined
         }
       >
-        {/* Date Picker & Refresh — only for lounge/staff view */}
+        {/* Date picker — changing dates loads that day's initial queue snapshot. */}
         {mode === "staff" && !isLoading && (
-          <div className="flex items-center justify-between gap-2">
-            <div className="flex items-center gap-2">
-              <CalendarDays className="text-muted-foreground h-4 w-4" />
-              <input
-                type="date"
-                value={selectedDate ?? format(new Date(), "yyyy-MM-dd")}
-                onChange={(e) => setSelectedDate(e.target.value || undefined)}
-                className="border-input bg-background text-foreground rounded-md border px-3 py-1.5 text-sm"
-              />
-            </div>
-            {!(isFullScreen || isPseudoFullScreen) && !isLoading && (
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => refetch()}
-                className="gap-1"
-              >
-                <RefreshCw className="h-3.5 w-3.5" />
-                Refresh
-              </Button>
-            )}
+          <div className="flex items-center gap-2">
+            <CalendarDays className="text-muted-foreground h-4 w-4" />
+            <input
+              type="date"
+              value={selectedDate ?? format(new Date(), "yyyy-MM-dd")}
+              onChange={(e) => setSelectedDate(e.target.value || undefined)}
+              className="border-input bg-background text-foreground rounded-md border px-3 py-1.5 text-sm"
+            />
           </div>
         )}
 

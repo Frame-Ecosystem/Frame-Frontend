@@ -154,15 +154,6 @@ export interface AgentStats {
   blocked: number
 }
 
-/** Stats returned by `GET /v1/agents/me/queue/stats`. */
-export interface AgentQueueStats {
-  total: number
-  waiting: number
-  inService: number
-  completed: number
-  absent: number
-}
-
 // â”€â”€ Error code mappings â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 export const AGENT_ERROR_MESSAGES: Record<string, string> = {

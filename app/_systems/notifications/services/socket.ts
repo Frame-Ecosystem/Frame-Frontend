@@ -10,6 +10,25 @@ import { clientDebug } from "@/app/_lib/client-logger"
 
 let socket: Socket | null = null
 
+function getSocketUrl(): string {
+  const configuredUrl =
+    process.env.NEXT_PUBLIC_SOCKET_URL?.trim() ||
+    process.env.NEXT_PUBLIC_API_URL?.trim()
+  const baseUrl = configuredUrl || API_BASE_URL
+
+  if (typeof window === "undefined" || !baseUrl) return baseUrl
+
+  try {
+    const url = new URL(baseUrl, window.location.origin)
+    if (url.hostname === "0.0.0.0" || url.hostname === "::") {
+      url.hostname = window.location.hostname
+    }
+    return url.origin
+  } catch {
+    return baseUrl
+  }
+}
+
 /**
  * Get (or lazily create) the singleton Socket.IO connection.
  * Uses the Socket.IO `auth` option to securely pass the access token
@@ -17,7 +36,7 @@ let socket: Socket | null = null
  */
 export function getSocket(): Socket {
   if (!socket) {
-    socket = io(API_BASE_URL, {
+    socket = io(getSocketUrl(), {
       withCredentials: true,
       transports: ["websocket", "polling"],
       reconnection: true,
@@ -39,8 +58,8 @@ export function getSocket(): Socket {
       clientDebug("[socket] disconnected:", reason)
     })
 
-    socket.on("connect_error", (_) => {
-      // Connection error occurred
+    socket.on("connect_error", (error) => {
+      clientDebug("[socket] connection failed:", error.message)
     })
   }
 
@@ -49,6 +68,18 @@ export function getSocket(): Socket {
     socket.connect()
   }
 
+  return socket
+}
+
+/** Reconnect so the server authenticates the socket with the current session token. */
+export function reconnectSocketWithAuth(): Socket {
+  if (!socket) return getSocket()
+
+  socket.auth = (callback) => {
+    callback({ token: apiClient.accessToken })
+  }
+  socket.disconnect()
+  socket.connect()
   return socket
 }
 
