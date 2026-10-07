@@ -26,6 +26,7 @@ class ReelServiceClass {
     const res = await apiClient.post<SingleContentResponse<Reel>>(
       "/v1/reels",
       formData,
+      { timeoutMs: 15 * 60 * 1000, directApi: true },
     )
     return res.data
   }

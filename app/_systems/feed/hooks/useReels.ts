@@ -60,13 +60,13 @@ export function useCreateReel() {
       duration: number
       hashtags?: string[]
     }) => reelService.createReel(input),
+    throwOnError: false,
     onSuccess: () => {
       toast.success("Reel shared!")
       qc.invalidateQueries({ queryKey: contentKeys.followingFeed })
       qc.invalidateQueries({ queryKey: contentKeys.exploreFeed })
       qc.invalidateQueries({ queryKey: ["reels", "user"] })
     },
-    onError: () => toast.error("Failed to upload reel"),
   })
 }
 

@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useRef, useCallback } from "react"
+import { useState, useRef, useCallback, useEffect } from "react"
 import { Video, X, Loader2, Hash, ImageIcon } from "lucide-react"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../ui/dialog"
 import { Button } from "../ui/button"
@@ -18,9 +18,12 @@ interface CreateReelDialogProps {
   onOpenChange: (_open: boolean) => void
 }
 
-const MAX_DURATION = 300 // seconds
+const MAX_DURATION = 180 // seconds
 const MIN_DURATION = 1
 const MAX_CAPTION = 2200
+const MAX_VIDEO_BYTES = 90 * 1024 * 1024
+const MAX_VIDEO_SIZE_MIB = MAX_VIDEO_BYTES / (1024 * 1024)
+const MAX_THUMBNAIL_BYTES = 5 * 1024 * 1024
 
 export function CreateReelDialog({
   open,
@@ -43,11 +46,21 @@ export function CreateReelDialog({
     mergeWithInlineHashtags,
   } = useHashtagComposer({ maxHashtags: 10 })
   const [durationError, setDurationError] = useState(false)
+  const [fileError, setFileError] = useState<string | null>(null)
   const [serverError, setServerError] = useState<string | null>(null)
   const videoInputRef = useRef<HTMLInputElement>(null)
   const thumbInputRef = useRef<HTMLInputElement>(null)
+  const videoValidationRef = useRef(0)
   const createReel = useCreateReel()
   const { t } = useTranslation()
+
+  useEffect(
+    () => () => {
+      if (videoPreview) URL.revokeObjectURL(videoPreview)
+      if (thumbnailPreview) URL.revokeObjectURL(thumbnailPreview)
+    },
+    [videoPreview, thumbnailPreview],
+  )
 
   const profileImage =
     typeof user?.profileImage === "string"
@@ -58,19 +71,29 @@ export function CreateReelDialog({
     (e: React.ChangeEvent<HTMLInputElement>) => {
       const file = e.target.files?.[0]
       if (!file) return
+      const validationId = ++videoValidationRef.current
+      setVideoFile(null)
+      setVideoPreview(null)
+      setVideoDuration(0)
+      setDurationError(false)
+      setFileError(null)
+      setServerError(null)
+      if (file.size > MAX_VIDEO_BYTES) {
+        setFileError(t("content.reel.videoSizeError"))
+        e.target.value = ""
+        return
+      }
 
       // Validate duration
       const url = URL.createObjectURL(file)
       const video = document.createElement("video")
       video.preload = "metadata"
       video.onloadedmetadata = () => {
-        URL.revokeObjectURL(video.src) // only revoke the temp one
+        URL.revokeObjectURL(url)
+        if (validationId !== videoValidationRef.current) return
         const dur = video.duration
-        if (dur < MIN_DURATION || dur > MAX_DURATION) {
+        if (!Number.isFinite(dur) || dur < MIN_DURATION || dur > MAX_DURATION) {
           setDurationError(true)
-          setVideoFile(null)
-          setVideoPreview(null)
-          setVideoDuration(0)
         } else {
           setDurationError(false)
           setVideoFile(file)
@@ -79,41 +102,53 @@ export function CreateReelDialog({
           setVideoDuration(Math.round(dur))
         }
       }
+      video.onerror = () => {
+        URL.revokeObjectURL(url)
+        if (validationId !== videoValidationRef.current) return
+        setFileError(t("content.reel.invalidVideo"))
+      }
       video.src = url
       e.target.value = ""
     },
-    [],
+    [t],
   )
 
   const removeVideo = useCallback(() => {
-    if (videoPreview) URL.revokeObjectURL(videoPreview)
+    videoValidationRef.current += 1
     setVideoFile(null)
     setVideoPreview(null)
     setVideoDuration(0)
     setDurationError(false)
-  }, [videoPreview])
+    setFileError(null)
+    setServerError(null)
+  }, [])
 
   const handleThumbnailSelect = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
       const file = e.target.files?.[0]
       if (!file) return
-      if (thumbnailPreview) URL.revokeObjectURL(thumbnailPreview)
+      setServerError(null)
+      if (file.size > MAX_THUMBNAIL_BYTES) {
+        setFileError(t("content.reel.thumbnailSizeError"))
+        e.target.value = ""
+        return
+      }
+      setFileError(null)
       setThumbnailFile(file)
       setThumbnailPreview(URL.createObjectURL(file))
       e.target.value = ""
     },
-    [thumbnailPreview],
+    [t],
   )
 
   const removeThumbnail = useCallback(() => {
-    if (thumbnailPreview) URL.revokeObjectURL(thumbnailPreview)
     setThumbnailFile(null)
     setThumbnailPreview(null)
-  }, [thumbnailPreview])
+    setFileError(null)
+  }, [])
 
   const resetForm = useCallback(() => {
-    if (videoPreview) URL.revokeObjectURL(videoPreview)
-    if (thumbnailPreview) URL.revokeObjectURL(thumbnailPreview)
+    videoValidationRef.current += 1
     setVideoFile(null)
     setVideoPreview(null)
     setVideoDuration(0)
@@ -122,8 +157,18 @@ export function CreateReelDialog({
     setCaption("")
     resetHashtags([])
     setDurationError(false)
+    setFileError(null)
     setServerError(null)
-  }, [videoPreview, thumbnailPreview, resetHashtags])
+  }, [resetHashtags])
+
+  const handleOpenChange = useCallback(
+    (nextOpen: boolean) => {
+      if (!nextOpen && createReel.isPending) return
+      if (!nextOpen) resetForm()
+      onOpenChange(nextOpen)
+    },
+    [createReel.isPending, onOpenChange, resetForm],
+  )
 
   const handleSubmit = useCallback(() => {
     if (!videoFile) return
@@ -148,16 +193,26 @@ export function CreateReelDialog({
           setServerError(null)
           if (code === "INVALID_DURATION") {
             setDurationError(true)
+          } else if (code === "INVALID_VIDEO_METADATA") {
+            setServerError(t("content.reel.invalidVideo"))
+          } else if (code === "INVALID_THUMBNAIL_METADATA") {
+            setServerError(t("content.reel.invalidMediaType"))
           } else if (code === "UPLOAD_FILE_TOO_LARGE") {
-            setServerError(t("content.error.uploadFileTooLarge"))
+            setServerError(t("content.reel.videoSizeError"))
+          } else if (code === "THUMBNAIL_FILE_TOO_LARGE") {
+            setServerError(t("content.reel.thumbnailSizeError"))
+          } else if (code === "INVALID_UPLOAD_FILE_TYPE") {
+            setServerError(t("content.reel.invalidMediaType"))
           } else if (code === "UPLOAD_TOO_MANY_FILES") {
             setServerError(t("content.error.uploadTooManyFiles"))
           } else if (code === "UPLOAD_UNEXPECTED_FIELD") {
             setServerError(t("content.error.uploadUnexpectedField"))
           } else if (code === "INVALID_HASHTAGS") {
             setServerError(t("content.error.invalidHashtags"))
+          } else if (/timed out/i.test((error as Error)?.message ?? "")) {
+            setServerError(t("content.error.uploadTimedOut"))
           } else {
-            setServerError((error as Error)?.message ?? null)
+            setServerError(t("content.error.uploadFailed"))
           }
         },
       },
@@ -174,12 +229,13 @@ export function CreateReelDialog({
     t,
   ])
 
-  const canSubmit = !!videoFile && !durationError && !createReel.isPending
+  const canSubmit =
+    !!videoFile && !durationError && !fileError && !createReel.isPending
 
   if (!user) return null
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
           <DialogTitle>{t("content.reel.create")}</DialogTitle>
@@ -238,6 +294,11 @@ export function CreateReelDialog({
                   seconds: String(MAX_DURATION),
                 })}
               </span>
+              <span className="text-xs">
+                {t("content.reel.maxFileSize", {
+                  size: `${MAX_VIDEO_SIZE_MIB} MB`,
+                })}
+              </span>
             </button>
           )}
 
@@ -248,17 +309,23 @@ export function CreateReelDialog({
             onChange={handleVideoSelect}
             className="hidden"
           />
+          <p className="text-muted-foreground text-xs">
+            {t("content.reel.aspectRatioTip")}
+          </p>
 
           {durationError && (
             <p className="text-destructive text-sm">
-              {t("content.reel.durationError")}
+              {t("content.reel.durationError", {
+                seconds: String(MAX_DURATION),
+              })}
             </p>
           )}
+          {fileError && <p className="text-destructive text-sm">{fileError}</p>}
 
           {/* Thumbnail picker */}
           <div>
             <p className="text-muted-foreground mb-1.5 text-xs font-medium">
-              {t("content.reel.thumbnailOptional")}
+              {t("content.reel.thumbnailAutoGenerated")}
             </p>
             {thumbnailPreview ? (
               <div className="relative inline-block h-16 w-16 overflow-hidden rounded-lg">

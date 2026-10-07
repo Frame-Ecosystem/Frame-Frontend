@@ -84,6 +84,29 @@ function getGoogleAuthBaseUrl(): string {
   return getApiBaseUrl()
 }
 
+function getSameSiteDirectApiBaseUrl(): string | null {
+  if (typeof window === "undefined") return null
+
+  const configured = normalizeBaseUrl(process.env.NEXT_PUBLIC_API_URL)
+  const directBaseUrl = configured
+    ? rewriteBindAllHostForBrowser(configured)
+    : (normalizeBaseUrl(getBrowserLocalApiUrl()) ?? LOCAL_API_FALLBACK)
+
+  try {
+    const apiUrl = new URL(directBaseUrl)
+    if (
+      apiUrl.protocol === window.location.protocol &&
+      apiUrl.hostname === window.location.hostname
+    ) {
+      return normalizeBaseUrl(directBaseUrl)
+    }
+  } catch {
+    return null
+  }
+
+  return null
+}
+
 function isAuthDebugEnabled(): boolean {
   if (typeof window === "undefined") return false
 
@@ -116,6 +139,7 @@ type ApiRequestOptions = {
   skipAuthRefresh?: boolean
   suppressAuthFailure?: boolean
   timeoutMs?: number
+  directApi?: boolean
   onResponse?: (response: Response) => void
 }
 
@@ -173,10 +197,12 @@ class ApiClient {
    * Bootstrap/recover CSRF for cross-origin web clients.
    * Backend returns the same token in cookie + JSON.
    */
-  private async bootstrapCsrfToken(): Promise<string | null> {
+  private async bootstrapCsrfToken(
+    baseUrl = this.baseUrl,
+  ): Promise<string | null> {
     try {
       const token = this._getAccessToken?.()
-      const res = await fetch(`${this.baseUrl}/v1/auth/csrf-token`, {
+      const res = await fetch(`${baseUrl}/v1/auth/csrf-token`, {
         method: "GET",
         credentials: "include",
         headers: {
@@ -205,7 +231,11 @@ class ApiClient {
     options: RequestInit = {},
     apiOptions?: ApiRequestOptions,
   ): Promise<T> {
-    const url = `${this.baseUrl}${endpoint}`
+    const requestBaseUrl = apiOptions?.directApi
+      ? (getSameSiteDirectApiBaseUrl() ?? this.baseUrl)
+      : this.baseUrl
+    const url = `${requestBaseUrl}${endpoint}`
+    const timeoutMs = this.resolveTimeoutMs(apiOptions?.timeoutMs)
 
     // Get access token from memory (via context)
     let token = apiOptions?.accessToken ?? this._getAccessToken?.()
@@ -254,7 +284,7 @@ class ApiClient {
           }
         }
         // Bootstrap CSRF
-        csrfToken = await this.bootstrapCsrfToken()
+        csrfToken = await this.bootstrapCsrfToken(requestBaseUrl)
       }
       // Attach CSRF header (now guaranteed to have a token)
       if (csrfToken) {
@@ -266,7 +296,6 @@ class ApiClient {
     }
 
     try {
-      const timeoutMs = this.resolveTimeoutMs(apiOptions?.timeoutMs)
       const controller = new AbortController()
       const requestSignal = apiOptions?.signal
         ? AbortSignal.any([controller.signal, apiOptions.signal])
@@ -364,7 +393,7 @@ class ApiClient {
         const shouldRetryCsrf =
           response.status === 403 && isStateChanging(method) && !isPublicAuth
         if (shouldRetryCsrf) {
-          const freshCsrf = await this.bootstrapCsrfToken()
+          const freshCsrf = await this.bootstrapCsrfToken(requestBaseUrl)
           if (freshCsrf) {
             headers = {
               ...headers,
