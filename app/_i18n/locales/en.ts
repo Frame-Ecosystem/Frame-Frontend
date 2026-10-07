@@ -812,6 +812,7 @@ const en: Record<string, string> = {
 
   // ── Settings (extended) ─────────────────────────────────────────────────
   "settings.changePassword": "Change Password",
+  "settings.createPassword": "Create Password",
   "settings.currentPassword": "Current Password",
   "settings.currentPasswordPlaceholder": "Enter your current password",
   "settings.newPassword": "New Password",

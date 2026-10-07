@@ -87,7 +87,7 @@ export function useLogoutAll() {
 export function useChangePassword() {
   return useMutation({
     mutationFn: (passwordData: {
-      currentPassword: string
+      currentPassword?: string
       newPassword: string
       newPasswordConfirm: string
     }) => authService.changePassword(passwordData),

@@ -770,6 +770,7 @@ const fr: Record<string, string> = {
 
   // ── Settings (extended) ─────────────────────────────────────────────────
   "settings.changePassword": "Changer le mot de passe",
+  "settings.createPassword": "Créer un mot de passe",
   "settings.currentPassword": "Mot de passe actuel",
   "settings.currentPasswordPlaceholder": "Entrez votre mot de passe actuel",
   "settings.newPassword": "Nouveau mot de passe",

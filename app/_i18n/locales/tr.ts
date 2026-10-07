@@ -754,6 +754,7 @@ const tr: Record<string, string> = {
 
   // ── Settings (extended) ─────────────────────────────────────────────────
   "settings.changePassword": "Şifre Değiştir",
+  "settings.createPassword": "Şifre Oluştur",
   "settings.currentPassword": "Mevcut Şifre",
   "settings.currentPasswordPlaceholder": "Mevcut şifrenizi girin",
   "settings.newPassword": "Yeni Şifre",

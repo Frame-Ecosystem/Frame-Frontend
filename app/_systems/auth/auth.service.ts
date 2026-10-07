@@ -417,7 +417,7 @@ class AuthService {
   }
 
   async changePassword(passwordData: {
-    currentPassword: string
+    currentPassword?: string
     newPassword: string
     newPasswordConfirm: string
   }): Promise<{ message: string; passwordStrength?: PasswordStrength } | null> {

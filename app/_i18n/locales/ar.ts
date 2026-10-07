@@ -746,6 +746,7 @@ const ar: Record<string, string> = {
 
   // ── Settings (extended) ─────────────────────────────────────────────────
   "settings.changePassword": "تغيير كلمة المرور",
+  "settings.createPassword": "إنشاء كلمة مرور",
   "settings.currentPassword": "كلمة المرور الحالية",
   "settings.currentPasswordPlaceholder": "أدخل كلمة المرور الحالية",
   "settings.newPassword": "كلمة المرور الجديدة",

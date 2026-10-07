@@ -52,6 +52,8 @@ export interface User {
   acceptQueueBooking?: boolean
   /** Server-computed password strength: weak | medium | strong */
   passwordStrength?: PasswordStrength
+  /** Whether this account currently has an app password (Google-only accounts do not). */
+  hasPassword?: boolean
 }
 
 export interface AuthResponse {

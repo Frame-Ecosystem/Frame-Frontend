@@ -66,6 +66,7 @@ export function AccountSettings({
   const phoneRef = useRef<HTMLInputElement>(null)
   const bioRef = useRef<HTMLTextAreaElement>(null)
   const currentPasswordRef = useRef<HTMLInputElement>(null)
+  const newPasswordRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
     if (openNameSection) setIsNameSectionOpen(true)
@@ -106,9 +107,13 @@ export function AccountSettings({
       } else if (isBioSectionOpen && bioRef.current) {
         scrollToElement(bioRef.current)
         bioRef.current.focus()
-      } else if (isPasswordSectionOpen && currentPasswordRef.current) {
-        scrollToElement(currentPasswordRef.current)
-        currentPasswordRef.current.focus()
+      } else if (isPasswordSectionOpen) {
+        const passwordInput =
+          user?.hasPassword === false
+            ? newPasswordRef.current
+            : currentPasswordRef.current
+        scrollToElement(passwordInput)
+        passwordInput?.focus()
       }
     }, 300)
     return () => clearTimeout(timer)
@@ -120,6 +125,7 @@ export function AccountSettings({
     isOpen,
     scrollToElement,
     user?.type,
+    user?.hasPassword,
   ])
 
   // Mutations
@@ -156,7 +162,15 @@ export function AccountSettings({
     }
     setIsChangingPassword(true)
     try {
-      const result = await changePasswordMutation.mutateAsync(passwordData)
+      const passwordDataToSubmit =
+        user?.hasPassword === false
+          ? {
+              newPassword: passwordData.newPassword,
+              newPasswordConfirm: passwordData.newPasswordConfirm,
+            }
+          : passwordData
+      const result =
+        await changePasswordMutation.mutateAsync(passwordDataToSubmit)
       if (result) {
         toast.success(t("accountSettings.passwordChanged"))
         setPasswordData({
@@ -322,7 +336,9 @@ export function AccountSettings({
               onSubmit={handlePasswordChange}
               passwordData={passwordData}
               onInputChange={handlePasswordInputChange}
+              hasPassword={user?.hasPassword !== false}
               currentPasswordRef={currentPasswordRef}
+              newPasswordRef={newPasswordRef}
               passwordStrength={user?.passwordStrength}
             />
             <LogoutSection

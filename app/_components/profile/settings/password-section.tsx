@@ -22,7 +22,9 @@ interface PasswordSectionProps {
     newPasswordConfirm: string
   }
   onInputChange: (field: string, value: string) => void
+  hasPassword: boolean
   currentPasswordRef: React.RefObject<HTMLInputElement | null>
+  newPasswordRef: React.RefObject<HTMLInputElement | null>
   passwordStrength?: PasswordStrength
 }
 
@@ -33,7 +35,9 @@ export function PasswordSection({
   onSubmit,
   passwordData,
   onInputChange,
+  hasPassword,
   currentPasswordRef,
+  newPasswordRef,
   passwordStrength,
 }: PasswordSectionProps) {
   const { t } = useTranslation()
@@ -65,7 +69,13 @@ export function PasswordSection({
       >
         <div className="flex items-center gap-2">
           <Lock className="h-4 w-4" />
-          <span className="font-medium">{t("settings.changePassword")}</span>
+          <span className="font-medium">
+            {t(
+              hasPassword
+                ? "settings.changePassword"
+                : "settings.createPassword",
+            )}
+          </span>
           {showStrengthIcon && (
             <Popover>
               <PopoverTrigger asChild>
@@ -104,43 +114,45 @@ export function PasswordSection({
       {isOpen && (
         <div className="bg-background/30 border-border/50 mt-4 rounded-lg border p-4">
           <form onSubmit={onSubmit} className="space-y-4">
-            {/* Current Password */}
-            <div>
-              <Label htmlFor="currentPassword">
-                {t("settings.currentPassword")}
-              </Label>
-              <div className="relative mt-1">
-                <Input
-                  ref={currentPasswordRef}
-                  id="currentPassword"
-                  type={visibility.current ? "text" : "password"}
-                  value={passwordData.currentPassword}
-                  onChange={(e) =>
-                    onInputChange("currentPassword", e.target.value)
-                  }
-                  placeholder={t("settings.currentPasswordPlaceholder")}
-                  required
-                  className="pr-10"
-                />
-                <button
-                  type="button"
-                  onClick={() => toggleVis("current")}
-                  className="text-muted-foreground hover:text-foreground absolute top-1/2 right-3 -translate-y-1/2 transform"
-                >
-                  {visibility.current ? (
-                    <EyeOff className="h-4 w-4" />
-                  ) : (
-                    <Eye className="h-4 w-4" />
-                  )}
-                </button>
+            {hasPassword && (
+              <div>
+                <Label htmlFor="currentPassword">
+                  {t("settings.currentPassword")}
+                </Label>
+                <div className="relative mt-1">
+                  <Input
+                    ref={currentPasswordRef}
+                    id="currentPassword"
+                    type={visibility.current ? "text" : "password"}
+                    value={passwordData.currentPassword}
+                    onChange={(e) =>
+                      onInputChange("currentPassword", e.target.value)
+                    }
+                    placeholder={t("settings.currentPasswordPlaceholder")}
+                    required
+                    className="pr-10"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => toggleVis("current")}
+                    className="text-muted-foreground hover:text-foreground absolute top-1/2 right-3 -translate-y-1/2 transform"
+                  >
+                    {visibility.current ? (
+                      <EyeOff className="h-4 w-4" />
+                    ) : (
+                      <Eye className="h-4 w-4" />
+                    )}
+                  </button>
+                </div>
               </div>
-            </div>
+            )}
 
             {/* New Password */}
             <div>
               <Label htmlFor="newPassword">{t("settings.newPassword")}</Label>
               <div className="relative mt-1">
                 <Input
+                  ref={newPasswordRef}
                   id="newPassword"
                   type={visibility.new ? "text" : "password"}
                   value={passwordData.newPassword}
@@ -202,7 +214,11 @@ export function PasswordSection({
             <Button type="submit" disabled={isChanging} className="w-full">
               {isChanging
                 ? t("settings.changingPassword")
-                : t("settings.changePassword")}
+                : t(
+                    hasPassword
+                      ? "settings.changePassword"
+                      : "settings.createPassword",
+                  )}
             </Button>
           </form>
         </div>
