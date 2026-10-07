@@ -24,8 +24,8 @@ import {
   Reply,
   UserPlus,
   Star,
-  Lightbulb,
   ThumbsUp,
+  Lightbulb,
   ThumbsDown,
   EyeOff,
   type LucideIcon,
@@ -181,6 +181,18 @@ const NOTIFICATION_REGISTRY: Record<string, NotificationRegistryEntry> = {
     sound: SoundId.DEFAULT,
     category: NotificationCategory.SOCIAL,
   },
+  [NotificationType.AGENT_LIKED]: {
+    icon: Heart,
+    color: "text-pink-500",
+    sound: SoundId.DEFAULT,
+    category: NotificationCategory.SOCIAL,
+  },
+  [NotificationType.AGENT_RATED]: {
+    icon: Star,
+    color: "text-amber-500",
+    sound: SoundId.DEFAULT,
+    category: NotificationCategory.SOCIAL,
+  },
 
   // ── Admin ──────────────────────────────────────────────────
   [NotificationType.SUGGESTION_CREATED]: {
@@ -224,6 +236,12 @@ const NOTIFICATION_REGISTRY: Record<string, NotificationRegistryEntry> = {
     color: "text-red-500",
     sound: SoundId.DEFAULT,
     category: NotificationCategory.ADMIN,
+  },
+  [NotificationType.CHAT_MESSAGE]: {
+    icon: MessageCircle,
+    color: "text-blue-500",
+    sound: SoundId.DEFAULT,
+    category: NotificationCategory.CHAT,
   },
 }
 

@@ -24,8 +24,6 @@ const UPCOMING_BOOKING_TYPES: ReadonlySet<string> = new Set([
 
 const HISTORY_QUEUE_TYPES: ReadonlySet<string> = new Set([
   NotificationType.QUEUE_AUTO_CANCELLED,
-  "queue:completed",
-  "queue:absent",
 ])
 
 function withQuery(
@@ -39,6 +37,33 @@ function withQuery(
   }
   const query = search.toString()
   return query ? `${pathname}?${query}` : pathname
+}
+
+function getUserProfilePath(
+  userId: string,
+  userType?: "client" | "lounge" | "agent",
+): string | null {
+  const profileRoutes = {
+    client: "/clients",
+    lounge: "/lounges",
+    agent: "/agents",
+  }
+  const basePath = userType ? profileRoutes[userType] : null
+  return basePath ? `${basePath}/${encodeURIComponent(userId)}` : null
+}
+
+function getSocialProfileRedirect(
+  notification: AppNotification,
+  actorId?: string,
+): string {
+  const actionPath = normalizeActionUrl(notification.actionUrl)
+  if (!actorId) return actionPath ?? "/notifications"
+
+  return (
+    getUserProfilePath(actorId, notification.metadata?.actorType) ??
+    (actionPath !== "/notifications" ? actionPath : null) ??
+    "/notifications"
+  )
 }
 
 function normalizeActionUrl(actionUrl?: string): string | null {
@@ -57,6 +82,33 @@ function normalizeActionUrl(actionUrl?: string): string | null {
   if (!path.startsWith("/")) return null
 
   if (path === "/chat" || path === "/chats") return "/messages"
+  if (/^\/profile\/[^/?#]+(?:[/?#]|$)/i.test(path)) return "/notifications"
+
+  const bookingMatch = path.match(/^\/bookings\/([^/?#]+)/i)
+  if (bookingMatch?.[1]) {
+    return withQuery("/bookings", { highlight: bookingMatch[1] })
+  }
+
+  const postMatch = path.match(/^\/posts?\/([^/?#]+)/i)
+  if (postMatch?.[1]) return withQuery("/home", { focusPost: postMatch[1] })
+
+  const reelMatch = path.match(/^\/reels?\/([^/?#]+)/i)
+  if (reelMatch?.[1]) {
+    return withQuery("/reels", { id: reelMatch[1] })
+  }
+
+  if (/^\/admin\/suggestions\/[^/?#]+/i.test(path)) {
+    return "/admin/suggestions"
+  }
+  if (/^\/admin\/marketplace\/category-suggestions(?:\/|$)/i.test(path)) {
+    return "/admin/categories"
+  }
+  if (/^\/marketplace\/category-suggestions(?:\/|$)/i.test(path)) {
+    return "/store/my-store/suggestions"
+  }
+  if (/^\/lounge\/(?:services|suggestions)(?:\/|$)/i.test(path)) {
+    return "/lounge/servicemanagement"
+  }
 
   const chatConversationMatch = path.match(
     /^\/chat\/(?:conversation\/)?([^/?#]+)/i,
@@ -140,24 +192,33 @@ export function getRedirectPath(notification: AppNotification): string | null {
 
   // ── Content → post or reel with scroll-to-target ──
   if (type === NotificationType.POST_LIKED) {
-    if (metadata?.postId) return `/home#post-${metadata.postId}`
+    if (metadata?.postId) {
+      return withQuery("/home", { focusPost: metadata.postId })
+    }
     return normalizedAction ?? "/home"
   }
   if (type === NotificationType.POST_COMMENTED) {
     if (metadata?.postId) {
-      const params = new URLSearchParams({ openComments: metadata.postId })
-      return `/home?${params}#post-${metadata.postId}`
+      return withQuery("/home", {
+        focusPost: metadata.postId,
+        openComments: metadata.postId,
+        commentId: metadata.commentId,
+      })
     }
     return normalizedAction ?? "/home"
   }
   if (type === NotificationType.REEL_LIKED) {
-    if (metadata?.reelId)
-      return `/reels?id=${metadata.reelId}#reel-${metadata.reelId}`
+    if (metadata?.reelId) return withQuery("/reels", { id: metadata.reelId })
     return normalizedAction ?? "/reels"
   }
   if (type === NotificationType.REEL_COMMENTED) {
-    if (metadata?.reelId)
-      return `/reels?id=${metadata.reelId}&openComments=true#reel-${metadata.reelId}`
+    if (metadata?.reelId) {
+      return withQuery("/reels", {
+        id: metadata.reelId,
+        openComments: "true",
+        commentId: metadata.commentId,
+      })
+    }
     return normalizedAction ?? "/reels"
   }
   if (
@@ -165,62 +226,75 @@ export function getRedirectPath(notification: AppNotification): string | null {
     type === NotificationType.COMMENT_LIKED
   ) {
     if (metadata?.postId) {
-      const params = new URLSearchParams({ openComments: metadata.postId })
-      if (metadata.commentId) params.set("commentId", metadata.commentId)
-      return `/home?${params}#post-${metadata.postId}`
+      return withQuery("/home", {
+        focusPost: metadata.postId,
+        openComments: metadata.postId,
+        commentId: metadata.commentId,
+      })
     }
     if (metadata?.reelId) {
-      const params = new URLSearchParams({
+      return withQuery("/reels", {
         id: metadata.reelId,
         openComments: "true",
+        commentId: metadata.commentId,
       })
-      if (metadata.commentId) params.set("commentId", metadata.commentId)
-      return `/reels?${params}#reel-${metadata.reelId}`
     }
     return normalizedAction ?? "/home"
   }
 
   // ── Social → profile ──
   if (type === NotificationType.NEW_FOLLOWER) {
-    if (metadata?.followerId) return `/profile/${metadata.followerId}`
-    return normalizedAction ?? "/notifications"
+    const followerId = metadata?.followerId ?? metadata?.actorId
+    return getSocialProfileRedirect(
+      notification,
+      followerId ?? notification.actorId,
+    )
+  }
+  if (
+    type === NotificationType.AGENT_LIKED ||
+    type === NotificationType.AGENT_RATED
+  ) {
+    return getSocialProfileRedirect(
+      notification,
+      metadata?.actorId ?? notification.actorId,
+    )
   }
   if (
     type === NotificationType.LOUNGE_LIKED ||
     type === NotificationType.LOUNGE_RATED
   ) {
-    if (metadata?.loungeId) return `/lounges/${metadata.loungeId}`
-    return normalizedAction ?? "/notifications"
+    return getSocialProfileRedirect(
+      notification,
+      metadata?.actorId ?? notification.actorId,
+    )
   }
 
   // ── Admin ──
   if (type === NotificationType.SUGGESTION_CREATED) {
-    if (metadata?.suggestionId)
-      return `/admin/suggestions/${metadata.suggestionId}`
-    return normalizedAction ?? "/admin/suggestions"
+    return "/admin/suggestions"
   }
   if (
     type === NotificationType.SUGGESTION_APPROVED ||
     type === NotificationType.SUGGESTION_REJECTED
   ) {
-    return normalizedAction ?? "/lounge/suggestions"
+    return "/lounge/servicemanagement"
   }
   if (type === NotificationType.CONTENT_HIDDEN) {
-    if (metadata?.postId) return `/posts/${metadata.postId}`
-    if (metadata?.reelId)
-      return `/reels?id=${metadata.reelId}#reel-${metadata.reelId}`
+    if (metadata?.postId)
+      return withQuery("/home", { focusPost: metadata.postId })
+    if (metadata?.reelId) return withQuery("/reels", { id: metadata.reelId })
     return normalizedAction ?? "/notifications"
   }
 
   // ── Product category suggestions ──
   if (type === NotificationType.PRODUCT_CATEGORY_SUGGESTION_CREATED) {
-    return normalizedAction ?? "/admin"
+    return "/admin/categories"
   }
   if (
     type === NotificationType.PRODUCT_CATEGORY_SUGGESTION_APPROVED ||
     type === NotificationType.PRODUCT_CATEGORY_SUGGESTION_REJECTED
   ) {
-    return normalizedAction ?? "/store/my-store/suggestions"
+    return "/store/my-store/suggestions"
   }
 
   // ── Fallback to actionUrl from backend ──
@@ -258,29 +332,20 @@ export function getTargetElementId(
   // Posts (liked, commented)
   if (
     (type === NotificationType.POST_LIKED ||
-      type === NotificationType.POST_COMMENTED) &&
+      type === NotificationType.POST_COMMENTED ||
+      type === NotificationType.CONTENT_HIDDEN) &&
     metadata?.postId
   ) {
     return `post-${metadata.postId}`
   }
 
-  // Reels (liked, commented)
-  if (
-    (type === NotificationType.REEL_LIKED ||
-      type === NotificationType.REEL_COMMENTED) &&
-    metadata?.reelId
-  ) {
-    return `reel-${metadata.reelId}`
-  }
-
   // Comment replied/liked → target the parent post or reel card
-  // (the comment itself lives inside the CommentSheet which auto-opens)
+  // (reel navigation selects its target via ?id= rather than a DOM element)
   if (
     type === NotificationType.COMMENT_REPLIED ||
     type === NotificationType.COMMENT_LIKED
   ) {
     if (metadata?.postId) return `post-${metadata.postId}`
-    if (metadata?.reelId) return `reel-${metadata.reelId}`
   }
 
   return null
@@ -317,6 +382,8 @@ export function resolveRouteFromFCM(data: Record<string, string>): string {
       commentId: data.commentId,
       targetType: data.targetType as "post" | "reel" | "comment" | undefined,
       followerId: data.followerId,
+      actorId: data.actorId,
+      actorType: data.actorType as "client" | "lounge" | "agent" | undefined,
       suggestionId: data.suggestionId,
       reason: data.reason,
     },

@@ -178,7 +178,7 @@ app/_systems/notifications/
 ├── lib/
 │   ├── firebase.ts                    FCM initialization + token request
 │   ├── notification-engine.ts         Sound playback + suppression
-│   ├── notification-registry.ts       27 types → icon/color/sound map
+│   ├── notification-registry.ts       30 types → icon/color/sound map
 │   ├── notification-routing.ts        Deep-link URL + scroll targets
 │   ├── sound-manager.ts              Web Audio API (11 sounds)
 │   └── time-utils.ts                 timeAgo formatting
@@ -321,7 +321,7 @@ Notifications are suppressed when the user is already viewing related content:
 |--------------|------------------|
 | `/bookings` | `booking:*` |
 | `/queue` | `queue:*` |
-| `/posts` | `post:*` |
+| `/home` | `post:*` |
 | `/reels` | `reel:*` |
 | `/notifications` | All types |
 
@@ -336,11 +336,14 @@ flowchart TD
 
     CHECK -->|BOOKING_*| BP["/bookings + bookingId"]
     CHECK -->|QUEUE_*| QP["/queue + agentId"]
-    CHECK -->|POST_*| PP["/posts/:postId"]
-    CHECK -->|REEL_*| RP["/reels/:reelId"]
-    CHECK -->|NEW_FOLLOWER| FP["/profile/:followerId"]
-    CHECK -->|COMMENT_*| CP["/posts/:postId#comment-{commentId}"]
-    CHECK -->|MARKETPLACE_*| MP["/store/orders/:orderId"]
+    CHECK -->|POST_*| PP["/home?focusPost={postId}"]
+    CHECK -->|REEL_*| RP["/reels?id={reelId}"]
+    CHECK -->|Social actor type| FP["/clients/{id}, /lounges/{id}, or /agents/{id}"]
+    CHECK -->|COMMENT_*| CP["Open related post or reel and its comment sheet"]
+    CHECK -->|Suggestion created| AP["/admin/suggestions"]
+    CHECK -->|Suggestion decision| LP["/lounge/servicemanagement"]
+    CHECK -->|Product category suggestion| MP["/admin/categories or /store/my-store/suggestions"]
+    CHECK -->|Chat message| MP2["/messages/{conversationId}"]
 
     CP --> NAV[router.push]
     NAV --> MO[MutationObserver]
@@ -355,6 +358,14 @@ The `useNotificationNavigate` hook:
 3. Pushes the route via `router.push`
 4. Starts a `MutationObserver` watching for the target element
 5. When found, scrolls into view with `scrollAndHighlight` (3.5s pulse CSS animation)
+
+Legacy backend action URLs are normalized to existing app routes (for example,
+`/posts/:id` to `/home?focusPost=:id`, `/reels/:id` to `/reels?id=:id`, and
+`/chat/:id` to `/messages/:id`). Notification-target posts and reels are fetched
+by ID when they are not present in the currently loaded feed; comment
+notifications open the matching content's comment sheet.
+Social notifications include the actor's type and use the matching profile
+route directly, with no client-side profile-type probing.
 
 ---
 

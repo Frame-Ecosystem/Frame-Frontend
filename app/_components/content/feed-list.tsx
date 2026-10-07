@@ -4,6 +4,7 @@ import { useState, useCallback, useEffect, useMemo, useRef } from "react"
 import { useSearchParams } from "next/navigation"
 import { useInView } from "react-intersection-observer"
 import { useQuery } from "@tanstack/react-query"
+import { usePost } from "@/app/_systems/feed/hooks/usePosts"
 import { Loader2 } from "lucide-react"
 import type { FeedItem, Reel, Post } from "../../_types/content"
 import { PostCard } from "./post-card"
@@ -109,10 +110,28 @@ export function FeedList({
 
   // Auto-open CommentSheet when navigated from a notification with ?openComments=postId
   const searchParams = useSearchParams()
+  const openCommentsParam = searchParams.get("openComments")
+  const postTargetId =
+    searchParams.get("focusPost") ??
+    (openCommentsParam && openCommentsParam !== "true"
+      ? openCommentsParam
+      : null)
+  const retainedPostTargetIdRef = useRef<string | null>(null)
+  if (postTargetId) retainedPostTargetIdRef.current = postTargetId
+  const targetPostQuery = usePost(
+    postTargetId ?? retainedPostTargetIdRef.current ?? undefined,
+  )
+  const feedItems = useMemo(() => {
+    const targetPost = targetPostQuery.data
+    if (!targetPost || items.some((item) => item._id === targetPost._id)) {
+      return items
+    }
+    return [{ ...targetPost, contentType: "post" as const }, ...items]
+  }, [items, targetPostQuery.data])
   const [highlightCommentId, setHighlightCommentId] = useState<string | null>(
     null,
   )
-  const [autoOpened, setAutoOpened] = useState(false)
+  const autoOpenedTargetRef = useRef<string | null>(null)
 
   const openComments = useCallback(
     (type: "post" | "reel", id: string, count: number) => {
@@ -127,37 +146,42 @@ export function FeedList({
     onCommentOpenChange?.(false)
   }, [onCommentOpenChange])
 
-  const openCommentsParam = searchParams.get("openComments")
   const commentIdParam = searchParams.get("commentId")
 
   useEffect(() => {
-    if (autoOpened || items.length === 0) return
-    if (!openCommentsParam) return
+    if (!openCommentsParam) {
+      autoOpenedTargetRef.current = null
+      return
+    }
+    if (
+      autoOpenedTargetRef.current === openCommentsParam ||
+      feedItems.length === 0
+    ) {
+      return
+    }
 
-    const post = items.find(
+    const post = feedItems.find(
       (i) => i.contentType === "post" && i._id === openCommentsParam,
     )
     if (!post) return
-
-    // Clean up URL params immediately (before state updates)
-    const url = new URL(globalThis.location.href)
-    url.searchParams.delete("openComments")
-    url.searchParams.delete("commentId")
-    globalThis.history.replaceState({}, "", url.toString())
-
     // Small delay so the post card has rendered and scrolled into view
     const timer = setTimeout(() => {
-      setAutoOpened(true)
+      autoOpenedTargetRef.current = openCommentsParam
       setHighlightCommentId(commentIdParam)
       setCommentTarget({
         type: "post",
         id: openCommentsParam,
-        count: (post as any).commentCount ?? 0,
+        count: post.commentCount,
       })
+
+      const url = new URL(globalThis.location.href)
+      url.searchParams.delete("openComments")
+      url.searchParams.delete("commentId")
+      globalThis.history.replaceState({}, "", url.toString())
     }, 800)
 
     return () => clearTimeout(timer)
-  }, [openCommentsParam, commentIdParam, items, autoOpened])
+  }, [openCommentsParam, commentIdParam, feedItems])
 
   useEffect(() => {
     if (disableLoadMore) return
@@ -168,25 +192,19 @@ export function FeedList({
 
   // ── Scroll to a post from search (/?focusPost=postId) ───────
   const focusPost = searchParams.get("focusPost")
-  const focusPostAttemptedRef = useRef(false)
+  const focusPostAvailable =
+    !!focusPost && feedItems.some((item) => item._id === focusPost)
+  const focusPostAttemptedRef = useRef<string | null>(null)
 
   useEffect(() => {
-    if (!focusPost || focusPostAttemptedRef.current) return
-
-    const postExists = items.some((i) => i._id === focusPost)
-    if (!postExists) {
-      if (hasNextPage && !isFetchingNextPage && !disableLoadMore) {
-        fetchNextPage()
-      }
+    if (!focusPost) {
+      focusPostAttemptedRef.current = null
       return
     }
+    if (!focusPostAvailable || focusPostAttemptedRef.current === focusPost)
+      return
 
-    focusPostAttemptedRef.current = true
-
-    // Clean up the URL param
-    const url = new URL(globalThis.location.href)
-    url.searchParams.delete("focusPost")
-    globalThis.history.replaceState({}, "", url.toString())
+    focusPostAttemptedRef.current = focusPost
 
     // Poll for the post element to appear in the DOM
     const targetId = `post-${focusPost}`
@@ -199,15 +217,34 @@ export function FeedList({
         el.scrollIntoView({ behavior: "smooth", block: "center" })
         el.classList.add("notif-highlight")
         setTimeout(() => el.classList.remove("notif-highlight"), 3500)
+
+        const url = new URL(globalThis.location.href)
+        url.searchParams.delete("focusPost")
+        globalThis.history.replaceState({}, "", url.toString())
         return
       }
-      if (attempts > 30) clearInterval(poll) // 15s timeout
+      if (attempts > 30) {
+        clearInterval(poll)
+        focusPostAttemptedRef.current = null
+      }
     }, 500)
 
     return () => clearInterval(poll)
+  }, [focusPost, focusPostAvailable])
+
+  useEffect(() => {
+    if (
+      focusPost &&
+      !focusPostAvailable &&
+      hasNextPage &&
+      !isFetchingNextPage &&
+      !disableLoadMore
+    ) {
+      fetchNextPage()
+    }
   }, [
     focusPost,
-    items,
+    focusPostAvailable,
     hasNextPage,
     isFetchingNextPage,
     fetchNextPage,
@@ -217,25 +254,25 @@ export function FeedList({
   // ── Separate posts and reels (deduplicate across pages, filter invalid) ─────
   const posts = useMemo(() => {
     const seen = new Set<string>()
-    return items.filter((i): i is Post & { contentType: "post" } => {
+    return feedItems.filter((i): i is Post & { contentType: "post" } => {
       if (i.contentType !== "post" || seen.has(i._id)) return false
       // Defensive: skip posts with missing critical fields
       if (!i._id || !i.authorId) return false
       seen.add(i._id)
       return true
     })
-  }, [items])
+  }, [feedItems])
 
   const reels = useMemo(() => {
     const seen = new Set<string>()
-    return items.filter((i): i is Reel & { contentType: "reel" } => {
+    return feedItems.filter((i): i is Reel & { contentType: "reel" } => {
       if (i.contentType !== "reel" || seen.has(i._id)) return false
       // Defensive: skip reels with missing ID
       if (!i._id) return false
       seen.add(i._id)
       return true
     })
-  }, [items])
+  }, [feedItems])
 
   // ── Fetch lounges for suggestion swiper ─────────────────────
   const { data: loungesData } = useQuery({
@@ -254,7 +291,7 @@ export function FeedList({
     [posts, reels, lounges],
   )
 
-  if (!isLoading && items.length === 0 && !rateLimitBanner) {
+  if (!isLoading && feedItems.length === 0 && !rateLimitBanner) {
     return <EmptyState type={emptyType} />
   }
 

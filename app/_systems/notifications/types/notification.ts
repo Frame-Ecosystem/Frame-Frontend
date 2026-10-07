@@ -8,9 +8,10 @@ export enum NotificationCategory {
   SOCIAL = "social",
   ADMIN = "admin",
   SYSTEM = "system",
+  CHAT = "chat",
 }
 
-// ── All 24 Notification Types ────────────────────────────────
+// ── Notification Types ───────────────────────────────────────
 export enum NotificationType {
   // Booking (6)
   BOOKING_CREATED = "booking:created",
@@ -19,7 +20,7 @@ export enum NotificationType {
   BOOKING_IN_QUEUE = "booking:inQueue",
   BOOKING_COMPLETED = "booking:completed",
   BOOKING_ABSENT = "booking:absent",
-  // Queue (7)
+  // Queue (5)
   QUEUE_IN_SERVICE = "queue:inService",
   QUEUE_AUTO_CANCELLED = "queue:autoCancelled",
   QUEUE_BACK_IN_QUEUE = "queue:backInQueue",
@@ -32,10 +33,12 @@ export enum NotificationType {
   REEL_COMMENTED = "content:reelCommented",
   COMMENT_REPLIED = "content:commentReplied",
   COMMENT_LIKED = "content:commentLiked",
-  // Social (3)
+  // Social (5)
   NEW_FOLLOWER = "social:newFollower",
   LOUNGE_LIKED = "social:loungeLiked",
   LOUNGE_RATED = "social:loungeRated",
+  AGENT_LIKED = "social:agentLiked",
+  AGENT_RATED = "social:agentRated",
   // Admin (4)
   SUGGESTION_CREATED = "admin:suggestionCreated",
   SUGGESTION_APPROVED = "admin:suggestionApproved",
@@ -45,6 +48,8 @@ export enum NotificationType {
   PRODUCT_CATEGORY_SUGGESTION_CREATED = "admin:productCategorySuggestionCreated",
   PRODUCT_CATEGORY_SUGGESTION_APPROVED = "admin:productCategorySuggestionApproved",
   PRODUCT_CATEGORY_SUGGESTION_REJECTED = "admin:productCategorySuggestionRejected",
+  // Chat
+  CHAT_MESSAGE = "chat:message",
 }
 
 // ── Category Map (mirrors backend NOTIFICATION_CATEGORY_MAP) ─
@@ -69,6 +74,8 @@ export const NOTIFICATION_CATEGORY_MAP: Record<string, NotificationCategory> = {
   [NotificationType.NEW_FOLLOWER]: NotificationCategory.SOCIAL,
   [NotificationType.LOUNGE_LIKED]: NotificationCategory.SOCIAL,
   [NotificationType.LOUNGE_RATED]: NotificationCategory.SOCIAL,
+  [NotificationType.AGENT_LIKED]: NotificationCategory.SOCIAL,
+  [NotificationType.AGENT_RATED]: NotificationCategory.SOCIAL,
   [NotificationType.SUGGESTION_CREATED]: NotificationCategory.ADMIN,
   [NotificationType.SUGGESTION_APPROVED]: NotificationCategory.ADMIN,
   [NotificationType.SUGGESTION_REJECTED]: NotificationCategory.ADMIN,
@@ -79,6 +86,7 @@ export const NOTIFICATION_CATEGORY_MAP: Record<string, NotificationCategory> = {
     NotificationCategory.ADMIN,
   [NotificationType.PRODUCT_CATEGORY_SUGGESTION_REJECTED]:
     NotificationCategory.ADMIN,
+  [NotificationType.CHAT_MESSAGE]: NotificationCategory.CHAT,
 }
 
 // ── Metadata ─────────────────────────────────────────────────
@@ -98,6 +106,8 @@ export interface NotificationMetadata {
   commentId?: string
   targetType?: "post" | "reel" | "comment"
   followerId?: string
+  actorId?: string
+  actorType?: "client" | "lounge" | "agent"
   ratingScore?: number
   suggestionId?: string
   reason?: string

@@ -8,7 +8,7 @@ import { ReelPlayer } from "../_components/content/reel-player"
 import { CommentSheet } from "../_components/content/comment-sheet"
 import { EmptyState } from "../_components/content/empty-state"
 import { useReelMutePreference } from "../_components/content/hooks/use-reel-mute-preference"
-import { useExploreFeed } from "../_hooks/queries/useContent"
+import { useExploreFeed, useReel } from "../_hooks/queries/useContent"
 import type { Reel } from "../_types/content"
 import { useScrollToTarget } from "../_hooks/useScrollToTarget"
 import { getFeedRateLimitMessage } from "@/app/_systems/feed/lib/feed-rate-limit"
@@ -17,7 +17,7 @@ export default function ReelsPage() {
   useScrollToTarget()
   const searchParams = useSearchParams()
   const targetReelId = searchParams.get("id")
-  const hasJumped = useRef(false)
+  const hasJumped = useRef<string | null>(null)
 
   const [activeIndex, setActiveIndexRaw] = useState(0)
   const containerRef = useRef<HTMLDivElement>(null)
@@ -54,6 +54,7 @@ export default function ReelsPage() {
 
   // Fetch explore feed and filter for reels
   const exploreQuery = useExploreFeed()
+  const targetReelQuery = useReel(targetReelId ?? undefined)
   const rateLimitBanner = exploreQuery.feedRateLimit.showBanner
     ? getFeedRateLimitMessage(exploreQuery.feedRateLimit.remainingSeconds)
     : null
@@ -61,21 +62,31 @@ export default function ReelsPage() {
     const items =
       exploreQuery.data?.pages.flatMap((page) => page.data ?? []) ?? []
     const seen = new Set<string>()
-    return items.filter((item): item is Reel & { contentType: "reel" } => {
-      if (!item || item.contentType !== "reel") return false
-      if (typeof item._id !== "string" || item._id === "") return false
-      if (seen.has(item._id)) return false
-      seen.add(item._id)
-      return true
-    })
-  }, [exploreQuery.data])
+    const feedReels = items.filter(
+      (item): item is Reel & { contentType: "reel" } => {
+        if (!item || item.contentType !== "reel") return false
+        if (typeof item._id !== "string" || item._id === "") return false
+        if (seen.has(item._id)) return false
+        seen.add(item._id)
+        return true
+      },
+    )
+    const targetReel = targetReelQuery.data
+    if (
+      targetReel &&
+      targetReel._id === targetReelId &&
+      !seen.has(targetReel._id)
+    ) {
+      return [{ ...targetReel, contentType: "reel" as const }, ...feedReels]
+    }
+    return feedReels
+  }, [exploreQuery.data, targetReelId, targetReelQuery.data])
 
   // Jump to a specific reel when navigated via ?id= param
   const { hasNextPage, isFetchingNextPage, fetchNextPage } = exploreQuery
-  const fetchAttemptedRef = useRef(false)
 
   useEffect(() => {
-    if (!targetReelId || hasJumped.current) return
+    if (!targetReelId || hasJumped.current === targetReelId) return
     if (reels.length === 0) return
 
     const idx = reels.findIndex((r) => r._id === targetReelId)
@@ -83,9 +94,10 @@ export default function ReelsPage() {
       requestAnimationFrame(() => {
         setActiveIndexRaw(idx)
       })
-      hasJumped.current = true
+      hasJumped.current = targetReelId
       return
     }
+    if (targetReelQuery.isLoading) return
 
     // Target reel not found in loaded data — fetch more pages
     if (
@@ -93,7 +105,6 @@ export default function ReelsPage() {
       !isFetchingNextPage &&
       !exploreQuery.feedRateLimit.isLocked
     ) {
-      fetchAttemptedRef.current = true
       fetchNextPage()
     }
   }, [
@@ -103,25 +114,33 @@ export default function ReelsPage() {
     isFetchingNextPage,
     fetchNextPage,
     exploreQuery.feedRateLimit.isLocked,
+    targetReelQuery.isLoading,
   ])
 
   // Auto-open CommentSheet when navigated from a notification with ?openComments=true
   const openCommentsParam = searchParams.get("openComments")
   const commentIdParam = searchParams.get("commentId")
+  const openedNotificationCommentsRef = useRef<string | null>(null)
   useEffect(() => {
-    if (!openCommentsParam || reels.length === 0) return
-    if (!hasJumped.current && targetReelId) return // wait for reel jump first
+    if (!openCommentsParam) {
+      openedNotificationCommentsRef.current = null
+      return
+    }
+    if (reels.length === 0) return
+    if (hasJumped.current !== targetReelId && targetReelId) return
+    const notificationKey = `${targetReelId ?? ""}:${commentIdParam ?? ""}`
+    if (openedNotificationCommentsRef.current === notificationKey) return
 
     const timer = setTimeout(() => {
+      openedNotificationCommentsRef.current = notificationKey
       setHighlightCommentId(commentIdParam)
       setCommentsOpen(true)
-    }, 600)
 
-    // Clean up URL params
-    const url = new URL(window.location.href)
-    url.searchParams.delete("openComments")
-    url.searchParams.delete("commentId")
-    window.history.replaceState({}, "", url.toString())
+      const url = new URL(window.location.href)
+      url.searchParams.delete("openComments")
+      url.searchParams.delete("commentId")
+      window.history.replaceState({}, "", url.toString())
+    }, 600)
 
     return () => clearTimeout(timer)
   }, [openCommentsParam, commentIdParam, reels, targetReelId])
