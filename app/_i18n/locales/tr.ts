@@ -171,6 +171,7 @@ const tr: Record<string, string> = {
   "bookings.emptyActiveTitle": "Yaklaşan randevu yok",
   "bookings.emptyActiveDesc":
     "Aktif randevunuz yok. Salonları keşfedin ve ilk randevunuzu oluşturun!",
+  "bookings.emptyAgentDesc": "Size atanan randevular burada görünecek.",
   "bookings.emptyHistoryDesc":
     "Tamamlanan ve iptal edilen randevularınız burada görünecek.",
   "bookings.cancelBooking": "Randevuyu İptal Et",
@@ -1008,6 +1009,7 @@ const tr: Record<string, string> = {
   "bookings.myBookings": "Rezervasyonlarım",
   "bookings.viewCompleted": "Tamamlanan rezervasyonlarınızı görüntüleyin",
   "bookings.manageLounge": "Salon rezervasyonlarınızı yönetin",
+  "bookings.manageAgent": "Size atanan rezervasyonları görüntüleyin ve yönetin",
   "bookings.viewManageAll":
     "Tüm sistem rezervasyonlarını görüntüleyin ve yönetin",
   "bookings.viewManage": "Randevularınızı görüntüleyin ve yönetin",

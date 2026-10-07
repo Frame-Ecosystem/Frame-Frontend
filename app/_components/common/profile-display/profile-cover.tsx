@@ -20,6 +20,8 @@ interface ProfileCoverProps {
   user: User | null
   /** Whether the user owns this profile and can edit */
   editable?: boolean
+  editableProfile?: boolean
+  editableCover?: boolean
 
   onProfileImageUpdate?: (file: File) => Promise<void>
 
@@ -43,6 +45,8 @@ function getCoverImageUrl(user: User | null): string | undefined {
 export function ProfileCover({
   user,
   editable = false,
+  editableProfile = editable,
+  editableCover = editable,
   onProfileImageUpdate,
   onCoverImageUpdate,
   updatingProfile = false,
@@ -121,7 +125,7 @@ export function ProfileCover({
         <div className="relative w-full overflow-hidden bg-gradient-to-r from-blue-600/20 via-purple-600/20 to-pink-600/20">
           <div className="relative h-28 w-full overflow-hidden sm:h-32 md:h-36">
             {coverUrl ? (
-              editable ? (
+              editableCover ? (
                 <div
                   className="relative h-full w-full cursor-pointer"
                   onClick={() => setShowCoverOverlay((v) => !v)}
@@ -186,7 +190,7 @@ export function ProfileCover({
                   />
                 </button>
               )
-            ) : editable ? (
+            ) : editableCover ? (
               <button
                 type="button"
                 className="from-primary/15 via-primary/5 flex h-full w-full cursor-pointer items-center justify-center bg-gradient-to-br to-transparent transition-opacity hover:opacity-80"
@@ -210,7 +214,7 @@ export function ProfileCover({
             {/* Avatar */}
             <div className="relative shrink-0">
               {profileUrl ? (
-                editable ? (
+                editableProfile ? (
                   /* Has profile image + editable — click toggles popup below avatar */
                   <div className="relative">
                     {showProfileOverlay && (
@@ -294,7 +298,7 @@ export function ProfileCover({
                     </Avatar>
                   </button>
                 )
-              ) : editable ? (
+              ) : editableProfile ? (
                 /* No profile image + editable — camera icon, click opens dialog */
                 <button
                   type="button"

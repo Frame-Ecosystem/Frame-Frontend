@@ -20,9 +20,9 @@ export function BookingAvatar({
 }: BookingAvatarProps) {
   const router = useRouter()
 
-  // For lounges: show client avatar → click navigates to client visitor profile
+  // Lounge and agent bookings show the client avatar → click opens the client profile
   // If no client (visitor booking), show visitor placeholder
-  if (userType === "lounge") {
+  if (userType === "lounge" || userType === "agent") {
     if (!client) {
       // Visitor booking — no clickable profile
       return (

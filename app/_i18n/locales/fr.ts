@@ -174,6 +174,8 @@ const fr: Record<string, string> = {
   "bookings.emptyActiveTitle": "Aucune réservation à venir",
   "bookings.emptyActiveDesc":
     "Vous n'avez aucune réservation active. Découvrez les salons et réservez votre premier rendez-vous !",
+  "bookings.emptyAgentDesc":
+    "Les réservations qui vous sont attribuées apparaîtront ici.",
   "bookings.emptyHistoryDesc":
     "Vos réservations terminées et annulées apparaîtront ici.",
   "bookings.cancelBooking": "Annuler la réservation",
@@ -1027,6 +1029,8 @@ const fr: Record<string, string> = {
   "bookings.myBookings": "Mes réservations",
   "bookings.viewCompleted": "Voir vos réservations terminées",
   "bookings.manageLounge": "Gérer les réservations de votre salon",
+  "bookings.manageAgent":
+    "Voir et gérer les réservations qui vous sont attribuées",
   "bookings.viewManageAll": "Voir et gérer toutes les réservations du système",
   "bookings.viewManage": "Voir et gérer vos rendez-vous",
 

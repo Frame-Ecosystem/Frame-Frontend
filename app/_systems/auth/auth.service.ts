@@ -31,6 +31,7 @@ function getDeviceName(): string {
 /**
  * Get the display name for a user based on their type
  * - For lounge: use loungeTitle
+ * - For agent: use agentName
  * - For client: use firstName + lastName
  * - For admin: use email
  */
@@ -41,6 +42,10 @@ export function getUserDisplayName(user: User | null | undefined): string {
   // For lounge users, prioritize loungeTitle
   if (role === "lounge" && user.loungeTitle) {
     return user.loungeTitle
+  }
+
+  if (role === "agent" && user.agentName) {
+    return user.agentName
   }
 
   // For admin users, prefer email as display name

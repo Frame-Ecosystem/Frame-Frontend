@@ -48,7 +48,6 @@ import {
 } from "./queue-utils"
 import { format } from "date-fns"
 import { useTranslation } from "@/app/_i18n"
-import { useFrameScroll } from "@/app/_hooks/useFrameScroll"
 
 // ── Constants ────────────────────────────────────────────────
 
@@ -122,21 +121,35 @@ export default function QueueItem({
 }: QueueItemProps) {
   const router = useRouter()
   const { t } = useTranslation()
-  const { scrollToElement } = useFrameScroll()
   const highlightRef = useRef<HTMLDivElement>(null)
   const isHighlighted =
     !!highlightBookingId && person.bookingId?._id === highlightBookingId
 
   // Scroll into view and flash-highlight when this card is the target
   useEffect(() => {
-    if (isHighlighted && highlightRef.current) {
-      // Small delay to let the queue render fully
-      const timer = setTimeout(() => {
-        scrollToElement(highlightRef.current)
-      }, 400)
-      return () => clearTimeout(timer)
+    const target = highlightRef.current
+    if (!isHighlighted || !target) return
+
+    let highlightTimer: ReturnType<typeof setTimeout> | undefined
+    const scrollTimer = setTimeout(() => {
+      target.scrollIntoView({
+        behavior: "smooth",
+        block: "center",
+        inline: "nearest",
+      })
+      target.classList.add("notif-highlight")
+      highlightTimer = setTimeout(
+        () => target.classList.remove("notif-highlight"),
+        3000,
+      )
+    }, 400)
+
+    return () => {
+      clearTimeout(scrollTimer)
+      if (highlightTimer) clearTimeout(highlightTimer)
+      target.classList.remove("notif-highlight")
     }
-  }, [isHighlighted, scrollToElement])
+  }, [isHighlighted])
 
   const isStaff = mode === "staff"
   const bookingId = person.bookingId?._id
@@ -198,10 +211,6 @@ export default function QueueItem({
     </Avatar>
   )
 
-  const highlightStyle = isHighlighted
-    ? "ring-primary/50 ring-2 animate-[queue-highlight_2s_ease-in-out]"
-    : ""
-
   return (
     <div
       id={bookingId ? `booking-${bookingId}` : undefined}
@@ -212,7 +221,7 @@ export default function QueueItem({
         ).current = node
       }}
       style={style}
-      className={`group relative rounded-xl border px-2 py-1.5 transition-all hover:shadow-md ${cardStyle} ${draggingStyle} ${highlightStyle}`}
+      className={`group relative rounded-xl border px-2 py-1.5 transition-all hover:shadow-md ${cardStyle} ${draggingStyle}`}
     >
       {/* Position Badge */}
       <div className="bg-primary text-primary-foreground absolute -top-2 -left-2 flex h-6 w-6 items-center justify-center rounded-full text-xs font-bold shadow-lg">

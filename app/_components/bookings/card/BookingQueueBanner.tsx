@@ -23,7 +23,11 @@ export function BookingQueueBanner({
   if (bookingStatus !== "inQueue" || !loungeId) return null
 
   let url: string
-  if (userType === "lounge") {
+  if (userType === "agent") {
+    const params = new URLSearchParams()
+    if (bookingId) params.set("bookingId", bookingId)
+    url = `/agent/queue${params.toString() ? `?${params.toString()}` : ""}`
+  } else if (userType === "lounge") {
     // Lounge accounts use their own staff queue page
     const params = new URLSearchParams()
     if (agentId) params.set("agent", agentId)

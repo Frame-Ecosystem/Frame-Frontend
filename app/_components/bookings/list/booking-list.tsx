@@ -62,6 +62,7 @@ export function BookingList({
     if (!user?._id) return []
     if (user.type === "lounge") return `bookings:lounge:${user._id}`
     if (user.type === "client") return `bookings:client:${user._id}`
+    if (user.type === "agent") return `bookings:agent:${user._id}`
     return `bookings:${user._id}`
   }, [user?._id, user?.type])
 
@@ -69,6 +70,7 @@ export function BookingList({
     () => ({
       "booking:updated": () => loadBookings(false),
       "booking:created": () => loadBookings(false),
+      "booking:deleted": () => loadBookings(false),
       "booking:cancelled": () => loadBookings(false),
       "booking:statusChanged": () => loadBookings(false),
     }),
@@ -151,7 +153,7 @@ export function BookingList({
       />
       <BookingStatsCards bookings={bookings} mode="active" />
       {filteredBookings.length === 0 ? (
-        <EmptyBookingsState mode="active" />
+        <EmptyBookingsState mode="active" userType={user.type || ""} />
       ) : (
         <div className="space-y-4">
           {filteredBookings.map((booking) => (

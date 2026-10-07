@@ -97,8 +97,9 @@ export default function BookingsPage() {
   }
 
   // === AUTHENTICATED STATE ===
-  const canUpdateStatus = user.type === "lounge"
-  const canCancelBookings = user.type === "client" || user.type === "lounge"
+  const canUpdateStatus = user.type === "lounge" || user.type === "agent"
+  const canCancelBookings =
+    user.type === "client" || user.type === "lounge" || user.type === "agent"
 
   return (
     <ErrorBoundary>
@@ -117,7 +118,7 @@ export default function BookingsPage() {
                 <h1 className="text-2xl font-bold tracking-tight lg:text-3xl">
                   {showHistory
                     ? t("bookings.bookingHistory")
-                    : user.type === "lounge"
+                    : user.type === "lounge" || user.type === "agent"
                       ? t("bookings.bookingsManagement")
                       : user.type === "admin"
                         ? t("bookings.allBookings")
@@ -148,8 +149,10 @@ export default function BookingsPage() {
             >
               {showHistory
                 ? t("bookings.viewCompleted")
-                : user.type === "lounge"
-                  ? t("bookings.manageLounge")
+                : user.type === "lounge" || user.type === "agent"
+                  ? user.type === "agent"
+                    ? t("bookings.manageAgent")
+                    : t("bookings.manageLounge")
                   : user.type === "admin"
                     ? t("bookings.viewManageAll")
                     : t("bookings.viewManage")}

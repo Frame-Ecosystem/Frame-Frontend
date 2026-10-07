@@ -8,13 +8,16 @@ import { Button } from "../../ui/button"
 
 interface EmptyBookingsStateProps {
   mode?: "active" | "history"
+  userType?: string
 }
 
 export function EmptyBookingsState({
   mode = "active",
+  userType,
 }: EmptyBookingsStateProps) {
   const { t } = useTranslation()
   const isHistory = mode === "history"
+  const isAgent = userType === "agent"
 
   return (
     <Card className="from-card/50 to-card/30 overflow-hidden border-0 bg-linear-to-br backdrop-blur-sm">
@@ -42,9 +45,11 @@ export function EmptyBookingsState({
           <p className="text-muted-foreground mx-auto max-w-sm text-sm">
             {isHistory
               ? t("bookings.emptyHistoryDesc")
-              : t("bookings.emptyActiveDesc")}
+              : isAgent
+                ? t("bookings.emptyAgentDesc")
+                : t("bookings.emptyActiveDesc")}
           </p>
-          {!isHistory && (
+          {!isHistory && !isAgent && (
             <Button
               size="lg"
               variant="default"

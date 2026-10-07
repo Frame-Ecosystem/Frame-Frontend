@@ -165,6 +165,7 @@ const en: Record<string, string> = {
   "bookings.emptyActiveTitle": "No upcoming bookings",
   "bookings.emptyActiveDesc":
     "You don't have any active bookings. Discover lounges and book your first appointment!",
+  "bookings.emptyAgentDesc": "Bookings assigned to you will appear here.",
   "bookings.emptyHistoryDesc":
     "Your completed and cancelled bookings will appear here.",
   "bookings.cancelBooking": "Cancel Booking",
@@ -1062,6 +1063,7 @@ const en: Record<string, string> = {
   "bookings.myBookings": "My Bookings",
   "bookings.viewCompleted": "View your completed bookings",
   "bookings.manageLounge": "Manage bookings for your lounge services",
+  "bookings.manageAgent": "View and manage bookings assigned to you",
   "bookings.viewManageAll": "View and manage all bookings in the system",
   "bookings.viewManage": "View and manage your appointments",
 

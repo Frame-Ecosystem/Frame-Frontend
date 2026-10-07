@@ -689,29 +689,6 @@ body.queue-fullscreen [data-profile-edit] {
   animation: notif-highlight 1.5s ease-in-out 2;
 }
 
-/* =============================================================================
-   QUEUE CARD HIGHLIGHT
-   Pulse animation when scrolling to a user's queue card (from "Go to Queue").
-   ============================================================================= */
-@keyframes queue-highlight {
-  0% {
-    box-shadow: 0 0 0 0 hsl(var(--primary) / 0);
-    background-color: hsl(var(--primary) / 0);
-  }
-  20%,
-  60% {
-    box-shadow: 0 0 0 5px hsl(var(--primary) / 0.3);
-    background-color: hsl(var(--primary) / 0.07);
-  }
-  40% {
-    box-shadow: 0 0 0 8px hsl(var(--primary) / 0.4);
-    background-color: hsl(var(--primary) / 0.12);
-  }
-  100% {
-    box-shadow: 0 0 0 0 hsl(var(--primary) / 0);
-    background-color: hsl(var(--primary) / 0);
-  }
-}
 
 /* =============================================================================
    FAVORITE LOUNGE RING

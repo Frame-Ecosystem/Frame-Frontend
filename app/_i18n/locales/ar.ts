@@ -172,6 +172,7 @@ const ar: Record<string, string> = {
   "bookings.emptyActiveTitle": "لا توجد حجوزات قادمة",
   "bookings.emptyActiveDesc":
     "ليس لديك أي حجوزات نشطة. اكتشف الصالونات واحجز موعدك الأول!",
+  "bookings.emptyAgentDesc": "ستظهر هنا الحجوزات المسندة إليك.",
   "bookings.emptyHistoryDesc": "ستظهر حجوزاتك المكتملة والملغاة هنا.",
   "bookings.cancelBooking": "إلغاء الحجز",
   "bookings.reschedule": "إعادة الجدولة",
@@ -992,6 +993,7 @@ const ar: Record<string, string> = {
   "bookings.myBookings": "حجوزاتي",
   "bookings.viewCompleted": "عرض حجوزاتك المكتملة",
   "bookings.manageLounge": "إدارة حجوزات صالونك",
+  "bookings.manageAgent": "عرض وإدارة الحجوزات المسندة إليك",
   "bookings.viewManageAll": "عرض وإدارة جميع حجوزات النظام",
   "bookings.viewManage": "عرض وإدارة مواعيدك",
 
