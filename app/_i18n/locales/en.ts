@@ -223,6 +223,10 @@ const en: Record<string, string> = {
   "queue.title": "Queue",
   "queue.position": "Position {position}",
   "queue.waiting": "Waiting",
+  "queue.agentQueues": "Agent queues",
+  "queue.chooseAgent": "Choose an agent",
+  "queue.chooseAgentHint":
+    "Tap an agent to view and switch between their queues.",
   "queue.yourTurn": "It's your turn!",
   "queue.joinQueue": "Join Queue",
   "queue.leaveQueue": "Leave Queue",

@@ -233,6 +233,10 @@ const fr: Record<string, string> = {
   "queue.title": "File d'attente",
   "queue.position": "Position {position}",
   "queue.waiting": "En attente",
+  "queue.agentQueues": "Files d’attente des agents",
+  "queue.chooseAgent": "Choisissez un agent",
+  "queue.chooseAgentHint":
+    "Touchez un agent pour consulter sa file et passer d’une file à l’autre.",
   "queue.yourTurn": "C'est votre tour !",
   "queue.joinQueue": "Prendre un ticket",
   "queue.leaveQueue": "Quitter la file",

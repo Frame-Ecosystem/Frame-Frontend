@@ -228,6 +228,10 @@ const tr: Record<string, string> = {
   "queue.title": "Sıra",
   "queue.position": "Sıra: {position}",
   "queue.waiting": "Bekliyor",
+  "queue.agentQueues": "Uzman kuyrukları",
+  "queue.chooseAgent": "Bir uzman seçin",
+  "queue.chooseAgentHint":
+    "Kuyruğunu görüntülemek ve diğer kuyruklara geçmek için bir uzmana dokunun.",
   "queue.yourTurn": "Sıra sende!",
   "queue.joinQueue": "Sıraya Gir",
   "queue.leaveQueue": "Sıradan Çık",

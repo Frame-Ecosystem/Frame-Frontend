@@ -291,6 +291,7 @@ export default function QueueDisplay({
           onSelectQueue={setActiveQueueIndex}
           isLoading={isLoading}
           showAddAgent={isOwner}
+          showSelectionHint={mode === "client"}
         />
 
         {/* Queue Stats */}

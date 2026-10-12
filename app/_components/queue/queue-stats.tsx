@@ -30,6 +30,8 @@ export default function QueueStats({
   mode = "client",
 }: QueueStatsProps) {
   const { t } = useTranslation()
+  const isStaff = mode === "staff"
+
   return (
     <Card
       className={`border-primary/20 from-primary/5 to-primary/10 rounded-lg bg-gradient-to-br ${isFullScreen ? "shadow-2xl" : ""}`}
@@ -49,49 +51,62 @@ export default function QueueStats({
               </p>
             </div>
           </div>
-          <Badge className="bg-primary text-primary-foreground px-2 py-1 text-xs">
-            {t("queue.waitingCount", { count: stats.totalWaiting })}
-          </Badge>
+          {isStaff && (
+            <Badge className="bg-primary text-primary-foreground px-2 py-1 text-xs">
+              {t("queue.waitingCount", { count: stats.totalWaiting })}
+            </Badge>
+          )}
         </div>
 
-        {/* Stats Grid */}
-        <div
-          className={`grid grid-cols-2 gap-2 ${isFullScreen ? "md:grid-cols-2" : mode === "staff" ? "md:grid-cols-5" : "md:grid-cols-3"}`}
-        >
-          <div className="bg-card/50 rounded-md border p-2 backdrop-blur-sm">
-            <div className="flex items-center gap-1">
-              <Armchair className="h-5 w-5 text-amber-500" />
-              <p className="text-muted-foreground text-[11px] font-medium">
-                {t("queue.waiting")}
-              </p>
-            </div>
-            <div className="mt-1 flex w-full justify-end">
-              <p className="text-base font-bold">{stats.totalWaiting}</p>
-            </div>
-          </div>
-          <div className="bg-card/50 rounded-md border p-2 backdrop-blur-sm">
-            <div className="flex items-center gap-1">
-              <Clock className="h-5 w-5 text-amber-500" />
-              <p className="text-muted-foreground text-[11px] font-medium">
+        {!isStaff ? (
+          <div className="border-primary/20 bg-primary/5 flex items-center justify-between rounded-lg border px-4 py-3">
+            <div className="flex items-center gap-2">
+              <Clock className="text-primary h-5 w-5" />
+              <p className="text-foreground text-sm font-medium">
                 {t("queue.avgWait")}
               </p>
             </div>
-            <div className="mt-1 flex w-full justify-end">
-              <p className="text-base font-bold">{stats.averageWait} min</p>
-            </div>
+            <p className="text-primary text-xl font-bold">
+              {stats.averageWait} min
+            </p>
           </div>
-          <div className="bg-card/50 rounded-md border p-2 backdrop-blur-sm">
-            <div className="flex items-center gap-1">
-              <TrendingUp className="h-5 w-5 text-blue-500" />
-              <p className="text-muted-foreground text-[11px] font-medium">
-                {t("queue.inService")}
-              </p>
+        ) : (
+          <div
+            className={`grid grid-cols-2 gap-2 ${isFullScreen ? "md:grid-cols-2" : "md:grid-cols-5"}`}
+          >
+            <div className="bg-card/50 rounded-md border p-2 backdrop-blur-sm">
+              <div className="flex items-center gap-1">
+                <Armchair className="h-5 w-5 text-amber-500" />
+                <p className="text-muted-foreground text-[11px] font-medium">
+                  {t("queue.waiting")}
+                </p>
+              </div>
+              <div className="mt-1 flex w-full justify-end">
+                <p className="text-base font-bold">{stats.totalWaiting}</p>
+              </div>
             </div>
-            <div className="mt-1 flex w-full justify-end">
-              <p className="text-base font-bold">{stats.totalInService}</p>
+            <div className="bg-card/50 rounded-md border p-2 backdrop-blur-sm">
+              <div className="flex items-center gap-1">
+                <Clock className="h-5 w-5 text-amber-500" />
+                <p className="text-muted-foreground text-[11px] font-medium">
+                  {t("queue.avgWait")}
+                </p>
+              </div>
+              <div className="mt-1 flex w-full justify-end">
+                <p className="text-base font-bold">{stats.averageWait} min</p>
+              </div>
             </div>
-          </div>
-          {mode === "staff" && (
+            <div className="bg-card/50 rounded-md border p-2 backdrop-blur-sm">
+              <div className="flex items-center gap-1">
+                <TrendingUp className="h-5 w-5 text-blue-500" />
+                <p className="text-muted-foreground text-[11px] font-medium">
+                  {t("queue.inService")}
+                </p>
+              </div>
+              <div className="mt-1 flex w-full justify-end">
+                <p className="text-base font-bold">{stats.totalInService}</p>
+              </div>
+            </div>
             <div className="bg-card/50 rounded-md border p-2 backdrop-blur-sm">
               <div className="flex items-center gap-1">
                 <Users className="h-5 w-5 text-indigo-500" />
@@ -103,8 +118,6 @@ export default function QueueStats({
                 <p className="text-base font-bold">{stats.totalPeople}</p>
               </div>
             </div>
-          )}
-          {mode === "staff" && (
             <div className="bg-card/50 rounded-md border p-2 backdrop-blur-sm">
               <div className="flex items-center gap-1">
                 <CheckCircle2 className="h-5 w-5 text-green-500" />
@@ -116,19 +129,19 @@ export default function QueueStats({
                 <p className="text-base font-bold">{stats.totalCompleted}</p>
               </div>
             </div>
-          )}
-          <div className="bg-card/50 rounded-md border p-2 backdrop-blur-sm">
-            <div className="flex items-center gap-1">
-              <UserX className="h-5 w-5 text-red-500" />
-              <p className="text-muted-foreground text-[11px] font-medium">
-                {t("queue.absent")}
-              </p>
-            </div>
-            <div className="mt-1 flex w-full justify-end">
-              <p className="text-base font-bold">{stats.totalAbsent}</p>
+            <div className="bg-card/50 rounded-md border p-2 backdrop-blur-sm">
+              <div className="flex items-center gap-1">
+                <UserX className="h-5 w-5 text-red-500" />
+                <p className="text-muted-foreground text-[11px] font-medium">
+                  {t("queue.absent")}
+                </p>
+              </div>
+              <div className="mt-1 flex w-full justify-end">
+                <p className="text-base font-bold">{stats.totalAbsent}</p>
+              </div>
             </div>
           </div>
-        </div>
+        )}
       </CardContent>
     </Card>
   )
