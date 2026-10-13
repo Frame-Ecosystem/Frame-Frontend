@@ -33,6 +33,7 @@ export interface QueuePersonBooking {
     price?: number
     duration?: number
     description?: string
+    image?: string | { url?: string }
   }>
   status: string
   bookingDate: string

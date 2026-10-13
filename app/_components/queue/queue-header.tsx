@@ -9,17 +9,19 @@ interface QueueHeaderProps {
   isFullScreen: boolean
   isPseudoFullScreen: boolean
   onToggleFullscreen: () => void
+  compactBottomSpacing?: boolean
 }
 
 export default function QueueHeader({
   isFullScreen,
   isPseudoFullScreen,
   onToggleFullscreen,
+  compactBottomSpacing = false,
 }: QueueHeaderProps) {
   const { t } = useTranslation()
   return (
     <div
-      className="m-4 mb-4 flex items-center justify-between"
+      className={`m-4 flex items-center justify-between ${compactBottomSpacing ? "mb-2" : "mb-4"}`}
       style={
         isFullScreen || isPseudoFullScreen
           ? { paddingTop: "env(safe-area-inset-top, 1rem)" }

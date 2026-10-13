@@ -13,6 +13,7 @@ import {
   useBodyOverflow,
   useFullscreenState,
   useFullscreenHandlers,
+  useQueueClock,
 } from "./queue-hooks"
 import {
   useMyLoungeQueues,
@@ -23,6 +24,7 @@ import {
   useToggleQueueBooking,
 } from "@/app/_hooks/queries/useQueue"
 import { useAuth } from "@/app/_auth"
+import { useTranslation } from "@/app/_i18n"
 import { loungeService } from "@/app/_services/lounge.service"
 import type { Queue, QueuePerson, LoungeAgent } from "@/app/_types"
 import { QueuePersonStatus } from "@/app/_types"
@@ -47,12 +49,13 @@ interface QueueDisplayProps {
 }
 
 export default function QueueDisplay({
-  centerName = "Salon Center",
+  centerName,
   mode = "client",
   loungeId,
   initialAgentId,
   highlightBookingId,
 }: QueueDisplayProps) {
+  const { t } = useTranslation()
   const [activeAgentId, setActiveAgentId] = useState<string | null>(
     initialAgentId ?? null,
   )
@@ -227,7 +230,12 @@ export default function QueueDisplay({
     [agentId, reorderPerson],
   )
 
-  const stats = calculateQueueStats(persons)
+  const hasTimedService = persons.some(
+    (person) =>
+      person.status === QueuePersonStatus.IN_SERVICE && !!person.inServiceAt,
+  )
+  const now = useQueueClock(hasTimedService)
+  const stats = calculateQueueStats(persons, now)
 
   // ── Render ─────────────────────────────────────────────────
   return (
@@ -270,7 +278,7 @@ export default function QueueDisplay({
           isFullScreen || isPseudoFullScreen
             ? {
                 overscrollBehavior: "contain",
-                WebkitOverflowScrolling: "touch" as any,
+                WebkitOverflowScrolling: "touch",
               }
             : undefined
         }
@@ -295,7 +303,7 @@ export default function QueueDisplay({
                 className="gap-1"
               >
                 <RefreshCw className="h-3.5 w-3.5" />
-                Refresh
+                {t("common.refresh")}
               </Button>
             )}
           </div>

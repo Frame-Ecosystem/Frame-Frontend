@@ -84,6 +84,35 @@ export function useFullscreenState() {
   return isFullScreen
 }
 
+export function useQueueClock(enabled: boolean): number {
+  const [now, setNow] = useState(() => Date.now())
+
+  useEffect(() => {
+    if (!enabled) return
+
+    let timeout: ReturnType<typeof setTimeout>
+    const scheduleNextTick = () => {
+      const currentTime = Date.now()
+      setNow(currentTime)
+      timeout = setTimeout(scheduleNextTick, 60_000 - (currentTime % 60_000))
+    }
+    const handleVisibilityChange = () => {
+      clearTimeout(timeout)
+      if (document.visibilityState === "visible") scheduleNextTick()
+    }
+
+    document.addEventListener("visibilitychange", handleVisibilityChange)
+    scheduleNextTick()
+
+    return () => {
+      clearTimeout(timeout)
+      document.removeEventListener("visibilitychange", handleVisibilityChange)
+    }
+  }, [enabled])
+
+  return now
+}
+
 export function useResponsiveQueue(
   queues: Queue[],
 

@@ -93,8 +93,10 @@ export default function BookFromQueueDialog({
   const services: LoungeServiceItem[] = useMemo(() => {
     if (!allServices) return []
     if (!agentServiceIds || agentServiceIds.length === 0) return allServices
-    return allServices.filter((s) =>
-      agentServiceIds.includes(s._id || (s as any).id),
+    return allServices.filter(
+      (service) =>
+        agentServiceIds.includes(service._id) ||
+        agentServiceIds.includes(service.id),
     )
   }, [allServices, agentServiceIds])
 
@@ -121,10 +123,10 @@ export default function BookFromQueueDialog({
   }
 
   const getServiceName = (service: LoungeServiceItem): string => {
-    if (typeof service.serviceId === "object" && service.serviceId !== null) {
-      return (service.serviceId as any).name ?? "Service"
+    if (typeof service.serviceId === "object" && service.serviceId) {
+      return service.serviceId.name ?? t("queue.defaultService")
     }
-    return service.description ?? "Service"
+    return service.description ?? t("queue.defaultService")
   }
 
   const handleSubmit = () => {
@@ -382,13 +384,15 @@ export default function BookFromQueueDialog({
                       <div className="text-muted-foreground flex items-center gap-3 text-xs">
                         {service.price != null && (
                           <span className="flex items-center gap-1">
-                            {service.price} dt
+                            {service.price} {t("booking.dt")}
                           </span>
                         )}
                         {service.duration != null && (
                           <span className="flex items-center gap-1">
                             <Clock className="h-3 w-3" />
-                            {service.duration} min
+                            {t("queue.durationMinutes", {
+                              count: service.duration,
+                            })}
                           </span>
                         )}
                       </div>
@@ -416,10 +420,12 @@ export default function BookFromQueueDialog({
                 )}
               </span>
               <div className="text-muted-foreground flex items-center gap-3 text-sm">
-                <span className="flex items-center gap-1">{totalPrice} dt</span>
+                <span className="flex items-center gap-1">
+                  {totalPrice} {t("booking.dt")}
+                </span>
                 <span className="flex items-center gap-1">
                   <Clock className="h-3.5 w-3.5" />
-                  {totalDuration} min
+                  {t("queue.durationMinutes", { count: totalDuration })}
                 </span>
               </div>
             </div>

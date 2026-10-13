@@ -42,7 +42,9 @@ export default function QueueStats({
             </div>
             <div>
               <h3 className="text-base font-semibold">
-                {agentName ? `${agentName}'s Queue` : "Queue"}
+                {agentName
+                  ? t("queue.agentQueueTitle", { name: agentName })
+                  : t("queue.title")}
               </h3>
               <p className="text-muted-foreground text-xs">
                 {centerName || t("queue.currentStatus")}
@@ -73,11 +75,15 @@ export default function QueueStats({
             <div className="flex items-center gap-1">
               <Clock className="h-5 w-5 text-amber-500" />
               <p className="text-muted-foreground text-[11px] font-medium">
-                {t("queue.avgWait")}
+                {t("queue.totalEstimatedWait")}
               </p>
             </div>
             <div className="mt-1 flex w-full justify-end">
-              <p className="text-base font-bold">{stats.averageWait} min</p>
+              <p className="text-base font-bold">
+                {t("queue.totalEstimatedWaitMinutes", {
+                  count: stats.totalEstimatedWait,
+                })}
+              </p>
             </div>
           </div>
           <div className="bg-card/50 rounded-md border p-2 backdrop-blur-sm">

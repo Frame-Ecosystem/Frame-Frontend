@@ -231,6 +231,24 @@ const fr: Record<string, string> = {
 
   // ── Queue ───────────────────────────────────────────────────────────────
   "queue.title": "File d'attente",
+  "queue.agentQueueTitle": "File d'attente de {name}",
+  "queue.defaultAgent": "Agent",
+  "queue.noAgents": "Aucun agent n'a encore été ajouté",
+  "queue.noAgentsHint":
+    "Les clients pourront bientôt réserver directement depuis la file d'attente. Restez à l'écoute !",
+  "queue.addAgent": "Ajouter un agent",
+  "queue.durationMinutes_zero": "0 min",
+  "queue.durationMinutes_one": "{count} min",
+  "queue.durationMinutes_other": "{count} min",
+  "queue.totalEstimatedWaitMinutes_zero": "{count} min",
+  "queue.totalEstimatedWaitMinutes_one": "{count} min",
+  "queue.totalEstimatedWaitMinutes_other": "{count} min",
+  "queue.totalEstimatedWait": "Temps d’attente total estimé",
+  "queue.noServices": "Aucun service",
+  "queue.defaultService": "Service",
+  "queue.ticketServices": "Services",
+  "queue.unknownClient": "Client inconnu",
+  "queue.viewClientProfile": "Voir le profil du client",
   "queue.position": "Position {position}",
   "queue.waiting": "En attente",
   "queue.agentQueues": "Files d’attente des agents",
@@ -268,6 +286,7 @@ const fr: Record<string, string> = {
   "queue.markCompleted": "Marquer terminé",
   "queue.backToWaiting": "Remettre en attente",
   "queue.visitor": "Visiteur",
+  "queue.client": "Client",
   "queue.markAbsentConfirm":
     "Êtes-vous sûr de vouloir marquer {name} comme absent et le retirer de la file ?",
   "queue.markAbsentRemove": "Marquer absent et retirer",

@@ -127,6 +127,7 @@ function TabContent({
         <QueueDisplay
           centerName={lounge.name}
           mode="client"
+          compactHeaderSpacing
           loungeId={loungeId}
           key={`queue-${loungeId}`}
         />

@@ -6,27 +6,25 @@ export interface QueueStats {
   totalCompleted: number
   totalAbsent: number
   totalPeople: number
-  averageWait: number
+  totalEstimatedWait: number
 }
 
 /**
  * Calculate queue statistics from real API queue persons
  */
-export function calculateQueueStats(persons: QueuePerson[]): QueueStats {
+export function calculateQueueStats(
+  persons: QueuePerson[],
+  now = Date.now(),
+): QueueStats {
   const waiting = persons.filter((p) => p.status === "waiting")
   const inService = persons.filter((p) => p.status === "inService")
   const completed = persons.filter((p) => p.status === "completed")
   const absent = persons.filter((p) => p.status === "absent")
-
-  const averageWait =
-    waiting.length > 0
-      ? Math.round(
-          waiting.reduce(
-            (sum, p) => sum + (p.bookingId?.totalDuration ?? 0),
-            0,
-          ) / waiting.length,
-        )
-      : 0
+  const totalEstimatedWait = persons
+    .filter(
+      (person) => person.status === "waiting" || person.status === "inService",
+    )
+    .reduce((total, person) => total + remainingServiceDuration(person, now), 0)
 
   return {
     totalWaiting: waiting.length,
@@ -34,39 +32,38 @@ export function calculateQueueStats(persons: QueuePerson[]): QueueStats {
     totalCompleted: completed.length,
     totalAbsent: absent.length,
     totalPeople: persons.length,
-    averageWait,
+    totalEstimatedWait,
   }
 }
 
 /**
- * Estimated wait time for a person = sum of totalDuration from all
- * preceding persons with status === 'waiting'
+ * Estimate remaining wait from the durations of people ahead in the queue.
  */
 export function estimatedWaitTime(
   person: QueuePerson,
   allPersons: QueuePerson[],
+  now = Date.now(),
 ): number {
-  // Sum durations of all preceding persons that are waiting or inService
   const preceding = allPersons.filter(
     (p) =>
       p.position < person.position &&
       (p.status === "waiting" || p.status === "inService"),
   )
+  return preceding.reduce(
+    (sum, queuePerson) => sum + remainingServiceDuration(queuePerson, now),
+    0,
+  )
+}
 
-  return preceding.reduce((sum, p) => {
-    const duration = p.bookingId?.totalDuration ?? 0
+function remainingServiceDuration(person: QueuePerson, now: number): number {
+  const duration = Math.max(person.bookingId?.totalDuration ?? 0, 0)
+  if (person.status !== "inService" || !person.inServiceAt) return duration
 
-    if (p.status === "inService" && p.inServiceAt) {
-      // For in-service persons, only count remaining time
-      const elapsed = Math.max(
-        0,
-        Math.floor((Date.now() - new Date(p.inServiceAt).getTime()) / 60000),
-      )
-      return sum + Math.max(duration - elapsed, 0)
-    }
+  const startedAt = new Date(person.inServiceAt).getTime()
+  if (!Number.isFinite(startedAt)) return duration
 
-    return sum + duration
-  }, 0)
+  const elapsed = Math.max(0, Math.floor((now - startedAt) / 60000))
+  return Math.max(duration - elapsed, 0)
 }
 
 /**
@@ -103,19 +100,28 @@ export function getClientFullName(
   firstName?: string,
   lastName?: string,
 ): string {
-  return [firstName, lastName].filter(Boolean).join(" ") || "Unknown Client"
+  return [firstName, lastName].filter(Boolean).join(" ")
 }
 
 /**
- * Summary of booked services
+ * Services booked for a queue ticket, including their individual durations.
  */
-export function getServicesSummary(person: QueuePerson): string {
-  const services = person.bookingId?.loungeServiceIds
-  if (!services || services.length === 0) return "No services"
-  const names = services.map((s: any) => s.serviceId?.name).filter(Boolean)
-  if (names.length === 0) return `${services.length} service(s)`
-  if (names.length <= 2) return names.join(", ")
-  return `${names[0]}, ${names[1]} +${names.length - 2} more`
+export function getQueueServices(
+  person: QueuePerson,
+  defaultServiceName: string,
+): Array<{ name: string; duration?: number; imageUrl?: string }> {
+  return (person.bookingId?.loungeServiceIds ?? []).map((service) => {
+    const image = service.image
+    const imageUrl =
+      typeof image === "string" ? image : (image?.url ?? undefined)
+
+    return {
+      name:
+        service.serviceId?.name || service.description || defaultServiceName,
+      duration: service.duration,
+      imageUrl,
+    }
+  })
 }
 
 /**
@@ -139,16 +145,19 @@ export function getStatusColor(status: string): string {
 /**
  * Status display label
  */
-export function getStatusLabel(status: string): string {
+export function getStatusLabel(
+  status: string,
+  t: (key: string) => string,
+): string {
   switch (status) {
     case "waiting":
-      return "Waiting"
+      return t("queue.waiting")
     case "inService":
-      return "In Service"
+      return t("queue.inService")
     case "completed":
-      return "Completed"
+      return t("queue.completed")
     case "absent":
-      return "Absent"
+      return t("queue.absent")
     default:
       return status
   }

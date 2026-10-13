@@ -183,7 +183,7 @@ const ar: Record<string, string> = {
   "queue.addClientToQueue": "إضافة عميل إلى الصّف",
   "queue.joinTheQueue": "انضم إلى الصّف",
   "queue.addClientDesc": "أنشئ حجزاً وأضفه مباشرة إلى هذا الصّف",
-  "queue.joinDesc": "اختر خدماتك وانضم إلى طابور هذا الوكيل",
+  "queue.joinDesc": "اختر خدماتك وانضم إلى صّف هذا الوكيل",
   "queue.addToQueue": "إضافة إلى الصّف",
   "queue.bookASpot": "احجز مكاناً",
   "queue.bookingUnavailable": "حجز الصّف غير متاح",
@@ -198,7 +198,7 @@ const ar: Record<string, string> = {
   "queue.backToWaiting": "إعادة للانتظار",
   "queue.visitor": "زائر",
   "queue.markAbsentConfirm":
-    "هل أنت متأكد أنك تريد تحديد {name} كغائب وإزالته من الطابور؟",
+    "هل أنت متأكد أنك تريد تحديد {name} كغائب وإزالته من الصّف؟",
   "queue.markAbsentRemove": "تحديد كغائب وإزالة",
   "queue.inProgress": "قيد التنفيذ",
   "queue.serviceDuration": "مدة الخدمة {duration} دقيقة",
@@ -209,13 +209,13 @@ const ar: Record<string, string> = {
   "queue.serviceCompleted": "اكتملت الخدمة",
   "queue.addPerson": "إضافة شخص إلى الصّف",
   "queue.addPersonDesc":
-    'أدخل معرّف الحجز لإضافة العميل إلى طابور هذا الوكيل. فقط الحجوزات المؤكدة بحالة "inQueue" يمكن إضافتها.',
+    'أدخل معرّف الحجز لإضافة العميل إلى صّف هذا الوكيل. فقط الحجوزات المؤكدة بحالة "inQueue" يمكن إضافتها.',
   "queue.bookingId": "معرّف الحجز",
   "queue.enterBookingId": "أدخل معرّف الحجز...",
   "queue.positionLabel": "الموقع",
   "queue.positionOptional": "اختياري — اتركه فارغاً للإضافة في النهاية",
-  "queue.addVisitorOrClient": "أضف زائراً أو عميلاً حالياً إلى طابور {name}",
-  "queue.selectServicesFor": "اختر الخدمات لطابور {name}",
+  "queue.addVisitorOrClient": "أضف زائراً أو عميلاً حالياً إلى صّف {name}",
+  "queue.selectServicesFor": "اختر الخدمات لصّف {name}",
   "queue.selectServicesJoin": "اختر الخدمات وانضم إلى الصّف",
   "queue.bookingType": "نوع الحجز",
   "queue.existingClient": "عميل حالي",
@@ -1519,7 +1519,7 @@ const ar: Record<string, string> = {
   "queue.completed": "مكتمل",
   "queue.waitingCount": "{count} في الانتظار",
   "queue.currentStatus": "الحالة الحالية",
-  "queue.nameQueue": "طابور {name}",
+  "queue.nameQueue": "صّف {name}",
   "queue.queueTitle": "الصّف",
 
   // ── Service Mgmt Toasts ────────────────────────────────────────────────

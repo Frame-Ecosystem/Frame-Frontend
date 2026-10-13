@@ -226,6 +226,24 @@ const tr: Record<string, string> = {
 
   // ── Queue ───────────────────────────────────────────────────────────────
   "queue.title": "Sıra",
+  "queue.agentQueueTitle": "{name} kuyruğu",
+  "queue.defaultAgent": "Uzman",
+  "queue.noAgents": "Henüz uzman eklenmedi",
+  "queue.noAgentsHint":
+    "Müşteriler yakında doğrudan kuyruktan rezervasyon yapabilecek. Takipte kalın!",
+  "queue.addAgent": "Uzman Ekle",
+  "queue.durationMinutes_zero": "0 dk",
+  "queue.durationMinutes_one": "{count} dk",
+  "queue.durationMinutes_other": "{count} dk",
+  "queue.totalEstimatedWaitMinutes_zero": "{count} dk",
+  "queue.totalEstimatedWaitMinutes_one": "{count} dk",
+  "queue.totalEstimatedWaitMinutes_other": "{count} dk",
+  "queue.totalEstimatedWait": "Toplam tahmini bekleme",
+  "queue.noServices": "Hizmet yok",
+  "queue.defaultService": "Hizmet",
+  "queue.ticketServices": "Hizmetler",
+  "queue.unknownClient": "Bilinmeyen Müşteri",
+  "queue.viewClientProfile": "Müşteri profilini görüntüle",
   "queue.position": "Sıra: {position}",
   "queue.waiting": "Bekliyor",
   "queue.agentQueues": "Uzman kuyrukları",
@@ -260,6 +278,7 @@ const tr: Record<string, string> = {
   "queue.markCompleted": "Tamamlandı İşaretle",
   "queue.backToWaiting": "Beklemeye Geri Al",
   "queue.visitor": "Ziyaretçi",
+  "queue.client": "Müşteri",
   "queue.markAbsentConfirm":
     "{name} adlı kişiyi devamsız olarak işaretlemek ve sıradan çıkarmak istediğinizden emin misiniz?",
   "queue.markAbsentRemove": "Devamsız İşaretle ve Çıkar",

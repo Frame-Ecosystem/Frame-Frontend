@@ -12,6 +12,7 @@ import {
   useBodyOverflow,
   useFullscreenState,
   useFullscreenHandlers,
+  useQueueClock,
 } from "./queue-hooks"
 import {
   useMyLoungeQueues,
@@ -43,14 +44,17 @@ interface QueueDisplayProps {
   initialAgentId?: string | null
   /** Booking ID to scroll-to and highlight on mount */
   highlightBookingId?: string | null
+  /** Tighten the gap before agent tabs when embedded in a lounge profile. */
+  compactHeaderSpacing?: boolean
 }
 
 export default function QueueDisplay({
-  centerName = "Salon Center",
+  centerName,
   mode = "client",
   loungeId,
   initialAgentId,
   highlightBookingId,
+  compactHeaderSpacing = false,
 }: QueueDisplayProps) {
   const [activeAgentId, setActiveAgentId] = useState<string | null>(
     initialAgentId ?? null,
@@ -223,7 +227,12 @@ export default function QueueDisplay({
     [agentId, reorderPerson],
   )
 
-  const stats = calculateQueueStats(persons)
+  const hasTimedService = persons.some(
+    (person) =>
+      person.status === QueuePersonStatus.IN_SERVICE && !!person.inServiceAt,
+  )
+  const now = useQueueClock(hasTimedService)
+  const stats = calculateQueueStats(persons, now)
 
   // ── Render ─────────────────────────────────────────────────
   return (
@@ -257,6 +266,7 @@ export default function QueueDisplay({
         onToggleFullscreen={
           isFullScreen || isPseudoFullScreen ? exitFullScreen : enterFullScreen
         }
+        compactBottomSpacing={compactHeaderSpacing}
       />
 
       {/* Queue Content */}
@@ -266,7 +276,7 @@ export default function QueueDisplay({
           isFullScreen || isPseudoFullScreen
             ? {
                 overscrollBehavior: "contain",
-                WebkitOverflowScrolling: "touch" as any,
+                WebkitOverflowScrolling: "touch",
               }
             : undefined
         }

@@ -133,6 +133,7 @@ export default function QueueDetails({
           ) : (
             <QueueList
               persons={persons}
+              allQueuePersons={rawPersons}
               mode={mode}
               onStatusChange={onStatusChange}
               onRemove={onRemove}

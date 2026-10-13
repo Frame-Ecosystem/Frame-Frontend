@@ -38,6 +38,7 @@ import QueueItem from "./queue-item"
 
 export interface QueueListProps {
   persons: QueuePerson[]
+  allQueuePersons?: QueuePerson[]
   mode: "client" | "staff"
   onStatusChange?: (bookingId: string, status: QueuePersonStatus) => void
   /** `markAbsent` is `true` for the X-button, falsy when removing silently. */
@@ -59,6 +60,7 @@ export interface QueueListProps {
 
 export default function QueueList({
   persons,
+  allQueuePersons = persons,
   mode,
   onStatusChange,
   onRemove,
@@ -124,7 +126,7 @@ export default function QueueList({
     <QueueItem
       key={person.bookingId?._id ?? `queue-item-${index}`}
       person={person}
-      allPersons={persons}
+      allPersons={allQueuePersons}
       mode={mode}
       onStatusChange={onStatusChange}
       onRemove={onRemove}
@@ -163,7 +165,7 @@ export default function QueueList({
             <div className="bg-card ring-primary/30 scale-[1.02] rounded-xl border opacity-95 shadow-2xl ring-2">
               <QueueItem
                 person={activePerson}
-                allPersons={persons}
+                allPersons={allQueuePersons}
                 mode="staff"
               />
             </div>

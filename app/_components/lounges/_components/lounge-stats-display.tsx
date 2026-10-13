@@ -12,6 +12,7 @@ interface LoungeStatsDisplayProps {
   onRatingClick?: () => void
   onFollowersClick?: () => void
   className?: string
+  compact?: boolean
 }
 
 /**
@@ -27,15 +28,19 @@ export function LoungeStatsDisplay({
   onRatingClick,
   onFollowersClick,
   className = "",
+  compact = false,
 }: LoungeStatsDisplayProps) {
   const { t } = useTranslation()
+  const cardPadding = compact ? "p-1.5 sm:p-2" : "p-3 sm:p-4"
+  const contentGap = compact ? "gap-0.5" : "gap-2"
+  const iconPadding = compact ? "p-1" : "p-2"
 
   return (
     <div className={`mt-4 grid grid-cols-3 gap-3 sm:gap-4 ${className}`}>
       {/* Rating Card */}
       <button
         onClick={onRatingClick}
-        className={`group border-border/50 from-background to-muted/30 hover:border-primary/50 hover:shadow-primary/10 relative rounded-xl border bg-gradient-to-br p-3 transition-all duration-300 hover:shadow-md sm:p-4 ${
+        className={`group border-border/50 from-background to-muted/30 hover:border-primary/50 hover:shadow-primary/10 relative rounded-xl border bg-gradient-to-br ${cardPadding} transition-all duration-300 hover:shadow-md ${
           onRatingClick ? "cursor-pointer" : "cursor-default"
         }`}
         aria-label={t("lounges.ratingAriaLabel", {
@@ -43,10 +48,10 @@ export function LoungeStatsDisplay({
           count: ratingCount,
         })}
       >
-        <div className="flex flex-col items-center gap-2">
+        <div className={`flex flex-col items-center ${contentGap}`}>
           {/* Star Icon */}
           <div
-            className={`rounded-lg p-2 transition-all duration-300 ${getRatingColor(averageRating)} group-hover:scale-110`}
+            className={`rounded-lg ${iconPadding} transition-all duration-300 ${getRatingColor(averageRating)} group-hover:scale-110`}
           >
             <Star className="h-5 w-5 fill-current sm:h-6 sm:w-6" />
           </div>
@@ -77,10 +82,14 @@ export function LoungeStatsDisplay({
       </button>
 
       {/* Likes Card */}
-      <div className="border-border/50 from-background to-muted/30 relative rounded-xl border bg-gradient-to-br p-3 transition-all duration-300 hover:border-rose-500/30 hover:shadow-md hover:shadow-rose-500/5 sm:p-4">
-        <div className="flex flex-col items-center gap-2">
+      <div
+        className={`border-border/50 from-background to-muted/30 relative rounded-xl border bg-gradient-to-br ${cardPadding} transition-all duration-300 hover:border-rose-500/30 hover:shadow-md hover:shadow-rose-500/5`}
+      >
+        <div className={`flex flex-col items-center ${contentGap}`}>
           {/* Heart Icon */}
-          <div className="rounded-lg bg-rose-500/10 p-2 transition-all duration-300 group-hover:scale-110">
+          <div
+            className={`rounded-lg bg-rose-500/10 ${iconPadding} transition-all duration-300 group-hover:scale-110`}
+          >
             <Heart className="h-5 w-5 fill-rose-500 text-rose-500 sm:h-6 sm:w-6" />
           </div>
 
@@ -99,16 +108,18 @@ export function LoungeStatsDisplay({
       {/* Followers Card */}
       <button
         onClick={onFollowersClick}
-        className={`group border-border/50 from-background to-muted/30 relative rounded-xl border bg-gradient-to-br p-3 transition-all duration-300 hover:border-blue-500/30 hover:shadow-md hover:shadow-blue-500/10 sm:p-4 ${
+        className={`group border-border/50 from-background to-muted/30 relative rounded-xl border bg-gradient-to-br ${cardPadding} transition-all duration-300 hover:border-blue-500/30 hover:shadow-md hover:shadow-blue-500/10 ${
           onFollowersClick ? "cursor-pointer" : "cursor-default"
         }`}
         aria-label={t("lounges.followersAriaLabel", {
           count: formatCompactNumber(followerCount),
         })}
       >
-        <div className="flex flex-col items-center gap-2">
+        <div className={`flex flex-col items-center ${contentGap}`}>
           {/* Users Icon */}
-          <div className="rounded-lg bg-blue-500/10 p-2 transition-all duration-300 group-hover:scale-110">
+          <div
+            className={`rounded-lg bg-blue-500/10 ${iconPadding} transition-all duration-300 group-hover:scale-110`}
+          >
             <Users className="h-5 w-5 text-blue-500 sm:h-6 sm:w-6" />
           </div>
 

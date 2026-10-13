@@ -488,6 +488,7 @@ export default function LoungePage() {
             followerCount={followCounts?.followersCount ?? 0}
             onRatingClick={() => handleTabChange("reviews")}
             onFollowersClick={() => setFollowDialogMode("followers")}
+            compact
           />
 
           {followDialogMode && (
@@ -646,7 +647,7 @@ export default function LoungePage() {
         </div>
 
         {/* ── Tab Content ─────────────────────────────────── */}
-        <div className="mx-auto max-w-5xl px-4 py-6 sm:px-6 lg:px-8">
+        <div className="mx-auto -mt-1 max-w-5xl px-4 pb-6 sm:px-6 lg:px-8">
           {activeTab === "info" && (
             <div
               id="tab-info"
@@ -727,6 +728,7 @@ export default function LoungePage() {
               <QueueDisplay
                 centerName={center.name}
                 mode="client"
+                compactHeaderSpacing
                 loungeId={id}
                 initialAgentId={searchParams.get("agentId")}
                 highlightBookingId={searchParams.get("bookingId")}

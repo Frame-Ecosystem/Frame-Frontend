@@ -155,7 +155,7 @@ export default function QueueAgentTabs({
 
   return (
     <Card>
-      <CardContent className="p-3 sm:p-4">
+      <CardContent className={showSelectionHint ? "p-2 sm:p-3" : "p-3 sm:p-4"}>
         {isLoading ? (
           <div className="flex gap-2 overflow-hidden py-2">
             {[...Array(3)].map((_, index) => (
@@ -174,18 +174,17 @@ export default function QueueAgentTabs({
             <div className="flex items-center gap-2">
               <Info className="text-primary h-4 w-4" />
               <span className="text-muted-foreground text-sm">
-                No agents have been added yet
+                {t("queue.noAgents")}
               </span>
             </div>
             <p className="text-muted-foreground text-xs">
-              Soon clients will be able to book directly from the queue. Stay
-              tuned!
+              {t("queue.noAgentsHint")}
             </p>
           </div>
         ) : (
           <>
             {showSelectionHint && (
-              <div className="mb-1 px-1">
+              <div className="px-1">
                 <p className="text-foreground text-sm font-semibold">
                   {t("queue.chooseAgent")}
                 </p>
@@ -214,14 +213,17 @@ export default function QueueAgentTabs({
                 pointerStartXRef.current = null
               }}
               onKeyDown={handleKeyDown}
-              className="flex snap-x snap-mandatory gap-2 overflow-x-auto overscroll-x-contain py-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+              className={`flex snap-x snap-mandatory gap-2 overflow-x-auto overscroll-x-contain [scrollbar-width:none] [&::-webkit-scrollbar]:hidden ${
+                showSelectionHint ? "py-1" : "py-2"
+              }`}
             >
               {queues.map((queue, index) => {
                 const isActive = activeQueueIndex === index
                 const waitingCount = calculateQueueStats(
                   queue.persons ?? [],
                 ).totalWaiting
-                const agentName = queue.agentId?.agentName ?? "Agent"
+                const agentName =
+                  queue.agentId?.agentName ?? t("queue.defaultAgent")
 
                 return (
                   <button
@@ -255,7 +257,7 @@ export default function QueueAgentTabs({
                             className="object-cover"
                           />
                           <AvatarFallback className="bg-muted text-sm font-semibold">
-                            {agentName[0] || "A"}
+                            {agentName[0] || t("queue.defaultAgent").charAt(0)}
                           </AvatarFallback>
                         </Avatar>
                       </span>
@@ -284,7 +286,7 @@ export default function QueueAgentTabs({
                   className="text-muted-foreground"
                 >
                   <Plus className="h-4 w-4" />
-                  Add Agent
+                  {t("queue.addAgent")}
                 </Button>
               </div>
             )}

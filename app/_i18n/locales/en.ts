@@ -221,6 +221,24 @@ const en: Record<string, string> = {
 
   // ── Queue ───────────────────────────────────────────────────────────────
   "queue.title": "Queue",
+  "queue.agentQueueTitle": "{name}'s Queue",
+  "queue.defaultAgent": "Agent",
+  "queue.noAgents": "No agents have been added yet",
+  "queue.noAgentsHint":
+    "Soon clients will be able to book directly from the queue. Stay tuned!",
+  "queue.addAgent": "Add Agent",
+  "queue.durationMinutes_zero": "0 min",
+  "queue.durationMinutes_one": "{count} min",
+  "queue.durationMinutes_other": "{count} min",
+  "queue.totalEstimatedWaitMinutes_zero": "{count} min",
+  "queue.totalEstimatedWaitMinutes_one": "{count} min",
+  "queue.totalEstimatedWaitMinutes_other": "{count} min",
+  "queue.totalEstimatedWait": "Total estimated wait",
+  "queue.noServices": "No services",
+  "queue.defaultService": "Service",
+  "queue.ticketServices": "Services",
+  "queue.unknownClient": "Unknown Client",
+  "queue.viewClientProfile": "View client profile",
   "queue.position": "Position {position}",
   "queue.waiting": "Waiting",
   "queue.agentQueues": "Agent queues",
@@ -256,6 +274,7 @@ const en: Record<string, string> = {
   "queue.markCompleted": "Mark Completed",
   "queue.backToWaiting": "Back to Waiting",
   "queue.visitor": "Visitor",
+  "queue.client": "Client",
   "queue.markAbsentConfirm":
     "Are you sure you want to mark {name} as absent and remove them from the queue?",
   "queue.markAbsentRemove": "Mark Absent & Remove",
