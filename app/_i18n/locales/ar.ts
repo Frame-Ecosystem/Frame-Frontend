@@ -231,7 +231,7 @@ const ar: Record<string, string> = {
   "queue.noAgentsHint":
     "سيتمكن العملاء قريباً من الحجز مباشرةً من قائمة الانتظار. ترقّبوا ذلك!",
   "queue.addAgent": "إضافة مختص",
-  "queue.durationMinutes_zero": "٠ دقيقة",
+  "queue.durationMinutes_zero": "{count} دقيقة",
   "queue.durationMinutes_one": "دقيقة واحدة",
   "queue.durationMinutes_other": "{count} دقيقة",
   "queue.totalEstimatedWaitMinutes_zero": "{count} دقيقة",

@@ -40,6 +40,7 @@ import {
   FooterBrandLogo,
 } from "./_components/common/brand-logo"
 import { useTranslation } from "./_i18n"
+import { formatLatinNumber } from "./_lib/format"
 
 /* ═══════════════════════════════════════════════════════════════════════════
    SOCIAL ICONS (not available in lucide-react)
@@ -711,7 +712,7 @@ const LandingPage = () => {
                   icon: Users,
                 },
                 {
-                  value: `${customersCount.toLocaleString()}+`,
+                  value: `${formatLatinNumber(customersCount)}+`,
                   label: t("landing.happyCustomers"),
                   icon: Zap,
                 },

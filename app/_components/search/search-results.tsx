@@ -4,6 +4,7 @@ import Link from "next/link"
 import Image from "next/image"
 import { Heart, MessageSquare, Star, ShieldCheck } from "lucide-react"
 import { useTranslation } from "@/app/_i18n"
+import { formatCompactNumber, formatLatinNumber } from "@/app/_lib/format"
 import {
   Avatar,
   AvatarImage,
@@ -24,12 +25,6 @@ import type {
 interface SearchResultsProps {
   data: SearchResponseData
   query: string
-}
-
-function formatCount(n: number): string {
-  if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`
-  if (n >= 1_000) return `${(n / 1_000).toFixed(1)}K`
-  return String(n)
 }
 
 export function SearchResults({ data }: SearchResultsProps) {
@@ -198,7 +193,7 @@ function UserRow({ users }: { users: SearchUser[] }) {
             </p>
             {user.followersCount !== undefined && (
               <p className="text-muted-foreground text-xs">
-                {formatCount(user.followersCount)} followers
+                {formatCompactNumber(user.followersCount)} followers
               </p>
             )}
           </div>
@@ -245,7 +240,7 @@ function LoungeRow({ lounges }: { lounges: SearchLounge[] }) {
               )}
               {lounge.followersCount !== undefined && (
                 <span className="text-muted-foreground">
-                  · {formatCount(lounge.followersCount)}
+                  · {formatCompactNumber(lounge.followersCount)}
                 </span>
               )}
             </div>
@@ -302,11 +297,11 @@ function PostRow({ posts }: { posts: SearchPost[] }) {
               <div className="text-muted-foreground mt-1 flex items-center gap-3 text-xs">
                 <span className="flex items-center gap-1">
                   <Heart className="h-3 w-3" />
-                  {formatCount(post.likeCount)}
+                  {formatCompactNumber(post.likeCount)}
                 </span>
                 <span className="flex items-center gap-1">
                   <MessageSquare className="h-3 w-3" />
-                  {formatCount(post.commentCount)}
+                  {formatCompactNumber(post.commentCount)}
                 </span>
               </div>
             </div>
@@ -391,7 +386,7 @@ function ProductRow({ products }: { products: SearchProduct[] }) {
               </p>
               <p className="mt-0.5 text-sm font-semibold">
                 {product.currency === "DZD" ? "DA" : product.currency}{" "}
-                {product.price.toLocaleString()}
+                {formatLatinNumber(product.price)}
               </p>
               <p className="text-muted-foreground line-clamp-1 text-xs">
                 {product.storeId.name}
@@ -461,7 +456,7 @@ function HashtagList({ hashtags }: { hashtags: SearchHashtag[] }) {
             #{tag.name}
           </span>
           <span className="text-muted-foreground text-xs">
-            {formatCount(tag.postCount)} posts
+            {formatCompactNumber(tag.postCount)} posts
           </span>
         </Link>
       ))}

@@ -1,3 +1,22 @@
+/** Keep digits Latin when dynamic values contain localized numerals. */
+export function formatLatinDigits(value: string): string {
+  return value.replace(/[٠-٩۰-۹]/g, (digit) => {
+    const code = digit.charCodeAt(0)
+    return String(code - (code >= 0x06f0 ? 0x06f0 : 0x0660))
+  })
+}
+
+/** Format a number using the browser locale while always using Latin digits. */
+export function formatLatinNumber(
+  value: number,
+  options?: Intl.NumberFormatOptions,
+): string {
+  return new Intl.NumberFormat(undefined, {
+    ...options,
+    numberingSystem: "latn",
+  }).format(value)
+}
+
 /** Format large numbers for display (1000 → 1K, 1000000 → 1M). */
 export function formatCompactNumber(n: number): string {
   if (n >= 1_000_000)

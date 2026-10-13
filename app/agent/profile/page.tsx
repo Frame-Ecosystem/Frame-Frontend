@@ -34,6 +34,7 @@ import type {
   UpdateMyAgentProfileDto,
 } from "@/app/_systems/user/types/agent"
 import type { User } from "@/app/_types"
+import { formatLatinNumber } from "@/app/_lib/format"
 import { cn } from "@/app/_lib/utils"
 import { toast } from "sonner"
 
@@ -464,7 +465,7 @@ export default function AgentProfilePage() {
                       <div className="text-right text-sm">
                         {typeof service.price === "number" && (
                           <p className="font-semibold">
-                            {service.price.toLocaleString(undefined, {
+                            {formatLatinNumber(service.price, {
                               style: "currency",
                               currency: "USD",
                               maximumFractionDigits: 0,

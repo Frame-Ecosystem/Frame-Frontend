@@ -1,4 +1,5 @@
 import type { TranslationDictionary } from "./types"
+import { formatLatinDigits } from "@/app/_lib/format"
 
 /**
  * Lightweight interpolation regex.
@@ -42,6 +43,8 @@ export function translate(
   if (!params) return resolved
 
   return resolved.replace(INTERPOLATION_RE, (_, varName) =>
-    params[varName] != null ? String(params[varName]) : `{${varName}}`,
+    params[varName] != null
+      ? formatLatinDigits(String(params[varName]))
+      : `{${varName}}`,
   )
 }
