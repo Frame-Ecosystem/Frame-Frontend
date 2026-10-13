@@ -127,10 +127,11 @@ export default function BookFromQueueDialog({
   }
 
   const getServiceName = (service: LoungeServiceItem): string => {
-    if (typeof service.serviceId === "object" && service.serviceId !== null) {
-      return (service.serviceId as any).name ?? "Service"
+    if (service.name) return service.name
+    if (typeof service.serviceId === "object" && service.serviceId?.name) {
+      return service.serviceId.name
     }
-    return service.description ?? "Service"
+    return t("queue.defaultService")
   }
 
   const handleSubmit = () => {
