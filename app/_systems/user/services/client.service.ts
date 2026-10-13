@@ -1,4 +1,6 @@
 import { apiClient } from "@/app/_core/api/api"
+import type { LoungeServiceItem } from "@/app/_systems/service-catalog/types/service"
+import { serviceService } from "@/app/_systems/service-catalog/services/service.service"
 
 interface GetLoungesParams {
   page?: number
@@ -129,12 +131,36 @@ const clientService = {
     }
   },
 
-  async getLoungeServicesById(loungeId: string): Promise<any[]> {
+  async getLoungeServicesById(loungeId: string): Promise<LoungeServiceItem[]> {
     try {
-      const response = await apiClient.get<{ data: any[] }>(
+      const response = await apiClient.get<{ data: LoungeServiceItem[] }>(
         `/v1/client/lounges/${loungeId}/services`,
       )
-      return response.data || []
+      const services = response.data || []
+
+      return Promise.all(
+        services.map(async (service) => {
+          const populatedService =
+            typeof service.serviceId === "object" ? service.serviceId : null
+          if (service.name || populatedService?.name) return service
+
+          const serviceIdValue: unknown =
+            typeof service.serviceId === "string"
+              ? service.serviceId
+              : (populatedService?.id ??
+                (populatedService && "_id" in populatedService
+                  ? populatedService._id
+                  : undefined))
+          const serviceId =
+            typeof serviceIdValue === "string" ? serviceIdValue : undefined
+          if (!serviceId) return service
+
+          const catalogService = await serviceService.getById(serviceId)
+          return catalogService?.name
+            ? { ...service, serviceId: catalogService }
+            : service
+        }),
+      )
     } catch (error) {
       throw error
     }
