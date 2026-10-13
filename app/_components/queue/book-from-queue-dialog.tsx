@@ -74,12 +74,12 @@ export default function BookFromQueueDialog({
   const [clientEmail, setClientEmail] = useState("")
 
   // ── Fetch lounge services ──────────────────────────────────
-  // For lounge owners we use their own endpoint; for clients we use the public endpoint
+  // Staff need the lounge-scoped response with populated catalog service names.
   const { data: allServices, isLoading: servicesLoading } = useQuery({
     queryKey: ["loungeServicesForQueue", loungeId, mode],
     queryFn: async () => {
       if (mode === "staff") {
-        return loungeService.getAll()
+        return loungeService.getServicesByLoungeId(loungeId)
       }
       // Client view — use public endpoint
       const services = await clientService.getLoungeServicesById(loungeId)

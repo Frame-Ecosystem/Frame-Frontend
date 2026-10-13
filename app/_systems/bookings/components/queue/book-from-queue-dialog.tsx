@@ -77,14 +77,11 @@ export default function BookFromQueueDialog({
   const [clientEmail, setClientEmail] = useState("")
 
   // ── Fetch lounge services ──────────────────────────────────
-  // Use lounge-scoped service reads for staff accounts, then filter to the agent's qualifications.
+  // Use lounge-scoped reads so serviceId remains populated with its catalog name.
   const { data: allServices, isLoading: servicesLoading } = useQuery({
     queryKey: ["loungeServicesForQueue", loungeId, mode],
     queryFn: async () => {
-      if (mode === "staff") {
-        return loungeService.getAll()
-      }
-      if (mode === "agent") {
+      if (mode !== "client") {
         return loungeService.getServicesByLoungeId(loungeId)
       }
       // Client view — use public endpoint
